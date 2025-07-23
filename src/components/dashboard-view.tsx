@@ -133,70 +133,22 @@ export function DashboardView() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Quick Actions Bar */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h3 className="font-medium">Quick Actions</h3>
-              <div className="flex gap-2">
-                <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="bg-red-600 hover:bg-red-700">
-                      <Plus className="mr-1 h-3 w-3" />
-                      New Ticket
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Create New Ticket</DialogTitle>
-                      <DialogDescription>Create a new ticket in any workspace</DialogDescription>
-                    </DialogHeader>
-                    <NewTicketForm />
-                  </DialogContent>
-                </Dialog>
-                <Button size="sm" variant="outline" onClick={() => handleQuickAction("Schedule Meeting")}>
-                  Schedule Meeting
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleQuickAction("View Reports")}>
-                  View Reports
-                </Button>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleQuickAction("Export Data")}>Export Data</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleQuickAction("Import Data")}>Import Data</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleQuickAction("Backup Settings")}>
-                  Backup Settings
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardContent>
-      </Card>
-
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
       {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Teams")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">My Teams</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">My Teams</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">{workspaceStats.teams.count}</div>
+          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.teams.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.teams.trend)}
-              <span>{workspaceStats.teams.change}</span>
+              <span className="truncate">{workspaceStats.teams.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -205,15 +157,15 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Departments")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">My Departments</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">My Departments</CardTitle>
+            <Building2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">{workspaceStats.departments.count}</div>
+          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.departments.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.departments.trend)}
-              <span>{workspaceStats.departments.change}</span>
+              <span className="truncate">{workspaceStats.departments.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -222,15 +174,15 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Active Tickets")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Tickets</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Active Tickets</CardTitle>
+            <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">{workspaceStats.activeTickets.count}</div>
+          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.activeTickets.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.activeTickets.trend)}
-              <span>{workspaceStats.activeTickets.change}</span>
+              <span className="truncate">{workspaceStats.activeTickets.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -239,15 +191,15 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Completed")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Completed</CardTitle>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">{workspaceStats.completedThisWeek.count}</div>
+          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.completedThisWeek.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.completedThisWeek.trend)}
-              <span>{workspaceStats.completedThisWeek.change}</span>
+              <span className="truncate">{workspaceStats.completedThisWeek.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -255,26 +207,35 @@ export function DashboardView() {
 
       {/* My Tickets - Only Navigation, No Actions */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
             <div>
-              <CardTitle>My Tickets</CardTitle>
-              <CardDescription>Tickets assigned to you across all workspaces - Click to view details</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">My Tickets</CardTitle>
+              <CardDescription className="text-sm">
+                Tickets assigned to you across all workspaces - Click to view details
+              </CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={() => handleQuickAction("View All Tickets")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickAction("View All Tickets")}
+              className="text-xs sm:text-sm w-full sm:w-auto"
+            >
               View All
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="p-4  pt-0">
+          <div className="space-y-3 sm:space-y-10">
             {myTickets.map((ticket) => (
               <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
-                <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority)}`} />
-                      <h4 className="font-medium group-hover:text-red-500 transition-colors">{ticket.title}</h4>
+                <div className="flex flex-col sm:flex-row items-start mb-5 sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group gap-3 sm:gap-0">
+                  <div className="space-y-2 flex-1 w-full sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority)} flex-shrink-0`} />
+                      <h4 className="font-medium group-hover:text-red-500 transition-colors text-sm sm:text-base truncate">
+                        {ticket.title}
+                      </h4>
                       <Badge variant="outline" className="text-xs">
                         {ticket.type}
                       </Badge>
@@ -291,24 +252,24 @@ export function DashboardView() {
                         {ticket.status}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         {ticket.workspaceType === "team" ? (
                           <Users className="h-3 w-3" />
                         ) : (
                           <Building2 className="h-3 w-3" />
                         )}
-                        {ticket.workspace}
+                        <span className="truncate max-w-[120px] sm:max-w-none">{ticket.workspace}</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         Due {ticket.dueDate}
                       </span>
-                      <span>{ticket.messages} messages</span>
-                      <span>by {ticket.assignedBy}</span>
+                      <span className="hidden sm:inline">{ticket.messages} messages</span>
+                      <span className="hidden md:inline">by {ticket.assignedBy}</span>
                     </div>
                   </div>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors" />
+                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors flex-shrink-0 self-start sm:self-center" />
                 </div>
               </Link>
             ))}

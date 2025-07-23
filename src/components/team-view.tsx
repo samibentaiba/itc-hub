@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { Clock, MessageSquare, Plus, Users, CalendarIcon, MoreVertical, UserPlus, Settings, Mail } from "lucide-react"
+import { Clock, MessageSquare, Plus, Users, CalendarIcon, MoreVertical, UserPlus, Settings, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { NewTicketForm } from "./new-ticket-form"
 import { useToast } from "@/hooks/use-toast"
 
@@ -180,7 +180,7 @@ export function TeamView({ teamId }: TeamViewProps) {
           <div className="grid gap-4">
             {tickets.map((ticket) => (
               <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
-                <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
+                <Card className="hover:bg-accent/50 transition-colors cursor-pointer p-0">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-2">
@@ -231,21 +231,18 @@ export function TeamView({ teamId }: TeamViewProps) {
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4" />
-                  Team Calendar
-                </CardTitle>
-                <CardDescription>Weekly events and deadlines (auto-archived after 1 week)</CardDescription>
+                <CardTitle className="text-lg sm:text-xl">Calendar</CardTitle>
+                <CardDescription className="text-sm">Select a date to view events</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={setDate}
-                  className="rounded-md border"
+                  className="rounded-md border w-full"
                   modifiers={{
                     hasEvents: (date) => {
                       const dateKey = date.toDateString()
@@ -264,33 +261,77 @@ export function TeamView({ teamId }: TeamViewProps) {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>{date ? `Events for ${date.toLocaleDateString()}` : "Select a date"}</CardTitle>
-                <CardDescription>
-                  {selectedDateTickets.length === 0
-                    ? "No events scheduled for this date"
-                    : `${selectedDateTickets.length} event${selectedDateTickets.length > 1 ? "s" : ""} scheduled`}
-                </CardDescription>
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center">
+                <div className="flex-1">
+                  <CardTitle className="text-lg sm:text-xl">
+                    {date
+                      ? `Events for ${date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`
+                      : "Select a date"}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {selectedDateTickets.length === 0
+                      ? "No events scheduled for this date"
+                      : `${selectedDateTickets.length} event${selectedDateTickets.length > 1 ? "s" : ""} scheduled`}
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      if (date) {
+                        const newDate = new Date(date)
+                        newDate.setDate(newDate.getDate() - 1)
+                        setDate(newDate)
+                      }
+                    }}
+                    className="h-8 w-8"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      if (date) {
+                        const newDate = new Date(date)
+                        newDate.setDate(newDate.getDate() + 1)
+                        setDate(newDate)
+                      }
+                    }}
+                    className="h-8 w-8"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 {selectedDateTickets.length === 0 ? (
-                  <div className="flex h-[200px] items-center justify-center border rounded-md">
-                    <p className="text-muted-foreground">No events scheduled for this date</p>
+                  <div className="flex h-[200px] sm:h-[300px] items-center justify-center border rounded-md">
+                    <p className="text-sm text-muted-foreground">No events scheduled for this date</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 sm:space-y-4 max-h-[300px] overflow-auto">
                     {selectedDateTickets.map((ticket) => (
                       <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
-                        <div className="flex items-center justify-between p-2 border rounded hover:bg-accent/50 cursor-pointer">
-                          <div>
-                            <div className="font-medium text-sm">{ticket.title}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {ticket.assignee ? `Assigned to ${ticket.assignee}` : "No assignee"}
+                        <div className="border rounded-lg p-3 sm:p-4 hover:bg-accent/50 transition-colors cursor-pointer">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
+                            <h3 className="font-semibold text-sm sm:text-base">{ticket.title}</h3>
+                            <Badge variant="outline" className="text-xs">{ticket.type}</Badge>
+                          </div>
+                          <div className="text-xs sm:text-sm text-muted-foreground mb-3">
+                            {ticket.assignee ? `Assigned to ${ticket.assignee}` : "No assignee"} • {ticket.messages} messages
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {ticket.lastActivity}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              Due {ticket.dueDate}
                             </div>
                           </div>
-                          <Badge variant="outline" className="text-xs">
-                            {ticket.type}
-                          </Badge>
                         </div>
                       </Link>
                     ))}

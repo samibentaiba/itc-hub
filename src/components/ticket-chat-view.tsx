@@ -354,7 +354,7 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
       const parts = msg.content.split(urlRegex)
       return (
         <div>
-          {parts.map((part, index) => {
+          {parts.map((part: string, index: number) => {
             if (part.match(urlRegex)) {
               return (
                 <a

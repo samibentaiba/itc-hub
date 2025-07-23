@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   LayoutDashboard,
   Users,
@@ -43,6 +44,8 @@ import {
   Trash2,
   UserPlus,
   Shield,
+  Menu,
+  X,
 } from "lucide-react"
 import { useWorkspace } from "./workspace-provider"
 import { useToast } from "@/hooks/use-toast"
@@ -51,6 +54,7 @@ export function WorkspaceSidebar() {
   const { user, currentWorkspace, setWorkspace } = useWorkspace()
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showNewTeam, setShowNewTeam] = useState(false)
   const [showNewDepartment, setShowNewDepartment] = useState(false)
@@ -101,41 +105,56 @@ export function WorkspaceSidebar() {
     })
   }
 
-  return (
-    <div className={cn("flex flex-col bg-card border-r transition-all duration-300", isCollapsed ? "w-16" : "w-80")}>
+  const SidebarContent = () => (
+    <div
+      className={cn("flex flex-col bg-card border-r transition-all duration-300 h-full", isCollapsed ? "w-16" : "w-80")}
+    >
       {/* Header */}
-      <div className="p-4 border-b">
+      <div className="p-3 sm:p-4 border-b">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <div>
-              <h1 className="text-xl font-bold text-red-500">ITC Workspace</h1>
-              <p className="text-sm text-muted-foreground">Information Technology Community</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-xl font-bold text-red-500 truncate">ITC Workspace</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">Information Technology Community</p>
             </div>
           )}
-          <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="ml-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="ml-auto h-8 w-8 sm:h-10 sm:w-10 hidden lg:flex"
+          >
             <ChevronDown className={cn("h-4 w-4 transition-transform", isCollapsed ? "rotate-90" : "rotate-0")} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileOpen(false)}
+            className="ml-auto h-8 w-8 lg:hidden"
+          >
+            <X className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       {/* User Profile */}
-      <div className="p-4 border-b">
+      <div className="p-3 sm:p-4 border-b">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-3 h-auto p-2">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className="w-full justify-start gap-2 sm:gap-3 h-auto p-2">
+              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
                 <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
               {!isCollapsed && (
-                <div className="flex-1 text-left">
-                  <div className="font-medium">{user.name}</div>
-                  <div className="text-sm text-muted-foreground">{user.email}</div>
+                <div className="flex-1 text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">{user.name}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</div>
                 </div>
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-48 sm:w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setShowSettings(true)}>
@@ -166,15 +185,15 @@ export function WorkspaceSidebar() {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      <div className="flex-1 overflow-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
         {/* Dashboard */}
         <div>
-          <Link href="/">
+          <Link href="/" onClick={() => setIsMobileOpen(false)}>
             <Button
               variant={pathname === "/" ? "default" : "ghost"}
-              className={cn("w-full justify-start gap-3", isCollapsed && "justify-center")}
+              className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
             >
-              <LayoutDashboard className="h-4 w-4" />
+              <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
               {!isCollapsed && "Dashboard"}
             </Button>
           </Link>
@@ -186,14 +205,14 @@ export function WorkspaceSidebar() {
         <div>
           {!isCollapsed && (
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-muted-foreground">TEAMS</h3>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">TEAMS</h3>
               <Dialog open={showNewTeam} onOpenChange={setShowNewTeam}>
                 <DialogTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-6 w-6">
+                  <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6">
                     <Plus className="h-3 w-3" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="w-[95vw] max-w-md mx-auto">
                   <DialogHeader>
                     <DialogTitle>Create New Team</DialogTitle>
                     <DialogDescription>Create a new team workspace for collaboration</DialogDescription>
@@ -207,17 +226,17 @@ export function WorkspaceSidebar() {
             {teams.map((team) => (
               <ContextMenu key={team.id}>
                 <ContextMenuTrigger>
-                  <Link href={`/teams/${team.id}`}>
+                  <Link href={`/teams/${team.id}`} onClick={() => setIsMobileOpen(false)}>
                     <Button
                       variant={pathname.includes(`/teams/${team.id}`) ? "default" : "ghost"}
-                      className={cn("w-full justify-start gap-3", isCollapsed && "justify-center")}
+                      className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
                     >
-                      <Users className="h-4 w-4" />
+                      <Users className="h-4 w-4 flex-shrink-0" />
                       {!isCollapsed && (
-                        <div className="flex-1 flex items-center justify-between">
-                          <span>{team.name}</span>
+                        <div className="flex-1 flex items-center justify-between min-w-0">
+                          <span className="truncate">{team.name}</span>
                           {team.ticketCount > 0 && (
-                            <Badge variant="secondary" className="ml-2">
+                            <Badge variant="secondary" className="ml-2 text-xs">
                               {team.ticketCount}
                             </Badge>
                           )}
@@ -251,14 +270,14 @@ export function WorkspaceSidebar() {
         <div>
           {!isCollapsed && (
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-muted-foreground">DEPARTMENTS</h3>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">DEPARTMENTS</h3>
               <Dialog open={showNewDepartment} onOpenChange={setShowNewDepartment}>
                 <DialogTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-6 w-6">
+                  <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6">
                     <Plus className="h-3 w-3" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="w-[95vw] max-w-md mx-auto">
                   <DialogHeader>
                     <DialogTitle>Create New Department</DialogTitle>
                     <DialogDescription>Create a new department for organizational oversight</DialogDescription>
@@ -272,17 +291,17 @@ export function WorkspaceSidebar() {
             {departments.map((dept) => (
               <ContextMenu key={dept.id}>
                 <ContextMenuTrigger>
-                  <Link href={`/departments/${dept.id}`}>
+                  <Link href={`/departments/${dept.id}`} onClick={() => setIsMobileOpen(false)}>
                     <Button
                       variant={pathname.includes(`/departments/${dept.id}`) ? "default" : "ghost"}
-                      className={cn("w-full justify-start gap-3", isCollapsed && "justify-center")}
+                      className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
                     >
-                      <Building2 className="h-4 w-4" />
+                      <Building2 className="h-4 w-4 flex-shrink-0" />
                       {!isCollapsed && (
-                        <div className="flex-1 flex items-center justify-between">
-                          <span>{dept.name}</span>
+                        <div className="flex-1 flex items-center justify-between min-w-0">
+                          <span className="truncate">{dept.name}</span>
                           {dept.ticketCount > 0 && (
-                            <Badge variant="secondary" className="ml-2">
+                            <Badge variant="secondary" className="ml-2 text-xs">
                               {dept.ticketCount}
                             </Badge>
                           )}
@@ -314,12 +333,12 @@ export function WorkspaceSidebar() {
 
         {/* Global Calendar - Fixed Navigation */}
         <div>
-          <Link href="/calendar/global">
+          <Link href="/calendar/global" onClick={() => setIsMobileOpen(false)}>
             <Button
               variant={pathname === "/calendar/global" ? "default" : "ghost"}
-              className={cn("w-full justify-start gap-3", isCollapsed && "justify-center")}
+              className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
             >
-              <Calendar className="h-4 w-4" />
+              <Calendar className="h-4 w-4 flex-shrink-0" />
               {!isCollapsed && "Global Calendar"}
             </Button>
           </Link>
@@ -328,7 +347,7 @@ export function WorkspaceSidebar() {
 
       {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle>Settings</DialogTitle>
             <DialogDescription>Manage your account and preferences</DialogDescription>
@@ -337,6 +356,27 @@ export function WorkspaceSidebar() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+
+  return (
+    <>
+      {/* Mobile Trigger */}
+      <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden h-8 w-8">
+            <Menu className="h-4 w-4" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="p-0 w-80">
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:block">
+        <SidebarContent />
+      </div>
+    </>
   )
 }
 
@@ -353,29 +393,40 @@ function CreateTeamForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="teamName">Team Name</Label>
+        <Label htmlFor="teamName" className="text-sm">
+          Team Name
+        </Label>
         <Input
           id="teamName"
           placeholder="Enter team name..."
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
+          className="text-sm"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="teamDescription">Description</Label>
+        <Label htmlFor="teamDescription" className="text-sm">
+          Description
+        </Label>
         <Textarea
           id="teamDescription"
           placeholder="Describe the team's purpose..."
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="text-sm min-h-[80px]"
         />
       </div>
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={() => setFormData({ name: "", description: "" })}>
+      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setFormData({ name: "", description: "" })}
+          className="text-sm"
+        >
           Cancel
         </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
+        <Button type="submit" className="bg-red-600 hover:bg-red-700 text-sm">
           Create Team
         </Button>
       </div>
@@ -396,29 +447,40 @@ function CreateDepartmentForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="deptName">Department Name</Label>
+        <Label htmlFor="deptName" className="text-sm">
+          Department Name
+        </Label>
         <Input
           id="deptName"
           placeholder="Enter department name..."
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
+          className="text-sm"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="deptDescription">Description</Label>
+        <Label htmlFor="deptDescription" className="text-sm">
+          Description
+        </Label>
         <Textarea
           id="deptDescription"
           placeholder="Describe the department's role..."
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="text-sm min-h-[80px]"
         />
       </div>
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={() => setFormData({ name: "", description: "" })}>
+      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setFormData({ name: "", description: "" })}
+          className="text-sm"
+        >
           Cancel
         </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
+        <Button type="submit" className="bg-red-600 hover:bg-red-700 text-sm">
           Create Department
         </Button>
       </div>
@@ -447,34 +509,43 @@ function UserSettingsForm() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="displayName">Display Name</Label>
+        <Label htmlFor="displayName" className="text-sm">
+          Display Name
+        </Label>
         <Input
           id="displayName"
           value={settings.displayName}
           onChange={(e) => setSettings({ ...settings, displayName: e.target.value })}
+          className="text-sm"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-sm">
+          Email
+        </Label>
         <Input
           id="email"
           type="email"
           value={settings.email}
           onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+          className="text-sm"
         />
       </div>
       <div className="flex items-center justify-between">
-        <Label htmlFor="notifications">Email Notifications</Label>
+        <Label htmlFor="notifications" className="text-sm">
+          Email Notifications
+        </Label>
         <Button
           variant={settings.notifications ? "default" : "outline"}
           size="sm"
           onClick={() => setSettings({ ...settings, notifications: !settings.notifications })}
+          className="text-xs"
         >
           {settings.notifications ? "On" : "Off"}
         </Button>
       </div>
-      <div className="flex justify-end">
-        <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700">
+      <div className="flex justify-end pt-4">
+        <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700 text-sm w-full sm:w-auto">
           Save Changes
         </Button>
       </div>

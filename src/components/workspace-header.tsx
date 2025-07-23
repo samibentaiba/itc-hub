@@ -74,6 +74,8 @@ export function WorkspaceHeader() {
     if (pathname.includes("/teams/")) return "Team Workspace"
     if (pathname.includes("/departments/")) return "Department Workspace"
     if (pathname.includes("/tickets/")) return "Ticket Discussion"
+    if (pathname.includes("/admin")) return "Admin Panel"
+    if (pathname.includes("/calendar/global")) return "Global Calendar"
     return "ITC Workspace"
   }
 
@@ -82,6 +84,8 @@ export function WorkspaceHeader() {
     if (pathname.includes("/teams/")) return "Collaborate with your team members"
     if (pathname.includes("/departments/")) return "Manage department-wide initiatives"
     if (pathname.includes("/tickets/")) return "Ticket conversation and updates"
+    if (pathname.includes("/admin")) return "System administration and management"
+    if (pathname.includes("/calendar/global")) return "ITC club-wide events and schedules"
     return ""
   }
 
@@ -102,23 +106,23 @@ export function WorkspaceHeader() {
 
   return (
     <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-      <div className="flex h-16 items-center justify-between px-6">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
-            <p className="text-sm text-muted-foreground">{getPageDescription()}</p>
-          </div>
+      <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 gap-4">
+        {/* Left side - Title (hidden on mobile to save space) */}
+        <div className="hidden sm:block min-w-0 flex-1">
+          <h1 className="text-base sm:text-lg font-semibold truncate">{getPageTitle()}</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">{getPageDescription()}</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Right side - Actions */}
+        <div className="flex items-center gap-2 sm:gap-4 flex-1 sm:flex-none justify-end">
           {/* Search */}
           <Popover open={showSearch} onOpenChange={setShowSearch}>
             <PopoverTrigger asChild>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <div className="relative flex-1 sm:flex-none max-w-xs">
+                <Search className="absolute left-2 sm:left-3 top-1/2 h-3 w-3 sm:h-4 sm:w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search tickets, teams..."
-                  className="w-64 pl-10"
+                  placeholder="Search..."
+                  className="w-full pl-8 sm:pl-10 pr-4 h-8 sm:h-10 text-xs sm:text-sm sm:w-64"
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)
@@ -136,9 +140,9 @@ export function WorkspaceHeader() {
                         key={result.id}
                         className="flex items-center gap-2 p-2 hover:bg-accent rounded cursor-pointer"
                       >
-                        <div className="flex-1">
-                          <div className="font-medium text-sm">{result.title}</div>
-                          <div className="text-xs text-muted-foreground">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">{result.title}</div>
+                          <div className="text-xs text-muted-foreground truncate">
                             {result.type} {result.workspace && `• ${result.workspace}`}
                           </div>
                         </div>
@@ -155,35 +159,35 @@ export function WorkspaceHeader() {
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-10 sm:w-10">
+                <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500">
-                    {unreadCount}
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs bg-red-500 flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </Badge>
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-72 sm:w-80">
               <div className="p-2 border-b">
-                <h3 className="font-semibold">Notifications</h3>
-                <p className="text-sm text-muted-foreground">{unreadCount} unread</p>
+                <h3 className="font-semibold text-sm sm:text-base">Notifications</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{unreadCount} unread</p>
               </div>
               <div className="max-h-64 overflow-auto">
                 {notifications.map((notification) => (
                   <DropdownMenuItem key={notification.id} className="p-3 cursor-pointer">
                     <div className="flex gap-3 w-full">
                       {getNotificationIcon(notification.type)}
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div
                           className={`font-medium text-sm ${notification.unread ? "text-foreground" : "text-muted-foreground"}`}
                         >
                           {notification.title}
                         </div>
-                        <div className="text-xs text-muted-foreground">{notification.description}</div>
+                        <div className="text-xs text-muted-foreground truncate">{notification.description}</div>
                         <div className="text-xs text-muted-foreground mt-1">{notification.time}</div>
                       </div>
-                      {notification.unread && <div className="w-2 h-2 bg-red-500 rounded-full mt-1" />}
+                      {notification.unread && <div className="w-2 h-2 bg-red-500 rounded-full mt-1 flex-shrink-0" />}
                     </div>
                   </DropdownMenuItem>
                 ))}
@@ -191,22 +195,7 @@ export function WorkspaceHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* New Ticket Button */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="bg-red-600 hover:bg-red-700">
-                <Plus className="mr-2 h-4 w-4" />
-                New Ticket
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Create New Ticket</DialogTitle>
-                <DialogDescription>Create a new ticket in your current workspace</DialogDescription>
-              </DialogHeader>
-              <NewTicketForm />
-            </DialogContent>
-          </Dialog>
+
         </div>
       </div>
     </header>

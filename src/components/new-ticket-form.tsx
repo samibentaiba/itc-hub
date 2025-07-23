@@ -44,32 +44,38 @@ export function NewTicketForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
+        <Label htmlFor="title" className="text-sm">
+          Title
+        </Label>
         <Input
           id="title"
           placeholder="Enter ticket title..."
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           required
+          className="text-sm"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description" className="text-sm">
+          Description
+        </Label>
         <Textarea
           id="description"
           placeholder="Describe the task, meeting, or event..."
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           required
+          className="text-sm min-h-[80px]"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Type</Label>
+          <Label className="text-sm">Type</Label>
           <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-            <SelectTrigger>
+            <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
@@ -81,9 +87,9 @@ export function NewTicketForm() {
         </div>
 
         <div className="space-y-2">
-          <Label>Workspace</Label>
+          <Label className="text-sm">Workspace</Label>
           <Select value={formData.workspace} onValueChange={(value) => setFormData({ ...formData, workspace: value })}>
-            <SelectTrigger>
+            <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select workspace" />
             </SelectTrigger>
             <SelectContent>
@@ -96,11 +102,11 @@ export function NewTicketForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Assignee</Label>
+          <Label className="text-sm">Assignee</Label>
           <Select value={formData.assignee} onValueChange={(value) => setFormData({ ...formData, assignee: value })}>
-            <SelectTrigger>
+            <SelectTrigger className="text-sm">
               <SelectValue placeholder="Assign to..." />
             </SelectTrigger>
             <SelectContent>
@@ -113,25 +119,28 @@ export function NewTicketForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dueDate">Due Date</Label>
+          <Label htmlFor="dueDate" className="text-sm">
+            Due Date
+          </Label>
           <Input
             id="dueDate"
             type="date"
             value={formData.dueDate}
             onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
             required
+            className="text-sm"
           />
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
         <DialogClose asChild>
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" className="text-sm bg-transparent">
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="submit" className="bg-red-600 hover:bg-red-700">
+          <Button type="submit" className="bg-red-600 hover:bg-red-700 text-sm">
             Create Ticket
           </Button>
         </DialogClose>

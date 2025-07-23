@@ -11,11 +11,13 @@ interface WorkspaceLayoutProps {
 
 export function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       <WorkspaceSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <WorkspaceHeader />
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        <main className="flex-1 overflow-auto">
+          <div className="h-full w-full p-6">{children}</div>
+        </main>
       </div>
     </div>
   )
