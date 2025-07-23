@@ -272,11 +272,11 @@ export function AdminPanel() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">Total Users</CardTitle>
             <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
+          <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">{users.length}</div>
             <p className="text-xs text-muted-foreground">
               {users.filter((u) => u.status === "pending").length} pending verification
@@ -285,11 +285,11 @@ export function AdminPanel() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">Active Teams</CardTitle>
             <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
+          <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">
               {teams.filter((t) => t.status === "active").length}
             </div>
@@ -298,22 +298,22 @@ export function AdminPanel() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">Departments</CardTitle>
             <Building2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
+          <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">{departments.length}</div>
             <p className="text-xs text-muted-foreground">All active</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">Admins</CardTitle>
             <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
+          <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">
               {users.filter((u) => u.role === "admin").length}
             </div>

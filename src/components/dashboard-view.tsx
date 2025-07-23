@@ -140,11 +140,11 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Teams")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">My Teams</CardTitle>
             <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+          <CardContent className="px-3 sm:px-6  pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.teams.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.teams.trend)}
@@ -157,11 +157,11 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Departments")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">My Departments</CardTitle>
             <Building2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+          <CardContent className="px-3 sm:px-6  pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.departments.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.departments.trend)}
@@ -174,11 +174,11 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Active Tickets")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">Active Tickets</CardTitle>
             <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+          <CardContent className="px-3 sm:px-6  pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.activeTickets.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.activeTickets.trend)}
@@ -191,11 +191,11 @@ export function DashboardView() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => handleStatCardClick("Completed")}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium">Completed</CardTitle>
             <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="px-3 py-4 sm:px-6  pt-0">
+          <CardContent className="px-3 sm:px-6  pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">{workspaceStats.completedThisWeek.count}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {getTrendIcon(workspaceStats.completedThisWeek.trend)}
