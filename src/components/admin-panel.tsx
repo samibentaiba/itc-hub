@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -37,133 +36,54 @@ import {
   Settings,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { RoleBadge } from "@/components/common/RoleBadge";
+import { StatusBadge } from "@/components/common/StatusBadge";
+import { AvatarDisplay } from "@/components/common/AvatarDisplay";
+import { RoleSelect } from "@/features/selects/RoleSelect";
+import { DepartmentSelect } from "@/features/selects/DepartmentSelect";
+import { UserForm } from "@/components/forms/UserForm";
+import { TeamForm } from "@/components/forms/TeamForm";
+import { DepartmentForm } from "@/components/forms/DepartmentForm";
+import { getUsers, createUser, updateUser, deleteUser } from "@/services/userService";
+import { getTeams, createTeam, updateTeam, deleteTeam } from "@/services/teamService";
+import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from "@/services/departmentService";
 
 export function AdminPanel() {
   const [showAddUser, setShowAddUser] = useState(false)
   const [showAddTeam, setShowAddTeam] = useState(false)
   const [showAddDepartment, setShowAddDepartment] = useState(false)
+  const [users, setUsers] = useState<any[]>([])
+  const [teams, setTeams] = useState<any[]>([])
+  const [departments, setDepartments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  // Mock data for admin panel
-  const [users, setUsers] = useState([
-    {
-      id: "u1",
-      name: "Sami",
-      email: "sami@itc.com",
-      role: "admin",
-      status: "verified",
-      joinedDate: "2024-01-01",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["Development"],
-    },
-    {
-      id: "u2",
-      name: "Yasmine",
-      email: "yasmine@itc.com",
-      role: "super_leader",
-      status: "verified",
-      joinedDate: "2024-01-15",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["Development", "Design"],
-    },
-    {
-      id: "u3",
-      name: "Ali",
-      email: "ali@itc.com",
-      role: "member",
-      status: "verified",
-      joinedDate: "2024-02-01",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team", "Backend Team"],
-      departments: [],
-    },
-    {
-      id: "u4",
-      name: "Sara",
-      email: "sara@itc.com",
-      role: "leader",
-      status: "pending",
-      joinedDate: "2024-02-15",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Mobile Team"],
-      departments: [],
-    },
-  ])
+  // Move fetchAll to top-level so it can be used in handleAddUser
+  async function fetchAll() {
+    setLoading(true)
+    const [usersRes, teamsRes, departmentsRes] = await Promise.all([
+      getUsers(),
+      getTeams(),
+      getDepartments(),
+    ])
+    setUsers(usersRes)
+    setTeams(teamsRes)
+    setDepartments(departmentsRes)
+    setLoading(false)
+  }
 
-  const [teams, setTeams] = useState([
-    {
-      id: "team-1",
-      name: "Frontend Team",
-      description: "UI/UX development team",
-      leader: "Yasmine",
-      members: ["Sami", "Ali", "Sara"],
-      department: "Development",
-      createdDate: "2024-01-01",
-      status: "active",
-    },
-    {
-      id: "team-2",
-      name: "Backend Team",
-      description: "Server-side development team",
-      leader: "Omar",
-      members: ["Ali", "Ahmed"],
-      department: "Development",
-      createdDate: "2024-01-15",
-      status: "active",
-    },
-    {
-      id: "team-3",
-      name: "Mobile Team",
-      description: "Mobile app development team",
-      leader: "Sara",
-      members: ["Layla", "Nour"],
-      department: "Development",
-      createdDate: "2024-02-01",
-      status: "planning",
-    },
-  ])
+  useEffect(() => {
+    fetchAll()
+  }, [])
 
-  const [departments, setDepartments] = useState([
-    {
-      id: "dept-1",
-      name: "Development",
-      description: "Software development and engineering",
-      superLeader: "Sami",
-      leaders: ["Yasmine", "Omar"],
-      teams: ["Frontend Team", "Backend Team", "Mobile Team"],
-      createdDate: "2024-01-01",
-      status: "active",
-    },
-    {
-      id: "dept-2",
-      name: "Design",
-      description: "UI/UX design and user research",
-      superLeader: "Yasmine",
-      leaders: ["Nour"],
-      teams: ["Design Team"],
-      createdDate: "2024-01-10",
-      status: "active",
-    },
-  ])
-
-  const handleAddUser = (formData: any) => {
-    const newUser = {
-      id: `u${users.length + 1}`,
-      ...formData,
-      status: "pending",
-      joinedDate: new Date().toISOString().split("T")[0],
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: [],
-      departments: [],
+  const handleAddUser = async (formData: any) => {
+    const res = await createUser(formData)
+    if (res.ok) {
+      // Optionally refetch users or add to state
+      fetchAll();
+      toast({ title: "User added successfully!", description: `${formData.name} has been added and will receive a verification email.` })
+      setShowAddUser(false)
     }
-    setUsers([...users, newUser])
-    toast({
-      title: "User added successfully!",
-      description: `${formData.name} has been added and will receive a verification email.`,
-    })
-    setShowAddUser(false)
   }
 
   const handleVerifyUser = (userId: string) => {
@@ -174,78 +94,57 @@ export function AdminPanel() {
     })
   }
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
+    // Optionally implement DELETE in API
     setUsers(users.filter((user) => user.id !== userId))
-    toast({
-      title: "User deleted",
-      description: "User has been removed from the system.",
-    })
+    toast({ title: "User deleted", description: "User has been removed from the system." })
   }
 
-  const handleAddTeam = (formData: any) => {
-    const newTeam = {
-      id: `team-${teams.length + 1}`,
-      ...formData,
-      members: [],
-      createdDate: new Date().toISOString().split("T")[0],
-      status: "active",
+  const handleAddTeam = async (formData: any) => {
+    const res = await createTeam(formData)
+    if (res.ok) {
+      const newTeam = await res.json()
+      setTeams((prev) => [...prev, newTeam])
+      toast({ title: "Team created successfully!", description: `${formData.name} team has been created.` })
+      setShowAddTeam(false)
     }
-    setTeams([...teams, newTeam])
-    toast({
-      title: "Team created successfully!",
-      description: `${formData.name} team has been created.`,
-    })
-    setShowAddTeam(false)
   }
 
-  const handleDeleteTeam = (teamId: string) => {
+  const handleDeleteTeam = async (teamId: string) => {
+    // Optionally implement DELETE in API
     setTeams(teams.filter((team) => team.id !== teamId))
-    toast({
-      title: "Team deleted",
-      description: "Team has been removed from the system.",
-    })
+    toast({ title: "Team deleted", description: "Team has been removed from the system." })
   }
 
-  const handleAddDepartment = (formData: any) => {
-    const newDepartment = {
-      id: `dept-${departments.length + 1}`,
-      ...formData,
-      leaders: [],
-      teams: [],
-      createdDate: new Date().toISOString().split("T")[0],
-      status: "active",
+  const handleAddDepartment = async (formData: any) => {
+    const res = await createDepartment(formData)
+    if (res.ok) {
+      const newDept = await res.json()
+      setDepartments((prev) => [...prev, newDept])
+      toast({ title: "Department created successfully!", description: `${formData.name} department has been created.` })
+      setShowAddDepartment(false)
     }
-    setDepartments([...departments, newDepartment])
-    toast({
-      title: "Department created successfully!",
-      description: `${formData.name} department has been created.`,
-    })
-    setShowAddDepartment(false)
   }
 
-  const handleDeleteDepartment = (deptId: string) => {
+  const handleDeleteDepartment = async (deptId: string) => {
+    // Optionally implement DELETE in API
     setDepartments(departments.filter((dept) => dept.id !== deptId))
-    toast({
-      title: "Department deleted",
-      description: "Department has been removed from the system.",
-    })
+    toast({ title: "Department deleted", description: "Department has been removed from the system." })
   }
 
-  const handleChangeUserRole = (userId: string, newRole: string) => {
+  const handleChangeUserRole = async (userId: string, newRole: string) => {
+    // Optionally implement PATCH in API
     setUsers(users.map((user) => (user.id === userId ? { ...user, role: newRole } : user)))
-    toast({
-      title: "Role updated",
-      description: `User role has been changed to ${newRole}.`,
-    })
+    toast({ title: "Role updated", description: `User role has been changed to ${newRole}.` })
   }
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case "admin":
+      case "ADMIN":
         return "destructive"
-      case "super_leader":
+      case "SUPERLEADER":
         return "destructive"
-      case "leader":
+      case "LEADER":
         return "default"
       default:
         return "secondary"
@@ -255,6 +154,8 @@ export function AdminPanel() {
   const getStatusBadgeVariant = (status: string) => {
     return status === "verified" ? "default" : status === "pending" ? "secondary" : "outline"
   }
+
+  if (loading) return <div>Loading admin panel...</div>
 
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
@@ -355,7 +256,11 @@ export function AdminPanel() {
                       <DialogTitle>Add New User</DialogTitle>
                       <DialogDescription>Create a new user account and send verification email</DialogDescription>
                     </DialogHeader>
-                    <AddUserForm onSubmit={handleAddUser} />
+                    <UserForm
+                      onSubmit={handleAddUser}
+                      onCancel={() => setShowAddUser(false)}
+                      submitLabel="Add User"
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -380,10 +285,7 @@ export function AdminPanel() {
                         <TableRow key={user.id}>
                           <TableCell className="p-2 sm:p-4">
                             <div className="flex items-center gap-2">
-                              <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
-                                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                              </Avatar>
+                              <AvatarDisplay name={user.name} avatar={user.avatar} size={8} />
                               <div className="min-w-0">
                                 <div className="font-medium text-xs sm:text-sm truncate">{user.name}</div>
                                 <div className="text-xs text-muted-foreground truncate">{user.email}</div>
@@ -391,23 +293,11 @@ export function AdminPanel() {
                             </div>
                           </TableCell>
                           <TableCell className="p-2 sm:p-4 hidden sm:table-cell">
-                            <Select value={user.role} onValueChange={(value) => handleChangeUserRole(user.id, value)}>
-                              <SelectTrigger className="w-24 sm:w-32 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="super_leader">Super Leader</SelectItem>
-                                <SelectItem value="leader">Leader</SelectItem>
-                                <SelectItem value="member">Member</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <RoleBadge role={user.role} />
                           </TableCell>
                           <TableCell className="p-2 sm:p-4">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
-                              <Badge variant={getStatusBadgeVariant(user.status)} className="text-xs">
-                                {user.status}
-                              </Badge>
+                              <StatusBadge status={user.status} />
                               {user.status === "pending" && (
                                 <Button
                                   size="sm"
@@ -423,7 +313,7 @@ export function AdminPanel() {
                           </TableCell>
                           <TableCell className="p-2 sm:p-4 hidden md:table-cell">
                             <div className="flex flex-wrap gap-1">
-                              {user.teams.slice(0, 2).map((team) => (
+                              {user.teams.slice(0, 2).map((team: string) => (
                                 <Badge key={team} variant="outline" className="text-xs">
                                   {team}
                                 </Badge>
@@ -437,7 +327,7 @@ export function AdminPanel() {
                           </TableCell>
                           <TableCell className="p-2 sm:p-4 hidden lg:table-cell">
                             <div className="flex flex-wrap gap-1">
-                              {user.departments.slice(0, 1).map((dept) => (
+                              {user.departments.slice(0, 1).map((dept: string) => (
                                 <Badge key={dept} variant="outline" className="text-xs">
                                   {dept}
                                 </Badge>
@@ -510,7 +400,11 @@ export function AdminPanel() {
                       <DialogTitle>Create New Team</DialogTitle>
                       <DialogDescription>Set up a new team workspace</DialogDescription>
                     </DialogHeader>
-                    <AddTeamForm onSubmit={handleAddTeam} />
+                    <TeamForm
+                      onSubmit={handleAddTeam}
+                      onCancel={() => setShowAddTeam(false)}
+                      submitLabel="Create Team"
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -544,7 +438,7 @@ export function AdminPanel() {
                           </TableCell>
                           <TableCell className="p-2 sm:p-4 hidden md:table-cell">
                             <div className="flex flex-wrap gap-1">
-                              {team.members.slice(0, 2).map((member) => (
+                              {team.members.slice(0, 2).map((member: string) => (
                                 <Badge key={member} variant="outline" className="text-xs">
                                   {member}
                                 </Badge>
@@ -621,7 +515,11 @@ export function AdminPanel() {
                       <DialogTitle>Create New Department</DialogTitle>
                       <DialogDescription>Set up a new department</DialogDescription>
                     </DialogHeader>
-                    <AddDepartmentForm onSubmit={handleAddDepartment} />
+                    <DepartmentForm
+                      onSubmit={handleAddDepartment}
+                      onCancel={() => setShowAddDepartment(false)}
+                      submitLabel="Create Department"
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -655,7 +553,7 @@ export function AdminPanel() {
                           </TableCell>
                           <TableCell className="p-2 sm:p-4 hidden md:table-cell">
                             <div className="flex flex-wrap gap-1">
-                              {dept.leaders.map((leader) => (
+                              {dept.leaders.map((leader: string) => (
                                 <Badge key={leader} variant="outline" className="text-xs">
                                   {leader}
                                 </Badge>
@@ -664,7 +562,7 @@ export function AdminPanel() {
                           </TableCell>
                           <TableCell className="p-2 sm:p-4 hidden lg:table-cell">
                             <div className="flex flex-wrap gap-1">
-                              {dept.teams.slice(0, 2).map((team) => (
+                              {dept.teams.slice(0, 2).map((team: string) => (
                                 <Badge key={team} variant="outline" className="text-xs">
                                   {team}
                                 </Badge>
@@ -719,232 +617,5 @@ export function AdminPanel() {
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
-
-// Add User Form Component
-function AddUserForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    role: "member",
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    setFormData({ name: "", email: "", role: "member" })
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="userName" className="text-sm">
-          Full Name
-        </Label>
-        <Input
-          id="userName"
-          placeholder="Enter user's full name..."
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-          className="text-sm"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="userEmail" className="text-sm">
-          Email Address
-        </Label>
-        <Input
-          id="userEmail"
-          type="email"
-          placeholder="Enter user's email..."
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-          className="text-sm"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label className="text-sm">Initial Role</Label>
-        <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-          <SelectTrigger className="text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="super_leader">Super Leader</SelectItem>
-            <SelectItem value="leader">Leader</SelectItem>
-            <SelectItem value="member">Member</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" className="text-sm bg-transparent">
-          Cancel
-        </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700 text-sm">
-          Add User
-        </Button>
-      </div>
-    </form>
-  )
-}
-
-// Add Team Form Component
-function AddTeamForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    leader: "",
-    department: "",
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    setFormData({ name: "", description: "", leader: "", department: "" })
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="teamName" className="text-sm">
-          Team Name
-        </Label>
-        <Input
-          id="teamName"
-          placeholder="Enter team name..."
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-          className="text-sm"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="teamDescription" className="text-sm">
-          Description
-        </Label>
-        <Textarea
-          id="teamDescription"
-          placeholder="Describe the team's purpose..."
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          required
-          className="text-sm min-h-[80px]"
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-sm">Team Leader</Label>
-          <Select value={formData.leader} onValueChange={(value) => setFormData({ ...formData, leader: value })}>
-            <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Select leader" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Sami">Sami</SelectItem>
-              <SelectItem value="Yasmine">Yasmine</SelectItem>
-              <SelectItem value="Ali">Ali</SelectItem>
-              <SelectItem value="Sara">Sara</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label className="text-sm">Department</Label>
-          <Select
-            value={formData.department}
-            onValueChange={(value) => setFormData({ ...formData, department: value })}
-          >
-            <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Select department" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Development">Development</SelectItem>
-              <SelectItem value="Design">Design</SelectItem>
-              <SelectItem value="Marketing">Marketing</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" className="text-sm bg-transparent">
-          Cancel
-        </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700 text-sm">
-          Create Team
-        </Button>
-      </div>
-    </form>
-  )
-}
-
-// Add Department Form Component
-function AddDepartmentForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    superLeader: "",
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    setFormData({ name: "", description: "", superLeader: "" })
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="deptName" className="text-sm">
-          Department Name
-        </Label>
-        <Input
-          id="deptName"
-          placeholder="Enter department name..."
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-          className="text-sm"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="deptDescription" className="text-sm">
-          Description
-        </Label>
-        <Textarea
-          id="deptDescription"
-          placeholder="Describe the department's role..."
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          required
-          className="text-sm min-h-[80px]"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label className="text-sm">Super Leader</Label>
-        <Select
-          value={formData.superLeader}
-          onValueChange={(value) => setFormData({ ...formData, superLeader: value })}
-        >
-          <SelectTrigger className="text-sm">
-            <SelectValue placeholder="Select super leader" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Sami">Sami</SelectItem>
-            <SelectItem value="Yasmine">Yasmine</SelectItem>
-            <SelectItem value="Ali">Ali</SelectItem>
-            <SelectItem value="Sara">Sara</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" className="text-sm bg-transparent">
-          Cancel
-        </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700 text-sm">
-          Create Department
-        </Button>
-      </div>
-    </form>
   )
 }

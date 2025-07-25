@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,8 @@ import Link from "next/link"
 import { Clock, MessageSquare, Plus, Users, CalendarIcon, MoreVertical, UserPlus, Settings, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { NewTicketForm } from "./new-ticket-form"
 import { useToast } from "@/hooks/use-toast"
+import { getTeams } from "@/services/teamService";
+import { getTickets } from "@/services/ticketService";
 
 interface TeamViewProps {
   teamId: string
@@ -28,100 +30,36 @@ interface TeamViewProps {
 export function TeamView({ teamId }: TeamViewProps) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [showNewTicket, setShowNewTicket] = useState(false)
+  const [team, setTeam] = useState<any>(null)
+  const [tickets, setTickets] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  // Mock team data
-  const team = {
-    id: teamId,
-    name: "Frontend Team",
-    description: "Responsible for user interface development and user experience",
-    members: [
-      {
-        id: "u1",
-        name: "Sami",
-        role: "leader",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "online",
-        email: "sami@itc.com",
-        joinedDate: "2024-01-15",
-      },
-      {
-        id: "u2",
-        name: "Ali",
-        role: "member",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "away",
-        email: "ali@itc.com",
-        joinedDate: "2024-02-01",
-      },
-      {
-        id: "u3",
-        name: "Sara",
-        role: "member",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "offline",
-        email: "sara@itc.com",
-        joinedDate: "2024-02-15",
-      },
-    ],
-  }
-
-  const tickets = [
-    {
-      id: "t1",
-      title: "Implement dark mode toggle",
-      type: "task",
-      status: "in_progress",
-      assignee: "Ali",
-      dueDate: "2025-01-25",
-      messages: 5,
-      lastActivity: "2 hours ago",
-      calendarDate: new Date("2025-01-25"),
-    },
-    {
-      id: "t2",
-      title: "Weekly team standup",
-      type: "meeting",
-      status: "scheduled",
-      assignee: null,
-      dueDate: "2025-01-24",
-      messages: 1,
-      lastActivity: "1 day ago",
-      calendarDate: new Date("2025-01-24"),
-    },
-    {
-      id: "t3",
-      title: "Code review session",
-      type: "event",
-      status: "pending",
-      assignee: "Sara",
-      dueDate: "2025-01-26",
-      messages: 3,
-      lastActivity: "3 hours ago",
-      calendarDate: new Date("2025-01-26"),
-    },
-    {
-      id: "t4",
-      title: "Sprint planning",
-      type: "meeting",
-      status: "scheduled",
-      assignee: null,
-      dueDate: "2025-01-27",
-      messages: 0,
-      lastActivity: "Just created",
-      calendarDate: new Date("2025-01-27"),
-    },
-  ]
+  useEffect(() => {
+    async function fetchTeamAndTickets() {
+      setLoading(true)
+      // Fetch team
+      const teams = await getTeams();
+      const foundTeam = teams.find((t: any) => t.id === teamId);
+      setTeam(foundTeam);
+      // Fetch tickets
+      const allTickets = await getTickets();
+      const filtered = allTickets.filter((t: any) => t.teamId === teamId);
+      setTickets(filtered);
+      setLoading(false);
+    }
+    fetchTeamAndTickets()
+  }, [teamId])
 
   // Get tickets for selected date
   const selectedDateTickets = tickets.filter(
-    (ticket) => date && ticket.calendarDate.toDateString() === date.toDateString(),
+    (ticket) => date && new Date(ticket.dueDate).toDateString() === date.toDateString(),
   )
 
   // Get calendar events (tickets) for the calendar component
   const calendarEvents = tickets.reduce(
     (acc, ticket) => {
-      const dateKey = ticket.calendarDate.toDateString()
+      const dateKey = new Date(ticket.dueDate).toDateString()
       if (!acc[dateKey]) acc[dateKey] = []
       acc[dateKey].push(ticket)
       return acc
@@ -130,7 +68,7 @@ export function TeamView({ teamId }: TeamViewProps) {
   )
 
   const handleMemberAction = (action: string, memberId: string) => {
-    const member = team.members.find((m) => m.id === memberId)
+    const member = team.members.find((m: any) => m.id === memberId)
     toast({
       title: `${action} ${member?.name}`,
       description: `Action "${action}" performed on ${member?.name}`,
@@ -143,6 +81,9 @@ export function TeamView({ teamId }: TeamViewProps) {
       description: "Team invitation has been sent successfully.",
     })
   }
+
+  if (loading) return <div>Loading team...</div>
+  if (!team) return <div>Team not found.</div>
 
   return (
     <div className="space-y-6">
@@ -208,7 +149,7 @@ export function TeamView({ teamId }: TeamViewProps) {
                           {ticket.assignee && (
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
-                              {ticket.assignee}
+                              {typeof ticket.assignee === "string" ? ticket.assignee : ticket.assignee?.name || "N/A"}
                             </span>
                           )}
                           <span className="flex items-center gap-1">
@@ -217,7 +158,7 @@ export function TeamView({ teamId }: TeamViewProps) {
                           </span>
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-3 w-3" />
-                            {ticket.messages} messages
+                            {Array.isArray(ticket.messages) ? ticket.messages.length : ticket.messages || 0} messages
                           </span>
                           <span>Last activity: {ticket.lastActivity}</span>
                         </div>
@@ -320,7 +261,7 @@ export function TeamView({ teamId }: TeamViewProps) {
                             <Badge variant="outline" className="text-xs">{ticket.type}</Badge>
                           </div>
                           <div className="text-xs sm:text-sm text-muted-foreground mb-3">
-                            {ticket.assignee ? `Assigned to ${ticket.assignee}` : "No assignee"} • {ticket.messages} messages
+                            {ticket.assignee ? `Assigned to ${typeof ticket.assignee === "string" ? ticket.assignee : ticket.assignee?.name || "N/A"}` : "No assignee"} • {Array.isArray(ticket.messages) ? ticket.messages.length : ticket.messages || 0} messages
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
@@ -358,13 +299,13 @@ export function TeamView({ teamId }: TeamViewProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {team.members.map((member) => (
+                {team.members.map((member: any) => (
                   <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
-                          <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                          <AvatarFallback>{(member.name || '').charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div
                           className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background ${

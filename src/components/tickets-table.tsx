@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,82 +14,23 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MoreHorizontal } from "lucide-react"
+import { getTickets } from "@/services/ticketService";
 
 export function TicketsTable() {
-  const [tickets] = useState([
-    {
-      id: "t1",
-      title: "Fix login bug",
-      description: "Resolve session persistence issue",
-      type: "task",
-      team: "Frontend Team",
-      department: null,
-      assignee: {
-        name: "Ali",
-        email: "ali@example.com",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      createdBy: {
-        name: "Yasmine",
-        email: "yasmine@example.com",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      status: "verified",
-      duration: "3 days",
-    },
-    {
-      id: "t2",
-      title: "Weekly Standup",
-      description: "Discuss weekly progress",
-      type: "event",
-      team: "Frontend Team",
-      department: null,
-      assignee: null,
-      createdBy: {
-        name: "Yasmine",
-        email: "yasmine@example.com",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      status: "scheduled",
-      duration: "1 hour",
-    },
-    {
-      id: "t3",
-      title: "Design Review",
-      description: "Review new component designs",
-      type: "meeting",
-      team: null,
-      department: "UI/UX Department",
-      assignee: null,
-      createdBy: {
-        name: "Sami",
-        email: "sami@example.com",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      status: "in_progress",
-      duration: "2 days",
-    },
-    {
-      id: "t4",
-      title: "Create landing page",
-      description: "Design and structure the homepage layout",
-      type: "task",
-      team: null,
-      department: "UI/UX Department",
-      assignee: {
-        name: "Ali",
-        email: "ali@example.com",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      createdBy: {
-        name: "Yasmine",
-        email: "yasmine@example.com",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      status: "in_progress",
-      duration: "1 week",
-    },
-  ])
+  const [tickets, setTickets] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchTickets() {
+      setLoading(true)
+      const data = await getTickets();
+      setTickets(data)
+      setLoading(false)
+    }
+    fetchTickets()
+  }, [])
+
+  if (loading) return <div>Loading tickets...</div>
 
   return (
     <div className="rounded-md border">
@@ -101,7 +42,7 @@ export function TicketsTable() {
             <TableHead>Assignee</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Team/Department</TableHead>
-            <TableHead>Duration</TableHead>
+            <TableHead>Due Date</TableHead>
             <TableHead className="w-[80px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -136,18 +77,26 @@ export function TicketsTable() {
               <TableCell>
                 <Badge
                   variant={
-                    ticket.status === "verified" ? "default" : ticket.status === "in_progress" ? "secondary" : "outline"
+                    ticket.status === "VERIFIED"
+                      ? "default"
+                      : ticket.status === "IN_PROGRESS"
+                      ? "secondary"
+                      : ticket.status === "SCHEDULED"
+                      ? "outline"
+                      : "outline"
                   }
                 >
-                  {ticket.status === "verified"
+                  {ticket.status === "VERIFIED"
                     ? "Verified"
-                    : ticket.status === "in_progress"
-                      ? "In Progress"
-                      : "Scheduled"}
+                    : ticket.status === "IN_PROGRESS"
+                    ? "In Progress"
+                    : ticket.status === "SCHEDULED"
+                    ? "Scheduled"
+                    : ticket.status}
                 </Badge>
               </TableCell>
-              <TableCell>{ticket.team || ticket.department || "N/A"}</TableCell>
-              <TableCell>{ticket.duration}</TableCell>
+              <TableCell>{ticket.team?.name || ticket.department?.name || "N/A"}</TableCell>
+              <TableCell>{ticket.dueDate ? new Date(ticket.dueDate).toLocaleDateString() : "N/A"}</TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

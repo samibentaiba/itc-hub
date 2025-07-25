@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,59 +15,31 @@ import {
 } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Search, Bell, Plus, Clock, CheckCircle, AlertTriangle } from "lucide-react"
+import { Search, Bell, Plus, Clock, CheckCircle, AlertTriangle, Menu } from "lucide-react"
 import { useWorkspace } from "./workspace-provider"
 import { NewTicketForm } from "./new-ticket-form"
+import { getNotifications } from "@/services/notificationService";
 
 export function WorkspaceHeader() {
   const { user } = useWorkspace()
   const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Mock notifications
-  const notifications = [
-    {
-      id: "n1",
-      title: "Ticket assigned to you",
-      description: "Fix authentication bug - Frontend Team",
-      time: "5 minutes ago",
-      type: "assignment",
-      unread: true,
-    },
-    {
-      id: "n2",
-      title: "Ticket verified",
-      description: "Design system review has been completed",
-      time: "1 hour ago",
-      type: "verification",
-      unread: true,
-    },
-    {
-      id: "n3",
-      title: "New team member",
-      description: "Sara joined Frontend Team",
-      time: "2 hours ago",
-      type: "team",
-      unread: false,
-    },
-    {
-      id: "n4",
-      title: "Meeting reminder",
-      description: "Weekly standup in 30 minutes",
-      time: "3 hours ago",
-      type: "reminder",
-      unread: false,
-    },
-  ]
+  useEffect(() => {
+    async function fetchNotifications() {
+      setLoading(true)
+      const data = await getNotifications()
+      setNotifications(data)
+      setLoading(false)
+    }
+    fetchNotifications()
+  }, [])
 
-  // Mock search results
-  const searchResults = [
-    { id: "s1", title: "Fix authentication bug", type: "ticket", workspace: "Frontend Team" },
-    { id: "s2", title: "Design Review Meeting", type: "ticket", workspace: "Design Department" },
-    { id: "s3", title: "Frontend Team", type: "team", workspace: null },
-    { id: "s4", title: "Backend Development", type: "department", workspace: null },
-  ].filter((item) => searchQuery && item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Search results stub (real search would require backend implementation)
+  const searchResults: any[] = []
 
   const getPageTitle = () => {
     if (pathname === "/") return "Dashboard"
@@ -76,7 +48,7 @@ export function WorkspaceHeader() {
     if (pathname.includes("/tickets/")) return "Ticket Discussion"
     if (pathname.includes("/admin")) return "Admin Panel"
     if (pathname.includes("/calendar/global")) return "Global Calendar"
-    return "ITC Workspace"
+    return "ITC Hub"
   }
 
   const getPageDescription = () => {
@@ -91,11 +63,11 @@ export function WorkspaceHeader() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "assignment":
+      case "ASSIGNMENT":
         return <AlertTriangle className="h-4 w-4 text-orange-500" />
-      case "verification":
+      case "VERIFICATION":
         return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "reminder":
+      case "REMINDER":
         return <Clock className="h-4 w-4 text-blue-500" />
       default:
         return <Bell className="h-4 w-4 text-gray-500" />
@@ -103,6 +75,8 @@ export function WorkspaceHeader() {
   }
 
   const unreadCount = notifications.filter((n) => n.unread).length
+
+  if (loading) return <div>Loading header...</div>
 
   return (
     <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
@@ -116,6 +90,13 @@ export function WorkspaceHeader() {
         {/* Right side - Actions */}
         <div className="flex items-center gap-2 sm:gap-4 flex-1 sm:flex-none justify-end">
           {/* Search */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-8 w-8"
+          >
+            <Menu className="h-4 w-4 " />
+          </Button>
           <Popover open={showSearch} onOpenChange={setShowSearch}>
             <PopoverTrigger asChild>
               <div className="relative flex-1 sm:flex-none max-w-xs">

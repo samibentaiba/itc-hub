@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +17,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,15 +28,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+} from "@/components/ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   Users,
   Building2,
   Calendar,
-  ChevronDown,
+  ChevronLeft,
   Settings,
   LogOut,
   Plus,
@@ -46,76 +51,114 @@ import {
   Shield,
   Menu,
   X,
-} from "lucide-react"
-import { useWorkspace } from "./workspace-provider"
-import { useToast } from "@/hooks/use-toast"
+} from "lucide-react";
+import { useWorkspace } from "./workspace-provider";
+import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
+import { getTeams, createTeam } from "@/services/teamService";
+import { getDepartments, createDepartment } from "@/services/departmentService";
+import { TeamForm } from "@/components/forms/TeamForm";
+import { DepartmentForm } from "@/components/forms/DepartmentForm";
 
 export function WorkspaceSidebar() {
-  const { user, currentWorkspace, setWorkspace } = useWorkspace()
-  const pathname = usePathname()
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
-  const [showNewTeam, setShowNewTeam] = useState(false)
-  const [showNewDepartment, setShowNewDepartment] = useState(false)
-  const { toast } = useToast()
+  const { user, currentWorkspace, setWorkspace } = useWorkspace();
+  const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showNewTeam, setShowNewTeam] = useState(false);
+  const [showNewDepartment, setShowNewDepartment] = useState(false);
+  // Use real user teams/departments if available, otherwise fallback to mock data
+  const teams = user && Array.isArray((user as any).teams) && (user as any).teams.length > 0
+    ? (user as any).teams.map((t: any) => ({
+        id: t.team?.id || t.id,
+        name: t.team?.name || t.name,
+        role: t.role,
+        ticketCount: t.ticketCount || 0,
+      }))
+    : [
+        { id: "team-1", name: "Frontend Team", role: "leader", ticketCount: 3 },
+        { id: "team-2", name: "Backend Team", role: "member", ticketCount: 1 },
+      ];
+  const departments = user && Array.isArray((user as any).departments) && (user as any).departments.length > 0
+    ? (user as any).departments.map((d: any) => ({
+        id: d.department?.id || d.id,
+        name: d.department?.name || d.name,
+        role: d.role,
+        ticketCount: d.ticketCount || 0,
+      }))
+    : [
+        { id: "dept-1", name: "Development", role: "super_leader", ticketCount: 5 },
+        { id: "dept-2", name: "Design", role: "leader", ticketCount: 2 },
+      ];
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Mock data - in real app this would come from API
-  const teams = [
-    { id: "team-1", name: "Frontend Team", role: "leader", ticketCount: 3 },
-    { id: "team-2", name: "Backend Team", role: "member", ticketCount: 1 },
-  ]
-
-  const departments = [
-    { id: "dept-1", name: "Development", role: "super_leader", ticketCount: 5 },
-    { id: "dept-2", name: "Design", role: "leader", ticketCount: 2 },
-  ]
+  useEffect(() => {
+    async function fetchSidebarData() {
+      setLoading(true);
+      const [teamsRes, departmentsRes] = await Promise.all([
+        getTeams(),
+        getDepartments(),
+      ]);
+      // setTeams(await teamsRes.json()); // Removed setTeams
+      // setDepartments(await departmentsRes.json()); // Removed setDepartments
+      setLoading(false);
+    }
+    fetchSidebarData();
+  }, []);
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case "super_leader":
-        return "destructive"
-      case "leader":
-        return "default"
+      case "SUPERLEADER":
+        return "destructive";
+      case "LEADER":
+        return "default";
       default:
-        return "secondary"
+        return "secondary";
     }
-  }
+  };
 
-  const handleCreateTeam = (formData: any) => {
-    toast({
-      title: "Team created successfully!",
-      description: `"${formData.name}" team has been created.`,
-    })
-    setShowNewTeam(false)
-  }
+  const handleCreateTeam = async (formData: any) => {
+    const newTeam = await createTeam(formData);
+    // setTeams((prev) => [...prev, newTeam]); // Removed setTeams
+    toast({ title: "Team created successfully!", description: `"${formData.name}" team has been created.` });
+    setShowNewTeam(false);
+  };
 
-  const handleCreateDepartment = (formData: any) => {
-    toast({
-      title: "Department created successfully!",
-      description: `"${formData.name}" department has been created.`,
-    })
-    setShowNewDepartment(false)
-  }
+  const handleCreateDepartment = async (formData: any) => {
+    const newDept = await createDepartment(formData);
+    // setDepartments((prev) => [...prev, newDept]); // Removed setDepartments
+    toast({ title: "Department created successfully!", description: `"${formData.name}" department has been created.` });
+    setShowNewDepartment(false);
+  };
 
   const handleLogout = () => {
     toast({
       title: "Logged out successfully",
-      description: "You have been logged out of ITC Workspace.",
-    })
-  }
+      description: "You have been logged out of ITC Hub.",
+    });
+  };
 
   const SidebarContent = () => (
     <div
-      className={cn("flex flex-col bg-card border-r transition-all duration-300 h-full", isCollapsed ? "w-16" : "w-80")}
+      className={cn(
+        "flex flex-col bg-card border-r transition-all duration-300 h-full",
+        isCollapsed ? "w-16" : "w-80"
+      )}
     >
       {/* Header */}
       <div className="p-3 sm:p-4 border-b">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-bold text-red-500 truncate">ITC Workspace</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">Information Technology Community</p>
+              <Image
+                src="/ITC HUB Logo.svg"
+                alt="ITC Hub"
+                width={100}
+                height={100}
+                className="mx-4"
+              />
             </div>
           )}
           <Button
@@ -124,7 +167,12 @@ export function WorkspaceSidebar() {
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="ml-auto h-8 w-8 sm:h-10 sm:w-10 hidden lg:flex"
           >
-            <ChevronDown className={cn("h-4 w-4 transition-transform", isCollapsed ? "rotate-90" : "rotate-0")} />
+            <ChevronLeft
+              className={cn(
+                "h-4 w-4 transition-transform",
+                isCollapsed ? "rotate-180" : "rotate-0"
+              )}
+            />
           </Button>
           <Button
             variant="ghost"
@@ -132,24 +180,42 @@ export function WorkspaceSidebar() {
             onClick={() => setIsMobileOpen(false)}
             className="ml-auto h-8 w-8 lg:hidden"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 hidden " />
           </Button>
         </div>
       </div>
 
       {/* User Profile */}
-      <div className="p-3 sm:p-4 border-b">
+      <div className="p-3 sm:p-4 border-b flex justify-center items-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2 sm:gap-3 h-auto p-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-center gap-2 sm:gap-3 h-auto px-5"
+              
+            >
               <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage
+                  src={user?.avatar || "/placeholder.svg"}
+                  alt={user?.name}
+                />
+                <AvatarFallback>{user?.name ? user.name.charAt(0) : "G"}</AvatarFallback>
               </Avatar>
               {!isCollapsed && (
                 <div className="flex-1 text-left min-w-0">
-                  <div className="font-medium text-sm sm:text-base truncate">{user.name}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</div>
+                  <div className="font-medium text-sm sm:text-base truncate">
+                    {user?.name}
+                  </div>
+                  <div className="text-xs sm:text-sm text-muted-foreground truncate">
+                    {user?.email}
+                  </div>
+                </div>
+              )}
+              {!isCollapsed && user && (
+                <div className="mt-2">
+                  <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                    {user.role.replace("_", " ").toUpperCase()}
+                  </Badge>
                 </div>
               )}
             </Button>
@@ -161,7 +227,7 @@ export function WorkspaceSidebar() {
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
-            {user.role === "admin" && (
+            {user?.role === "admin" && (
               <DropdownMenuItem asChild>
                 <Link href="/admin">
                   <Shield className="mr-2 h-4 w-4" />
@@ -175,13 +241,7 @@ export function WorkspaceSidebar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {!isCollapsed && (
-          <div className="mt-2">
-            <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
-              {user.role.replace("_", " ").toUpperCase()}
-            </Badge>
-          </div>
-        )}
+
       </div>
 
       {/* Navigation */}
@@ -191,7 +251,10 @@ export function WorkspaceSidebar() {
           <Link href="/" onClick={() => setIsMobileOpen(false)}>
             <Button
               variant={pathname === "/" ? "default" : "ghost"}
-              className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
+              className={cn(
+                "w-full justify-start gap-2 sm:gap-3 text-sm",
+                isCollapsed && "justify-center"
+              )}
             >
               <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
               {!isCollapsed && "Dashboard"}
@@ -199,37 +262,70 @@ export function WorkspaceSidebar() {
           </Link>
         </div>
 
+        
+        {/* Global Calendar - Fixed Navigation */}
+        <div>
+          <Link href="/calendar/global" onClick={() => setIsMobileOpen(false)}>
+            <Button
+              variant={pathname === "/calendar/global" ? "default" : "ghost"}
+              className={cn(
+                "w-full justify-start gap-2 sm:gap-3 text-sm",
+                isCollapsed && "justify-center"
+              )}
+            >
+              <Calendar className="h-4 w-4 flex-shrink-0" />
+              {!isCollapsed && "Global Calendar"}
+            </Button>
+          </Link>
+        </div>
         <Separator />
-
         {/* Teams */}
         <div>
           {!isCollapsed && (
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">TEAMS</h3>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">
+                TEAMS
+              </h3>
               <Dialog open={showNewTeam} onOpenChange={setShowNewTeam}>
                 <DialogTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-5 w-5 sm:h-6 sm:w-6"
+                  >
                     <Plus className="h-3 w-3" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="w-[95vw] max-w-md mx-auto">
                   <DialogHeader>
                     <DialogTitle>Create New Team</DialogTitle>
-                    <DialogDescription>Create a new team workspace for collaboration</DialogDescription>
+                    <DialogDescription>
+                      Create a new team workspace for collaboration
+                    </DialogDescription>
                   </DialogHeader>
-                  <CreateTeamForm onSubmit={handleCreateTeam} />
+                  <TeamForm onSubmit={handleCreateTeam} submitLabel="Create Team" />
                 </DialogContent>
               </Dialog>
             </div>
           )}
           <div className="space-y-1">
-            {teams.map((team) => (
+            {teams.map((team: any) => (
               <ContextMenu key={team.id}>
                 <ContextMenuTrigger>
-                  <Link href={`/teams/${team.id}`} onClick={() => setIsMobileOpen(false)}>
+                  <Link
+                    href={`/teams/${team.id}`}
+                    onClick={() => setIsMobileOpen(false)}
+                  >
                     <Button
-                      variant={pathname.includes(`/teams/${team.id}`) ? "default" : "ghost"}
-                      className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
+                      variant={
+                        pathname.includes(`/teams/${team.id}`)
+                          ? "default"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start gap-2 sm:gap-3 text-sm",
+                        isCollapsed && "justify-center"
+                      )}
                     >
                       <Users className="h-4 w-4 flex-shrink-0" />
                       {!isCollapsed && (
@@ -270,31 +366,52 @@ export function WorkspaceSidebar() {
         <div>
           {!isCollapsed && (
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">DEPARTMENTS</h3>
-              <Dialog open={showNewDepartment} onOpenChange={setShowNewDepartment}>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">
+                DEPARTMENTS
+              </h3>
+              <Dialog
+                open={showNewDepartment}
+                onOpenChange={setShowNewDepartment}
+              >
                 <DialogTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-5 w-5 sm:h-6 sm:w-6"
+                  >
                     <Plus className="h-3 w-3" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="w-[95vw] max-w-md mx-auto">
                   <DialogHeader>
                     <DialogTitle>Create New Department</DialogTitle>
-                    <DialogDescription>Create a new department for organizational oversight</DialogDescription>
+                    <DialogDescription>
+                      Create a new department for organizational oversight
+                    </DialogDescription>
                   </DialogHeader>
-                  <CreateDepartmentForm onSubmit={handleCreateDepartment} />
+                  <DepartmentForm onSubmit={handleCreateDepartment} submitLabel="Create Department" />
                 </DialogContent>
               </Dialog>
             </div>
           )}
           <div className="space-y-1">
-            {departments.map((dept) => (
+            {departments.map((dept: any) => (
               <ContextMenu key={dept.id}>
                 <ContextMenuTrigger>
-                  <Link href={`/departments/${dept.id}`} onClick={() => setIsMobileOpen(false)}>
+                  <Link
+                    href={`/departments/${dept.id}`}
+                    onClick={() => setIsMobileOpen(false)}
+                  >
                     <Button
-                      variant={pathname.includes(`/departments/${dept.id}`) ? "default" : "ghost"}
-                      className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
+                      variant={
+                        pathname.includes(`/departments/${dept.id}`)
+                          ? "default"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start gap-2 sm:gap-3 text-sm",
+                        isCollapsed && "justify-center"
+                      )}
                     >
                       <Building2 className="h-4 w-4 flex-shrink-0" />
                       {!isCollapsed && (
@@ -331,18 +448,7 @@ export function WorkspaceSidebar() {
 
         <Separator />
 
-        {/* Global Calendar - Fixed Navigation */}
-        <div>
-          <Link href="/calendar/global" onClick={() => setIsMobileOpen(false)}>
-            <Button
-              variant={pathname === "/calendar/global" ? "default" : "ghost"}
-              className={cn("w-full justify-start gap-2 sm:gap-3 text-sm", isCollapsed && "justify-center")}
-            >
-              <Calendar className="h-4 w-4 flex-shrink-0" />
-              {!isCollapsed && "Global Calendar"}
-            </Button>
-          </Link>
-        </div>
+
       </div>
 
       {/* Settings Dialog */}
@@ -350,21 +456,27 @@ export function WorkspaceSidebar() {
         <DialogContent className="w-[95vw] max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle>Settings</DialogTitle>
-            <DialogDescription>Manage your account and preferences</DialogDescription>
+            <DialogDescription>
+              Manage your account and preferences
+            </DialogDescription>
           </DialogHeader>
           <UserSettingsForm />
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 
   return (
     <>
       {/* Mobile Trigger */}
       <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden h-8 w-8">
-            <Menu className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed top-4 left-4 z-50 lg:hidden h-8 w-8"
+          >
+            <Menu className="h-4 w-4 hidden " />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-80">
@@ -377,18 +489,18 @@ export function WorkspaceSidebar() {
         <SidebarContent />
       </div>
     </>
-  )
+  );
 }
 
 // Create Team Form Component
 function CreateTeamForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [formData, setFormData] = useState({ name: "", description: "" })
+  const [formData, setFormData] = useState({ name: "", description: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    setFormData({ name: "", description: "" })
-  }
+    e.preventDefault();
+    onSubmit(formData);
+    setFormData({ name: "", description: "" });
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -413,7 +525,9 @@ function CreateTeamForm({ onSubmit }: { onSubmit: (data: any) => void }) {
           id="teamDescription"
           placeholder="Describe the team's purpose..."
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           className="text-sm min-h-[80px]"
         />
       </div>
@@ -431,18 +545,18 @@ function CreateTeamForm({ onSubmit }: { onSubmit: (data: any) => void }) {
         </Button>
       </div>
     </form>
-  )
+  );
 }
 
 // Create Department Form Component
 function CreateDepartmentForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [formData, setFormData] = useState({ name: "", description: "" })
+  const [formData, setFormData] = useState({ name: "", description: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    setFormData({ name: "", description: "" })
-  }
+    e.preventDefault();
+    onSubmit(formData);
+    setFormData({ name: "", description: "" });
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -467,7 +581,9 @@ function CreateDepartmentForm({ onSubmit }: { onSubmit: (data: any) => void }) {
           id="deptDescription"
           placeholder="Describe the department's role..."
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           className="text-sm min-h-[80px]"
         />
       </div>
@@ -485,7 +601,7 @@ function CreateDepartmentForm({ onSubmit }: { onSubmit: (data: any) => void }) {
         </Button>
       </div>
     </form>
-  )
+  );
 }
 
 // User Settings Form Component
@@ -495,16 +611,16 @@ function UserSettingsForm() {
     email: "sami@itc.com",
     notifications: true,
     darkMode: true,
-  })
+  });
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const handleSave = () => {
     toast({
       title: "Settings saved",
       description: "Your preferences have been updated successfully.",
-    })
-  }
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -515,7 +631,9 @@ function UserSettingsForm() {
         <Input
           id="displayName"
           value={settings.displayName}
-          onChange={(e) => setSettings({ ...settings, displayName: e.target.value })}
+          onChange={(e) =>
+            setSettings({ ...settings, displayName: e.target.value })
+          }
           className="text-sm"
         />
       </div>
@@ -538,17 +656,22 @@ function UserSettingsForm() {
         <Button
           variant={settings.notifications ? "default" : "outline"}
           size="sm"
-          onClick={() => setSettings({ ...settings, notifications: !settings.notifications })}
+          onClick={() =>
+            setSettings({ ...settings, notifications: !settings.notifications })
+          }
           className="text-xs"
         >
           {settings.notifications ? "On" : "Off"}
         </Button>
       </div>
       <div className="flex justify-end pt-4">
-        <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700 text-sm w-full sm:w-auto">
+        <Button
+          onClick={handleSave}
+          className="bg-red-600 hover:bg-red-700 text-sm w-full sm:w-auto"
+        >
           Save Changes
         </Button>
       </div>
     </div>
-  )
+  );
 }

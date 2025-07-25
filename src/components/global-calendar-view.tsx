@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,107 +21,72 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ChevronLeft, ChevronRight, CalendarIcon, Plus, Users, Building2, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { getEvents, createEvent } from "@/services/eventService";
 
 export function GlobalCalendarView() {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [showNewEvent, setShowNewEvent] = useState(false)
+  const [events, setEvents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  // Mock global events data
-  const globalEvents = [
-    {
-      id: "ge1",
-      title: "ITC General Assembly",
-      description: "Monthly general meeting for all ITC members",
-      date: new Date("2025-01-24"),
-      time: "14:00",
-      duration: "2 hours",
-      type: "meeting",
-      location: "Main Hall",
-      organizer: "ITC Board",
-      attendees: 45,
-      isRecurring: true,
-    },
-    {
-      id: "ge2",
-      title: "Tech Talk: AI in Development",
-      description: "Guest speaker discussing AI applications in software development",
-      date: new Date("2025-01-26"),
-      time: "16:00",
-      duration: "1.5 hours",
-      type: "event",
-      location: "Conference Room A",
-      organizer: "Sami",
-      attendees: 25,
-      isRecurring: false,
-    },
-    {
-      id: "ge3",
-      title: "Project Showcase Deadline",
-      description: "Final deadline for project submissions",
-      date: new Date("2025-01-25"),
-      time: "23:59",
-      duration: "All day",
-      type: "deadline",
-      location: "Online",
-      organizer: "Academic Committee",
-      attendees: 0,
-      isRecurring: false,
-    },
-    {
-      id: "ge4",
-      title: "Networking Event",
-      description: "Connect with industry professionals and alumni",
-      date: new Date("2025-01-28"),
-      time: "18:00",
-      duration: "3 hours",
-      type: "networking",
-      location: "Student Center",
-      organizer: "Career Services",
-      attendees: 60,
-      isRecurring: false,
-    },
-    {
-      id: "ge5",
-      title: "Workshop: React Best Practices",
-      description: "Hands-on workshop covering React development best practices",
-      date: new Date("2025-01-27"),
-      time: "10:00",
-      duration: "4 hours",
-      type: "workshop",
-      location: "Lab 101",
-      organizer: "Yasmine",
-      attendees: 20,
-      isRecurring: false,
-    },
-  ]
+  useEffect(() => {
+    async function fetchEvents() {
+      setLoading(true)
+      const data = await getEvents()
+      // Parse date fields and map organizer name
+      setEvents(data.map((event: any) => ({
+        ...event,
+        date: new Date(event.date),
+        organizer: event.organizer?.name || event.organizer || "Unknown",
+      })))
+      setLoading(false)
+    }
+    fetchEvents()
+  }, [])
 
   // Get events for selected date
-  const selectedDateEvents = globalEvents.filter((event) => date && event.date.toDateString() === date.toDateString())
+  const selectedDateEvents = events.filter((event) => date && event.date.toDateString() === date.toDateString())
 
   // Get upcoming events (next 7 days)
-  const upcomingEvents = globalEvents
+  const upcomingEvents = events
     .filter((event) => event.date >= new Date())
     .sort((a, b) => a.date.getTime() - b.date.getTime())
     .slice(0, 5)
 
   // Get calendar events for highlighting
-  const calendarEvents = globalEvents.reduce(
+  const calendarEvents = events.reduce(
     (acc, event) => {
       const dateKey = event.date.toDateString()
       if (!acc[dateKey]) acc[dateKey] = []
       acc[dateKey].push(event)
       return acc
     },
-    {} as Record<string, typeof globalEvents>,
+    {} as Record<string, typeof events>,
   )
 
-  const handleCreateEvent = (formData: any) => {
-    toast({
-      title: "Event created successfully!",
-      description: `"${formData.title}" has been added to the global calendar.`,
-    })
-    setShowNewEvent(false)
+  const handleCreateEvent = async (formData: any) => {
+    // Optionally POST to API
+    try {
+      const data = await createEvent({
+        ...formData,
+        date: new Date(formData.date + 'T' + formData.time),
+      })
+      if (data) {
+        toast({
+          title: "Event created successfully!",
+          description: `"${formData.title}" has been added to the global calendar.`,
+        })
+        setShowNewEvent(false)
+        // Refresh events
+        const updated = await getEvents()
+        setEvents((prev) => [...prev, { ...updated, date: new Date(updated.date), organizer: updated.organizer?.name || "Unknown" }])
+      } else {
+        toast({ title: "Error", description: "Failed to create event." })
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to create event." })
+    }
   }
 
   const getEventTypeColor = (type: string) => {
@@ -140,6 +105,8 @@ export function GlobalCalendarView() {
         return "bg-gray-100 text-gray-800 border-gray-300"
     }
   }
+
+  if (loading) return <div>Loading events...</div>
 
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
@@ -341,7 +308,7 @@ export function GlobalCalendarView() {
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               <div className="space-y-3 sm:space-y-4 max-h-[500px] overflow-auto">
-                {globalEvents
+                {events
                   .sort((a, b) => a.date.getTime() - b.date.getTime())
                   .map((event) => (
                     <div key={event.id} className="border rounded-lg p-3 sm:p-4 hover:bg-accent/50 transition-colors">

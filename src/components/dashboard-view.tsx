@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,69 +28,44 @@ import {
 } from "lucide-react"
 import { NewTicketForm } from "./new-ticket-form"
 import { useToast } from "@/hooks/use-toast"
+import { getTickets } from "@/services/ticketService";
+import { getTeams } from "@/services/teamService";
+import { getDepartments } from "@/services/departmentService";
 
 export function DashboardView() {
   const [showNewTicket, setShowNewTicket] = useState(false)
   const [selectedStatCard, setSelectedStatCard] = useState<string | null>(null)
+  const [tickets, setTickets] = useState<any[]>([])
+  const [teams, setTeams] = useState<any[]>([])
+  const [departments, setDepartments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  // Mock data with more realistic information
-  const myTickets = [
-    {
-      id: "t1",
-      title: "Fix authentication bug",
-      type: "task",
-      workspace: "Frontend Team",
-      workspaceType: "team",
-      status: "pending",
-      dueDate: "2025-01-25",
-      messages: 3,
-      priority: "high",
-      assignedBy: "Sami",
-    },
-    {
-      id: "t2",
-      title: "Design system review",
-      type: "meeting",
-      workspace: "Design Department",
-      workspaceType: "department",
-      status: "verified",
-      dueDate: "2025-01-26",
-      messages: 8,
-      priority: "medium",
-      assignedBy: "Yasmine",
-    },
-    {
-      id: "t3",
-      title: "Weekly standup",
-      type: "event",
-      workspace: "Backend Team",
-      workspaceType: "team",
-      status: "in_progress",
-      dueDate: "2025-01-24",
-      messages: 1,
-      priority: "low",
-      assignedBy: "Omar",
-    },
-    {
-      id: "t4",
-      title: "Security audit planning",
-      type: "meeting",
-      workspace: "Development Department",
-      workspaceType: "department",
-      status: "scheduled",
-      dueDate: "2025-01-27",
-      messages: 5,
-      priority: "high",
-      assignedBy: "Sami",
-    },
-  ]
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const [tickets, teams, departments] = await Promise.all([
+        getTickets(),
+        getTeams(),
+        getDepartments(),
+      ]);
+      setTickets(tickets);
+      setTeams(teams);
+      setDepartments(departments);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  // Example: filter tickets assigned to a specific user (replace with real user id)
+  const myUserId = tickets[0]?.assigneeId || ""
+  const myTickets = tickets.filter((t) => t.assigneeId === myUserId)
 
   const workspaceStats = {
-    teams: { count: 2, change: "+1 this month", trend: "up" },
-    departments: { count: 2, change: "No change", trend: "stable" },
-    activeTickets: { count: 5, change: "+2 this week", trend: "up" },
-    completedThisWeek: { count: 8, change: "+3 from last week", trend: "up" },
+    teams: { count: teams.length, change: "+" + teams.length + " this month", trend: "up" },
+    departments: { count: departments.length, change: "No change", trend: "stable" },
+    activeTickets: { count: tickets.filter((t) => t.status !== "VERIFIED" && t.status !== "CLOSED").length, change: "+" + tickets.length + " this week", trend: "up" },
+    completedThisWeek: { count: tickets.filter((t) => t.status === "VERIFIED").length, change: "+" + tickets.filter((t) => t.status === "VERIFIED").length + " from last week", trend: "up" },
   }
 
   const handleStatCardClick = (cardType: string) => {
@@ -131,6 +106,8 @@ export function DashboardView() {
         return <Activity className="h-3 w-3 text-gray-500" />
     }
   }
+
+  if (loading) return <div>Loading dashboard...</div>
 
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
@@ -232,7 +209,7 @@ export function DashboardView() {
                 <div className="flex flex-col sm:flex-row items-start mb-5 sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group gap-3 sm:gap-0">
                   <div className="space-y-2 flex-1 w-full sm:w-auto">
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority)} flex-shrink-0`} />
+                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority || "low") } flex-shrink-0`} />
                       <h4 className="font-medium group-hover:text-red-500 transition-colors text-sm sm:text-base truncate">
                         {ticket.title}
                       </h4>
@@ -241,9 +218,9 @@ export function DashboardView() {
                       </Badge>
                       <Badge
                         variant={
-                          ticket.status === "verified"
+                          ticket.status === "VERIFIED"
                             ? "default"
-                            : ticket.status === "pending"
+                            : ticket.status === "PENDING"
                               ? "destructive"
                               : "secondary"
                         }
@@ -254,19 +231,19 @@ export function DashboardView() {
                     </div>
                     <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        {ticket.workspaceType === "team" ? (
+                        {ticket.workspaceType === "TEAM" ? (
                           <Users className="h-3 w-3" />
                         ) : (
                           <Building2 className="h-3 w-3" />
                         )}
-                        <span className="truncate max-w-[120px] sm:max-w-none">{ticket.workspace}</span>
+                        <span className="truncate max-w-[120px] sm:max-w-none">{typeof ticket.workspace === "string" ? ticket.workspace : "N/A"}</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Due {ticket.dueDate}
+                        Due {ticket.dueDate ? (typeof ticket.dueDate === "string" ? ticket.dueDate : new Date(ticket.dueDate).toLocaleDateString()) : "N/A"}
                       </span>
-                      <span className="hidden sm:inline">{ticket.messages} messages</span>
-                      <span className="hidden md:inline">by {ticket.assignedBy}</span>
+                      <span className="hidden sm:inline">{typeof ticket.messages === "number" ? ticket.messages : 0} messages</span>
+                      <span className="hidden md:inline">by {typeof ticket.assignedBy === "string" ? ticket.assignedBy : "N/A"}</span>
                     </div>
                   </div>
                   <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors flex-shrink-0 self-start sm:self-center" />

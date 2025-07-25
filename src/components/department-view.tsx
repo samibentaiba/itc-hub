@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,8 @@ import {
 } from "lucide-react"
 import { NewTicketForm } from "./new-ticket-form"
 import { useToast } from "@/hooks/use-toast"
+import { getDepartments } from "@/services/departmentService";
+import { getTickets } from "@/services/ticketService";
 
 interface DepartmentViewProps {
   departmentId: string
@@ -41,104 +43,36 @@ interface DepartmentViewProps {
 export function DepartmentView({ departmentId }: DepartmentViewProps) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [showNewTicket, setShowNewTicket] = useState(false)
+  const [department, setDepartment] = useState<any>(null)
+  const [tickets, setTickets] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  // Mock department data
-  const department = {
-    id: departmentId,
-    name: "Development Department",
-    description: "Overseeing all development teams and long-term technical initiatives",
-    leaders: [
-      {
-        id: "u1",
-        name: "Sami",
-        role: "super_leader",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "online",
-        email: "sami@itc.com",
-        joinedDate: "2024-01-01",
-      },
-      {
-        id: "u2",
-        name: "Yasmine",
-        role: "leader",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "online",
-        email: "yasmine@itc.com",
-        joinedDate: "2024-01-15",
-      },
-    ],
-    teams: [
-      { id: "team-1", name: "Frontend Team", memberCount: 5, leader: "Ali", status: "active" },
-      { id: "team-2", name: "Backend Team", memberCount: 4, leader: "Omar", status: "active" },
-      { id: "team-3", name: "Mobile Team", memberCount: 3, leader: "Layla", status: "planning" },
-    ],
-  }
-
-  const tickets = [
-    {
-      id: "t1",
-      title: "Q1 Architecture Review",
-      type: "meeting",
-      status: "in_progress",
-      assignee: null,
-      duration: "2 months",
-      messages: 12,
-      lastActivity: "1 hour ago",
-      collaborative: true,
-      calendarDate: new Date("2025-01-25"),
-      collaborators: ["Sami", "Yasmine"],
-    },
-    {
-      id: "t2",
-      title: "Tech Stack Migration Plan",
-      type: "task",
-      status: "pending",
-      assignee: "Yasmine",
-      duration: "6 months",
-      messages: 8,
-      lastActivity: "2 days ago",
-      collaborative: false,
-      calendarDate: new Date("2025-01-30"),
-      collaborators: [],
-    },
-    {
-      id: "t3",
-      title: "Annual Development Conference",
-      type: "event",
-      status: "scheduled",
-      assignee: null,
-      duration: "1 year",
-      messages: 25,
-      lastActivity: "5 hours ago",
-      collaborative: true,
-      calendarDate: new Date("2025-01-28"),
-      collaborators: ["Sami", "Yasmine"],
-    },
-    {
-      id: "t4",
-      title: "Security Audit Planning",
-      type: "meeting",
-      status: "scheduled",
-      assignee: "Sami",
-      duration: "3 months",
-      messages: 3,
-      lastActivity: "1 day ago",
-      collaborative: true,
-      calendarDate: new Date("2025-01-26"),
-      collaborators: ["Sami"],
-    },
-  ]
+  useEffect(() => {
+    async function fetchDepartmentAndTickets() {
+      setLoading(true)
+      // Fetch department
+      const departments = await getDepartments();
+      const foundDept = departments.find((d: any) => d.id === departmentId);
+      setDepartment(foundDept);
+      // Fetch tickets
+      const allTickets = await getTickets();
+      const filtered = allTickets.filter((t: any) => t.departmentId === departmentId);
+      setTickets(filtered);
+      setLoading(false);
+    }
+    fetchDepartmentAndTickets()
+  }, [departmentId])
 
   // Get tickets for selected date
   const selectedDateTickets = tickets.filter(
-    (ticket) => date && ticket.calendarDate.toDateString() === date.toDateString(),
+    (ticket) => date && new Date(ticket.dueDate).toDateString() === date.toDateString(),
   )
 
   // Get calendar events (tickets) for the calendar component
   const calendarEvents = tickets.reduce(
     (acc, ticket) => {
-      const dateKey = ticket.calendarDate.toDateString()
+      const dateKey = new Date(ticket.dueDate).toDateString()
       if (!acc[dateKey]) acc[dateKey] = []
       acc[dateKey].push(ticket)
       return acc
@@ -147,7 +81,7 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
   )
 
   const handleTeamAction = (action: string, teamId: string) => {
-    const team = department.teams.find((t) => t.id === teamId)
+    const team = department.teams.find((t: any) => t.id === teamId)
     toast({
       title: `${action} ${team?.name}`,
       description: `Action "${action}" performed on ${team?.name}`,
@@ -155,12 +89,15 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
   }
 
   const handleLeaderAction = (action: string, leaderId: string) => {
-    const leader = department.leaders.find((l) => l.id === leaderId)
+    const leader = department.leaders.find((l: any) => l.id === leaderId)
     toast({
       title: `${action} ${leader?.name}`,
       description: `Action "${action}" performed on ${leader?.name}`,
     })
   }
+
+  if (loading) return <div>Loading department...</div>
+  if (!department) return <div>Department not found.</div>
 
   return (
     <div className="space-y-6">
@@ -235,13 +172,13 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
                           {ticket.assignee && (
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
-                              {ticket.assignee}
+                              {typeof ticket.assignee === "string" ? ticket.assignee : ticket.assignee?.name || "N/A"}
                             </span>
                           )}
                           {ticket.collaborative && ticket.collaborators.length > 0 && (
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
-                              {ticket.collaborators.join(", ")}
+                              {(ticket.collaborators ?? []).map((c: any) => typeof c === "string" ? c : c?.name || "N/A").join(", ")}
                             </span>
                           )}
                           <span className="flex items-center gap-1">
@@ -250,7 +187,7 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
                           </span>
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-3 w-3" />
-                            {ticket.messages} messages
+                            {Array.isArray(ticket.messages) ? ticket.messages.length : ticket.messages || 0} messages
                           </span>
                           <span>Last activity: {ticket.lastActivity}</span>
                         </div>
@@ -352,7 +289,7 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
                             <h3 className="font-semibold text-sm sm:text-base">{ticket.title}</h3>
                             <Badge variant="outline" className="text-xs">{ticket.type}</Badge>
                           </div>
-                          <div className="text-xs sm:text-sm text-muted-foreground mb-3">Duration: {ticket.duration} • {ticket.messages} messages</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground mb-3">Duration: {ticket.duration} • {Array.isArray(ticket.messages) ? ticket.messages.length : ticket.messages || 0} messages</div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-muted-foreground">
                             {ticket.assignee && (
                               <div className="flex items-center gap-1">
@@ -363,7 +300,7 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
                             {ticket.collaborative && ticket.collaborators.length > 0 && (
                               <div className="flex items-center gap-1">
                                 <Users className="h-3 w-3" />
-                                {ticket.collaborators.join(", ")}
+                                {(ticket.collaborators ?? []).map((c: any) => typeof c === "string" ? c : c?.name || "N/A").join(", ")}
                               </div>
                             )}
                             <div className="flex items-center gap-1">
@@ -389,7 +326,7 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {department.teams.map((team) => (
+                {(department?.teams ?? []).map((team: any) => (
                   <Card key={team.id} className="hover:bg-accent/50 transition-colors p-0">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
@@ -452,7 +389,7 @@ export function DepartmentView({ departmentId }: DepartmentViewProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {department.leaders.map((leader) => (
+                {(department?.leaders ?? []).map((leader: any) => (
                   <div key={leader.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="relative">

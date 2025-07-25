@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -26,161 +26,61 @@ import {
   Trash2,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { FileUpload } from "./file-upload";
+import { FilePreview } from "./file-preview";
+import { getTickets } from "@/services/ticketService";
+import { getMessages, createMessage } from "@/services/messageService";
 
 interface TicketChatViewProps {
   ticketId: string
 }
 
+type Reaction = any;
+
 export function TicketChatView({ ticketId }: TicketChatViewProps) {
   const [message, setMessage] = useState("")
-  const [messages, setMessages] = useState([
-    {
-      id: "m1",
-      sender: {
-        id: "u1",
-        name: "Sami",
-        avatar: "/placeholder.svg?height=32&width=32",
-        role: "leader",
-      },
-      content:
-        "Hey Ali, can you implement the dark mode toggle? It should be in the header and persist user preference.",
-      type: "text",
-      timestamp: "2025-01-20T10:00:00",
-      reactions: [{ emoji: "👍", users: ["u2"], count: 1 }],
-      edited: false,
-    },
-    {
-      id: "m2",
-      sender: {
-        id: "u2",
-        name: "Ali",
-        avatar: "/placeholder.svg?height=32&width=32",
-        role: "member",
-      },
-      content: "I'll start working on it. Should I use localStorage for persistence?",
-      type: "text",
-      timestamp: "2025-01-20T10:15:00",
-      reactions: [],
-      edited: false,
-    },
-    {
-      id: "m3",
-      sender: {
-        id: "u1",
-        name: "Sami",
-        avatar: "/placeholder.svg?height=32&width=32",
-        role: "leader",
-      },
-      content:
-        "Yes, localStorage is perfect. Also check this design reference: https://dribbble.com/shots/dark-mode-toggle",
-      type: "text",
-      timestamp: "2025-01-20T10:20:00",
-      hasUrl: true,
-      reactions: [{ emoji: "🔥", users: ["u2"], count: 1 }],
-      edited: false,
-    },
-    {
-      id: "m4",
-      sender: {
-        id: "u2",
-        name: "Ali",
-        avatar: "/placeholder.svg?height=32&width=32",
-        role: "member",
-      },
-      content: "I've implemented the basic functionality. Here's a screenshot of the current progress:",
-      type: "text",
-      timestamp: "2025-01-22T14:30:00",
-      reactions: [],
-      edited: false,
-    },
-    {
-      id: "m5",
-      sender: {
-        id: "u2",
-        name: "Ali",
-        avatar: "/placeholder.svg?height=32&width=32",
-        role: "member",
-      },
-      content: "/placeholder.svg?height=300&width=500&text=Dark+Mode+Toggle+Screenshot",
-      type: "image",
-      timestamp: "2025-01-22T14:31:00",
-      reactions: [
-        { emoji: "👏", users: ["u1"], count: 1 },
-        { emoji: "🚀", users: ["u1", "u3"], count: 2 },
-      ],
-      edited: false,
-    },
-    {
-      id: "m6",
-      sender: {
-        id: "u2",
-        name: "Ali",
-        avatar: "/placeholder.svg?height=32&width=32",
-        role: "member",
-      },
-      content: "The toggle is working and the theme persists across page reloads. Ready for review!",
-      type: "text",
-      timestamp: "2025-01-22T14:35:00",
-      reactions: [],
-      edited: false,
-    },
-  ])
-
+  const [messages, setMessages] = useState<any[]>([])
+  const [ticket, setTicket] = useState<any>(null)
   const [editingMessage, setEditingMessage] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
   const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null)
-  const [ticketStatus, setTicketStatus] = useState("in_progress")
+  const [ticketStatus, setTicketStatus] = useState("")
+  const [loading, setLoading] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
-  // Mock ticket data
-  const ticket = {
-    id: ticketId,
-    title: "Implement dark mode toggle",
-    description: "Add a dark mode toggle to the application header with proper theme switching functionality",
-    type: "task",
-    status: ticketStatus,
-    workspace: "Frontend Team",
-    workspaceType: "team",
-    assignee: {
-      id: "u2",
-      name: "Ali",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    createdBy: {
-      id: "u1",
-      name: "Sami",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    dueDate: "2025-01-25",
-    createdAt: "2025-01-20",
-  }
+  useEffect(() => {
+    async function fetchTicketAndMessages() {
+      setLoading(true)
+      // Fetch ticket
+      const foundTicket = await getTickets().then(tickets => tickets.find((t: any) => t.id === ticketId));
+      setTicket(foundTicket)
+      setTicketStatus(foundTicket?.status || "")
+      // Fetch messages
+      const allMessages = await getMessages();
+      const filtered = allMessages.filter((m: any) => m.ticketId === ticketId)
+      setMessages(filtered)
+      setLoading(false)
+    }
+    fetchTicketAndMessages()
+  }, [ticketId])
 
   const emojis = ["👍", "👎", "❤️", "😂", "😮", "😢", "😡", "🔥", "👏", "🚀"]
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim()) {
-      const newMessage = {
-        id: `m${messages.length + 1}`,
-        sender: {
-          id: "u1",
-          name: "Sami",
-          avatar: "/placeholder.svg?height=32&width=32",
-          role: "leader",
-        },
+      // POST to API
+      const newMessage = await createMessage({
+        ticketId,
+        senderId: ticket?.assigneeId || ticket?.createdById, // fallback
         content: message,
-        type: "text" as const,
-        timestamp: new Date().toISOString(),
-        reactions: [],
-        edited: false,
+        type: "text",
+      });
+      if (newMessage) {
+        setMessages([...messages, newMessage])
+        setMessage("")
+        toast({ title: "Message sent", description: "Your message has been posted to the ticket." })
       }
-      setMessages([...messages, newMessage])
-      setMessage("")
-
-      toast({
-        title: "Message sent",
-        description: "Your message has been posted to the ticket.",
-      })
     }
   }
 
@@ -241,23 +141,23 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
     setMessages(
       messages.map((msg) => {
         if (msg.id === messageId) {
-          const existingReaction = msg.reactions.find((r) => r.emoji === emoji)
+          const existingReaction = msg.reactions.find((r: Reaction) => r.emoji === emoji)
           if (existingReaction) {
             if (existingReaction.users.includes("u1")) {
               // Remove reaction
               return {
                 ...msg,
                 reactions: msg.reactions
-                  .map((r) =>
-                    r.emoji === emoji ? { ...r, users: r.users.filter((u) => u !== "u1"), count: r.count - 1 } : r,
+                  .map((r: Reaction) =>
+                    r.emoji === emoji ? { ...r, users: r.users.filter((u: any) => u !== "u1"), count: r.count - 1 } : r,
                   )
-                  .filter((r) => r.count > 0),
+                  .filter((r: Reaction) => r.count > 0),
               }
             } else {
               // Add reaction
               return {
                 ...msg,
-                reactions: msg.reactions.map((r) =>
+                reactions: msg.reactions.map((r: Reaction) =>
                   r.emoji === emoji ? { ...r, users: [...r.users, "u1"], count: r.count + 1 } : r,
                 ),
               }
@@ -376,6 +276,9 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
 
     return <div>{msg.content}</div>
   }
+
+  if (loading) return <div>Loading ticket and messages...</div>
+  if (!ticket) return <div>Ticket not found.</div>
 
   return (
     <div className="space-y-6">
@@ -516,7 +419,7 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
 
                         {/* Reactions */}
                         <div className="flex items-center gap-1 flex-wrap">
-                          {msg.reactions.map((reaction) => (
+                          {Array.isArray(msg.reactions) && msg.reactions.map((reaction: Reaction) => (
                             <Button
                               key={reaction.emoji}
                               variant="outline"
@@ -559,6 +462,13 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
                       </>
                     )}
                   </div>
+                  {msg.files && msg.files.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {msg.files.map((fileId: string) => (
+                        <FilePreview key={fileId} fileId={fileId} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -605,6 +515,15 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
           </div>
         </CardContent>
       </Card>
+      <div className="mt-4">
+        <FileUpload
+          uploadedById={ticket?.assigneeId || ticket?.createdById || ""}
+          ticketId={ticketId}
+          onUpload={(fileId) => {
+            // Optionally, refresh messages or show a toast
+          }}
+        />
+      </div>
     </div>
   )
 }

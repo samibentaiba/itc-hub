@@ -3,49 +3,26 @@ import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState, useEffect } from "react"
+import { getTickets } from "@/services/ticketService";
 
 interface RecentTicketsProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function RecentTickets({ className, ...props }: RecentTicketsProps) {
-  const tickets = [
-    {
-      id: "t1",
-      title: "Fix login bug",
-      description: "Resolve session persistence issue",
-      status: "verified",
-      type: "task",
-      assignee: {
-        name: "Ali",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-    },
-    {
-      id: "t2",
-      title: "Weekly Standup",
-      description: "Discuss weekly progress",
-      status: "scheduled",
-      type: "event",
-      scheduledAt: "2025-07-24T09:00:00",
-    },
-    {
-      id: "t3",
-      title: "Design Review",
-      description: "Review new component designs",
-      status: "in_progress",
-      type: "meeting",
-    },
-    {
-      id: "t4",
-      title: "Create landing page",
-      description: "Design and structure the homepage layout",
-      status: "in_progress",
-      type: "task",
-      assignee: {
-        name: "Ali",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-    },
-  ]
+  const [tickets, setTickets] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchTickets() {
+      setLoading(true)
+      const data = await getTickets()
+      setTickets(data)
+      setLoading(false)
+    }
+    fetchTickets()
+  }, [])
+
+  if (loading) return <div>Loading recent tickets...</div>
 
   return (
     <Card className={cn("col-span-4", className)} {...props}>
@@ -55,25 +32,25 @@ export function RecentTickets({ className, ...props }: RecentTicketsProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {tickets.map((ticket) => (
+          {tickets.slice(0, 4).map((ticket) => (
             <div key={ticket.id} className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{ticket.title}</p>
                   <Badge
                     variant={
-                      ticket.status === "verified"
+                      ticket.status === "VERIFIED"
                         ? "default"
-                        : ticket.status === "in_progress"
-                          ? "secondary"
-                          : "outline"
+                        : ticket.status === "IN_PROGRESS"
+                        ? "secondary"
+                        : "outline"
                     }
                   >
-                    {ticket.status === "verified"
+                    {ticket.status === "VERIFIED"
                       ? "Verified"
-                      : ticket.status === "in_progress"
+                      : ticket.status === "IN_PROGRESS"
                         ? "In Progress"
-                        : "Scheduled"}
+                        : ticket.status}
                   </Badge>
                   <Badge variant="outline">{ticket.type}</Badge>
                 </div>

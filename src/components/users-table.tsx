@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,37 +14,23 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MoreHorizontal } from "lucide-react"
+import { getUsers } from "@/services/userService";
 
 export function UsersTable() {
-  const [users] = useState([
-    {
-      id: "u1",
-      name: "Sami",
-      email: "sami@example.com",
-      role: "super_leader",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["UI/UX Department"],
-    },
-    {
-      id: "u2",
-      name: "Yasmine",
-      email: "yasmine@example.com",
-      role: "leader",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["UI/UX Department"],
-    },
-    {
-      id: "u3",
-      name: "Ali",
-      email: "ali@example.com",
-      role: "member",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["UI/UX Department"],
-    },
-  ])
+  const [users, setUsers] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchUsers() {
+      setLoading(true)
+      const data = await getUsers();
+      setUsers(data)
+      setLoading(false)
+    }
+    fetchUsers()
+  }, [])
+
+  if (loading) return <div>Loading users...</div>
 
   return (
     <div className="rounded-md border">
@@ -75,25 +61,35 @@ export function UsersTable() {
               </TableCell>
               <TableCell>
                 <Badge
-                  variant={user.role === "super_leader" ? "default" : user.role === "leader" ? "secondary" : "outline"}
+                  variant={user.role === "SUPERLEADER" ? "default" : user.role === "LEADER" ? "secondary" : "outline"}
                 >
-                  {user.role === "super_leader" ? "Super Leader" : user.role === "leader" ? "Leader" : "Member"}
+                  {user.role === "SUPERLEADER"
+                    ? "Super Leader"
+                    : user.role === "LEADER"
+                    ? "Leader"
+                    : user.role === "ADMIN"
+                    ? "Admin"
+                    : user.role === "MEMBER"
+                    ? "Member"
+                    : user.role === "GUEST"
+                    ? "Guest"
+                    : user.role}
                 </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
-                  {user.teams.map((team) => (
-                    <Badge key={team} variant="outline">
-                      {team}
+                  {user.teams?.map((team: any) => (
+                    <Badge key={team.teamId || team.id || team} variant="outline">
+                      {team.team?.name || team.name || team}
                     </Badge>
                   ))}
                 </div>
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
-                  {user.departments.map((department) => (
-                    <Badge key={department} variant="outline">
-                      {department}
+                  {user.departments?.map((dept: any) => (
+                    <Badge key={dept.departmentId || dept.id || dept} variant="outline">
+                      {dept.department?.name || dept.name || dept}
                     </Badge>
                   ))}
                 </div>

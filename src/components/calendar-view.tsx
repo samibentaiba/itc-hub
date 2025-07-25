@@ -1,36 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { getEvents } from "@/services/eventService";
 
 export function CalendarView() {
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [events, setEvents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const events = [
-    {
-      id: "t2",
-      title: "Weekly Standup",
-      description: "Discuss weekly progress",
-      date: new Date("2025-07-24T09:00:00"),
-      type: "event",
-      team: "Frontend Team",
-    },
-    {
-      id: "t3",
-      title: "Design Review",
-      description: "Review new component designs",
-      date: new Date("2025-07-23T14:00:00"),
-      type: "meeting",
-      department: "UI/UX Department",
-    },
-  ]
+  useEffect(() => {
+    async function fetchEvents() {
+      setLoading(true)
+      const data = await getEvents()
+      setEvents(data)
+      setLoading(false)
+    }
+    fetchEvents()
+  }, [])
 
   // Get events for the selected date
   const selectedDateEvents = events.filter((event) => date && event.date.toDateString() === date.toDateString())
+
+  if (loading) return <div>Loading events...</div>
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
