@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FilePreview } from "./file-preview";
+
 import { getUsers, updateUser } from "@/services/userService";
 
 interface UserProfileProps {

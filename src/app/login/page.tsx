@@ -1,16 +1,13 @@
 "use client";
-import { useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+
+import { signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useLogin } from "./hook";
+
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
+  const { password, email, handleSubmit, setEmail, setPassword, error, loading, session } = useLogin();
+  const router = useRouter()
   if (status === "loading") return <div>Loading...</div>;
   if (session?.user?.email) {
     return (
@@ -34,24 +31,6 @@ export default function LoginPage() {
       </div>
     );
   }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    setLoading(false);
-    if (res?.ok) {
-      router.push("/users/profile");
-    } else {
-      setError("Invalid email or password");
-    }
-  };
-
   return (
     <div className="max-w-sm mx-auto py-16">
       <h1 className="text-2xl font-bold mb-6">Login</h1>
