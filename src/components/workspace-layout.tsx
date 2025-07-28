@@ -272,7 +272,7 @@ export function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
         
         {/* Global Calendar - Fixed Navigation */}
         <div>
-          <Link href="/calendar/global" onClick={() => setIsMobileOpen(false)}>
+          <Link href="/calendar" onClick={() => setIsMobileOpen(false)}>
             <Button
               variant={pathname === "/calendar/global" ? "default" : "ghost"}
               className={cn(
