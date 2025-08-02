@@ -2,13 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { WorkspaceProvider } from "@/components/workspace-provider"
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { WorkspaceLayout } from "@/components/workspace-layout"
-
+import { Provider } from "@/components/provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -25,15 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-background `} >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} >
-          <WorkspaceProvider>
-            <SidebarProvider >
-              <AppSidebar />
-              <WorkspaceLayout >{children}</WorkspaceLayout>
-            </SidebarProvider>
-            <Toaster />
-          </WorkspaceProvider>
-        </ThemeProvider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   )

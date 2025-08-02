@@ -1,13 +1,20 @@
-"use client"
+// components/workspace.tsx
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+"use client"
+import Image from "next/image"
+import type { ReactNode } from "react"
+import { createContext, useContext, useState } from "react"
+import { Toaster } from "@/components/ui/toaster"
+import { Sidebar, SidebarInset, SidebarTrigger, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail } from "@/components/ui/sidebar"
+import * as React from 'react'
+import {
+  ThemeProvider as NextThemesProvider,
+  type ThemeProviderProps,
+} from 'next-themes'
+import { useToast } from "@/hooks/use-toast"
+import { } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,38 +23,184 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   Users,
+  Search, Bell,
   Building2,
   Calendar,
   Settings,
   LogOut,
   Shield,
   Menu,
-  Bell,
   Moon,
   Sun,
   User,
   ChevronUp,
   Home,
-  Ticket,
+  Ticket, LayoutDashboard, UserRound, Layers
 } from "lucide-react"
-import { useWorkspace } from "./workspace-provider"
-import { useToast } from "@/hooks/use-toast"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+
+export function Provider({ children }: { children: ReactNode }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <WorkspaceProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <WorkspaceLayout>{children}</WorkspaceLayout>
+        </SidebarProvider>
+        <Toaster />
+      </WorkspaceProvider>
+    </ThemeProvider>
+  )
+}
+
+
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+}
+
+
+export function WorkspaceHeader() {
+  return (
+    <div className="flex items-center justify-between w-full px-4">
+      <div className="flex items-center gap-4 flex-1 max-w-md">
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 z-1 text-muted-foreground" />
+          <Input
+            placeholder="Search tickets, users, teams..."
+            className="pl-8 bg-background/50 backdrop-blur-sm border-border/50"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="relative bg-transparent">
+              <Bell className="h-4 w-4" />
+              <Badge
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-900 text-white"
+              >
+                3
+              </Badge>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">New ticket assigned</p>
+                <p className="text-xs text-muted-foreground">Database connection issue - Priority: High</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">Team meeting reminder</p>
+                <p className="text-xs text-muted-foreground">Weekly standup in 30 minutes</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">System maintenance</p>
+                <p className="text-xs text-muted-foreground">Scheduled downtime tonight at 2 AM</p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  )
+}
+
+
+interface WorkspaceLayoutProps {
+  children: React.ReactNode
+}
+
+export function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
+  return (
+    <SidebarInset>
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+        </div>
+        <div className="flex-1">
+          <WorkspaceHeader />
+        </div>
+      </header>
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+    </SidebarInset>
+  )
+}
+
+
+type WorkspaceType = "dashboard" | "team" | "department"
+
+interface WorkspaceContextType {
+  currentWorkspace: WorkspaceType
+  currentWorkspaceId: string | null
+  setWorkspace: (type: WorkspaceType, id?: string) => void
+  user: {
+    id: string
+    name: string
+    email: string
+    role: "admin" | "super_leader" | "leader" | "member"
+    avatar: string
+  }
+}
+
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined)
+
+export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
+  const [currentWorkspace, setCurrentWorkspace] = useState<WorkspaceType>("dashboard")
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null)
+
+  // Mock user data - in real app this would come from auth
+  // Changed role to "admin" to show admin panel access
+  const user = {
+    id: "u1",
+    name: "Sami",
+    email: "sami@itc.com",
+    role: "admin" as const,
+    avatar: "/placeholder.svg?height=32&width=32",
+  }
+
+  const setWorkspace = (type: WorkspaceType, id?: string) => {
+    setCurrentWorkspace(type)
+    setCurrentWorkspaceId(id || null)
+  }
+
+  return (
+    <WorkspaceContext.Provider
+      value={{
+        currentWorkspace,
+        currentWorkspaceId,
+        setWorkspace,
+        user,
+      }}
+    >
+      {children}
+    </WorkspaceContext.Provider>
+  )
+}
+
+export function useWorkspace() {
+  const context = useContext(WorkspaceContext)
+  if (!context) {
+    throw new Error("useWorkspace must be used within a WorkspaceProvider")
+  }
+  return context
+}
+
 
 const navigation = [
   {
@@ -664,5 +817,146 @@ function UserSettingsForm() {
         </Button>
       </div>
     </div>
+  )
+}
+
+const navigationItems = [
+  {
+
+    items: [
+      {
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        href: "/",
+      },
+      {
+        label: "Teams",
+        icon: Layers,
+        href: "/teams",
+      },
+      {
+        label: "Departments",
+        icon: Building2,
+        href: "/departments",
+      },
+      {
+        label: "Tickets",
+        icon: Ticket,
+        href: "/tickets",
+      },
+      {
+        label: "Calendar",
+        icon: Calendar,
+        href: "/calendar",
+      },
+      {
+        label: "Users",
+        icon: Users,
+        href: "/users",
+      },
+    ],
+  },
+]
+
+export function AppSidebar() {
+  const pathname = usePathname()
+
+  return (
+    <Sidebar variant="inset">
+      <SidebarHeader>
+        <div className="flex items-start flex-col gap-2 px-4 py-2">
+          <Image
+            src="/ITC HUB Logo.svg"
+            alt="ITC Hub"
+            width={90}
+            height={40}
+          />
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate text-[0.6rem] text-muted-foreground">Information Technology Community</span>
+            <span className="truncate text-[0.6rem] text-muted-foreground">HUB</span>
+          </div>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        {navigationItems.map((group, index) => (
+          <SidebarGroup key={index} >
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild isActive={pathname === item.href}>
+                        <Link href={item.href}>
+                          <Icon className="h-4 w-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Sami" />
+                    <AvatarFallback className="rounded-lg">S</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">Sami</span>
+                    <span className="truncate text-xs text-muted-foreground">sami@itchub.com</span>
+                  </div>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+
+
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">
+                    <UserRound className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">
+                    <Shield className="mr-2 h-4 w-4" />
+                    admin
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   )
 }
