@@ -134,7 +134,6 @@ export default function DepartmentDetailPage() {
     </div>
   )
 }
-"use client"
 
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -173,8 +172,7 @@ interface DepartmentViewProps {
   departmentName: string
   derpartmentDescription: string
 }
-
-export function DepartmentView({ departmentId, departmentName, derpartmentDescription }: DepartmentViewProps) {
+function DepartmentView({ departmentId, departmentName, derpartmentDescription }: DepartmentViewProps) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [showNewTicket, setShowNewTicket] = useState(false)
   const { toast } = useToast()
@@ -311,7 +309,7 @@ export function DepartmentView({ departmentId, departmentName, derpartmentDescri
         </div>
         <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
           <DialogTrigger asChild>
-            <Button className="bg-red-600 hover:bg-red-700">
+            <Button className="bg-red-800 text-white hover:bg-red-700">
               <Plus className="mr-2 h-4 w-4" />
               New Initiative
             </Button>

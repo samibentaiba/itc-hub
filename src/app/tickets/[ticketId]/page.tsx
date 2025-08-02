@@ -142,8 +142,6 @@ export default function TicketDetailPage() {
     </div>
   )
 }
-"use client"
-
 import type React from "react"
 
 import {  useRef } from "react"
@@ -171,8 +169,7 @@ import { useToast } from "@/hooks/use-toast"
 interface TicketChatViewProps {
   ticketId: string
 }
-
-export function TicketChatView({ ticketId }: TicketChatViewProps) {
+function TicketChatView({ ticketId }: TicketChatViewProps) {
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState([
     {
@@ -742,7 +739,7 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
                   <Paperclip className="h-4 w-4" />
                 </Button>
               </div>
-              <Button onClick={handleSendMessage} className="bg-red-600 hover:bg-red-700">
+              <Button onClick={handleSendMessage} className="bg-red-800 text-white hover:bg-red-700">
                 <Send className="mr-2 h-4 w-4" />
                 Send
               </Button>

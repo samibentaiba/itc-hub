@@ -255,7 +255,7 @@ const mockTickets = [
   },
 ]
 
-export function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTableProps) {
+function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTableProps) {
   const filteredTickets = mockTickets.filter((ticket) => {
     const matchesSearch =
       ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

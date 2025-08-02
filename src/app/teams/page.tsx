@@ -200,8 +200,7 @@ const mockTeams = [
     status: "active",
   },
 ]
-
-export function TeamsGrid() {
+function TeamsGrid() {
   const getDepartmentColor = (department: string) => {
     switch (department) {
       case "Engineering":

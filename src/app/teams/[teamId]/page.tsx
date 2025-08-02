@@ -152,7 +152,7 @@ interface TeamViewProps {
   teamDescription: string
 }
 
-export function TeamView({ teamId, teamName, teamDescription }: TeamViewProps) {
+function TeamView({ teamId, teamName, teamDescription }: TeamViewProps) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [showNewTicket, setShowNewTicket] = useState(false)
   const { toast } = useToast()
@@ -281,7 +281,7 @@ export function TeamView({ teamId, teamName, teamDescription }: TeamViewProps) {
         </div>
         <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
           <DialogTrigger asChild>
-            <Button className="bg-red-600 hover:bg-red-700">
+            <Button className="bg-red-800 text-white hover:bg-red-700">
               <Plus className="mr-2 h-4 w-4" />
               New Ticket
             </Button>

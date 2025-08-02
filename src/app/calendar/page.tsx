@@ -5,17 +5,7 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -226,7 +216,7 @@ const mockEvents = [
   },
 ]
 
-export function CalendarView({ currentDate, view }: CalendarViewProps) {
+function CalendarView({ currentDate, view }: CalendarViewProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   const getDaysInMonth = (date: Date) => {

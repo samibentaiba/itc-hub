@@ -309,7 +309,7 @@ export function NewTicketForm() {
         </DialogClose>
         <Button
           type="submit"
-          className="bg-red-600 hover:bg-red-700 text-sm"
+          className="bg-red-800 text-white hover:bg-red-700 text-sm"
           disabled={
             isLoading ||
             !formData.title ||

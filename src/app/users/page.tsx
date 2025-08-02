@@ -163,7 +163,7 @@ const users = [
   },
 ]
 
-export function UsersTable() {
+function UsersTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -309,10 +309,7 @@ export function UsersTable() {
                           View profile
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        Send message
-                      </DropdownMenuItem>
+
                       <DropdownMenuItem>
                         <Mail className="mr-2 h-4 w-4" />
                         Send email

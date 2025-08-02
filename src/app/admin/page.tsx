@@ -643,7 +643,7 @@ export default function AdminPage() {
                 </div>
                 <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
                   <DialogTrigger asChild>
-                    <Button className="bg-red-600 hover:bg-red-700 w-full sm:w-auto text-sm" disabled={isLoading}>
+                    <Button className="bg-red-800 text-white hover:bg-red-700 w-full sm:w-auto text-sm" disabled={isLoading}>
                       {loadingAction === "add-user" ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
@@ -820,7 +820,7 @@ export default function AdminPage() {
                 </div>
                 <Dialog open={showAddTeam} onOpenChange={setShowAddTeam}>
                   <DialogTrigger asChild>
-                    <Button className="bg-red-600 hover:bg-red-700 w-full sm:w-auto text-sm" disabled={isLoading}>
+                    <Button className="bg-red-800 text-white hover:bg-red-700 w-full sm:w-auto text-sm" disabled={isLoading}>
                       {loadingAction === "add-team" ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
@@ -944,7 +944,7 @@ export default function AdminPage() {
                 </div>
                 <Dialog open={showAddDepartment} onOpenChange={setShowAddDepartment}>
                   <DialogTrigger asChild>
-                    <Button className="bg-red-600 hover:bg-red-700 w-full sm:w-auto text-sm" disabled={isLoading}>
+                    <Button className="bg-red-800 text-white hover:bg-red-700 w-full sm:w-auto text-sm" disabled={isLoading}>
                       {loadingAction === "add-department" ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
@@ -1175,7 +1175,7 @@ function AddUserForm({ onSubmit, isLoading }: { onSubmit: (data: {
         </Button>
         <Button
           type="submit"
-          className="bg-red-600 hover:bg-red-700 text-sm"
+          className="bg-red-800 text-white hover:bg-red-700 text-sm"
           disabled={isLoading || !formData.name || !formData.email}
         >
           {isLoading ? (
@@ -1317,7 +1317,7 @@ function AddTeamForm({ onSubmit, isLoading }: { onSubmit: (data: {
         </Button>
         <Button
           type="submit"
-          className="bg-red-600 hover:bg-red-700 text-sm"
+          className="bg-red-800 text-white hover:bg-red-700 text-sm"
           disabled={isLoading || !formData.name || !formData.description}
         >
           {isLoading ? (
@@ -1437,7 +1437,7 @@ function AddDepartmentForm({ onSubmit, isLoading }: { onSubmit: (data: {
         </Button>
         <Button
           type="submit"
-          className="bg-red-600 hover:bg-red-700 text-sm"
+          className="bg-red-800 text-white hover:bg-red-700 text-sm"
           disabled={isLoading || !formData.name || !formData.description}
         >
           {isLoading ? (
