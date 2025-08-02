@@ -1,4 +1,0 @@
-title,description,type,status,teamId,departmentId,assigneeId,createdById,dueDate
-Fix login bug,Resolve session persistence issue,TASK,VERIFIED,,,,,
-Weekly Standup,Discuss weekly progress,EVENT,SCHEDULED,,,,,
-Design Review,Review new component designs,MEETING,IN_PROGRESS,,,,, 
