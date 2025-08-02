@@ -1,18 +1,10 @@
 "use client"
 import Link from "next/link"
-import { MoreHorizontal, Eye, Edit, Trash2, UserPlus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 
 const mockTeams = [
   {
@@ -204,7 +196,7 @@ export function TeamsGrid() {
                 <span className="text-xs text-muted-foreground">{team.memberCount} total</span>
               </div>
               <div className="flex -space-x-2">
-                {team.members.slice(0, 4).map((member, index) => (
+                {team.members.slice(0, 4).map((member) => (
                   <Avatar key={member.id} className="h-6 w-6 border-2 border-background">
                     <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
                     <AvatarFallback className="text-xs">

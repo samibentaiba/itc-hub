@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Bell, Plus } from "lucide-react"
+import { Search, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -18,7 +18,7 @@ export function WorkspaceHeader() {
     <div className="flex items-center justify-between w-full px-4">
       <div className="flex items-center gap-4 flex-1 max-w-md">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 z-1 text-muted-foreground" />
           <Input
             placeholder="Search tickets, users, teams..."
             className="pl-8 bg-background/50 backdrop-blur-sm border-border/50"
@@ -33,8 +33,7 @@ export function WorkspaceHeader() {
             <Button variant="outline" size="icon" className="relative bg-transparent">
               <Bell className="h-4 w-4" />
               <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-900 text-white"
               >
                 3
               </Badge>

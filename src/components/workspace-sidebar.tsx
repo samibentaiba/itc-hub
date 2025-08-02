@@ -73,10 +73,9 @@ const navigation = [
 ]
 
 export function WorkspaceSidebar() {
-  const { user, currentWorkspace, setWorkspace } = useWorkspace()
+  const { user } = useWorkspace()
   const pathname = usePathname()
   const router = useRouter()
-  const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showNewTeam, setShowNewTeam] = useState(false)
@@ -106,7 +105,9 @@ export function WorkspaceSidebar() {
     }
   }
 
-  const handleCreateTeam = async (formData: any) => {
+  const handleCreateTeam = async (formData: {
+    name: string;
+  }) => {
     setIsLoading(true)
     try {
       // Simulate API call
@@ -137,7 +138,9 @@ export function WorkspaceSidebar() {
     }
   }
 
-  const handleCreateDepartment = async (formData: any) => {
+  const handleCreateDepartment = async (formData: {
+    name: string;
+  }) => {
     setIsLoading(true)
     try {
       // Simulate API call

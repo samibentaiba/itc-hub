@@ -150,7 +150,7 @@ export function CalendarView({ currentDate, view }: CalendarViewProps) {
     const startOfWeek = new Date(currentDate)
     startOfWeek.setDate(currentDate.getDate() - currentDate.getDay())
 
-    const weekDays = []
+    const weekDays: Date[] = []
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek)
       date.setDate(startOfWeek.getDate() + i)

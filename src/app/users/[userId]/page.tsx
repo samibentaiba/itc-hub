@@ -25,6 +25,77 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 
+// Type definitions
+type UserSkill = {
+  name: string;
+  level: number;
+}
+
+type UserProject = {
+  id: number;
+  name: string;
+  role: string;
+  progress: number;
+  priority: string;
+  team: string;
+}
+
+type UserAchievement = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  category: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+type UserTeam = {
+  id: number;
+  name: string;
+  role: string;
+  members: number;
+  isLead: boolean;
+}
+
+type UserDepartment = {
+  id: number;
+  name: string;
+  role: string;
+  isLead: boolean;
+}
+
+type UserStats = {
+  projectsCompleted: number;
+  teamsLed: number;
+  mentorshipHours: number;
+  contributions: number;
+}
+
+type UserSocialLinks = {
+  github?: string;
+  linkedin: string;
+  twitter?: string;
+}
+
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  title: string;
+  department: string;
+  location: string;
+  joinDate: string;
+  bio: string;
+  stats: UserStats;
+  skills: UserSkill[];
+  socialLinks: UserSocialLinks;
+  currentProjects: UserProject[];
+  achievements: UserAchievement[];
+  teams: UserTeam[];
+  departments: UserDepartment[];
+}
+
 // Mock user data - in a real app, this would come from an API
 const mockUsers = {
   sami: {
@@ -262,7 +333,7 @@ const mockUsers = {
 export default function UserProfilePage() {
   const params = useParams()
   const userId = params.userId as string
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -315,7 +386,7 @@ export default function UserProfilePage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <h2 className="text-2xl font-bold mb-2">User Not Found</h2>
-            <p className="text-muted-foreground mb-4">The user profile you're looking for doesn't exist.</p>
+            <p className="text-muted-foreground mb-4">The user profile you&apos;re looking for doesn&apos;t exist.</p>
             <Link href="/users">
               <Button>Browse All Users</Button>
             </Link>
@@ -491,7 +562,7 @@ export default function UserProfilePage() {
                   <CardTitle>Skills & Expertise</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {user.skills.map((skill: any) => (
+                  {user.skills.map((skill) => (
                     <div key={skill.name} className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="font-medium">{skill.name}</span>
@@ -511,7 +582,7 @@ export default function UserProfilePage() {
                   <CardDescription>Active projects and responsibilities</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {user.currentProjects.map((project: any) => (
+                  {user.currentProjects.map((project) => (
                     <div key={project.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div>
@@ -520,7 +591,7 @@ export default function UserProfilePage() {
                             {project.role} • {project.team}
                           </p>
                         </div>
-                        <Badge variant={getPriorityColor(project.priority) as any}>{project.priority}</Badge>
+                        <Badge variant={getPriorityColor(project.priority) as "default" | "secondary" | "destructive" | "outline"}>{project.priority}</Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
@@ -542,7 +613,7 @@ export default function UserProfilePage() {
                   <CardDescription>Awards and accomplishments</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {user.achievements.map((achievement: any) => (
+                  {user.achievements.map((achievement) => (
                     <div key={achievement.id} className="flex gap-4 p-4 border rounded-lg">
                       <div className={`p-2 rounded-lg ${getCategoryColor(achievement.category)}`}>
                         <achievement.icon className="h-5 w-5 text-white" />
@@ -571,7 +642,7 @@ export default function UserProfilePage() {
                   <CardDescription>Teams and working groups</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {user.teams.map((team: any) => (
+                  {user.teams.map((team) => (
                     <div key={team.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
@@ -602,7 +673,7 @@ export default function UserProfilePage() {
                   <CardDescription>Organizational departments</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {user.departments.map((dept: any) => (
+                  {user.departments.map((dept) => (
                     <div key={dept.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-secondary/50 rounded-lg">

@@ -573,7 +573,7 @@ export default function ProfilePage() {
                             {project.role} • {project.team}
                           </p>
                         </div>
-                        <Badge variant={getPriorityColor(project.priority) as any}>{project.priority}</Badge>
+                        <Badge variant={getPriorityColor(project.priority) as "default" | "secondary" | "destructive" | "outline"}>{project.priority}</Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">

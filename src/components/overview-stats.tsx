@@ -183,7 +183,7 @@ export function OverviewStats() {
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
+            {recentActivity.map((activity) => (
               <div
                 key={activity.id}
                 className={`flex items-start gap-4 p-4 rounded-xl border-l-4 transition-all duration-200 hover:shadow-md cursor-pointer ${getPriorityColor(activity.priority)}`}

@@ -108,7 +108,7 @@ export function NewTicketForm() {
         const closeButton = document.querySelector("[data-dialog-close]") as HTMLButtonElement
         closeButton?.click()
       }, 1000)
-    } catch (error) {
+    } catch {
       toast({
         title: "Creation Failed",
         description: "Failed to create ticket. Please try again.",

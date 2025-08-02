@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -18,7 +17,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -71,17 +69,15 @@ export function AppSidebar() {
     <Sidebar variant="inset">
       <SidebarHeader>
         <div className="flex items-start flex-col gap-2 px-4 py-2">
-
           <Image
             src="/ITC HUB Logo.svg"
             alt="ITC Hub"
             width={90}
             height={40}
           />
-
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate text-xs text-muted-foreground">Information Technology Community</span>
-            <span className="truncate text-xs text-muted-foreground">HUB</span>
+            <span className="truncate text-[0.6rem] text-muted-foreground">Information Technology Community</span>
+            <span className="truncate text-[0.6rem] text-muted-foreground">HUB</span>
           </div>
         </div>
       </SidebarHeader>

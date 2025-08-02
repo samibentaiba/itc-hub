@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { Clock, MessageSquare, Plus, Users, CalendarIcon, MoreVertical, UserPlus, Settings, Mail, ChevronLeft, ChevronRight } from "lucide-react"
+import { Clock, MessageSquare, Plus, Users, MoreVertical, UserPlus, Settings, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { NewTicketForm } from "./new-ticket-form"
 import { useToast } from "@/hooks/use-toast"
 

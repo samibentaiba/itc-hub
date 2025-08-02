@@ -155,7 +155,12 @@ export function AdminPanel() {
     },
   ])
 
-  const handleAddUser = async (formData: any) => {
+  const handleAddUser = async (formData: {
+    name: string;
+    email: string;
+    role: string;
+    department: string;
+  }) => {
     setIsLoading(true)
     setLoadingAction("add-user")
 
@@ -188,7 +193,7 @@ export function AdminPanel() {
         description: `${formData.name} has been added and will receive a verification email.`,
       })
       setShowAddUser(false)
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to add user. Please try again.",
@@ -214,7 +219,7 @@ export function AdminPanel() {
         title: "User verified",
         description: `${user?.name} has been verified and can now access the platform.`,
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Verification Failed",
         description: "Failed to verify user. Please try again.",
@@ -277,7 +282,12 @@ export function AdminPanel() {
     }
   }
 
-  const handleAddTeam = async (formData: any) => {
+  const handleAddTeam = async (formData: {
+    name: string;
+    description: string;
+    department: string;
+    leader: string;
+  }) => {
     setIsLoading(true)
     setLoadingAction("add-team")
 
@@ -340,7 +350,11 @@ export function AdminPanel() {
     }
   }
 
-  const handleAddDepartment = async (formData: any) => {
+  const handleAddDepartment = async (formData: {
+    name: string;
+    description: string;
+    head: string;
+  }) => {
     setIsLoading(true)
     setLoadingAction("add-department")
 
@@ -349,7 +363,9 @@ export function AdminPanel() {
 
       const newDepartment = {
         id: `dept-${departments.length + 1}`,
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        superLeader: formData.head,
         leaders: [],
         teams: [],
         createdDate: new Date().toISOString().split("T")[0],
@@ -1052,11 +1068,17 @@ export function AdminPanel() {
 }
 
 // Add User Form Component
-function AddUserForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function AddUserForm({ onSubmit, isLoading }: { onSubmit: (data: {
+  name: string;
+  email: string;
+  role: string;
+  department: string;
+}) => void; isLoading: boolean }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     role: "member",
+    department: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -1084,7 +1106,7 @@ function AddUserForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; i
     }
 
     onSubmit(formData)
-    setFormData({ name: "", email: "", role: "member" })
+    setFormData({ name: "", email: "", role: "member", department: "" })
     setErrors({})
   }
 
@@ -1144,7 +1166,7 @@ function AddUserForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; i
           className="text-sm bg-transparent"
           disabled={isLoading}
           onClick={() => {
-            setFormData({ name: "", email: "", role: "member" })
+            setFormData({ name: "", email: "", role: "member", department: "" })
             setErrors({})
           }}
         >
@@ -1170,7 +1192,12 @@ function AddUserForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; i
 }
 
 // Add Team Form Component
-function AddTeamForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function AddTeamForm({ onSubmit, isLoading }: { onSubmit: (data: {
+  name: string;
+  description: string;
+  leader: string;
+  department: string;
+}) => void; isLoading: boolean }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -1307,11 +1334,15 @@ function AddTeamForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; i
 }
 
 // Add Department Form Component
-function AddDepartmentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function AddDepartmentForm({ onSubmit, isLoading }: { onSubmit: (data: {
+  name: string;
+  description: string;
+  head: string;
+}) => void; isLoading: boolean }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    superLeader: "",
+    head: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -1337,7 +1368,7 @@ function AddDepartmentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => v
     }
 
     onSubmit(formData)
-    setFormData({ name: "", description: "", superLeader: "" })
+    setFormData({ name: "", description: "", head: "" })
     setErrors({})
   }
 
@@ -1374,8 +1405,8 @@ function AddDepartmentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => v
       <div className="space-y-2">
         <Label className="text-sm">Super Leader</Label>
         <Select
-          value={formData.superLeader}
-          onValueChange={(value) => setFormData({ ...formData, superLeader: value })}
+          value={formData.head}
+          onValueChange={(value) => setFormData({ ...formData, head: value })}
           disabled={isLoading}
         >
           <SelectTrigger className="text-sm">
@@ -1397,7 +1428,7 @@ function AddDepartmentForm({ onSubmit, isLoading }: { onSubmit: (data: any) => v
           className="text-sm bg-transparent"
           disabled={isLoading}
           onClick={() => {
-            setFormData({ name: "", description: "", superLeader: "" })
+            setFormData({ name: "", description: "", head: "" })
             setErrors({})
           }}
         >

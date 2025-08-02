@@ -102,7 +102,15 @@ export function GlobalCalendarView() {
     },
   ])
 
-  const handleAddEvent = async (formData: any) => {
+  const handleAddEvent = async (formData: {
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    type: string;
+    location: string;
+    isRecurring: boolean;
+  }) => {
     setIsLoading(true)
     setLoadingAction("add-event")
 
@@ -112,8 +120,14 @@ export function GlobalCalendarView() {
 
       const newEvent = {
         id: `ge${globalEvents.length + 1}`,
-        ...formData,
+        title: formData.title,
+        description: formData.description,
         date: new Date(formData.date),
+        time: formData.time,
+        duration: "60",
+        type: formData.type,
+        location: formData.location,
+        organizer: "Current User",
         attendees: 0,
         isRecurring: formData.isRecurring || false,
       }
@@ -310,7 +324,7 @@ export function GlobalCalendarView() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Today's Events</CardTitle>
+                            <CardTitle className="text-xs sm:text-sm font-medium">Today&apos;s Events</CardTitle>
             <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-6 pt-0">
@@ -511,7 +525,7 @@ export function GlobalCalendarView() {
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               <div className="space-y-4">
-                {upcomingEvents.map((event, index) => (
+                {upcomingEvents.map((event) => (
                   <div key={event.id} className="flex items-start gap-4 p-4 border rounded-lg">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-red-500 text-white rounded-lg flex flex-col items-center justify-center">
@@ -565,16 +579,23 @@ export function GlobalCalendarView() {
 }
 
 // Add Event Form Component
-function AddEventForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function AddEventForm({ onSubmit, isLoading }: { onSubmit: (data: {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  type: string;
+  location: string;
+  isRecurring: boolean;
+}) => void; isLoading: boolean }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     date: "",
     time: "",
-    duration: "",
     type: "event",
     location: "",
-    organizer: "",
+    isRecurring: false,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -614,10 +635,9 @@ function AddEventForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; 
       description: "",
       date: "",
       time: "",
-      duration: "",
       type: "event",
       location: "",
-      organizer: "",
+      isRecurring: false,
     })
     setErrors({})
   }
@@ -707,19 +727,7 @@ function AddEventForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; 
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="eventDuration" className="text-sm">
-            Duration
-          </Label>
-          <Input
-            id="eventDuration"
-            placeholder="e.g., 2 hours"
-            value={formData.duration}
-            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-            className="text-sm"
-            disabled={isLoading}
-          />
-        </div>
+
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -738,19 +746,7 @@ function AddEventForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; 
           {errors.location && <p className="text-xs text-red-500">{errors.location}</p>}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="eventOrganizer" className="text-sm">
-            Organizer
-          </Label>
-          <Input
-            id="eventOrganizer"
-            placeholder="Event organizer name..."
-            value={formData.organizer}
-            onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
-            className="text-sm"
-            disabled={isLoading}
-          />
-        </div>
+
       </div>
 
       <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
@@ -765,10 +761,9 @@ function AddEventForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; 
               description: "",
               date: "",
               time: "",
-              duration: "",
               type: "event",
               location: "",
-              organizer: "",
+              isRecurring: false,
             })
             setErrors({})
           }}

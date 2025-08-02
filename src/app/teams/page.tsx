@@ -1,25 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Users, TrendingUp, Clock } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Users, TrendingUp, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TeamsGrid } from "@/components/teams-grid"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function TeamsPage() {
-  const [showNewTeam, setShowNewTeam] = useState(false)
 
   // Mock stats
   const stats = [

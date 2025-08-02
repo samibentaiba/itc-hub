@@ -211,10 +211,10 @@ export function TicketsTable({ searchTerm, statusFilter, priorityFilter }: Ticke
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant={getStatusColor(ticket.status) as any}>{formatStatus(ticket.status)}</Badge>
+                <Badge variant={getStatusColor(ticket.status) as "default" | "secondary" | "destructive" | "outline"}>{formatStatus(ticket.status)}</Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={getPriorityColor(ticket.priority) as any}>
+                <Badge variant={getPriorityColor(ticket.priority) as "default" | "secondary" | "destructive" | "outline"}>
                   {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
                 </Badge>
               </TableCell>

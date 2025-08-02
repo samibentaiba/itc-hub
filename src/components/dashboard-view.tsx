@@ -4,15 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -21,22 +13,13 @@ import {
   Building2,
   CheckCircle,
   AlertCircle,
-  Plus,
-  MoreVertical,
   TrendingUp,
   Activity,
   ExternalLink,
-  FileText,
-  Calendar,
-  Download,
-  Upload,
-  Settings,
 } from "lucide-react"
-import { NewTicketForm } from "./new-ticket-form"
 import { useToast } from "@/hooks/use-toast"
 
 export function DashboardView() {
-  const [showNewTicket, setShowNewTicket] = useState(false)
   const [selectedStatCard, setSelectedStatCard] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
@@ -281,7 +264,14 @@ export function DashboardView() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">Summary of different, but related data sets, presented in a way that makes the related information easier to understand</p>
+        </div>
+      </div>
 
 
       {/* Stats Overview */}

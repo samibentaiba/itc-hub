@@ -12,7 +12,27 @@ export default function TicketDetailPage() {
   const params = useParams()
   const ticketId = params.ticketId as string
   const [loading, setLoading] = useState(true)
-  const [ticket, setTicket] = useState<any>(null)
+  const [ticket, setTicket] = useState<{
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    priority: string;
+    assignee: {
+      name: string;
+      avatar: string;
+      id: string;
+    };
+    reporter: {
+      name: string;
+      avatar: string;
+      id: string;
+    };
+    createdAt: string;
+    updatedAt: string;
+    team: string;
+    labels: string[];
+  } | null>(null)
 
   useEffect(() => {
     // Simulate API call
@@ -82,7 +102,7 @@ export default function TicketDetailPage() {
           <CardContent className="flex items-center justify-center h-64">
             <div className="text-center">
               <h3 className="text-lg font-semibold">Ticket not found</h3>
-              <p className="text-muted-foreground">The ticket you're looking for doesn't exist.</p>
+              <p className="text-muted-foreground">The ticket you&apos;re looking for doesn&apos;t exist.</p>
             </div>
           </CardContent>
         </Card>
@@ -119,7 +139,7 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Ticket Details */}
-      <TicketChatView ticket={ticket} />
+      <TicketChatView ticketId={ticketId} />
     </div>
   )
 }

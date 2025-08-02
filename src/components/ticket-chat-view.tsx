@@ -314,7 +314,11 @@ export function TicketChatView({ ticketId }: TicketChatViewProps) {
     })
   }
 
-  const renderMessageContent = (msg: any) => {
+  const renderMessageContent = (msg: {
+    type: string;
+    content: string;
+    hasUrl?: boolean;
+  }) => {
     if (msg.type === "image") {
       return (
         <div className="mt-2">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plus, Settings } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DepartmentView } from "@/components/department-view"
@@ -12,7 +12,21 @@ export default function DepartmentDetailPage() {
   const params = useParams()
   const departmentId = params.departmentId as string
   const [loading, setLoading] = useState(true)
-  const [department, setDepartment] = useState<any>(null)
+  const [department, setDepartment] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    head: {
+      name: string;
+      avatar: string;
+      id: string;
+    };
+    teamCount: number;
+    memberCount: number;
+    budget: string;
+    status: string;
+    createdAt: string;
+  } | null>(null)
 
   useEffect(() => {
     // Simulate API call
@@ -87,7 +101,7 @@ export default function DepartmentDetailPage() {
           <CardContent className="flex items-center justify-center h-64">
             <div className="text-center">
               <h3 className="text-lg font-semibold">Department not found</h3>
-              <p className="text-muted-foreground">The department you're looking for doesn't exist.</p>
+              <p className="text-muted-foreground">The department you&apos;re looking for doesn&apos;t exist.</p>
             </div>
           </CardContent>
         </Card>

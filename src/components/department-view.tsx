@@ -22,7 +22,6 @@ import {
   MessageSquare,
   Plus,
   Users,
-  CalendarIcon,
   Building2,
   MoreVertical,
   Settings,
@@ -387,7 +386,7 @@ export function DepartmentView({ departmentId, departmentName, derpartmentDescri
           <Card>
             <CardHeader>
               <CardTitle>Supervised Teams</CardTitle>
-              <CardDescription>Teams under this department's oversight</CardDescription>
+                              <CardDescription>Teams under this department&apos;s oversight</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plus, Settings } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { TeamView } from "@/components/team-view"
@@ -12,7 +12,21 @@ export default function TeamDetailPage() {
   const params = useParams()
   const teamId = params.teamId as string
   const [loading, setLoading] = useState(true)
-  const [team, setTeam] = useState<any>(null)
+  const [team, setTeam] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    department: string;
+    memberCount: number;
+    activeProjects: number;
+    lead: {
+      name: string;
+      avatar: string;
+      id: string;
+    };
+    status: string;
+    createdAt: string;
+  } | null>(null)
 
   useEffect(() => {
     // Simulate API call
@@ -82,7 +96,7 @@ export default function TeamDetailPage() {
           <CardContent className="flex items-center justify-center h-64">
             <div className="text-center">
               <h3 className="text-lg font-semibold">Team not found</h3>
-              <p className="text-muted-foreground">The team you're looking for doesn't exist.</p>
+              <p className="text-muted-foreground">The team you&apos;re looking for doesn&apos;t exist.</p>
             </div>
           </CardContent>
         </Card>
