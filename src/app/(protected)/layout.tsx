@@ -39,7 +39,7 @@ export default function ProtectedLayout({
     return null;
   }
 
-  return <>        <Provider>
+  return <>       
   {children}
-</Provider></>;
+</>;
 }
