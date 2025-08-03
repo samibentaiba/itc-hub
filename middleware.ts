@@ -10,13 +10,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
   
-  // Handle root path redirect
-  if (pathname === "/") {
+  // Handle protected routes only
+  if (pathname.startsWith('/dashboard') || 
+      pathname.startsWith('/tickets') || 
+      pathname.startsWith('/teams') || 
+      pathname.startsWith('/departments') || 
+      pathname.startsWith('/users') || 
+      pathname.startsWith('/admin') || 
+      pathname.startsWith('/calendar')) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     
-    if (token) {
-      return NextResponse.redirect(new URL("/", req.url));
-    } else {
+    if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }

@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,7 +15,6 @@ import {
   Building2,
   Trophy,
   Target,
-  Hexagon,
   Twitter,
   Github,
   Linkedin,
@@ -24,6 +25,8 @@ import {
   Clock,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { LogoExamples } from "@/components/ui/logo-examples"
+import { HeaderLogo, FooterLogo } from "@/components/ui/logo"
 
 export default function ITCHubLanding() {
   const [selectedStatCard, setSelectedStatCard] = useState<string | null>(null)
@@ -38,7 +41,46 @@ export default function ITCHubLanding() {
     completedTasks: { count: 1247, change: "+89 this week", trend: "up" },
     successRate: { count: 94, change: "+2% from last month", trend: "up" },
   }
+  const { data: session, status } = useSession()
+  const [showDialog, setShowDialog] = useState(false)
 
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      setShowDialog(true)
+    }
+  }, [status, session])
+
+  const handleStayHere = () => {
+    setShowDialog(false)
+  }
+
+  const handleGoToDashboard = () => {
+    router.push("/dashboard")
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-lg">Loading...</p>
+          <p className="text-sm text-gray-500">Status: {status}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-lg">Redirecting to login...</p>
+          <p className="text-sm text-gray-500">Status: {status}</p>
+        </div>
+      </div>
+    )
+  }
   // Achievements data
   const achievements = [
     {
@@ -191,16 +233,32 @@ export default function ITCHubLanding() {
 
   return (
     <div className="min-h-screen">
+            {/* Confirmation Dialog for Logged-in Users */}
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Welcome back, {session?.user?.name}!</DialogTitle>
+            <DialogDescription>
+              You are already logged in. Would you like to continue to your dashboard or stay on this page?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={handleStayHere}>
+              Stay Here
+            </Button>
+            <Button onClick={handleGoToDashboard}>
+              Go to Dashboard
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <Hexagon className="h-8 w-8 text-red-500 fill-current" />
-              <div className="flex flex-col">
-                <span className="text-xl font-bold">ITC HUB</span>
-                <span className="text-xs text-muted-foreground">Information Technology Community HUB</span>
-              </div>
+              <HeaderLogo />
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -228,7 +286,7 @@ export default function ITCHubLanding() {
             {isLoading ? "Loading..." : "Get Started"}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-        </div>
+      </div>
 
         {/* Community Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -236,11 +294,11 @@ export default function ITCHubLanding() {
             className="cursor-pointer hover:bg-accent/50 transition-colors"
             onClick={() => handleStatCardClick("Active Members")}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Members</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          </CardHeader>
+          <CardContent>
               <div className="text-2xl font-bold text-red-500">
                 {selectedStatCard === "Active Members" && isLoading ? "..." : communityStats.activeMembers.count}
               </div>
@@ -248,18 +306,18 @@ export default function ITCHubLanding() {
                 {getTrendIcon(communityStats.activeMembers.trend)}
                 <span>{communityStats.activeMembers.change}</span>
               </div>
-            </CardContent>
-          </Card>
+          </CardContent>
+        </Card>
 
           <Card
             className="cursor-pointer hover:bg-accent/50 transition-colors"
             onClick={() => handleStatCardClick("Active Projects")}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
               <Building2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          </CardHeader>
+          <CardContent>
               <div className="text-2xl font-bold text-red-500">
                 {selectedStatCard === "Active Projects" && isLoading ? "..." : communityStats.activeProjects.count}
               </div>
@@ -267,18 +325,18 @@ export default function ITCHubLanding() {
                 {getTrendIcon(communityStats.activeProjects.trend)}
                 <span>{communityStats.activeProjects.change}</span>
               </div>
-            </CardContent>
-          </Card>
+          </CardContent>
+        </Card>
 
           <Card
             className="cursor-pointer hover:bg-accent/50 transition-colors"
             onClick={() => handleStatCardClick("Completed Tasks")}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Completed Tasks</CardTitle>
               <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          </CardHeader>
+          <CardContent>
               <div className="text-2xl font-bold text-red-500">
                 {selectedStatCard === "Completed Tasks" && isLoading ? "..." : communityStats.completedTasks.count}
               </div>
@@ -286,18 +344,18 @@ export default function ITCHubLanding() {
                 {getTrendIcon(communityStats.completedTasks.trend)}
                 <span>{communityStats.completedTasks.change}</span>
               </div>
-            </CardContent>
-          </Card>
+          </CardContent>
+        </Card>
 
           <Card
             className="cursor-pointer hover:bg-accent/50 transition-colors"
             onClick={() => handleStatCardClick("Success Rate")}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
               <Trophy className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          </CardHeader>
+          <CardContent>
               <div className="text-2xl font-bold text-red-500">
                 {selectedStatCard === "Success Rate" && isLoading ? "..." : `${communityStats.successRate.count}%`}
               </div>
@@ -305,9 +363,9 @@ export default function ITCHubLanding() {
                 {getTrendIcon(communityStats.successRate.trend)}
                 <span>{communityStats.successRate.change}</span>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
         {/* Achievements Section */}
         <Card>
@@ -405,8 +463,8 @@ export default function ITCHubLanding() {
                         {event.registered} registered
                       </span>
                       <span>by {event.organizer}</span>
-                    </div>
-                  </div>
+              </div>
+            </div>
                   <Button
                     size="sm"
                     onClick={() => handleQuickAction(event.type === "deadline" ? "Learn More" : "Register")}
@@ -414,12 +472,11 @@ export default function ITCHubLanding() {
                   >
                     {event.type === "deadline" ? "Learn More" : "Register"}
                   </Button>
-                </div>
+              </div>
               ))}
             </div>
           </CardContent>
         </Card>
-
         {/* Footer */}
         <Card>
           <CardContent className="p-6">
@@ -427,11 +484,7 @@ export default function ITCHubLanding() {
               {/* Column 1: Logo and About */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
-                  <Hexagon className="h-6 w-6 text-red-500 fill-current" />
-                  <div className="flex flex-col">
-                    <span className="font-bold">ITC HUB</span>
-                    <span className="text-xs text-muted-foreground">Information Technology Community HUB</span>
-                  </div>
+                  <FooterLogo />
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Empowering the Information Technology Community through collaboration, innovation, and shared
@@ -485,7 +538,7 @@ export default function ITCHubLanding() {
                       <Linkedin className="h-4 w-4" />
                     </Link>
                   </Button>
-                </div>
+            </div>
                 <p className="text-sm text-muted-foreground">
                   Stay connected with our community and get the latest updates on projects and events.
                 </p>
@@ -506,3 +559,7 @@ export default function ITCHubLanding() {
     </div>
   )
 }
+
+
+
+

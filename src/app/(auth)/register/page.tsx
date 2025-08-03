@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Eye, EyeOff, Mail, Lock, User, CheckCircle } from "lucide-react"
-import Image from "next/image"
+import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { AuthLogo } from "@/components/ui/logo"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +19,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    agreeToTerms: false,
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -24,6 +27,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +35,12 @@ export default function RegisterPage() {
     setError("")
 
     // Validation
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError("Please fill in all required fields")
+      setIsLoading(false)
+      return
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
@@ -39,6 +49,12 @@ export default function RegisterPage() {
 
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long")
+      setIsLoading(false)
+      return
+    }
+
+    if (!formData.agreeToTerms) {
+      setError("Please agree to the terms and conditions")
       setIsLoading(false)
       return
     }
@@ -63,31 +79,57 @@ export default function RegisterPage() {
       }
 
       setSuccess(true)
+      toast({
+        title: "Registration Successful",
+        description: "Welcome to ITC Hub! Please check your email to verify your account.",
+      })
+      
       setTimeout(() => {
         router.push("/login")
       }, 2000)
     } catch (error) {
       setError(error instanceof Error ? error.message : "Registration failed")
+      toast({
+        title: "Registration Failed",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }))
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 dark:from-gray-900 dark:to-gray-800 p-4">
-        <div className="w-full max-w-md">
-          <Card className="shadow-xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-            <CardContent className="pt-6 text-center">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Registration Successful!</h2>
-              <p className="text-muted-foreground mb-4">
-                Your account has been created successfully. Redirecting to login...
-              </p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center space-y-2">
+            <div className="flex items-center justify-center mb-4">
+              <AuthLogo />
+            </div>
+            <h1 className="text-2xl font-bold">Registration Successful!</h1>
+            <p className="text-muted-foreground">Your account has been created successfully</p>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
+                <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+                <div className="space-y-2">
+                  <p className="font-medium">Welcome to ITC Hub!</p>
+                  <p className="text-sm text-muted-foreground">
+                    Your account has been created successfully. Redirecting to login...
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -96,51 +138,42 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="w-full max-w-md">
-        <Card className="shadow-xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-          <CardHeader className="space-y-6 text-center">
-            <div className="flex justify-center">
-              <Image
-                src="/ITC HUB Logo.svg"
-                alt="ITC Hub"
-                width={120}
-                height={60}
-                className="dark:hidden"
-              />
-              <Image
-                src="/ITC HUB Logo Dark.svg"
-                alt="ITC Hub"
-                width={120}
-                height={60}
-                className="hidden dark:block"
-              />
-            </div>
-            <div>
-              <CardTitle className="text-2xl font-bold">Create account</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Join ITC Hub and start collaborating
-              </CardDescription>
-            </div>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center mb-4">
+            <AuthLogo />
+          </div>
+          <h1 className="text-2xl font-bold">Create Account</h1>
+          <p className="text-muted-foreground">Join the Information Technology Community</p>
+        </div>
+
+        {/* Registration Form */}
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-xl">Sign Up</CardTitle>
+            <CardDescription>Create your account to get started</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                  {error}
+                </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="name"
+                    name="name"
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    onChange={handleInputChange}
                     className="pl-10"
                     required
                     disabled={isLoading}
@@ -149,15 +182,16 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="Enter your email"
                     value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    onChange={handleInputChange}
                     className="pl-10"
                     required
                     disabled={isLoading}
@@ -171,10 +205,11 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onChange={handleInputChange}
                     className="pl-10 pr-10"
                     required
                     disabled={isLoading}
@@ -182,18 +217,19 @@ export default function RegisterPage() {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1 h-8 w-8"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
               </div>
 
               <div className="space-y-2">
@@ -202,10 +238,11 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
+                    name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    onChange={handleInputChange}
                     className="pl-10 pr-10"
                     required
                     disabled={isLoading}
@@ -213,49 +250,65 @@ export default function RegisterPage() {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1 h-8 w-8"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  "Create account"
-                )}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="agreeToTerms"
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, agreeToTerms: checked as boolean }))}
+                  disabled={isLoading}
+                />
+                <Label htmlFor="agreeToTerms" className="text-sm">
+                  I agree to the{" "}
+                  <Link href="/terms" className="text-red-500 hover:text-red-600 transition-colors">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-red-500 hover:text-red-600 transition-colors">
+                    Privacy Policy
+                  </Link>
+                </Label>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-red-600 hover:text-red-700 font-medium"
-                >
-                  Sign in
-                </Link>
-              </p>
+            <Separator className="my-4" />
+
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">Already have an account? </span>
+              <Link href="/login" className="text-red-500 hover:text-red-600 transition-colors font-medium">
+                Sign in
+              </Link>
             </div>
           </CardContent>
         </Card>
+
+        {/* Back to Home */}
+        <div className="text-center">
+          <Button variant="ghost" asChild>
+            <Link href="/" className="text-sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   )

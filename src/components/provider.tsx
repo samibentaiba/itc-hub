@@ -6,6 +6,7 @@ import type { ReactNode } from "react"
 import { createContext, useContext, useState, useEffect, useRef } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { Sidebar, SidebarInset, SidebarTrigger, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail } from "@/components/ui/sidebar"
+import { Logo, SidebarLogo } from "@/components/ui/logo"
 import * as React from 'react'
 import {
   ThemeProvider as NextThemesProvider,
@@ -49,6 +50,20 @@ import {
   Ticket, LayoutDashboard, UserRound, Layers, Trash2
 } from "lucide-react"
 
+// Extend the session user type to include our custom properties
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string
+      name?: string | null
+      email?: string | null
+      image?: string | null
+      role: string
+      avatar: string
+    }
+  }
+}
+
 export function Provider({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
@@ -66,6 +81,7 @@ export function Provider({ children }: { children: ReactNode }) {
 
 function ConditionalLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const { data: session, status } = useSession()
   
   // Check if current path is an auth page
   const isAuthPage = pathname?.startsWith('/login') || 
@@ -73,12 +89,28 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
                     pathname?.startsWith('/forget-password') ||
                     pathname?.startsWith('/reset-password')
   
+  // Check if user is logged in and on home page
+  const isLoggedInOnHome = status === "authenticated" && session?.user && pathname === "/"
+  
+  // Only show sidebar UI if user is definitely authenticated
+  const isAuthenticated = status === "authenticated" && session?.user
+  
   // For auth pages, don't show the sidebar
   if (isAuthPage) {
     return <>{children}</>
   }
   
-  // For other pages, show the full layout with sidebar
+  // For logged-in users on home page, show without sidebar (clean landing page)
+  if (isLoggedInOnHome) {
+    return <>{children}</>
+  }
+  
+  // For unauthenticated users, don't show sidebar UI
+  if (!isAuthenticated) {
+    return <>{children}</>
+  }
+  
+  // Only for authenticated users on protected routes, show the full layout with sidebar
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -360,6 +392,14 @@ interface WorkspaceLayoutProps {
 }
 
 export function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
+  const { data: session, status } = useSession()
+
+  // Only render workspace layout if user is authenticated
+  const isAuthenticated = status === "authenticated" && session?.user
+  if (!isAuthenticated) {
+    return <>{children}</>
+  }
+
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -396,15 +436,18 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefin
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [currentWorkspace, setCurrentWorkspace] = useState<WorkspaceType>("dashboard")
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null)
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+
+  // Only provide workspace context if user is authenticated
+  const isAuthenticated = status === "authenticated" && session?.user
 
   // Use session data or fallback to mock data
-  const user = session?.user ? {
+  const user = isAuthenticated && session?.user ? {
     id: session.user.id || "u1",
     name: session.user.name || "User",
     email: session.user.email || "user@itc.com",
     role: (session.user.role as "admin" | "super_leader" | "leader" | "member") || "member",
-    avatar: session.user.avatar || "/placeholder.svg?height=32&width=32",
+    avatar: session.user.avatar || session.user.image || "/placeholder.svg?height=32&width=32",
   } : {
     id: "u1",
     name: "Guest",
@@ -482,12 +525,7 @@ export function WorkspaceSidebar() {
     setMounted(true)
   }, [])
 
-  // Get the appropriate logo based on theme
-  const getLogoSrc = () => {
-    if (!mounted) return "/ITC HUB Logo.svg" // Default during SSR
-    const currentTheme = resolvedTheme || theme || "dark"
-    return currentTheme === "light" ? "/ITC HUB Logo Light.svg" : "/ITC HUB Logo Dark.svg"
-  }
+  // Logo source is now handled by the Logo component
 
   // Mock data - in real app this would come from API
   const [teams, setTeams] = useState([
@@ -700,12 +738,7 @@ export function WorkspaceSidebar() {
           <Sidebar variant="inset" className="border-r">
             <SidebarHeader className="border-b px-6 py-4">
               <div className="flex items-center gap-3">
-                <Image
-                  src={getLogoSrc()}
-                  alt="ITC Hub"
-                  width={90}
-                  height={40}
-                />
+                <Logo variant="auto" size="md" />
                 <div>
                   <h2 className="font-semibold text-lg">ITC Hub</h2>
                   <p className="text-xs text-muted-foreground">Workspace</p>
@@ -818,12 +851,7 @@ export function WorkspaceSidebar() {
         <Sidebar variant="inset" className="border-r">
           <SidebarHeader className="border-b px-6 py-4">
             <div className="flex items-center gap-3">
-              <Image
-                src={getLogoSrc()}
-                alt="ITC Hub"
-                width={90}
-                height={40}
-              />
+              <Logo variant="auto" size="md" />
               <div>
                 <h2 className="font-semibold text-lg">ITC Hub</h2>
                 <p className="text-xs text-muted-foreground">Workspace</p>
@@ -1124,33 +1152,26 @@ export function AppSidebar() {
   const pathname = usePathname()
   const { theme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { data: session, status } = useSession()
 
   // Ensure component is mounted to avoid hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Get the appropriate logo based on theme
-  const getLogoSrc = () => {
-    if (!mounted) return "/ITC HUB Logo.svg" // Default during SSR
-    const currentTheme = resolvedTheme || theme || "dark"
-    return currentTheme === "light" ? "/ITC HUB Logo Light.svg" : "/ITC HUB Logo Dark.svg"
+  // Only render sidebar if user is authenticated
+  const isAuthenticated = status === "authenticated" && session?.user
+  if (!isAuthenticated) {
+    return null
   }
+
+  // Logo source is now handled by the Logo component
 
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
         <div className="flex items-start flex-col gap-2 px-4 py-2">
-          <Image
-            src={getLogoSrc()}
-            alt="ITC Hub"
-            width={90}
-            height={40}
-          />
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate text-[0.6rem] text-muted-foreground">Information Technology Community</span>
-            <span className="truncate text-[0.6rem] text-muted-foreground">HUB</span>
-          </div>
+          <SidebarLogo variant="auto" />
         </div>
       </SidebarHeader>
 
