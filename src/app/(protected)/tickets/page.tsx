@@ -1,39 +1,179 @@
 "use client"
 
-import { useState } from "react"
-import { Search } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { api } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+
+interface Ticket {
+  id: string
+  title: string
+  description: string
+  status: string
+  priority: string
+  type: string
+  assignee?: {
+    id: string
+    name: string
+    avatar?: string
+  }
+  creator?: {
+    id: string
+    name: string
+    avatar?: string
+  }
+  team?: {
+    id: string
+    name: string
+  }
+  department?: {
+    id: string
+    name: string
+  }
+  createdAt: string
+  updatedAt: string
+}
+
+interface TicketStats {
+  total: number
+  open: number
+  inProgress: number
+  resolved: number
+}
 
 export default function TicketsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [stats, setStats] = useState<TicketStats>({
+    total: 0,
+    open: 0,
+    inProgress: 0,
+    resolved: 0,
+  })
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const { toast } = useToast()
 
-  // Mock stats
-  const stats = [
+  // Load tickets and stats
+  useEffect(() => {
+    const loadTicketsData = async () => {
+      try {
+        setIsLoading(true)
+        
+        // Build query parameters
+        const params: any = {
+          limit: 50,
+          page: 1,
+        }
+        
+        if (searchTerm) {
+          params.search = searchTerm
+        }
+        
+        if (statusFilter !== "all") {
+          params.status = statusFilter
+        }
+        
+        if (priorityFilter !== "all") {
+          params.priority = priorityFilter
+        }
+
+        const response = await api.tickets.getAll(params)
+        setTickets(response.tickets || [])
+      } catch (error) {
+        console.error('Error loading tickets:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load tickets. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadTicketsData()
+  }, [searchTerm, statusFilter, priorityFilter, toast])
+
+  // Load stats
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setIsLoadingStats(true)
+        
+        // Get total tickets
+        const totalResponse = await api.tickets.getAll({ limit: 1 })
+        const total = totalResponse.total || 0
+
+        // Get open tickets
+        const openResponse = await api.tickets.getAll({ 
+          status: "pending,active", 
+          limit: 1 
+        })
+        const open = openResponse.total || 0
+
+        // Get in progress tickets
+        const inProgressResponse = await api.tickets.getAll({ 
+          status: "in_progress", 
+          limit: 1 
+        })
+        const inProgress = inProgressResponse.total || 0
+
+        // Get resolved tickets
+        const resolvedResponse = await api.tickets.getAll({ 
+          status: "verified,completed", 
+          limit: 1 
+        })
+        const resolved = resolvedResponse.total || 0
+
+        setStats({
+          total,
+          open,
+          inProgress,
+          resolved,
+        })
+      } catch (error) {
+        console.error('Error loading stats:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load ticket statistics.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+
+    loadStats()
+  }, [toast])
+
+  const statsData = [
     {
       title: "Total Tickets",
-      value: "142",
+      value: stats.total.toString(),
       description: "All time tickets",
       trend: "+12% from last month",
     },
     {
       title: "Open Tickets",
-      value: "23",
+      value: stats.open.toString(),
       description: "Currently active",
       trend: "-5% from last week",
     },
     {
       title: "In Progress",
-      value: "18",
+      value: stats.inProgress.toString(),
       description: "Being worked on",
       trend: "+8% from last week",
     },
     {
       title: "Resolved",
-      value: "101",
+      value: stats.resolved.toString(),
       description: "Successfully closed",
       trend: "+15% from last month",
     },
@@ -51,10 +191,11 @@ export default function TicketsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {statsData.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              {isLoadingStats && <Loader2 className="h-4 w-4 animate-spin" />}
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -89,10 +230,11 @@ export default function TicketsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="verified">Verified</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
             <Select value={priorityFilter} onValueChange={setPriorityFilter}>
@@ -118,13 +260,18 @@ export default function TicketsPage() {
           <CardDescription>A list of all support tickets and their current status</CardDescription>
         </CardHeader>
         <CardContent>
-          <TicketsTable searchTerm={searchTerm} statusFilter={statusFilter} priorityFilter={priorityFilter} />
+          <TicketsTable 
+            tickets={tickets} 
+            isLoading={isLoading}
+            searchTerm={searchTerm} 
+            statusFilter={statusFilter} 
+            priorityFilter={priorityFilter} 
+          />
         </CardContent>
       </Card>
     </div>
   )
 }
-
 
 import Link from "next/link"
 import { MoreHorizontal, Eye, Edit, Trash2, MessageSquare } from "lucide-react"
@@ -142,142 +289,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
 interface TicketsTableProps {
+  tickets: Ticket[]
+  isLoading: boolean
   searchTerm: string
   statusFilter: string
   priorityFilter: string
 }
 
-const mockTickets = [
-  {
-    id: "T-001",
-    title: "Login page not responsive on mobile",
-    description: "The login form breaks on mobile devices below 768px width",
-    status: "open",
-    priority: "high",
-    assignee: {
-      name: "Sami Al-Rashid",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "sami",
-    },
-    reporter: {
-      name: "Yasmine Hassan",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "yasmine",
-    },
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-16",
-    comments: 3,
-    team: "Frontend Team",
-  },
-  {
-    id: "T-002",
-    title: "Database connection timeout",
-    description: "API endpoints are timing out due to database connection issues",
-    status: "in-progress",
-    priority: "urgent",
-    assignee: {
-      name: "Ali Mohammed",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "ali",
-    },
-    reporter: {
-      name: "Sami Al-Rashid",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "sami",
-    },
-    createdAt: "2024-01-14",
-    updatedAt: "2024-01-16",
-    comments: 8,
-    team: "Backend Team",
-  },
-  {
-    id: "T-003",
-    title: "Update user profile design",
-    description: "Redesign the user profile page according to new design system",
-    status: "resolved",
-    priority: "medium",
-    assignee: {
-      name: "Yasmine Hassan",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "yasmine",
-    },
-    reporter: {
-      name: "Fatima Al-Zahra",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "fatima",
-    },
-    createdAt: "2024-01-10",
-    updatedAt: "2024-01-15",
-    comments: 5,
-    team: "Design Team",
-  },
-  {
-    id: "T-004",
-    title: "Add dark mode toggle",
-    description: "Implement dark mode functionality across the application",
-    status: "open",
-    priority: "low",
-    assignee: {
-      name: "Omar Khaled",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "omar",
-    },
-    reporter: {
-      name: "Layla Ibrahim",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "layla",
-    },
-    createdAt: "2024-01-12",
-    updatedAt: "2024-01-13",
-    comments: 2,
-    team: "Frontend Team",
-  },
-  {
-    id: "T-005",
-    title: "Performance optimization needed",
-    description: "Page load times are slow, need to optimize bundle size and API calls",
-    status: "in-progress",
-    priority: "high",
-    assignee: {
-      name: "Sami Al-Rashid",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "sami",
-    },
-    reporter: {
-      name: "Ali Mohammed",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "ali",
-    },
-    createdAt: "2024-01-11",
-    updatedAt: "2024-01-16",
-    comments: 12,
-    team: "Performance Team",
-  },
-]
-
-function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTableProps) {
-  const filteredTickets = mockTickets.filter((ticket) => {
-    const matchesSearch =
-      ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.id.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
-    const matchesPriority = priorityFilter === "all" || ticket.priority === priorityFilter
-
-    return matchesSearch && matchesStatus && matchesPriority
-  })
-
+function TicketsTable({ tickets, isLoading, searchTerm, statusFilter, priorityFilter }: TicketsTableProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "open":
+      case "pending":
+      case "active":
         return "destructive"
-      case "in-progress":
+      case "in_progress":
         return "default"
-      case "resolved":
+      case "verified":
+      case "completed":
         return "secondary"
-      case "closed":
-        return "outline"
       default:
         return "outline"
     }
@@ -286,7 +315,6 @@ function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTable
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
-        return "destructive"
       case "high":
         return "destructive"
       case "medium":
@@ -300,9 +328,20 @@ function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTable
 
   const formatStatus = (status: string) => {
     return status
-      .split("-")
+      .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ")
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading tickets...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -321,7 +360,7 @@ function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTable
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredTickets.map((ticket) => (
+          {tickets.map((ticket) => (
             <TableRow key={ticket.id}>
               <TableCell>
                 <div className="space-y-1">
@@ -329,16 +368,15 @@ function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTable
                     {ticket.id}
                   </Link>
                   <div className="text-sm text-muted-foreground">{ticket.title}</div>
-                  {ticket.comments > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MessageSquare className="h-3 w-3" />
-                      {ticket.comments}
-                    </div>
-                  )}
+                  <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                    {ticket.description}
+                  </div>
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant={getStatusColor(ticket.status) as "default" | "secondary" | "destructive" | "outline"}>{formatStatus(ticket.status)}</Badge>
+                <Badge variant={getStatusColor(ticket.status) as "default" | "secondary" | "destructive" | "outline"}>
+                  {formatStatus(ticket.status)}
+                </Badge>
               </TableCell>
               <TableCell>
                 <Badge variant={getPriorityColor(ticket.priority) as "default" | "secondary" | "destructive" | "outline"}>
@@ -346,39 +384,53 @@ function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTable
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage src={ticket.assignee.avatar || "/placeholder.svg"} alt={ticket.assignee.name} />
-                    <AvatarFallback className="text-xs">
-                      {ticket.assignee.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Link href={`/users/${ticket.assignee.id}`} className="text-sm hover:underline">
-                    {ticket.assignee.name}
-                  </Link>
-                </div>
+                {ticket.assignee ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={ticket.assignee.avatar || "/placeholder.svg"} alt={ticket.assignee.name} />
+                      <AvatarFallback className="text-xs">
+                        {ticket.assignee.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Link href={`/users/${ticket.assignee.id}`} className="text-sm hover:underline">
+                      {ticket.assignee.name}
+                    </Link>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground text-sm">Unassigned</span>
+                )}
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage src={ticket.reporter.avatar || "/placeholder.svg"} alt={ticket.reporter.name} />
-                    <AvatarFallback className="text-xs">
-                      {ticket.reporter.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Link href={`/users/${ticket.reporter.id}`} className="text-sm hover:underline">
-                    {ticket.reporter.name}
-                  </Link>
-                </div>
+                {ticket.creator ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={ticket.creator.avatar || "/placeholder.svg"} alt={ticket.creator.name} />
+                      <AvatarFallback className="text-xs">
+                        {ticket.creator.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Link href={`/users/${ticket.creator.id}`} className="text-sm hover:underline">
+                      {ticket.creator.name}
+                    </Link>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground text-sm">Unknown</span>
+                )}
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{ticket.team}</Badge>
+                {ticket.team ? (
+                  <Badge variant="outline">{ticket.team.name}</Badge>
+                ) : ticket.department ? (
+                  <Badge variant="outline">{ticket.department.name}</Badge>
+                ) : (
+                  <span className="text-muted-foreground text-sm">No team</span>
+                )}
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {new Date(ticket.updatedAt).toLocaleDateString()}
@@ -416,7 +468,7 @@ function TicketsTable({ searchTerm, statusFilter, priorityFilter }: TicketsTable
         </TableBody>
       </Table>
 
-      {filteredTickets.length === 0 && (
+      {tickets.length === 0 && !isLoading && (
         <div className="text-center py-8">
           <p className="text-muted-foreground">No tickets found matching your criteria.</p>
         </div>

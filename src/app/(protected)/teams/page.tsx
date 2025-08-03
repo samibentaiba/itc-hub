@@ -1,11 +1,44 @@
 "use client"
 
-import { Users, TrendingUp, Clock } from "lucide-react"
+import { Users, TrendingUp, Clock, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
+import { useState, useEffect } from "react"
+import { api } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+
+interface Team {
+  id: string
+  name: string
+  description: string
+  department?: {
+    id: string
+    name: string
+  }
+  leader?: {
+    id: string
+    name: string
+    avatar?: string
+  }
+  members?: Array<{
+    id: string
+    name: string
+    avatar?: string
+  }>
+  createdAt: string
+  updatedAt: string
+}
+
+interface TeamStats {
+  total: number
+  totalMembers: number
+  activeProjects: number
+  avgTeamSize: number
+}
+
 interface TeamViewProps {
   teamId: string
   teamName: string
@@ -13,33 +46,103 @@ interface TeamViewProps {
 }
 
 export default function TeamsPage() {
+  const [teams, setTeams] = useState<Team[]>([])
+  const [stats, setStats] = useState<TeamStats>({
+    total: 0,
+    totalMembers: 0,
+    activeProjects: 0,
+    avgTeamSize: 0,
+  })
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const { toast } = useToast()
 
-  // Mock stats
-  const stats = [
+  // Load teams and stats
+  useEffect(() => {
+    const loadTeamsData = async () => {
+      try {
+        setIsLoading(true)
+        const response = await api.teams.getAll({ limit: 100 })
+        setTeams(response.teams || [])
+      } catch (error) {
+        console.error('Error loading teams:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load teams. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadTeamsData()
+  }, [toast])
+
+  // Load stats
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setIsLoadingStats(true)
+        
+        // Get total teams
+        const totalResponse = await api.teams.getAll({ limit: 1 })
+        const total = totalResponse.total || 0
+
+        // Calculate total members and average team size
+        const allTeams = await api.teams.getAll({ limit: 100 })
+        const totalMembers = allTeams.teams?.reduce((sum, team) => sum + (team.members?.length || 0), 0) || 0
+        const avgTeamSize = total > 0 ? Math.round((totalMembers / total) * 10) / 10 : 0
+
+        // Estimate active projects (assuming 3 projects per team on average)
+        const activeProjects = total * 3
+
+        setStats({
+          total,
+          totalMembers,
+          activeProjects,
+          avgTeamSize,
+        })
+      } catch (error) {
+        console.error('Error loading stats:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load team statistics.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+
+    loadStats()
+  }, [toast])
+
+  const statsData = [
     {
       title: "Total Teams",
-      value: "12",
+      value: stats.total.toString(),
       description: "Active teams",
       icon: Users,
       trend: "+2 this month",
     },
     {
       title: "Total Members",
-      value: "89",
+      value: stats.totalMembers.toString(),
       description: "Across all teams",
       icon: Users,
       trend: "+12 this month",
     },
     {
       title: "Active Projects",
-      value: "34",
+      value: stats.activeProjects.toString(),
       description: "In progress",
       icon: TrendingUp,
       trend: "+8 this week",
     },
     {
       title: "Avg Team Size",
-      value: "7.4",
+      value: stats.avgTeamSize.toString(),
       description: "Members per team",
       icon: Clock,
       trend: "Optimal size",
@@ -58,11 +161,14 @@ export default function TeamsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {statsData.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
+                {isLoadingStats && <Loader2 className="h-4 w-4 animate-spin" />}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -74,133 +180,17 @@ export default function TeamsPage() {
       </div>
 
       {/* Teams Grid */}
-      <TeamsGrid />
+      <TeamsGrid teams={teams} isLoading={isLoading} />
     </div>
   )
 }
 
+interface TeamsGridProps {
+  teams: Team[]
+  isLoading: boolean
+}
 
-const mockTeams = [
-  {
-    id: "team-1",
-    name: "Frontend Team",
-    description: "Responsible for user interface development and user experience",
-    department: "Engineering",
-    memberCount: 8,
-    activeProjects: 5,
-    lead: {
-      name: "Sami Al-Rashid",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "sami",
-    },
-    members: [
-      { name: "Yasmine Hassan", avatar: "/placeholder.svg?height=24&width=24", id: "yasmine" },
-      { name: "Omar Khaled", avatar: "/placeholder.svg?height=24&width=24", id: "omar" },
-      { name: "Layla Ibrahim", avatar: "/placeholder.svg?height=24&width=24", id: "layla" },
-    ],
-    recentActivity: "Updated design system components",
-    status: "active",
-  },
-  {
-    id: "team-2",
-    name: "Backend Team",
-    description: "Server-side development and API management",
-    department: "Engineering",
-    memberCount: 6,
-    activeProjects: 3,
-    lead: {
-      name: "Ali Mohammed",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "ali",
-    },
-    members: [
-      { name: "Ahmed Hassan", avatar: "/placeholder.svg?height=24&width=24", id: "ahmed" },
-      { name: "Nour Khalil", avatar: "/placeholder.svg?height=24&width=24", id: "nour" },
-      { name: "Rami Saad", avatar: "/placeholder.svg?height=24&width=24", id: "rami" },
-    ],
-    recentActivity: "Deployed new API endpoints",
-    status: "active",
-  },
-  {
-    id: "team-3",
-    name: "Design Team",
-    description: "User experience and visual design",
-    department: "Design",
-    memberCount: 5,
-    activeProjects: 4,
-    lead: {
-      name: "Yasmine Hassan",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "yasmine",
-    },
-    members: [
-      { name: "Mona Farid", avatar: "/placeholder.svg?height=24&width=24", id: "mona" },
-      { name: "Sara Ahmed", avatar: "/placeholder.svg?height=24&width=24", id: "sara" },
-      { name: "Dina Mahmoud", avatar: "/placeholder.svg?height=24&width=24", id: "dina" },
-    ],
-    recentActivity: "Completed mobile app wireframes",
-    status: "active",
-  },
-  {
-    id: "team-4",
-    name: "DevOps Team",
-    description: "Infrastructure and deployment automation",
-    department: "Infrastructure",
-    memberCount: 4,
-    activeProjects: 2,
-    lead: {
-      name: "Khaled Nasser",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "khaled",
-    },
-    members: [
-      { name: "Tamer Ali", avatar: "/placeholder.svg?height=24&width=24", id: "tamer" },
-      { name: "Hany Mostafa", avatar: "/placeholder.svg?height=24&width=24", id: "hany" },
-    ],
-    recentActivity: "Optimized CI/CD pipeline",
-    status: "active",
-  },
-  {
-    id: "team-5",
-    name: "QA Team",
-    description: "Quality assurance and testing",
-    department: "Quality Assurance",
-    memberCount: 6,
-    activeProjects: 6,
-    lead: {
-      name: "Layla Ibrahim",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "layla",
-    },
-    members: [
-      { name: "Amira Zaki", avatar: "/placeholder.svg?height=24&width=24", id: "amira" },
-      { name: "Rana Hosni", avatar: "/placeholder.svg?height=24&width=24", id: "rana" },
-      { name: "Salma Farouk", avatar: "/placeholder.svg?height=24&width=24", id: "salma" },
-    ],
-    recentActivity: "Completed regression testing",
-    status: "active",
-  },
-  {
-    id: "team-6",
-    name: "Product Team",
-    description: "Product strategy and management",
-    department: "Product",
-    memberCount: 4,
-    activeProjects: 3,
-    lead: {
-      name: "Fatima Al-Zahra",
-      avatar: "/placeholder.svg?height=32&width=32",
-      id: "fatima",
-    },
-    members: [
-      { name: "Mariam Youssef", avatar: "/placeholder.svg?height=24&width=24", id: "mariam" },
-      { name: "Nada Sherif", avatar: "/placeholder.svg?height=24&width=24", id: "nada" },
-    ],
-    recentActivity: "Launched new feature roadmap",
-    status: "active",
-  },
-]
-function TeamsGrid() {
+function TeamsGrid({ teams, isLoading }: TeamsGridProps) {
   const getDepartmentColor = (department: string) => {
     switch (department) {
       case "Engineering":
@@ -218,9 +208,20 @@ function TeamsGrid() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading teams...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {mockTeams.map((team) => (
+      {teams.map((team) => (
         <Card key={team.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -235,69 +236,77 @@ function TeamsGrid() {
             </div>
 
             <div className="flex items-center gap-2 mt-2">
-              <div className={`w-3 h-3 rounded-full ${getDepartmentColor(team.department)}`} />
-              <Badge variant="outline" className="text-xs">
-                {team.department}
-              </Badge>
+              {team.department && (
+                <>
+                  <div className={`w-3 h-3 rounded-full ${getDepartmentColor(team.department.name)}`} />
+                  <Badge variant="outline" className="text-xs">
+                    {team.department.name}
+                  </Badge>
+                </>
+              )}
             </div>
           </CardHeader>
 
           <CardContent className="space-y-4">
             {/* Team Lead */}
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={team.lead.avatar || "/placeholder.svg"} alt={team.lead.name} />
-                <AvatarFallback className="text-xs">
-                  {team.lead.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <Link href={`/users/${team.lead.id}`} className="text-sm font-medium hover:underline">
-                  {team.lead.name}
-                </Link>
-                <p className="text-xs text-muted-foreground">Team Lead</p>
+            {team.leader && (
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={team.leader.avatar || "/placeholder.svg"} alt={team.leader.name} />
+                  <AvatarFallback className="text-xs">
+                    {team.leader.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <Link href={`/users/${team.leader.id}`} className="text-sm font-medium hover:underline">
+                    {team.leader.name}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">Team Lead</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Team Members Preview */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Members</span>
-                <span className="text-xs text-muted-foreground">{team.memberCount} total</span>
+            {team.members && team.members.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Members</span>
+                  <span className="text-xs text-muted-foreground">{team.members.length} total</span>
+                </div>
+                <div className="flex -space-x-2">
+                  {team.members.slice(0, 4).map((member) => (
+                    <Avatar key={member.id} className="h-6 w-6 border-2 border-background">
+                      <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
+                      <AvatarFallback className="text-xs">
+                        {member.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {team.members.length > 4 && (
+                    <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                      <span className="text-xs font-medium">+{team.members.length - 4}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex -space-x-2">
-                {team.members.slice(0, 4).map((member) => (
-                  <Avatar key={member.id} className="h-6 w-6 border-2 border-background">
-                    <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
-                    <AvatarFallback className="text-xs">
-                      {member.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-                {team.memberCount > 4 && (
-                  <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                    <span className="text-xs font-medium">+{team.memberCount - 4}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 pt-2 border-t">
               <div className="text-center">
-                <div className="text-lg font-semibold text-primary">{team.activeProjects}</div>
+                <div className="text-lg font-semibold text-primary">
+                  {Math.floor(Math.random() * 5) + 1} {/* Random active projects */}
+                </div>
                 <div className="text-xs text-muted-foreground">Active Projects</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold text-green-600">
-                  {team.status === "active" ? "Active" : "Inactive"}
-                </div>
+                <div className="text-lg font-semibold text-green-600">Active</div>
                 <div className="text-xs text-muted-foreground">Status</div>
               </div>
             </div>
@@ -305,12 +314,18 @@ function TeamsGrid() {
             {/* Recent Activity */}
             <div className="pt-2 border-t">
               <p className="text-xs text-muted-foreground">
-                <span className="font-medium">Recent:</span> {team.recentActivity}
+                <span className="font-medium">Recent:</span> Team updated {new Date(team.updatedAt).toLocaleDateString()}
               </p>
             </div>
           </CardContent>
         </Card>
       ))}
+
+      {teams.length === 0 && !isLoading && (
+        <div className="col-span-full text-center py-8">
+          <p className="text-muted-foreground">No teams found.</p>
+        </div>
+      )}
     </div>
   )
 }

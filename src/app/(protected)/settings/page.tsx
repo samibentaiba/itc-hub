@@ -7,8 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Bell, Moon, Sun, Settings, Monitor } from "lucide-react"
+import { Bell, Moon, Sun, Settings, Monitor, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
+
+interface UserSettings {
+  displayName: string
+  email: string
+  notifications: boolean
+  theme: string
+}
 
 export default function SettingsPage() {
   return (
@@ -39,18 +47,48 @@ export default function SettingsPage() {
 function UserSettingsForm() {
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [settings, setSettings] = useState({
-    displayName: "Sami",
-    email: "sami@itc.com",
+  const [settings, setSettings] = useState<UserSettings>({
+    displayName: "",
+    email: "",
     notifications: true,
+    theme: "dark",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingData, setIsLoadingData] = useState(true)
   const { toast } = useToast()
 
   // Ensure component is mounted to avoid hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Load user settings
+  useEffect(() => {
+    const loadUserSettings = async () => {
+      try {
+        setIsLoadingData(true)
+        // Get current user's profile for settings
+        const profile = await api.profile.get()
+        setSettings({
+          displayName: profile.name || "",
+          email: profile.email || "",
+          notifications: true, // Default value
+          theme: theme || "dark",
+        })
+      } catch (error) {
+        console.error('Error loading user settings:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load user settings. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingData(false)
+      }
+    }
+
+    loadUserSettings()
+  }, [toast])
 
   // Get current theme state
   const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark"
@@ -59,17 +97,22 @@ function UserSettingsForm() {
   const handleSave = async () => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Update user profile with new settings
+      await api.profile.update("current", {
+        name: settings.displayName,
+        email: settings.email,
+      })
 
-      // Save settings to localStorage or API
-      localStorage.setItem("user-settings", JSON.stringify(settings))
+      // Save theme preference to localStorage
+      localStorage.setItem("theme", settings.theme)
+      setTheme(settings.theme)
 
       toast({
         title: "Settings saved",
         description: "Your preferences have been updated successfully.",
       })
     } catch (error) {
+      console.error('Error saving settings:', error)
       toast({
         title: "Save Error",
         description: "Failed to save settings. Please try again.",
@@ -80,7 +123,16 @@ function UserSettingsForm() {
     }
   }
 
-
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading settings...</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto">
@@ -132,7 +184,10 @@ function UserSettingsForm() {
           <Button
             variant={currentTheme === "light" ? "default" : "outline"}
             size="sm"
-            onClick={() => setTheme("light")}
+            onClick={() => {
+              setTheme("light")
+              setSettings({ ...settings, theme: "light" })
+            }}
             className="text-xs flex-1"
             disabled={isLoading}
           >
@@ -140,9 +195,12 @@ function UserSettingsForm() {
             Light
           </Button>
           <Button
-            variant={!isSystem && currentTheme  === "dark"  ? "default" : "outline"}
+            variant={!isSystem && currentTheme === "dark" ? "default" : "outline"}
             size="sm"
-            onClick={() => setTheme("dark")}
+            onClick={() => {
+              setTheme("dark")
+              setSettings({ ...settings, theme: "dark" })
+            }}
             className="text-xs flex-1"
             disabled={isLoading}
           >
@@ -150,9 +208,12 @@ function UserSettingsForm() {
             Dark
           </Button>
           <Button
-            variant={isSystem  ? "default" : "outline"}
+            variant={isSystem ? "default" : "outline"}
             size="sm"
-            onClick={() => setTheme("system")}
+            onClick={() => {
+              setTheme("system")
+              setSettings({ ...settings, theme: "system" })
+            }}
             className="text-xs flex-1"
             disabled={isLoading}
           >
@@ -167,7 +228,14 @@ function UserSettingsForm() {
           className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-sm w-full sm:w-auto shadow-md"
           disabled={isLoading}
         >
-          {isLoading ? "Saving..." : "Save Changes"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
         </Button>
       </div>
     </div>

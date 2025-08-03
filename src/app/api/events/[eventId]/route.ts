@@ -1,0 +1,158 @@
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { eventId: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const event = await prisma.event.findUnique({
+      where: { id: params.eventId },
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    })
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(event)
+  } catch (error) {
+    console.error("Error fetching event:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { eventId: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { title, description, date, time, duration, type, location, attendees, isRecurring } = body
+
+    // Check if event exists
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: params.eventId }
+    })
+
+    if (!existingEvent) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+    }
+
+    // Check permissions - only organizer or admins can update
+    const canUpdate = 
+      session.user.role === "ADMIN" ||
+      session.user.role === "SUPERLEADER" ||
+      existingEvent.organizerId === session.user.id
+
+    if (!canUpdate) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const updateData: any = {}
+
+    if (title) updateData.title = title
+    if (description) updateData.description = description
+    if (date) updateData.date = new Date(date)
+    if (time !== undefined) updateData.time = time
+    if (duration !== undefined) updateData.duration = duration
+    if (type) updateData.type = type
+    if (location !== undefined) updateData.location = location
+    if (attendees !== undefined) updateData.attendees = attendees
+    if (isRecurring !== undefined) updateData.isRecurring = isRecurring
+
+    const event = await prisma.event.update({
+      where: { id: params.eventId },
+      data: updateData,
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(event)
+  } catch (error) {
+    console.error("Error updating event:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { eventId: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if event exists
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: params.eventId }
+    })
+
+    if (!existingEvent) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+    }
+
+    // Check permissions - only organizer or admins can delete
+    const canDelete = 
+      session.user.role === "ADMIN" ||
+      session.user.role === "SUPERLEADER" ||
+      existingEvent.organizerId === session.user.id
+
+    if (!canDelete) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    // Delete event
+    await prisma.event.delete({
+      where: { id: params.eventId }
+    })
+
+    return NextResponse.json({ message: "Event deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting event:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+} 

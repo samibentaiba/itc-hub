@@ -1,10 +1,11 @@
 "use client"
 
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { api } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -17,82 +18,136 @@ import {
   TrendingUp,
   Activity,
   ExternalLink,
+  Loader2,
 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+
+interface Ticket {
+  id: string
+  title: string
+  type: string
+  status: string
+  priority: string
+  dueDate?: string
+  assignee?: {
+    id: string
+    name: string
+  }
+  creator?: {
+    id: string
+    name: string
+  }
+  team?: {
+    id: string
+    name: string
+  }
+  department?: {
+    id: string
+    name: string
+  }
+  createdAt: string
+  updatedAt: string
+}
+
+interface Stats {
+  teams: { count: number; change: string; trend: string }
+  departments: { count: number; change: string; trend: string }
+  activeTickets: { count: number; change: string; trend: string }
+  completedThisWeek: { count: number; change: string; trend: string }
+}
 
 export default function DashboardPage() {
   const [selectedStatCard, setSelectedStatCard] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingData, setIsLoadingData] = useState(true)
+  const [myTickets, setMyTickets] = useState<Ticket[]>([])
+  const [stats, setStats] = useState<Stats>({
+    teams: { count: 0, change: "Loading...", trend: "stable" },
+    departments: { count: 0, change: "Loading...", trend: "stable" },
+    activeTickets: { count: 0, change: "Loading...", trend: "stable" },
+    completedThisWeek: { count: 0, change: "Loading...", trend: "stable" },
+  })
   const { toast } = useToast()
   const router = useRouter()
 
-  // Mock data with more realistic information
-  const myTickets = [
-    {
-      id: "t1",
-      title: "Fix authentication bug",
-      type: "task",
-      workspace: "Frontend Team",
-      workspaceType: "team",
-      status: "pending",
-      dueDate: "2025-01-25",
-      messages: 3,
-      priority: "high",
-      assignedBy: "Sami",
-    },
-    {
-      id: "t2",
-      title: "Design system review",
-      type: "meeting",
-      workspace: "Design Department",
-      workspaceType: "department",
-      status: "verified",
-      dueDate: "2025-01-26",
-      messages: 8,
-      priority: "medium",
-      assignedBy: "Yasmine",
-    },
-    {
-      id: "t3",
-      title: "Weekly standup",
-      type: "event",
-      workspace: "Backend Team",
-      workspaceType: "team",
-      status: "in_progress",
-      dueDate: "2025-01-24",
-      messages: 1,
-      priority: "low",
-      assignedBy: "Omar",
-    },
-    {
-      id: "t4",
-      title: "Security audit planning",
-      type: "meeting",
-      workspace: "Development Department",
-      workspaceType: "department",
-      status: "scheduled",
-      dueDate: "2025-01-27",
-      messages: 5,
-      priority: "high",
-      assignedBy: "Sami",
-    },
-  ]
+  // Load dashboard data
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setIsLoadingData(true)
+        
+        // Load user's tickets
+        const ticketsResponse = await api.tickets.getAll({ 
+          limit: 4,
+          status: "active,in_progress,pending" 
+        })
+        setMyTickets(ticketsResponse.tickets || [])
 
-  const workspaceStats = {
-    teams: { count: 2, change: "+1 this month", trend: "up" },
-    departments: { count: 2, change: "No change", trend: "stable" },
-    activeTickets: { count: 5, change: "+2 this week", trend: "up" },
-    completedThisWeek: { count: 8, change: "+3 from last week", trend: "up" },
-  }
+        // Load teams count
+        const teamsResponse = await api.teams.getAll({ limit: 1 })
+        const teamsCount = teamsResponse.total || 0
+
+        // Load departments count
+        const departmentsResponse = await api.departments.getAll({ limit: 1 })
+        const departmentsCount = departmentsResponse.total || 0
+
+        // Load active tickets count
+        const activeTicketsResponse = await api.tickets.getAll({ 
+          status: "active,in_progress,pending",
+          limit: 1 
+        })
+        const activeTicketsCount = activeTicketsResponse.total || 0
+
+        // Load completed tickets count (this week)
+        const oneWeekAgo = new Date()
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+        const completedTicketsResponse = await api.tickets.getAll({ 
+          status: "verified,completed",
+          limit: 1 
+        })
+        const completedCount = completedTicketsResponse.total || 0
+
+        setStats({
+          teams: { 
+            count: teamsCount, 
+            change: teamsCount > 0 ? "+1 this month" : "No teams yet", 
+            trend: "up" 
+          },
+          departments: { 
+            count: departmentsCount, 
+            change: departmentsCount > 0 ? "Active departments" : "No departments yet", 
+            trend: "stable" 
+          },
+          activeTickets: { 
+            count: activeTicketsCount, 
+            change: activeTicketsCount > 0 ? "+2 this week" : "No active tickets", 
+            trend: "up" 
+          },
+          completedThisWeek: { 
+            count: completedCount, 
+            change: completedCount > 0 ? "+3 from last week" : "No completed tickets", 
+            trend: "up" 
+          },
+        })
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load dashboard data. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingData(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [toast])
 
   const handleStatCardClick = async (cardType: string) => {
     setSelectedStatCard(cardType)
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
       // Navigate based on card type
       switch (cardType) {
         case "Teams":
@@ -131,29 +186,23 @@ export default function DashboardPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
       switch (action) {
         case "View All Tickets":
           router.push("/tickets")
           break
         case "Schedule Meeting":
-          // Open calendar or meeting scheduler
           toast({
             title: "Meeting Scheduler",
             description: "Opening meeting scheduler...",
           })
           break
         case "View Reports":
-          // Navigate to reports page
           router.push("/reports")
           break
         case "Export Data":
-          // Trigger data export
           const exportData = {
             tickets: myTickets,
-            stats: workspaceStats,
+            stats: stats,
             exportDate: new Date().toISOString(),
           }
           const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
@@ -172,7 +221,6 @@ export default function DashboardPage() {
           })
           break
         case "Import Data":
-          // Trigger file input for import
           const input = document.createElement("input")
           input.type = "file"
           input.accept = ".json"
@@ -201,7 +249,6 @@ export default function DashboardPage() {
           input.click()
           break
         case "Backup Settings":
-          // Create settings backup
           const settings = {
             theme: "dark",
             notifications: true,
@@ -264,6 +311,31 @@ export default function DashboardPage() {
     }
   }
 
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case "verified":
+      case "completed":
+        return "default"
+      case "pending":
+        return "destructive"
+      case "in_progress":
+        return "secondary"
+      default:
+        return "outline"
+    }
+  }
+
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading dashboard...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
@@ -273,7 +345,6 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Summary of different, but related data sets, presented in a way that makes the related information easier to understand</p>
         </div>
       </div>
-
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -287,11 +358,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">
-              {selectedStatCard === "Teams" && isLoading ? "..." : workspaceStats.teams.count}
+              {selectedStatCard === "Teams" && isLoading ? "..." : stats.teams.count}
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              {getTrendIcon(workspaceStats.teams.trend)}
-              <span className="truncate">{workspaceStats.teams.change}</span>
+              {getTrendIcon(stats.teams.trend)}
+              <span className="truncate">{stats.teams.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -306,11 +377,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">
-              {selectedStatCard === "Departments" && isLoading ? "..." : workspaceStats.departments.count}
+              {selectedStatCard === "Departments" && isLoading ? "..." : stats.departments.count}
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              {getTrendIcon(workspaceStats.departments.trend)}
-              <span className="truncate">{workspaceStats.departments.change}</span>
+              {getTrendIcon(stats.departments.trend)}
+              <span className="truncate">{stats.departments.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -325,11 +396,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">
-              {selectedStatCard === "Active Tickets" && isLoading ? "..." : workspaceStats.activeTickets.count}
+              {selectedStatCard === "Active Tickets" && isLoading ? "..." : stats.activeTickets.count}
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              {getTrendIcon(workspaceStats.activeTickets.trend)}
-              <span className="truncate">{workspaceStats.activeTickets.change}</span>
+              {getTrendIcon(stats.activeTickets.trend)}
+              <span className="truncate">{stats.activeTickets.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -344,11 +415,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-500">
-              {selectedStatCard === "Completed" && isLoading ? "..." : workspaceStats.completedThisWeek.count}
+              {selectedStatCard === "Completed" && isLoading ? "..." : stats.completedThisWeek.count}
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              {getTrendIcon(workspaceStats.completedThisWeek.trend)}
-              <span className="truncate">{workspaceStats.completedThisWeek.change}</span>
+              {getTrendIcon(stats.completedThisWeek.trend)}
+              <span className="truncate">{stats.completedThisWeek.change}</span>
             </div>
           </CardContent>
         </Card>
@@ -377,52 +448,67 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="p-4 pt-0">
           <div className="space-y-3 sm:space-y-4">
-            {myTickets.map((ticket) => (
-              <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
-                <div className="flex flex-col sm:flex-row items-start mb-5 sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group gap-3 sm:gap-0">
-                  <div className="space-y-2 flex-1 w-full sm:w-auto">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority)} flex-shrink-0`} />
-                      <h4 className="font-medium group-hover:text-red-500 transition-colors text-sm sm:text-base truncate">
-                        {ticket.title}
-                      </h4>
-                      <Badge variant="outline" className="text-xs">
-                        {ticket.type}
-                      </Badge>
-                      <Badge
-                        variant={
-                          ticket.status === "verified"
-                            ? "default"
-                            : ticket.status === "pending"
-                              ? "destructive"
-                              : "secondary"
-                        }
-                        className="text-xs"
-                      >
-                        {ticket.status}
-                      </Badge>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        {ticket.workspaceType === "team" ? (
-                          <Users className="h-3 w-3" />
-                        ) : (
-                          <Building2 className="h-3 w-3" />
+            {myTickets.length > 0 ? (
+              myTickets.map((ticket) => (
+                <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
+                  <div className="flex flex-col sm:flex-row items-start mb-5 sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group gap-3 sm:gap-0">
+                    <div className="space-y-2 flex-1 w-full sm:w-auto">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority)} flex-shrink-0`} />
+                        <h4 className="font-medium group-hover:text-red-500 transition-colors text-sm sm:text-base truncate">
+                          {ticket.title}
+                        </h4>
+                        <Badge variant="outline" className="text-xs">
+                          {ticket.type}
+                        </Badge>
+                        <Badge
+                          variant={getStatusBadgeVariant(ticket.status)}
+                          className="text-xs"
+                        >
+                          {ticket.status.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                        {ticket.team && (
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span className="truncate max-w-[120px] sm:max-w-none">{ticket.team.name}</span>
+                          </span>
                         )}
-                        <span className="truncate max-w-[120px] sm:max-w-none">{ticket.workspace}</span>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        Due {ticket.dueDate}
-                      </span>
-                      <span className="hidden sm:inline">{ticket.messages} messages</span>
-                      <span className="hidden md:inline">by {ticket.assignedBy}</span>
+                        {ticket.department && (
+                          <span className="flex items-center gap-1">
+                            <Building2 className="h-3 w-3" />
+                            <span className="truncate max-w-[120px] sm:max-w-none">{ticket.department.name}</span>
+                          </span>
+                        )}
+                        {ticket.dueDate && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Due {new Date(ticket.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                        {ticket.creator && (
+                          <span className="hidden md:inline">by {ticket.creator.name}</span>
+                        )}
+                      </div>
                     </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors flex-shrink-0 self-start sm:self-center" />
                   </div>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors flex-shrink-0 self-start sm:self-center" />
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No active tickets assigned to you.</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={() => router.push("/tickets")}
+                >
+                  View All Tickets
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
