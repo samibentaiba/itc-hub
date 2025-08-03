@@ -1,12 +1,36 @@
 "use client"
 
+import type React from "react"
+import {  useRef } from "react"
+import {  CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Textarea } from "@/components/ui/textarea"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Send,
+  ImageIcon,
+  LinkIcon,
+  MoreVertical,
+  CheckCircle,
+  Clock,
+  Users,
+  Building2,
+  Paperclip,
+  Smile,
+} from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-
+interface TicketChatViewProps {
+  ticketId: string
+}
 export default function TicketDetailPage() {
   const params = useParams()
   const ticketId = params.ticketId as string
@@ -112,7 +136,7 @@ export default function TicketDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start flex-col gap-6  ">
         <div className="flex items-center gap-4">
           <Link href="/tickets">
             <Button variant="outline" size="sm">
@@ -120,55 +144,18 @@ export default function TicketDetailPage() {
               Back to Tickets
             </Button>
           </Link>
+        </div>
           <div>
             <h1 className="text-3xl font-bold">{ticket.id}</h1>
             <p className="text-muted-foreground">{ticket.title}</p>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-          <Button variant="outline" className="text-destructive bg-transparent">
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
-        </div>
       </div>
-
       {/* Ticket Details */}
       <TicketChatView ticketId={ticketId} />
     </div>
   )
 }
-import type React from "react"
 
-import {  useRef } from "react"
-import {  CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import {
-  Send,
-  ImageIcon,
-  LinkIcon,
-  MoreVertical,
-  CheckCircle,
-  Clock,
-  Users,
-  Building2,
-  Paperclip,
-  Smile,
-} from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-
-interface TicketChatViewProps {
-  ticketId: string
-}
 function TicketChatView({ ticketId }: TicketChatViewProps) {
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState([
@@ -638,19 +625,7 @@ function TicketChatView({ ticketId }: TicketChatViewProps) {
                                     <MoreVertical className="h-3 w-3" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEditMessage(msg.id)}>
-                                    <Edit className="mr-2 h-3 w-3" />
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => handleDeleteMessage(msg.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash2 className="mr-2 h-3 w-3" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
+
                               </DropdownMenu>
                             </div>
                           )}

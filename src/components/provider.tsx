@@ -3,13 +3,14 @@
 "use client"
 import Image from "next/image"
 import type { ReactNode } from "react"
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { Sidebar, SidebarInset, SidebarTrigger, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail } from "@/components/ui/sidebar"
 import * as React from 'react'
 import {
   ThemeProvider as NextThemesProvider,
   type ThemeProviderProps,
+  useTheme,
 } from 'next-themes'
 import { useToast } from "@/hooks/use-toast"
 import { } from "lucide-react"
@@ -49,7 +50,7 @@ import {
 
 export function Provider({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} storageKey="itc-hub-theme">
       <WorkspaceProvider>
         <SidebarProvider>
           <AppSidebar />
@@ -81,7 +82,7 @@ export function WorkspaceHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-
+      <ThemeSwitcher />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" className="relative bg-transparent">
@@ -118,6 +119,55 @@ export function WorkspaceHeader() {
         </DropdownMenu>
       </div>
     </div>
+  )
+}
+
+
+import { Monitor } from "lucide-react"
+
+export function ThemeSwitcher() {
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure component is mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Get current theme state
+  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark"
+  const isSystem = mounted && theme === "system"
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          {isSystem ? (
+            <Monitor className="h-[1.2rem] w-[1.2rem]" />
+          ) : currentTheme === "dark" ? (
+            <Moon className="h-[1.2rem] w-[1.2rem]" />
+          ) : (
+            <Sun className="h-[1.2rem] w-[1.2rem]" />
+          )}
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <Sun className="mr-2 h-4 w-4" />
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <Moon className="mr-2 h-4 w-4" />
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <Monitor className="mr-2 h-4 w-4" />
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -229,12 +279,26 @@ export function WorkspaceSidebar() {
   const { user } = useWorkspace()
   const pathname = usePathname()
   const router = useRouter()
+  const { theme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showNewTeam, setShowNewTeam] = useState(false)
   const [showNewDepartment, setShowNewDepartment] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+
+  // Ensure component is mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Get the appropriate logo based on theme
+  const getLogoSrc = () => {
+    if (!mounted) return "/ITC HUB Logo.svg" // Default during SSR
+    const currentTheme = resolvedTheme || theme || "dark"
+    return currentTheme === "light" ? "/ITC HUB Logo Light.svg" : "/ITC HUB Logo Dark.svg"
+  }
 
   // Mock data - in real app this would come from API
   const [teams, setTeams] = useState([
@@ -457,9 +521,12 @@ export function WorkspaceSidebar() {
           <Sidebar variant="inset" className="border-r">
             <SidebarHeader className="border-b px-6 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold text-sm">
-                  ITC
-                </div>
+                <Image
+                  src={getLogoSrc()}
+                  alt="ITC Hub"
+                  width={90}
+                  height={40}
+                />
                 <div>
                   <h2 className="font-semibold text-lg">ITC Hub</h2>
                   <p className="text-xs text-muted-foreground">Workspace</p>
@@ -572,9 +639,12 @@ export function WorkspaceSidebar() {
         <Sidebar variant="inset" className="border-r">
           <SidebarHeader className="border-b px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold text-sm">
-                ITC
-              </div>
+              <Image
+                src={getLogoSrc()}
+                alt="ITC Hub"
+                width={90}
+                height={40}
+              />
               <div>
                 <h2 className="font-semibold text-lg">ITC Hub</h2>
                 <p className="text-xs text-muted-foreground">Workspace</p>
@@ -697,14 +767,23 @@ export function WorkspaceSidebar() {
 
 // User Settings Form Component
 function UserSettingsForm() {
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [settings, setSettings] = useState({
     displayName: "Sami",
     email: "sami@itc.com",
     notifications: true,
-    darkMode: true,
   })
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+
+  // Ensure component is mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Get current theme state
+  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark"
 
   const handleSave = async () => {
     setIsLoading(true)
@@ -730,17 +809,7 @@ function UserSettingsForm() {
     }
   }
 
-  const toggleTheme = () => {
-    const newDarkMode = !settings.darkMode
-    setSettings({ ...settings, darkMode: newDarkMode })
 
-    // Apply theme immediately
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -786,26 +855,40 @@ function UserSettingsForm() {
           {settings.notifications ? "On" : "Off"}
         </Button>
       </div>
-      <div className="flex items-center justify-between p-3 rounded-lg border border-border/50">
-        <div className="flex items-center gap-3">
-          {settings.darkMode ? (
-            <Moon className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <Sun className="h-4 w-4 text-muted-foreground" />
-          )}
-          <Label htmlFor="darkMode" className="text-sm font-medium">
-            Dark Mode
-          </Label>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Theme</Label>
+        <div className="flex gap-2">
+          <Button
+            variant={theme === "light" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setTheme("light")}
+            className="text-xs flex-1"
+            disabled={isLoading}
+          >
+            <Sun className="mr-2 h-4 w-4" />
+            Light
+          </Button>
+          <Button
+            variant={theme === "dark" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setTheme("dark")}
+            className="text-xs flex-1"
+            disabled={isLoading}
+          >
+            <Moon className="mr-2 h-4 w-4" />
+            Dark
+          </Button>
+          <Button
+            variant={theme === "system" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setTheme("system")}
+            className="text-xs flex-1"
+            disabled={isLoading}
+          >
+            <Monitor className="mr-2 h-4 w-4" />
+            System
+          </Button>
         </div>
-        <Button
-          variant={settings.darkMode ? "default" : "outline"}
-          size="sm"
-          onClick={toggleTheme}
-          className="text-xs"
-          disabled={isLoading}
-        >
-          {settings.darkMode ? "Dark" : "Light"}
-        </Button>
       </div>
       <div className="flex justify-end pt-4">
         <Button
@@ -847,7 +930,7 @@ const navigationItems = [
       {
         label: "Calendar",
         icon: Calendar,
-        href: "/calendar",
+        href: "/calendar",  
       },
       {
         label: "Users",
@@ -860,13 +943,27 @@ const navigationItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { theme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure component is mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Get the appropriate logo based on theme
+  const getLogoSrc = () => {
+    if (!mounted) return "/ITC HUB Logo.svg" // Default during SSR
+    const currentTheme = resolvedTheme || theme || "dark"
+    return currentTheme === "light" ? "/ITC HUB Logo Light.svg" : "/ITC HUB Logo Dark.svg"
+  }
 
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
         <div className="flex items-start flex-col gap-2 px-4 py-2">
           <Image
-            src="/ITC HUB Logo.svg"
+            src={getLogoSrc()}
             alt="ITC Hub"
             width={90}
             height={40}
