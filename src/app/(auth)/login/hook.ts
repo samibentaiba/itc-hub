@@ -22,7 +22,7 @@ export function useLogin() {
         });
         setLoading(false);
         if (res?.ok) {
-            router.push("/users/profile");
+            router.push("/");
         } else {
             setError("Invalid email or password");
         }

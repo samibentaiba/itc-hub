@@ -54,14 +54,36 @@ export function Provider({ children }: { children: ReactNode }) {
     <SessionProvider>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} storageKey="itc-hub-theme">
         <WorkspaceProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <WorkspaceLayout>{children}</WorkspaceLayout>
-          </SidebarProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
           <Toaster />
         </WorkspaceProvider>
       </ThemeProvider>
     </SessionProvider>
+  )
+}
+
+function ConditionalLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname()
+  
+  // Check if current path is an auth page
+  const isAuthPage = pathname?.startsWith('/login') || 
+                    pathname?.startsWith('/register') || 
+                    pathname?.startsWith('/forget-password') ||
+                    pathname?.startsWith('/reset-password')
+  
+  // For auth pages, don't show the sidebar
+  if (isAuthPage) {
+    return <>{children}</>
+  }
+  
+  // For other pages, show the full layout with sidebar
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <WorkspaceLayout>{children}</WorkspaceLayout>
+    </SidebarProvider>
   )
 }
 
@@ -1067,7 +1089,7 @@ const navigationItems = [
       {
         label: "Dashboard",
         icon: LayoutDashboard,
-        href: "/",
+        href: "/dashboard",
       },
       {
         label: "Teams",

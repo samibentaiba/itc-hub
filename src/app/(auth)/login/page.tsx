@@ -1,13 +1,14 @@
 "use client";
 
-import { signIn, signOut } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLogin } from "./hook";
 
-
 export default function LoginPage() {
   const { password, email, handleSubmit, setEmail, setPassword, error, loading, session } = useLogin();
+  const { status } = useSession();
   const router = useRouter()
+  
   if (status === "loading") return <div>Loading...</div>;
   if (session?.user?.email) {
     return (
@@ -17,7 +18,7 @@ export default function LoginPage() {
         <div className="flex gap-2">
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            onClick={() => router.push("/users/profile")}
+            onClick={() => router.push("/")}
           >
             Continue to Dashboard
           </button>
