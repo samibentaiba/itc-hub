@@ -3,7 +3,7 @@
 "use client"
 import Image from "next/image"
 import type { ReactNode } from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect, useRef } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { Sidebar, SidebarInset, SidebarTrigger, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail } from "@/components/ui/sidebar"
 import * as React from 'react'
@@ -13,6 +13,7 @@ import {
   useTheme,
 } from 'next-themes'
 import { useToast } from "@/hooks/use-toast"
+import { SessionProvider, useSession, signOut } from "next-auth/react"
 import { } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,20 +46,22 @@ import {
   User,
   ChevronUp,
   Home,
-  Ticket, LayoutDashboard, UserRound, Layers
+  Ticket, LayoutDashboard, UserRound, Layers, Trash2
 } from "lucide-react"
 
 export function Provider({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} storageKey="itc-hub-theme">
-      <WorkspaceProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <WorkspaceLayout>{children}</WorkspaceLayout>
-        </SidebarProvider>
-        <Toaster />
-      </WorkspaceProvider>
-    </ThemeProvider>
+    <SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} storageKey="itc-hub-theme">
+        <WorkspaceProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <WorkspaceLayout>{children}</WorkspaceLayout>
+          </SidebarProvider>
+          <Toaster />
+        </WorkspaceProvider>
+      </ThemeProvider>
+    </SessionProvider>
   )
 }
 
@@ -69,15 +72,148 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
 
 export function WorkspaceHeader() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const [notifications, setNotifications] = useState([
+    {
+      id: "1",
+      title: "New ticket assigned",
+      message: "Database connection issue - Priority: High",
+      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+      isRead: false,
+      link: "/tickets/t2"
+    },
+    {
+      id: "2",
+      title: "Team meeting reminder",
+      message: "Weekly standup in 30 minutes",
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      isRead: false,
+      link: "/calendar"
+    },
+    {
+      id: "3",
+      title: "System maintenance",
+      message: "Scheduled downtime tonight at 2 AM",
+      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+      isRead: true,
+      link: "/admin"
+    }
+  ])
+
+  // Mock search data
+  const searchData = [
+    { id: "t1", type: "ticket", title: "Fix authentication bug", url: "/tickets/t1" },
+    { id: "t2", type: "ticket", title: "Database connection issue", url: "/tickets/t2" },
+    { id: "sami", type: "user", title: "Sami Al-Rashid", url: "/users/sami" },
+    { id: "ali", type: "user", title: "Ali Mohammed", url: "/users/ali" },
+    { id: "frontend", type: "team", title: "Frontend Team", url: "/teams/frontend" },
+    { id: "backend", type: "team", title: "Backend Team", url: "/teams/backend" },
+  ]
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    if (query.trim()) {
+      const filtered = searchData.filter(item => 
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.id.toLowerCase().includes(query.toLowerCase())
+      )
+      setSearchResults(filtered)
+      setShowSearchResults(true)
+    } else {
+      setSearchResults([])
+      setShowSearchResults(false)
+    }
+  }
+
+  const handleResultClick = (result: any) => {
+    setShowSearchResults(false)
+    setSearchQuery("")
+    // Navigate to the result
+    window.location.href = result.url
+  }
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Notification functions
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, isRead: true })))
+  }
+
+  const handleNotificationClick = (notification: any) => {
+    // Mark as read
+    setNotifications(notifications.map(n => 
+      n.id === notification.id ? { ...n, isRead: true } : n
+    ))
+    // Navigate to the link
+    if (notification.link) {
+      window.location.href = notification.link
+    }
+  }
+
+  const clearAllNotifications = () => {
+    setNotifications([])
+  }
+
+  const formatTimeAgo = (timestamp: Date) => {
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60))
+    
+    if (diffInMinutes < 1) return 'Just now'
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+    
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `${diffInDays}d ago`
+  }
+
   return (
     <div className="flex items-center justify-between w-full px-4">
       <div className="flex items-center gap-4 flex-1 max-w-md">
-        <div className="relative flex-1">
+        <div className="relative flex-1" ref={searchRef}>
           <Search className="absolute left-2 top-2.5 h-4 w-4 z-1 text-muted-foreground" />
           <Input
             placeholder="Search tickets, users, teams..."
             className="pl-8 bg-background/50 backdrop-blur-sm border-border/50"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            onFocus={() => searchQuery.trim() && setShowSearchResults(true)}
           />
+          {showSearchResults && searchResults.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+              {searchResults.map((result) => (
+                <div
+                  key={result.id}
+                  className="flex items-center gap-3 p-3 hover:bg-muted cursor-pointer border-b border-border last:border-b-0"
+                  onClick={() => handleResultClick(result)}
+                >
+                  <div className="flex-shrink-0">
+                    {result.type === "ticket" && <Ticket className="h-4 w-4 text-blue-500" />}
+                    {result.type === "user" && <User className="h-4 w-4 text-green-500" />}
+                    {result.type === "team" && <Users className="h-4 w-4 text-purple-500" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{result.title}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{result.type}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -90,31 +226,56 @@ export function WorkspaceHeader() {
               <Badge
                 className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-900 text-white"
               >
-                3
+                {notifications.filter(n => !n.isRead).length}
               </Badge>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <div className="flex items-center justify-between p-2">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => markAllAsRead()}
+                className="h-6 px-2 text-xs"
+              >
+                Mark all read
+              </Button>
+            </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">New ticket assigned</p>
-                <p className="text-xs text-muted-foreground">Database connection issue - Priority: High</p>
+            {notifications.length === 0 ? (
+              <div className="p-4 text-center text-muted-foreground">
+                <p className="text-sm">No notifications</p>
               </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">Team meeting reminder</p>
-                <p className="text-xs text-muted-foreground">Weekly standup in 30 minutes</p>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">System maintenance</p>
-                <p className="text-xs text-muted-foreground">Scheduled downtime tonight at 2 AM</p>
-              </div>
-            </DropdownMenuItem>
+            ) : (
+              notifications.map((notification) => (
+                <DropdownMenuItem
+                  key={notification.id}
+                  className={`p-3 ${!notification.isRead ? 'bg-muted/50' : ''}`}
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <div className="flex flex-col gap-1 w-full">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">{notification.title}</p>
+                      {!notification.isRead && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground">{formatTimeAgo(notification.timestamp)}</p>
+                  </div>
+                </DropdownMenuItem>
+              ))
+            )}
+            {notifications.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => clearAllNotifications()}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear all notifications
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -213,14 +374,20 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefin
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [currentWorkspace, setCurrentWorkspace] = useState<WorkspaceType>("dashboard")
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null)
+  const { data: session } = useSession()
 
-  // Mock user data - in real app this would come from auth
-  // Changed role to "admin" to show admin panel access
-  const user = {
+  // Use session data or fallback to mock data
+  const user = session?.user ? {
+    id: session.user.id || "u1",
+    name: session.user.name || "User",
+    email: session.user.email || "user@itc.com",
+    role: (session.user.role as "admin" | "super_leader" | "leader" | "member") || "member",
+    avatar: session.user.avatar || "/placeholder.svg?height=32&width=32",
+  } : {
     id: "u1",
-    name: "Sami",
-    email: "sami@itc.com",
-    role: "admin" as const,
+    name: "Guest",
+    email: "guest@itc.com",
+    role: "member" as const,
     avatar: "/placeholder.svg?height=32&width=32",
   }
 
@@ -391,26 +558,16 @@ export function WorkspaceSidebar() {
   const handleLogout = async () => {
     setIsLoading(true)
     try {
-      // Simulate logout process
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Clear user data and redirect
-      localStorage.removeItem("user-session")
-
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of ITC Hub.",
+      await signOut({ 
+        callbackUrl: "/login",
+        redirect: true 
       })
-
-      // Redirect to login page
-      router.push("/login")
     } catch (error) {
       toast({
         title: "Logout Error",
         description: "Failed to logout. Please try again.",
         variant: "destructive",
       })
-    } finally {
       setIsLoading(false)
     }
   }

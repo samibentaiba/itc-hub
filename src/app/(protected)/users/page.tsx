@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
 
 export default function UsersPage() {
 
@@ -167,6 +168,14 @@ function UsersTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
+  const { toast } = useToast()
+
+  const handleSendEmail = (user: any) => {
+    toast({
+      title: "Email Sent",
+      description: `Email has been sent to ${user.name} (${user.email}). Email functionality will be implemented in the next phase.`,
+    })
+  }
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -310,7 +319,7 @@ function UsersTable() {
                         </Link>
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSendEmail(user)}>
                         <Mail className="mr-2 h-4 w-4" />
                         Send email
                       </DropdownMenuItem>

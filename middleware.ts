@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 const PROTECTED_PATHS = [
+  "/",
   "/users",
   "/admin",
   "/tickets",
@@ -27,6 +28,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/users/:path*",
     "/admin/:path*",
     "/tickets/:path*",

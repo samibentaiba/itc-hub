@@ -20,12 +20,14 @@ import {
   Building2,
   Paperclip,
   Smile,
+  Edit,
+  Trash2,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Edit, Trash2 } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 interface TicketChatViewProps {
@@ -255,6 +257,10 @@ function TicketChatView({ ticketId }: TicketChatViewProps) {
   const [editContent, setEditContent] = useState("")
   const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null)
   const [ticketStatus, setTicketStatus] = useState("in_progress")
+  const [showAssigneeDialog, setShowAssigneeDialog] = useState(false)
+  const [showDueDateDialog, setShowDueDateDialog] = useState(false)
+  const [selectedAssignee, setSelectedAssignee] = useState("")
+  const [selectedDueDate, setSelectedDueDate] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -429,6 +435,39 @@ function TicketChatView({ ticketId }: TicketChatViewProps) {
     })
   }
 
+  // Ticket action handlers
+  const handleEditTicket = () => {
+    toast({
+      title: "Edit Ticket",
+      description: "Ticket editing functionality will be implemented in the next phase.",
+    })
+  }
+
+  const handleChangeAssignee = () => {
+    toast({
+      title: "Change Assignee",
+      description: "Assignee change functionality will be implemented in the next phase.",
+    })
+  }
+
+  const handleSetDueDate = () => {
+    toast({
+      title: "Set Due Date",
+      description: "Due date setting functionality will be implemented in the next phase.",
+    })
+  }
+
+  const handleDeleteTicket = () => {
+    if (confirm("Are you sure you want to delete this ticket? This action cannot be undone.")) {
+      toast({
+        title: "Ticket Deleted",
+        description: "The ticket has been deleted successfully.",
+      })
+      // In a real app, this would navigate back to tickets list
+      window.history.back()
+    }
+  }
+
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
     return date.toLocaleString("en-US", {
@@ -560,10 +599,10 @@ function TicketChatView({ ticketId }: TicketChatViewProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Edit ticket</DropdownMenuItem>
-                  <DropdownMenuItem>Change assignee</DropdownMenuItem>
-                  <DropdownMenuItem>Set due date</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">Delete ticket</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleEditTicket}>Edit ticket</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleChangeAssignee}>Change assignee</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSetDueDate}>Set due date</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeleteTicket} className="text-destructive">Delete ticket</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -625,7 +664,16 @@ function TicketChatView({ ticketId }: TicketChatViewProps) {
                                     <MoreVertical className="h-3 w-3" />
                                   </Button>
                                 </DropdownMenuTrigger>
-
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditMessage(msg.id)}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleDeleteMessage(msg.id)} className="text-destructive">
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
                               </DropdownMenu>
                             </div>
                           )}

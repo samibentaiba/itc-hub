@@ -209,6 +209,14 @@ export default function GlobalCalendarPage() {
     }
   }
 
+  const handleViewEventDetails = (event: any) => {
+    // Show event details in a modal or navigate to event detail page
+    toast({
+      title: "Event Details",
+      description: `Viewing details for "${event.title}". Event detail page will be implemented in the next phase.`,
+    })
+  }
+
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case "meeting":
@@ -488,7 +496,12 @@ export default function GlobalCalendarPage() {
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground">Organized by {event.organizer}</span>
-                      <Button size="sm" variant="outline" className="text-xs w-full sm:w-auto bg-transparent">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs w-full sm:w-auto bg-transparent"
+                        onClick={() => handleViewEventDetails(event)}
+                      >
                         View Details
                       </Button>
                     </div>

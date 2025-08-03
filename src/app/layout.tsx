@@ -1,10 +1,9 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
-import { Provider } from "@/components/provider"
-const inter = Inter({ subsets: ["latin"] })
-
+import { Roboto } from "next/font/google"
+import {ThemeProvider} from "@/components/provider"
+const roboto = Roboto({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ITC Hub",
   description: "A modern workspace platform for the Information Technology Community",
@@ -18,8 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background `} >
-        <Provider>{children}</Provider>
+      <body className={`${roboto.className} bg-background `} >
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} storageKey="itc-hub-theme">
+        {children}
+      </ThemeProvider>
       </body>
     </html>
   )

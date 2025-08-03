@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String             @id @default(cuid())
+  email           String             @unique
+  name            String
+  password        String
+  role            Role               @default(MEMBER)
+  avatar          String?
+  status          String? // e.g., 'verified', 'pending', etc.
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  departments     DepartmentMember[]
+  teams           TeamMember[]
+  ticketsCreated  Ticket[]           @relation("CreatedTickets")
+  ticketsAssigned Ticket[]           @relation("AssignedTickets")
+  messages        Message[]
+  notifications   Notification[]
+  eventsOrganized Event[]            @relation("OrganizedEvents")
+  profile         Profile?
+  files           File[]
+}
+
+model Department {
+  id          String             @id @default(cuid())
+  name        String             @unique
+  description String?
+  status      String? // e.g., 'active', 'planning', etc.
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  members     DepartmentMember[]
+  teams       Team[]
+  tickets     Ticket[]
+}
+
+model DepartmentMember {
+  id           String     @id @default(cuid())
+  userId       String
+  departmentId String
+  role         Role       @default(MEMBER)
+  joinedAt     DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id])
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  @@unique([userId, departmentId])
+}
+
+model Team {
+  id           String       @id @default(cuid())
+  name         String       @unique
+  description  String?
+  status       String? // e.g., 'active', 'planning', etc.
+  departmentId String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  members      TeamMember[]
+  tickets      Ticket[]
+  department   Department   @relation(fields: [departmentId], references: [id])
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  userId   String
+  teamId   String
+  role     Role     @default(MEMBER)
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  team     Team     @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+}
+
+model Ticket {
+  id           String       @id @default(cuid())
+  title        String
+  description  String
+  type         TicketType   @default(TASK)
+  status       TicketStatus @default(OPEN)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  dueDate      DateTime?
+  teamId       String?
+  departmentId String?
+  assigneeId   String?
+  createdById  String
+  team         Team?        @relation(fields: [teamId], references: [id])
+  department   Department?  @relation(fields: [departmentId], references: [id])
+  assignee     User?        @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  createdBy    User         @relation("CreatedTickets", fields: [createdById], references: [id])
+  messages     Message[]
+  files        File[]
+  workingUsers Profile[]    @relation("ProfileWorkingOn")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  ticketId  String
+  senderId  String
+  content   String
+  type      String // 'text', 'image', 'file', etc.
+  timestamp DateTime @default(now())
+  reactions Json?
+  edited    Boolean  @default(false)
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
+  files     File[]
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  time        String?
+  duration    String?
+  type        String // 'meeting', 'event', 'deadline', 'workshop', 'networking', etc.
+  location    String?
+  organizerId String?
+  attendees   Int?
+  isRecurring Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  organizer   User?    @relation("OrganizedEvents", fields: [organizerId], references: [id])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  time        DateTime         @default(now())
+  type        NotificationType
+  unread      Boolean          @default(true)
+  user        User             @relation(fields: [userId], references: [id])
+}
+
+model Profile {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  realName     String
+  bio          String?
+  profilePic   Bytes?
+  achievements Achievement[]
+  workingOn    Ticket[]      @relation("ProfileWorkingOn")
+  user         User          @relation(fields: [userId], references: [id])
+}
+
+model Achievement {
+  id          String  @id @default(cuid())
+  profileId   String
+  title       String
+  description String?
+  badge       String? // e.g., emoji or badge name
+  profile     Profile @relation(fields: [profileId], references: [id])
+}
+
+model File {
+  id           String   @id @default(cuid())
+  filename     String
+  mimetype     String
+  data         Bytes
+  uploadedById String
+  ticketId     String?
+  messageId    String?
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  ticket       Ticket?  @relation(fields: [ticketId], references: [id])
+  message      Message? @relation(fields: [messageId], references: [id])
+  uploadedAt   DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  SUPERLEADER
+  LEADER
+  MEMBER
+  GUEST
+}
+
+enum TicketType {
+  TASK
+  MEETING
+  EVENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  SCHEDULED
+  VERIFIED
+  CLOSED
+  CANCELLED
+}
+
+enum NotificationType {
+  ASSIGNMENT
+  VERIFICATION
+  REMINDER
+  TEAM
+  GENERAL
+}
