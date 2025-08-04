@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Camera,
   Edit,
@@ -17,7 +17,6 @@ import {
   Phone,
   Layers,
   Building2,
-  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,105 +38,40 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { toast } from "@/hooks/use-toast"
-import { api } from "@/lib/api"
-
-interface Profile {
-  id: string
-  name: string
-  email: string
-  phone?: string
-  title?: string
-  department?: {
-    id: string
-    name: string
-  }
-  location?: string
-  bio?: string
-  avatar?: string
-  socialLinks?: {
-    github?: string
-    linkedin?: string
-    twitter?: string
-    website?: string
-  }
-  createdAt: string
-  updatedAt: string
-}
-
-interface ProfileStats {
-  projectsCompleted: number
-  teamsLed: number
-  mentorshipHours: number
-  contributions: number
-}
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
-  const [profileData, setProfileData] = useState<Profile | null>(null)
-  const [tempData, setTempData] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
+  const [profileData, setProfileData] = useState({
+    name: "Sami Al-Rashid",
+    email: "sami@itchub.com",
+    phone: "+971 50 123 4567",
+    title: "Senior Full Stack Developer",
+    department: "Engineering",
+    location: "Dubai, UAE",
+    bio: "Passionate full-stack developer with 8+ years of experience building scalable web applications. Love mentoring junior developers and contributing to open source projects.",
+    avatar: "/placeholder.svg?height=128&width=128",
+    socialLinks: {
+      github: "https://github.com/sami",
+      linkedin: "https://linkedin.com/in/sami",
+      twitter: "https://twitter.com/sami",
+      website: "https://sami.dev",
+    },
+  })
 
-  // Load profile data
-  useEffect(() => {
-    const loadProfileData = async () => {
-      try {
-        setIsLoading(true)
-        // Get current user's profile
-        const response = await api.profile.get()
-        setProfileData(response)
-        setTempData(response)
-      } catch (error) {
-        console.error('Error loading profile:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load profile data. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadProfileData()
-  }, [])
+  const [tempData, setTempData] = useState(profileData)
 
   const handleEdit = () => {
     setTempData(profileData)
     setIsEditing(true)
   }
 
-  const handleSave = async () => {
-    if (!tempData) return
-
-    setIsSaving(true)
-    try {
-      const updatedProfile = await api.profile.update(tempData.id, {
-        name: tempData.name,
-        email: tempData.email,
-        phone: tempData.phone,
-        title: tempData.title,
-        location: tempData.location,
-        bio: tempData.bio,
-        socialLinks: tempData.socialLinks,
-      })
-
-      setProfileData(updatedProfile)
-      setIsEditing(false)
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
-      })
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSaving(false)
-    }
+  const handleSave = () => {
+    setProfileData(tempData)
+    setIsEditing(false)
+    toast({
+      title: "Profile updated",
+      description: "Your profile has been successfully updated.",
+    })
   }
 
   const handleCancel = () => {
@@ -146,26 +80,24 @@ export default function ProfilePage() {
   }
 
   const handleInputChange = (field: string, value: string) => {
-    if (!tempData) return
-    setTempData({
-      ...tempData,
+    setTempData((prev) => ({
+      ...prev,
       [field]: value,
-    })
+    }))
   }
 
   const handleSocialLinkChange = (platform: string, value: string) => {
-    if (!tempData) return
-    setTempData({
-      ...tempData,
+    setTempData((prev) => ({
+      ...prev,
       socialLinks: {
-        ...tempData.socialLinks,
+        ...prev.socialLinks,
         [platform]: value,
       },
-    })
+    }))
   }
 
-  // Mock data for other sections (these would come from separate APIs)
-  const stats: ProfileStats = {
+  // Mock data for other sections
+  const stats = {
     projectsCompleted: 47,
     teamsLed: 3,
     mentorshipHours: 120,
@@ -284,29 +216,6 @@ export default function ProfilePage() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center py-8">
-          <div className="flex items-center gap-2">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading profile...</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profileData) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Profile not found.</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
@@ -321,18 +230,9 @@ export default function ProfilePage() {
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </>
-                )}
+              <Button onClick={handleSave}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
               </Button>
             </>
           ) : (
@@ -373,7 +273,7 @@ export default function ProfilePage() {
                       <Label htmlFor="name">Full Name</Label>
                       <Input
                         id="name"
-                        value={tempData?.name || ""}
+                        value={tempData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
                       />
                     </div>
@@ -381,7 +281,7 @@ export default function ProfilePage() {
                       <Label htmlFor="title">Job Title</Label>
                       <Input
                         id="title"
-                        value={tempData?.title || ""}
+                        value={tempData.title}
                         onChange={(e) => handleInputChange("title", e.target.value)}
                       />
                     </div>
@@ -389,7 +289,7 @@ export default function ProfilePage() {
                       <Label htmlFor="location">Location</Label>
                       <Input
                         id="location"
-                        value={tempData?.location || ""}
+                        value={tempData.location}
                         onChange={(e) => handleInputChange("location", e.target.value)}
                       />
                     </div>
@@ -397,30 +297,24 @@ export default function ProfilePage() {
                 ) : (
                   <>
                     <h1 className="text-2xl font-bold mb-1">{profileData.name}</h1>
-                    <p className="text-muted-foreground mb-2">{profileData.title || "No title set"}</p>
-                    {profileData.department && (
-                      <Badge variant="secondary" className="mb-4">
-                        {profileData.department.name}
-                      </Badge>
-                    )}
+                    <p className="text-muted-foreground mb-2">{profileData.title}</p>
+                    <Badge variant="secondary" className="mb-4">
+                      {profileData.department}
+                    </Badge>
 
                     <div className="w-full space-y-3 text-sm">
-                      {profileData.location && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          <span>{profileData.location}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span>{profileData.location}</span>
+                      </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Mail className="h-4 w-4" />
                         <span>{profileData.email}</span>
                       </div>
-                      {profileData.phone && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Phone className="h-4 w-4" />
-                          <span>{profileData.phone}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Phone className="h-4 w-4" />
+                        <span>{profileData.phone}</span>
+                      </div>
                     </div>
                   </>
                 )}
@@ -436,7 +330,7 @@ export default function ProfilePage() {
                         <Github className="h-4 w-4" />
                         <Input
                           placeholder="GitHub URL"
-                          value={tempData?.socialLinks?.github || ""}
+                          value={tempData.socialLinks.github}
                           onChange={(e) => handleSocialLinkChange("github", e.target.value)}
                         />
                       </div>
@@ -444,7 +338,7 @@ export default function ProfilePage() {
                         <Linkedin className="h-4 w-4" />
                         <Input
                           placeholder="LinkedIn URL"
-                          value={tempData?.socialLinks?.linkedin || ""}
+                          value={tempData.socialLinks.linkedin}
                           onChange={(e) => handleSocialLinkChange("linkedin", e.target.value)}
                         />
                       </div>
@@ -452,7 +346,7 @@ export default function ProfilePage() {
                         <Twitter className="h-4 w-4" />
                         <Input
                           placeholder="Twitter URL"
-                          value={tempData?.socialLinks?.twitter || ""}
+                          value={tempData.socialLinks.twitter}
                           onChange={(e) => handleSocialLinkChange("twitter", e.target.value)}
                         />
                       </div>
@@ -460,7 +354,7 @@ export default function ProfilePage() {
                         <Globe className="h-4 w-4" />
                         <Input
                           placeholder="Website URL"
-                          value={tempData?.socialLinks?.website || ""}
+                          value={tempData.socialLinks.website}
                           onChange={(e) => handleSocialLinkChange("website", e.target.value)}
                         />
                       </div>
@@ -468,28 +362,28 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="flex gap-2">
-                    {profileData.socialLinks?.github && (
+                    {profileData.socialLinks.github && (
                       <Button variant="outline" size="icon" asChild>
                         <a href={profileData.socialLinks.github} target="_blank" rel="noopener noreferrer">
                           <Github className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
-                    {profileData.socialLinks?.linkedin && (
+                    {profileData.socialLinks.linkedin && (
                       <Button variant="outline" size="icon" asChild>
                         <a href={profileData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
                           <Linkedin className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
-                    {profileData.socialLinks?.twitter && (
+                    {profileData.socialLinks.twitter && (
                       <Button variant="outline" size="icon" asChild>
                         <a href={profileData.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
                           <Twitter className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
-                    {profileData.socialLinks?.website && (
+                    {profileData.socialLinks.website && (
                       <Button variant="outline" size="icon" asChild>
                         <a href={profileData.socialLinks.website} target="_blank" rel="noopener noreferrer">
                           <Globe className="h-4 w-4" />
@@ -591,16 +485,14 @@ export default function ProfilePage() {
                       <Label htmlFor="bio">Bio</Label>
                       <Textarea
                         id="bio"
-                        value={tempData?.bio || ""}
+                        value={tempData.bio}
                         onChange={(e) => handleInputChange("bio", e.target.value)}
                         rows={4}
                         className="mt-2"
                       />
                     </div>
                   ) : (
-                    <p className="text-muted-foreground leading-relaxed">
-                      {profileData.bio || "No bio available."}
-                    </p>
+                    <p className="text-muted-foreground leading-relaxed">{profileData.bio}</p>
                   )}
                 </CardContent>
               </Card>
@@ -618,7 +510,7 @@ export default function ProfilePage() {
                         <Input
                           id="email"
                           type="email"
-                          value={tempData?.email || ""}
+                          value={tempData.email}
                           onChange={(e) => handleInputChange("email", e.target.value)}
                         />
                       </div>
@@ -626,7 +518,7 @@ export default function ProfilePage() {
                         <Label htmlFor="phone">Phone</Label>
                         <Input
                           id="phone"
-                          value={tempData?.phone || ""}
+                          value={tempData.phone}
                           onChange={(e) => handleInputChange("phone", e.target.value)}
                         />
                       </div>
@@ -637,12 +529,10 @@ export default function ProfilePage() {
                         <Mail className="h-4 w-4 text-muted-foreground" />
                         <span>{profileData.email}</span>
                       </div>
-                      {profileData.phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{profileData.phone}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span>{profileData.phone}</span>
+                      </div>
                     </div>
                   )}
                 </CardContent>

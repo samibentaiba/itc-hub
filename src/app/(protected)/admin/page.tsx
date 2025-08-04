@@ -2,8 +2,10 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+
 import type React from "react"
-import { useState, useEffect } from "react"
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -41,7 +43,6 @@ import {
   RefreshCw,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { api } from "@/lib/api"
 
 export default function AdminPage() {
   const [showAddUser, setShowAddUser] = useState(false)
@@ -49,44 +50,111 @@ export default function AdminPage() {
   const [showAddDepartment, setShowAddDepartment] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
-  const [isLoadingData, setIsLoadingData] = useState(true)
   const { toast } = useToast()
 
-  // Real data for admin panel
-  const [users, setUsers] = useState<any[]>([])
-  const [teams, setTeams] = useState<any[]>([])
-  const [departments, setDepartments] = useState<any[]>([])
+  // Mock data for admin panel
+  const [users, setUsers] = useState([
+    {
+      id: "u1",
+      name: "Sami",
+      email: "sami@itc.com",
+      role: "admin",
+      status: "verified",
+      joinedDate: "2024-01-01",
+      avatar: "/placeholder.svg?height=32&width=32",
+      teams: ["Frontend Team"],
+      departments: ["Development"],
+    },
+    {
+      id: "u2",
+      name: "Yasmine",
+      email: "yasmine@itc.com",
+      role: "super_leader",
+      status: "verified",
+      joinedDate: "2024-01-15",
+      avatar: "/placeholder.svg?height=32&width=32",
+      teams: ["Frontend Team"],
+      departments: ["Development", "Design"],
+    },
+    {
+      id: "u3",
+      name: "Ali",
+      email: "ali@itc.com",
+      role: "member",
+      status: "verified",
+      joinedDate: "2024-02-01",
+      avatar: "/placeholder.svg?height=32&width=32",
+      teams: ["Frontend Team", "Backend Team"],
+      departments: [],
+    },
+    {
+      id: "u4",
+      name: "Sara",
+      email: "sara@itc.com",
+      role: "leader",
+      status: "pending",
+      joinedDate: "2024-02-15",
+      avatar: "/placeholder.svg?height=32&width=32",
+      teams: ["Mobile Team"],
+      departments: [],
+    },
+  ])
 
-  // Load all data
-  useEffect(() => {
-    const loadAdminData = async () => {
-      try {
-        setIsLoadingData(true)
-        
-        // Load users, teams, and departments
-        const [usersResponse, teamsResponse, departmentsResponse] = await Promise.all([
-          api.users.getAll({ limit: 100 }),
-          api.teams.getAll({ limit: 100 }),
-          api.departments.getAll({ limit: 100 }),
-        ])
+  const [teams, setTeams] = useState([
+    {
+      id: "team-1",
+      name: "Frontend Team",
+      description: "UI/UX development team",
+      leader: "Yasmine",
+      members: ["Sami", "Ali", "Sara"],
+      department: "Development",
+      createdDate: "2024-01-01",
+      status: "active",
+    },
+    {
+      id: "team-2",
+      name: "Backend Team",
+      description: "Server-side development team",
+      leader: "Omar",
+      members: ["Ali", "Ahmed"],
+      department: "Development",
+      createdDate: "2024-01-15",
+      status: "active",
+    },
+    {
+      id: "team-3",
+      name: "Mobile Team",
+      description: "Mobile app development team",
+      leader: "Sara",
+      members: ["Layla", "Nour"],
+      department: "Development",
+      createdDate: "2024-02-01",
+      status: "planning",
+    },
+  ])
 
-        setUsers(usersResponse.users || [])
-        setTeams(teamsResponse.teams || [])
-        setDepartments(departmentsResponse.departments || [])
-      } catch (error) {
-        console.error('Error loading admin data:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load admin data. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoadingData(false)
-      }
-    }
-
-    loadAdminData()
-  }, [toast])
+  const [departments, setDepartments] = useState([
+    {
+      id: "dept-1",
+      name: "Development",
+      description: "Software development and engineering",
+      superLeader: "Sami",
+      leaders: ["Yasmine", "Omar"],
+      teams: ["Frontend Team", "Backend Team", "Mobile Team"],
+      createdDate: "2024-01-01",
+      status: "active",
+    },
+    {
+      id: "dept-2",
+      name: "Design",
+      description: "UI/UX design and user research",
+      superLeader: "Yasmine",
+      leaders: ["Nour"],
+      teams: ["Design Team"],
+      createdDate: "2024-01-10",
+      status: "active",
+    },
+  ])
 
   const handleAddUser = async (formData: {
     name: string;
@@ -98,23 +166,35 @@ export default function AdminPage() {
     setLoadingAction("add-user")
 
     try {
-      const newUser = await api.users.create({
-        name: formData.name,
-        email: formData.email,
-        password: "password123", // Default password
-        role: formData.role as any,
-        departmentId: formData.department || undefined,
-      })
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      const newUser = {
+        id: `u${users.length + 1}`,
+        ...formData,
+        status: "pending",
+        joinedDate: new Date().toISOString().split("T")[0],
+        avatar: "/placeholder.svg?height=32&width=32",
+        teams: [],
+        departments: [],
+      }
 
       setUsers([...users, newUser])
 
+      // Send verification email (simulated)
+      setTimeout(() => {
+        toast({
+          title: "Verification email sent!",
+          description: `Verification email has been sent to ${formData.email}`,
+        })
+      }, 1000)
+
       toast({
         title: "User added successfully!",
-        description: `${formData.name} has been added to the system.`,
+        description: `${formData.name} has been added and will receive a verification email.`,
       })
       setShowAddUser(false)
-    } catch (error) {
-      console.error('Error adding user:', error)
+    } catch {
       toast({
         title: "Error",
         description: "Failed to add user. Please try again.",
@@ -213,11 +293,15 @@ export default function AdminPage() {
     setLoadingAction("add-team")
 
     try {
-      const newTeam = await api.teams.create({
-        name: formData.name,
-        description: formData.description,
-        departmentId: formData.department || undefined,
-      })
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      const newTeam = {
+        id: `team-${teams.length + 1}`,
+        ...formData,
+        members: [],
+        createdDate: new Date().toISOString().split("T")[0],
+        status: "active",
+      }
 
       setTeams([...teams, newTeam])
 
@@ -227,7 +311,6 @@ export default function AdminPage() {
       })
       setShowAddTeam(false)
     } catch (error) {
-      console.error('Error creating team:', error)
       toast({
         title: "Error",
         description: "Failed to create team. Please try again.",
@@ -277,10 +360,18 @@ export default function AdminPage() {
     setLoadingAction("add-department")
 
     try {
-      const newDepartment = await api.departments.create({
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      const newDepartment = {
+        id: `dept-${departments.length + 1}`,
         name: formData.name,
         description: formData.description,
-      })
+        superLeader: formData.head,
+        leaders: [],
+        teams: [],
+        createdDate: new Date().toISOString().split("T")[0],
+        status: "active",
+      }
 
       setDepartments([...departments, newDepartment])
 
@@ -290,7 +381,6 @@ export default function AdminPage() {
       })
       setShowAddDepartment(false)
     } catch (error) {
-      console.error('Error creating department:', error)
       toast({
         title: "Error",
         description: "Failed to create department. Please try again.",
@@ -399,23 +489,14 @@ export default function AdminPage() {
     setLoadingAction("refresh")
 
     try {
-      // Reload all data
-      const [usersResponse, teamsResponse, departmentsResponse] = await Promise.all([
-        api.users.getAll({ limit: 100 }),
-        api.teams.getAll({ limit: 100 }),
-        api.departments.getAll({ limit: 100 }),
-      ])
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      setUsers(usersResponse.users || [])
-      setTeams(teamsResponse.teams || [])
-      setDepartments(departmentsResponse.departments || [])
-
+      // Simulate data refresh
       toast({
         title: "Data refreshed",
         description: "All data has been refreshed from the server.",
       })
     } catch (error) {
-      console.error('Error refreshing data:', error)
       toast({
         title: "Refresh Failed",
         description: "Failed to refresh data. Please try again.",

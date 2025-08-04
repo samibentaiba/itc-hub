@@ -1,108 +1,116 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { api } from "@/lib/api"
+import { DialogClose } from "@/components/ui/dialog"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { CalendarIcon, Loader2 } from "lucide-react"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Plus, X } from "lucide-react"
 
-interface NewTicketFormProps {
-  onSuccess?: () => void
-  onCancel?: () => void
-}
-
-export default function NewTicketForm({ onSuccess, onCancel }: NewTicketFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
+export function NewTicketForm() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    type: "task",
+    type: "",
+    workspace: "",
+    assignee: "",
+    dueDate: undefined as Date | undefined,
     priority: "medium",
-    status: "pending",
-    dueDate: "",
   })
-  const [users, setUsers] = useState<any[]>([])
-  const [teams, setTeams] = useState<any[]>([])
-  const [departments, setDepartments] = useState<any[]>([])
-  const [selectedAssignee, setSelectedAssignee] = useState("")
-  const [selectedTeam, setSelectedTeam] = useState("")
-  const [selectedDepartment, setSelectedDepartment] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
-  // Load users, teams, and departments for dropdowns
-  const loadFormData = async () => {
-    try {
-      const [usersResponse, teamsResponse, departmentsResponse] = await Promise.all([
-        api.users.getAll({ limit: 100 }),
-        api.teams.getAll({ limit: 100 }),
-        api.departments.getAll({ limit: 100 }),
-      ])
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
 
-      setUsers(usersResponse.users || [])
-      setTeams(teamsResponse.teams || [])
-      setDepartments(departmentsResponse.departments || [])
-    } catch (error) {
-      console.error('Error loading form data:', error)
-      toast({
-        title: "Error",
-        description: "Failed to load form data. Please try again.",
-        variant: "destructive",
-      })
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required"
     }
-  }
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required"
+    }
+    if (!formData.type) {
+      newErrors.type = "Type is required"
+    }
+    if (!formData.workspace) {
+      newErrors.workspace = "Workspace is required"
+    }
+    if (!formData.dueDate) {
+      newErrors.dueDate = "Due date is required"
+    }
 
-  // Load data when component mounts
-  useState(() => {
-    loadFormData()
-  })
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      const ticketData = {
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        priority: formData.priority,
-        status: formData.status,
-        dueDate: formData.dueDate || undefined,
-        assigneeId: selectedAssignee || undefined,
-        teamId: selectedTeam || undefined,
-        departmentId: selectedDepartment || undefined,
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Create ticket object
+      const newTicket = {
+        id: `ticket-${Date.now()}`,
+        ...formData,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+        createdBy: "current-user",
+        messages: 0,
       }
 
-      const newTicket = await api.tickets.create(ticketData)
+      // Save to localStorage for demo purposes
+      const existingTickets = JSON.parse(localStorage.getItem("tickets") || "[]")
+      existingTickets.push(newTicket)
+      localStorage.setItem("tickets", JSON.stringify(existingTickets))
 
       toast({
-        title: "Success",
-        description: "Ticket created successfully!",
+        title: "Ticket created successfully!",
+        description: `"${formData.title}" has been created and assigned to ${formData.assignee || "unassigned"}.`,
       })
 
       // Reset form
       setFormData({
         title: "",
         description: "",
-        type: "task",
+        type: "",
+        workspace: "",
+        assignee: "",
+        dueDate: undefined,
         priority: "medium",
-        status: "pending",
-        dueDate: "",
       })
-      setSelectedAssignee("")
-      setSelectedTeam("")
-      setSelectedDepartment("")
+      setErrors({})
 
-      onSuccess?.()
-    } catch (error) {
-      console.error('Error creating ticket:', error)
+      // Close dialog after successful creation
+      setTimeout(() => {
+        const closeButton = document.querySelector("[data-dialog-close]") as HTMLButtonElement
+        closeButton?.click()
+      }, 1000)
+    } catch {
       toast({
-        title: "Error",
+        title: "Creation Failed",
         description: "Failed to create ticket. Please try again.",
         variant: "destructive",
       })
@@ -111,236 +119,216 @@ export default function NewTicketForm({ onSuccess, onCancel }: NewTicketFormProp
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+  const handleReset = () => {
+    setFormData({
+      title: "",
+      description: "",
+      type: "",
+      workspace: "",
+      assignee: "",
+      dueDate: undefined,
+      priority: "medium",
+    })
+    setErrors({})
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5" />
-          Create New Ticket
-        </CardTitle>
-        <CardDescription>
-          Fill in the details below to create a new support ticket
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium">
-              Title *
-            </label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleInputChange("title", e.target.value)}
-              placeholder="Enter ticket title"
-              required
-            />
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title" className="text-sm">
+          Title <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="title"
+          placeholder="Enter ticket title..."
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          className={cn("text-sm", errors.title && "border-red-500")}
+          disabled={isLoading}
+        />
+        {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
+      </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-medium">
-              Description *
-            </label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
-              placeholder="Describe the issue or task"
-              rows={4}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="description" className="text-sm">
+          Description <span className="text-red-500">*</span>
+        </Label>
+        <Textarea
+          id="description"
+          placeholder="Describe the task, meeting, or event..."
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className={cn("text-sm min-h-[80px]", errors.description && "border-red-500")}
+          disabled={isLoading}
+        />
+        {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
+      </div>
 
-          {/* Type and Priority */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="type" className="text-sm font-medium">
-                Type
-              </label>
-              <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="task">Task</SelectItem>
-                  <SelectItem value="bug">Bug</SelectItem>
-                  <SelectItem value="feature">Feature</SelectItem>
-                  <SelectItem value="meeting">Meeting</SelectItem>
-                  <SelectItem value="event">Event</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-sm">
+            Type <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => setFormData({ ...formData, type: value })}
+            disabled={isLoading}
+          >
+            <SelectTrigger className={cn("text-sm", errors.type && "border-red-500")}>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="task">📋 Task</SelectItem>
+              <SelectItem value="meeting">🤝 Meeting</SelectItem>
+              <SelectItem value="event">📅 Event</SelectItem>
+              <SelectItem value="bug">🐛 Bug</SelectItem>
+              <SelectItem value="feature">✨ Feature</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.type && <p className="text-xs text-red-500">{errors.type}</p>}
+        </div>
 
-            <div className="space-y-2">
-              <label htmlFor="priority" className="text-sm font-medium">
-                Priority
-              </label>
-              <Select value={formData.priority} onValueChange={(value) => handleInputChange("priority", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+        <div className="space-y-2">
+          <Label className="text-sm">Priority</Label>
+          <Select
+            value={formData.priority}
+            onValueChange={(value) => setFormData({ ...formData, priority: value })}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="text-sm">
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">🟢 Low</SelectItem>
+              <SelectItem value="medium">🟡 Medium</SelectItem>
+              <SelectItem value="high">🔴 High</SelectItem>
+              <SelectItem value="urgent">🚨 Urgent</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-          {/* Status and Due Date */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="status" className="text-sm font-medium">
-                Status
-              </label>
-              <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="verified">Verified</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="space-y-2">
+        <Label className="text-sm">
+          Workspace <span className="text-red-500">*</span>
+        </Label>
+        <Select
+          value={formData.workspace}
+          onValueChange={(value) => setFormData({ ...formData, workspace: value })}
+          disabled={isLoading}
+        >
+          <SelectTrigger className={cn("text-sm", errors.workspace && "border-red-500")}>
+            <SelectValue placeholder="Select workspace" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="team-1">👥 Frontend Team</SelectItem>
+            <SelectItem value="team-2">👥 Backend Team</SelectItem>
+            <SelectItem value="team-3">👥 Mobile Team</SelectItem>
+            <SelectItem value="dept-1">🏢 Development Department</SelectItem>
+            <SelectItem value="dept-2">🏢 Design Department</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.workspace && <p className="text-xs text-red-500">{errors.workspace}</p>}
+      </div>
 
-            <div className="space-y-2">
-              <label htmlFor="dueDate" className="text-sm font-medium">
-                Due Date
-              </label>
-              <Input
-                id="dueDate"
-                type="date"
-                value={formData.dueDate}
-                onChange={(e) => handleInputChange("dueDate", e.target.value)}
-              />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-sm">Assignee</Label>
+          <Select
+            value={formData.assignee}
+            onValueChange={(value) => setFormData({ ...formData, assignee: value })}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="text-sm">
+              <SelectValue placeholder="Assign to..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              <SelectItem value="u1">👤 Sami (Admin)</SelectItem>
+              <SelectItem value="u2">👤 Ali (Developer)</SelectItem>
+              <SelectItem value="u3">👤 Sara (Designer)</SelectItem>
+              <SelectItem value="u4">👤 Yasmine (Leader)</SelectItem>
+              <SelectItem value="u5">👤 Omar (Backend)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          {/* Assignee */}
-          <div className="space-y-2">
-            <label htmlFor="assignee" className="text-sm font-medium">
-              Assignee
-            </label>
-            <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select assignee" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Unassigned</SelectItem>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name} ({user.email})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Team and Department */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="team" className="text-sm font-medium">
-                Team
-              </label>
-              <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">No team</SelectItem>
-                  {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="department" className="text-sm font-medium">
-                Department
-              </label>
-              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select department" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">No department</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Preview</label>
-            <div className="p-3 border rounded-lg bg-muted/50">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline">{formData.type}</Badge>
-                <Badge variant={formData.priority === "high" || formData.priority === "urgent" ? "destructive" : "default"}>
-                  {formData.priority}
-                </Badge>
-                <Badge variant={formData.status === "pending" ? "destructive" : "secondary"}>
-                  {formData.status.replace('_', ' ')}
-                </Badge>
-              </div>
-              <h4 className="font-medium">{formData.title || "Ticket title"}</h4>
-              <p className="text-sm text-muted-foreground">
-                {formData.description || "Ticket description"}
-              </p>
-              {formData.dueDate && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Due: {new Date(formData.dueDate).toLocaleDateString()}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-2 pt-4">
-            {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
+        <div className="space-y-2">
+          <Label className="text-sm">
+            Due Date <span className="text-red-500">*</span>
+          </Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal text-sm",
+                  !formData.dueDate && "text-muted-foreground",
+                  errors.dueDate && "border-red-500",
+                )}
+                disabled={isLoading}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.dueDate ? format(formData.dueDate, "PPP") : "Pick a date"}
               </Button>
-            )}
-            <Button type="submit" disabled={isLoading || !formData.title || !formData.description}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Ticket
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={formData.dueDate}
+                onSelect={(date) => setFormData({ ...formData, dueDate: date })}
+                disabled={(date) => date < new Date()}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {errors.dueDate && <p className="text-xs text-red-500">{errors.dueDate}</p>}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleReset}
+          className="text-sm bg-transparent"
+          disabled={isLoading}
+        >
+          Reset
+        </Button>
+        <DialogClose asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className="text-sm bg-transparent"
+            disabled={isLoading}
+            data-dialog-close
+          >
+            Cancel
+          </Button>
+        </DialogClose>
+        <Button
+          type="submit"
+          className="bg-red-800 text-white hover:bg-red-700 text-sm"
+          disabled={
+            isLoading ||
+            !formData.title ||
+            !formData.description ||
+            !formData.type ||
+            !formData.workspace ||
+            !formData.dueDate
+          }
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            "Create Ticket"
+          )}
+        </Button>
+      </div>
+    </form>
   )
 }

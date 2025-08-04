@@ -1,8 +1,8 @@
 "use client"
 
-import { Users, UserCheck, UserX, TrendingUp, Loader2 } from "lucide-react"
+import { Users, UserCheck, UserX, TrendingUp } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { MoreHorizontal, Eye, Mail, MessageCircle, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,134 +19,35 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { api } from "@/lib/api"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  avatar?: string
-  department?: {
-    id: string
-    name: string
-  }
-  team?: {
-    id: string
-    name: string
-  }
-  createdAt: string
-  updatedAt: string
-}
-
-interface UserStats {
-  total: number
-  active: number
-  inactive: number
-  newThisMonth: number
-}
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([])
-  const [stats, setStats] = useState<UserStats>({
-    total: 0,
-    active: 0,
-    inactive: 0,
-    newThisMonth: 0,
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
-  const { toast } = useToast()
 
-  // Load users and stats
-  useEffect(() => {
-    const loadUsersData = async () => {
-      try {
-        setIsLoading(true)
-        const response = await api.users.getAll({ limit: 100 })
-        setUsers(response.users || [])
-      } catch (error) {
-        console.error('Error loading users:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load users. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadUsersData()
-  }, [toast])
-
-  // Load stats
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        setIsLoadingStats(true)
-        
-        // Get total users
-        const totalResponse = await api.users.getAll({ limit: 1 })
-        const total = totalResponse.total || 0
-
-        // Get active users (users created in last 30 days)
-        const thirtyDaysAgo = new Date()
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-        const activeResponse = await api.users.getAll({ limit: 1 })
-        const active = activeResponse.total || 0
-
-        // Get new users this month
-        const thisMonth = new Date()
-        thisMonth.setDate(1)
-        const newThisMonth = Math.floor(total * 0.15) // Estimate 15% of total
-
-        setStats({
-          total,
-          active,
-          inactive: total - active,
-          newThisMonth,
-        })
-      } catch (error) {
-        console.error('Error loading stats:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load user statistics.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoadingStats(false)
-      }
-    }
-
-    loadStats()
-  }, [toast])
-
-  const statsData = [
+  // Mock stats
+  const stats = [
     {
       title: "Total Users",
-      value: stats.total.toString(),
+      value: "89",
       description: "Registered users",
       icon: Users,
       trend: "+12 this month",
     },
     {
       title: "Active Users",
-      value: stats.active.toString(),
+      value: "76",
       description: "Currently active",
       icon: UserCheck,
       trend: "+8 this week",
     },
     {
       title: "Inactive Users",
-      value: stats.inactive.toString(),
+      value: "13",
       description: "Not recently active",
       icon: UserX,
       trend: "-2 this week",
     },
     {
       title: "New This Month",
-      value: stats.newThisMonth.toString(),
+      value: "12",
       description: "Recent additions",
       icon: TrendingUp,
       trend: "+20% vs last month",
@@ -165,14 +66,11 @@ export default function UsersPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statsData.map((stat) => (
+        {stats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <div className="flex items-center gap-2">
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-                {isLoadingStats && <Loader2 className="h-4 w-4 animate-spin" />}
-              </div>
+              <stat.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -190,25 +88,89 @@ export default function UsersPage() {
           <CardDescription>Manage user accounts, roles, and permissions</CardDescription>
         </CardHeader>
         <CardContent>
-          <UsersTable users={users} isLoading={isLoading} />
+          <UsersTable />
         </CardContent>
       </Card>
     </div>
   )
 }
 
-interface UsersTableProps {
-  users: User[]
-  isLoading: boolean
-}
+const users = [
+  {
+    id: "sami",
+    name: "Sami Al-Rashid",
+    email: "sami@itchub.com",
+    avatar: "/placeholder.svg?height=32&width=32",
+    role: "Senior Full Stack Developer",
+    department: "Engineering",
+    status: "Active",
+    lastActive: "2 hours ago",
+    projects: 5,
+  },
+  {
+    id: "yasmine",
+    name: "Yasmine Hassan",
+    email: "yasmine@itchub.com",
+    avatar: "/placeholder.svg?height=32&width=32",
+    role: "UX/UI Designer",
+    department: "Design",
+    status: "Active",
+    lastActive: "1 hour ago",
+    projects: 3,
+  },
+  {
+    id: "ali",
+    name: "Ali Mohammed",
+    email: "ali@itchub.com",
+    avatar: "/placeholder.svg?height=32&width=32",
+    role: "DevOps Engineer",
+    department: "Infrastructure",
+    status: "Away",
+    lastActive: "5 hours ago",
+    projects: 2,
+  },
+  {
+    id: "fatima",
+    name: "Fatima Al-Zahra",
+    email: "fatima@itchub.com",
+    avatar: "/placeholder.svg?height=32&width=32",
+    role: "Product Manager",
+    department: "Product",
+    status: "Active",
+    lastActive: "30 minutes ago",
+    projects: 4,
+  },
+  {
+    id: "omar",
+    name: "Omar Khaled",
+    email: "omar@itchub.com",
+    avatar: "/placeholder.svg?height=32&width=32",
+    role: "Backend Developer",
+    department: "Engineering",
+    status: "Offline",
+    lastActive: "1 day ago",
+    projects: 3,
+  },
+  {
+    id: "layla",
+    name: "Layla Ibrahim",
+    email: "layla@itchub.com",
+    avatar: "/placeholder.svg?height=32&width=32",
+    role: "QA Engineer",
+    department: "Quality Assurance",
+    status: "Active",
+    lastActive: "15 minutes ago",
+    projects: 6,
+  },
+]
 
-function UsersTable({ users, isLoading }: UsersTableProps) {
+function UsersTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [departmentFilter, setDepartmentFilter] = useState("all")
-  const [roleFilter, setRoleFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
   const { toast } = useToast()
 
-  const handleSendEmail = (user: User) => {
+  const handleSendEmail = (user: any) => {
     toast({
       title: "Email Sent",
       description: `Email has been sent to ${user.name} (${user.email}). Email functionality will be implemented in the next phase.`,
@@ -220,53 +182,36 @@ function UsersTable({ users, isLoading }: UsersTableProps) {
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesDepartment = departmentFilter === "all" || user.department?.name === departmentFilter
-    const matchesRole = roleFilter === "all" || user.role === roleFilter
+    const matchesDepartment = departmentFilter === "all" || user.department === departmentFilter
+    const matchesStatus = statusFilter === "all" || user.status === statusFilter
 
-    return matchesSearch && matchesDepartment && matchesRole
+    return matchesSearch && matchesDepartment && matchesStatus
   })
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "ADMIN":
-        return "destructive"
-      case "SUPERLEADER":
-        return "destructive"
-      case "LEADER":
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Active":
+        return "bg-green-500"
+      case "Away":
+        return "bg-yellow-500"
+      case "Offline":
+        return "bg-gray-500"
+      default:
+        return "bg-gray-500"
+    }
+  }
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "Active":
         return "default"
-      case "MEMBER":
+      case "Away":
         return "secondary"
-      case "GUEST":
+      case "Offline":
         return "outline"
       default:
         return "outline"
     }
-  }
-
-  const getStatusColor = (user: User) => {
-    // Simple logic: if user was created in last 30 days, consider active
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    const createdAt = new Date(user.createdAt)
-    return createdAt > thirtyDaysAgo ? "bg-green-500" : "bg-gray-500"
-  }
-
-  const getStatusVariant = (user: User) => {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    const createdAt = new Date(user.createdAt)
-    return createdAt > thirtyDaysAgo ? "default" : "outline"
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading users...</span>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -288,24 +233,22 @@ function UsersTable({ users, isLoading }: UsersTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Departments</SelectItem>
-              {Array.from(new Set(users.map(u => u.department?.name).filter(Boolean))).map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
-              ))}
+              <SelectItem value="Engineering">Engineering</SelectItem>
+              <SelectItem value="Design">Design</SelectItem>
+              <SelectItem value="Product">Product</SelectItem>
+              <SelectItem value="Infrastructure">Infrastructure</SelectItem>
+              <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Role" />
+              <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="ADMIN">Admin</SelectItem>
-              <SelectItem value="SUPERLEADER">Super Leader</SelectItem>
-              <SelectItem value="LEADER">Leader</SelectItem>
-              <SelectItem value="MEMBER">Member</SelectItem>
-              <SelectItem value="GUEST">Guest</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Away">Away</SelectItem>
+              <SelectItem value="Offline">Offline</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -320,7 +263,8 @@ function UsersTable({ users, isLoading }: UsersTableProps) {
               <TableHead>Role</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
+              <TableHead>Projects</TableHead>
+              <TableHead>Last Active</TableHead>
               <TableHead className="w-[70px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -346,29 +290,18 @@ function UsersTable({ users, isLoading }: UsersTableProps) {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">
-                  <Badge variant={getRoleBadgeVariant(user.role) as "default" | "secondary" | "destructive" | "outline"}>
-                    {user.role}
-                  </Badge>
-                </TableCell>
+                <TableCell className="font-medium">{user.role}</TableCell>
                 <TableCell>
-                  {user.department ? (
-                    <Badge variant="outline">{user.department.name}</Badge>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">No department</span>
-                  )}
+                  <Badge variant="outline">{user.department}</Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${getStatusColor(user)}`} />
-                    <Badge variant={getStatusVariant(user) as "default" | "secondary" | "destructive" | "outline"}>
-                      {new Date(user.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) ? "Active" : "Inactive"}
-                    </Badge>
+                    <div className={`w-2 h-2 rounded-full ${getStatusColor(user.status)}`} />
+                    <Badge variant={getStatusVariant(user.status) as "default" | "secondary" | "destructive" | "outline"}>{user.status}</Badge>
                   </div>
                 </TableCell>
-                <TableCell className="text-muted-foreground text-sm">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </TableCell>
+                <TableCell>{user.projects}</TableCell>
+                <TableCell className="text-muted-foreground">{user.lastActive}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -385,10 +318,12 @@ function UsersTable({ users, isLoading }: UsersTableProps) {
                           View profile
                         </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuItem onClick={() => handleSendEmail(user)}>
                         <Mail className="mr-2 h-4 w-4" />
                         Send email
                       </DropdownMenuItem>
+
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -398,7 +333,7 @@ function UsersTable({ users, isLoading }: UsersTableProps) {
         </Table>
       </div>
 
-      {filteredUsers.length === 0 && !isLoading && (
+      {filteredUsers.length === 0 && (
         <div className="text-center py-8">
           <p className="text-muted-foreground">No users found matching your criteria.</p>
         </div>
