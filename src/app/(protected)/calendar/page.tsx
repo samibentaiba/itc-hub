@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Calendar, ChevronLeft, ChevronRight, Plus, Filter } from "lucide-react"
+import { Calendar, ChevronLeft, ChevronRight, Plus, Filter, Clock, Users, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,62 +9,32 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-
+import { Badge } from "@/components/ui/badge"
+import { useCalendarPage, type EventFormData } from "./hook"
 
 export default function CalendarPage() {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [view, setView] = useState("month")
-  const [showNewEvent, setShowNewEvent] = useState(false)
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    })
-  }
-
-  const navigateMonth = (direction: "prev" | "next") => {
-    setCurrentDate((prev) => {
-      const newDate = new Date(prev)
-      if (direction === "prev") {
-        newDate.setMonth(prev.getMonth() - 1)
-      } else {
-        newDate.setMonth(prev.getMonth() + 1)
-      }
-      return newDate
-    })
-  }
-
-  // Mock upcoming events
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Team Standup",
-      date: "Today, 9:00 AM",
-      type: "meeting",
-      attendees: 8,
-    },
-    {
-      id: 2,
-      title: "Product Review",
-      date: "Tomorrow, 2:00 PM",
-      type: "review",
-      attendees: 12,
-    },
-    {
-      id: 3,
-      title: "Sprint Planning",
-      date: "Friday, 10:00 AM",
-      type: "planning",
-      attendees: 15,
-    },
-  ]
+  const {
+    currentDate,
+    view,
+    showNewEvent,
+    selectedDate,
+    events,
+    upcomingEvents,
+    setView,
+    setShowNewEvent,
+    setSelectedDate,
+    formatDate,
+    navigateMonth,
+    getDaysInMonth,
+    getFirstDayOfMonth,
+    formatDateString,
+    getEventsForDate,
+    createEvent,
+  } = useCalendarPage()
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Calendar</h1>
@@ -105,7 +75,16 @@ export default function CalendarPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <CalendarView currentDate={currentDate} view={view} />
+              <CalendarView 
+                currentDate={currentDate} 
+                view={view}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                getDaysInMonth={getDaysInMonth}
+                getFirstDayOfMonth={getFirstDayOfMonth}
+                formatDateString={formatDateString}
+                getEventsForDate={getEventsForDate}
+              />
             </CardContent>
           </Card>
         </div>
@@ -113,7 +92,7 @@ export default function CalendarPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -136,6 +115,7 @@ export default function CalendarPage() {
               </Button>
             </CardContent>
           </Card>
+
           {/* Upcoming Events */}
           <Card>
             <CardHeader>
@@ -155,8 +135,6 @@ export default function CalendarPage() {
               ))}
             </CardContent>
           </Card>
-
-
         </div>
       </div>
 
@@ -169,7 +147,10 @@ export default function CalendarPage() {
               Add a new event to your personal calendar.
             </DialogDescription>
           </DialogHeader>
-          <CreateEventForm onClose={() => setShowNewEvent(false)} />
+          <CreateEventForm 
+            onClose={() => setShowNewEvent(false)} 
+            createEvent={createEvent}
+          />
         </DialogContent>
       </Dialog>
     </div>
@@ -177,8 +158,13 @@ export default function CalendarPage() {
 }
 
 // Create Event Form Component
-function CreateEventForm({ onClose }: { onClose: () => void }) {
-  const [formData, setFormData] = useState({
+interface CreateEventFormProps {
+  onClose: () => void
+  createEvent: (formData: EventFormData) => Promise<boolean>
+}
+
+function CreateEventForm({ onClose, createEvent }: CreateEventFormProps) {
+  const [formData, setFormData] = useState<EventFormData>({
     title: "",
     description: "",
     date: "",
@@ -188,31 +174,18 @@ function CreateEventForm({ onClose }: { onClose: () => void }) {
     location: "",
   })
   const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Event Created",
-        description: `"${formData.title}" has been added to your calendar.`,
-      })
-
+    const success = await createEvent(formData)
+    
+    if (success) {
       onClose()
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create event. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
     }
+    
+    setIsLoading(false)
   }
 
   return (
@@ -319,90 +292,28 @@ function CreateEventForm({ onClose }: { onClose: () => void }) {
   )
 }
 
-import { Clock, Users, MapPin } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-
+// Calendar View Component
 interface CalendarViewProps {
   currentDate: Date
   view: string
+  selectedDate: Date | null
+  setSelectedDate: (date: Date | null) => void
+  getDaysInMonth: (date: Date) => number
+  getFirstDayOfMonth: (date: Date) => number
+  formatDateString: (date: Date) => string
+  getEventsForDate: (date: string) => any[]
 }
 
-const mockEvents = [
-  {
-    id: 1,
-    title: "Team Standup",
-    date: "2024-01-15",
-    time: "09:00",
-    duration: 30,
-    type: "meeting",
-    attendees: ["sami", "yasmine", "ali", "omar"],
-    location: "Conference Room A",
-    color: "bg-blue-500",
-  },
-  {
-    id: 2,
-    title: "Product Review",
-    date: "2024-01-16",
-    time: "14:00",
-    duration: 60,
-    type: "review",
-    attendees: ["fatima", "sami", "yasmine"],
-    location: "Virtual",
-    color: "bg-green-500",
-  },
-  {
-    id: 3,
-    title: "Sprint Planning",
-    date: "2024-01-19",
-    time: "10:00",
-    duration: 120,
-    type: "planning",
-    attendees: ["sami", "ali", "omar", "layla"],
-    location: "Conference Room B",
-    color: "bg-purple-500",
-  },
-  {
-    id: 4,
-    title: "Design Review",
-    date: "2024-01-22",
-    time: "15:30",
-    duration: 45,
-    type: "review",
-    attendees: ["yasmine", "mona", "sara"],
-    location: "Design Studio",
-    color: "bg-pink-500",
-  },
-  {
-    id: 5,
-    title: "All Hands Meeting",
-    date: "2024-01-25",
-    time: "11:00",
-    duration: 60,
-    type: "meeting",
-    attendees: ["all"],
-    location: "Main Auditorium",
-    color: "bg-red-500",
-  },
-]
-
-function CalendarView({ currentDate, view }: CalendarViewProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-
-  const getDaysInMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-  }
-
-  const getFirstDayOfMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
-  }
-
-  const formatDate = (date: Date) => {
-    return date.toISOString().split("T")[0]
-  }
-
-  const getEventsForDate = (date: string) => {
-    return mockEvents.filter((event) => event.date === date)
-  }
+function CalendarView({ 
+  currentDate, 
+  view, 
+  selectedDate,
+  setSelectedDate,
+  getDaysInMonth,
+  getFirstDayOfMonth,
+  formatDateString,
+  getEventsForDate
+}: CalendarViewProps) {
 
   const renderMonthView = () => {
     const daysInMonth = getDaysInMonth(currentDate)
@@ -417,10 +328,10 @@ function CalendarView({ currentDate, view }: CalendarViewProps) {
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-      const dateString = formatDate(date)
+      const dateString = formatDateString(date)
       const events = getEventsForDate(dateString)
-      const isToday = dateString === formatDate(new Date())
-      const isSelected = selectedDate && formatDate(selectedDate) === dateString
+      const isToday = dateString === formatDateString(new Date())
+      const isSelected = selectedDate && formatDateString(selectedDate) === dateString
 
       days.push(
         <div
@@ -494,7 +405,7 @@ function CalendarView({ currentDate, view }: CalendarViewProps) {
             <div key={time} className="contents">
               <div className="border-r border-b p-2 text-sm text-muted-foreground">{time}:00</div>
               {weekDays.map((date) => {
-                const dateString = formatDate(date)
+                const dateString = formatDateString(date)
                 const events = getEventsForDate(dateString).filter(
                   (event) => Number.parseInt(event.time.split(":")[0]) === time,
                 )
@@ -517,7 +428,7 @@ function CalendarView({ currentDate, view }: CalendarViewProps) {
   }
 
   const renderDayView = () => {
-    const dateString = formatDate(currentDate)
+    const dateString = formatDateString(currentDate)
     const events = getEventsForDate(dateString)
 
     return (

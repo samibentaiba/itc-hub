@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 import { Roboto } from "next/font/google"
-import { Provider } from "@/components/provider"
+import { Wrapper } from "@/app/wrapper"
 
 const roboto = Roboto({ subsets: ["latin"] })
 
@@ -20,9 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.className} bg-background`}>
-        <Provider>
+        <Wrapper>
           {children}
-        </Provider>
+        </Wrapper>
       </body>
     </html>
   )

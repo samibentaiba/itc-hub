@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
   Camera,
   Edit,
@@ -37,184 +36,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { toast } from "@/hooks/use-toast"
+import { useProfilePage } from "./hook"
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [profileData, setProfileData] = useState({
-    name: "Sami Al-Rashid",
-    email: "sami@itchub.com",
-    phone: "+971 50 123 4567",
-    title: "Senior Full Stack Developer",
-    department: "Engineering",
-    location: "Dubai, UAE",
-    bio: "Passionate full-stack developer with 8+ years of experience building scalable web applications. Love mentoring junior developers and contributing to open source projects.",
-    avatar: "/placeholder.svg?height=128&width=128",
-    socialLinks: {
-      github: "https://github.com/sami",
-      linkedin: "https://linkedin.com/in/sami",
-      twitter: "https://twitter.com/sami",
-      website: "https://sami.dev",
-    },
-  })
-
-  const [tempData, setTempData] = useState(profileData)
-
-  const handleEdit = () => {
-    setTempData(profileData)
-    setIsEditing(true)
-  }
-
-  const handleSave = () => {
-    setProfileData(tempData)
-    setIsEditing(false)
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been successfully updated.",
-    })
-  }
-
-  const handleCancel = () => {
-    setTempData(profileData)
-    setIsEditing(false)
-  }
-
-  const handleInputChange = (field: string, value: string) => {
-    setTempData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
-  const handleSocialLinkChange = (platform: string, value: string) => {
-    setTempData((prev) => ({
-      ...prev,
-      socialLinks: {
-        ...prev.socialLinks,
-        [platform]: value,
-      },
-    }))
-  }
-
-  // Mock data for other sections
-  const stats = {
-    projectsCompleted: 47,
-    teamsLed: 3,
-    mentorshipHours: 120,
-    contributions: 234,
-  }
-
-  const skills = [
-    { name: "React", level: 95 },
-    { name: "Node.js", level: 90 },
-    { name: "TypeScript", level: 88 },
-    { name: "Python", level: 85 },
-    { name: "AWS", level: 80 },
-    { name: "Docker", level: 75 },
-  ]
-
-  const currentProjects = [
-    {
-      id: 1,
-      name: "ITC Hub Platform",
-      role: "Lead Developer",
-      progress: 85,
-      priority: "High",
-      team: "Core Engineering",
-    },
-    {
-      id: 2,
-      name: "Mobile App Development",
-      role: "Technical Advisor",
-      progress: 60,
-      priority: "Medium",
-      team: "Mobile Team",
-    },
-    {
-      id: 3,
-      name: "API Modernization",
-      role: "Senior Developer",
-      progress: 30,
-      priority: "Low",
-      team: "Backend Team",
-    },
-  ]
-
-  const achievements = [
-    {
-      id: 1,
-      title: "Innovation Award 2023",
-      description: "Outstanding contribution to platform architecture",
-      date: "2023-12-01",
-      category: "Innovation",
-    },
-    {
-      id: 2,
-      title: "Mentor of the Year",
-      description: "Exceptional mentorship and knowledge sharing",
-      date: "2023-06-15",
-      category: "Leadership",
-    },
-    {
-      id: 3,
-      title: "Technical Excellence",
-      description: "Delivered 5 major projects with zero critical bugs",
-      date: "2023-03-20",
-      category: "Technical",
-    },
-  ]
-
-  const teams = [
-    {
-      id: 1,
-      name: "Core Engineering",
-      role: "Team Lead",
-      members: 8,
-      isLead: true,
-    },
-    {
-      id: 2,
-      name: "Architecture Committee",
-      role: "Senior Member",
-      members: 5,
-      isLead: false,
-    },
-  ]
-
-  const departments = [
-    {
-      id: 1,
-      name: "Engineering",
-      role: "Senior Developer",
-      isLead: false,
-    },
-  ]
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "high":
-        return "destructive"
-      case "medium":
-        return "default"
-      case "low":
-        return "secondary"
-      default:
-        return "default"
-    }
-  }
-
-  const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case "innovation":
-        return "bg-purple-500"
-      case "leadership":
-        return "bg-blue-500"
-      case "technical":
-        return "bg-green-500"
-      default:
-        return "bg-gray-500"
-    }
-  }
+  const {
+    isEditing,
+    profileData,
+    tempData,
+    stats,
+    skills,
+    currentProjects,
+    achievements,
+    teams,
+    departments,
+    handleEdit,
+    handleSave,
+    handleCancel,
+    handleInputChange,
+    handleSocialLinkChange,
+    getPriorityColor,
+    getCategoryColor,
+  } = useProfilePage();
 
   return (
     <div className="container mx-auto p-6">

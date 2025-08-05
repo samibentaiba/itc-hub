@@ -1,14 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
 import { Bell, Moon, Sun, Settings, Monitor } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useSettingsPage } from "./hook"
 
 export default function SettingsPage() {
   return (
@@ -37,49 +34,16 @@ export default function SettingsPage() {
 
 // User Settings Form Component
 function UserSettingsForm() {
-  const { theme, setTheme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const [settings, setSettings] = useState({
-    displayName: "Sami",
-    email: "sami@itc.com",
-    notifications: true,
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-
-  // Ensure component is mounted to avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Get current theme state
-  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark"
-  const isSystem = mounted && theme === "system"
-
-  const handleSave = async () => {
-    setIsLoading(true)
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Save settings to localStorage or API
-      localStorage.setItem("user-settings", JSON.stringify(settings))
-
-      toast({
-        title: "Settings saved",
-        description: "Your preferences have been updated successfully.",
-      })
-    } catch (error) {
-      toast({
-        title: "Save Error",
-        description: "Failed to save settings. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
+    const {
+    settings,
+    setSettings,
+    setTheme,
+    currentTheme,
+    isSystem,
+    isLoading,
+    handleSave,
+    handleSettingsChange,
+  } = useSettingsPage()
 
 
   return (
