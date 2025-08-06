@@ -1,218 +1,126 @@
-import { useState } from "react"
-import { useToast } from "@/hooks/use-toast"
+// /calendar/hook.ts
 
-export interface Event {
-  id: number
-  title: string
-  date: string
-  time: string
-  duration: number
-  type: string
-  attendees: string[]
-  location: string
-  color: string
-}
+import { useState, useMemo } from "react";
+import { useToast } from "@/hooks/use-toast";
+import type { Event, UpcomingEvent, EventFormData } from "./types";
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
-export interface UpcomingEvent {
-  id: number
-  title: string
-  date: string
-  type: string
-  attendees: number
-}
+/**
+ * A custom hook to manage the state and logic for the calendar page.
+ * It accepts initial data fetched from the server to hydrate its state.
+ * @param initialEvents - The initial list of events from the server.
+ * @param initialUpcomingEvents - The initial list of upcoming events.
+ */
+export const useCalendarPage = (
+  initialEvents: Event[],
+  initialUpcomingEvents: UpcomingEvent[]
+) => {
+  const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
+  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+  const [view, setView] = useState<"month" | "week" | "day">("month");
+  const [showNewEvent, setShowNewEvent] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [filterType, setFilterType] = useState<string>("all");
+  const { toast } = useToast();
 
-export interface EventFormData {
-  title: string
-  description: string
-  date: string
-  time: string
-  duration: string
-  type: string
-  location: string
-}
+  const upcomingEvents = initialUpcomingEvents;
 
-export const mockEvents: Event[] = [
-  {
-    id: 1,
-    title: "Team Standup",
-    date: "2024-01-15",
-    time: "09:00",
-    duration: 30,
-    type: "meeting",
-    attendees: ["sami", "yasmine", "ali", "omar"],
-    location: "Conference Room A",
-    color: "bg-blue-500",
-  },
-  {
-    id: 2,
-    title: "Product Review",
-    date: "2024-01-16",
-    time: "14:00",
-    duration: 60,
-    type: "review",
-    attendees: ["fatima", "sami", "yasmine"],
-    location: "Virtual",
-    color: "bg-green-500",
-  },
-  {
-    id: 3,
-    title: "Sprint Planning",
-    date: "2024-01-19",
-    time: "10:00",
-    duration: 120,
-    type: "planning",
-    attendees: ["sami", "ali", "omar", "layla"],
-    location: "Conference Room B",
-    color: "bg-purple-500",
-  },
-  {
-    id: 4,
-    title: "Design Review",
-    date: "2024-01-22",
-    time: "15:30",
-    duration: 45,
-    type: "review",
-    attendees: ["yasmine", "mona", "sara"],
-    location: "Design Studio",
-    color: "bg-pink-500",
-  },
-  {
-    id: 5,
-    title: "All Hands Meeting",
-    date: "2024-01-25",
-    time: "11:00",
-    duration: 60,
-    type: "meeting",
-    attendees: ["all"],
-    location: "Main Auditorium",
-    color: "bg-red-500",
-  },
-]
+  const filteredEvents = useMemo(() => {
+    if (filterType === "all") {
+      return allEvents;
+    }
+    return allEvents.filter(event => event.type === filterType);
+  }, [allEvents, filterType]);
 
-export const useCalendarPage = () => {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [view, setView] = useState("month")
-  const [showNewEvent, setShowNewEvent] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [events, setEvents] = useState<Event[]>(mockEvents)
-  const { toast } = useToast()
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    })
-  }
-
-  const navigateMonth = (direction: "prev" | "next") => {
+  const navigate = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
-      const newDate = new Date(prev)
-      if (direction === "prev") {
-        newDate.setMonth(prev.getMonth() - 1)
-      } else {
-        newDate.setMonth(prev.getMonth() + 1)
+      const newDate = new Date(prev);
+      switch (view) {
+        case "month":
+          newDate.setDate(1);
+          newDate.setMonth(direction === "prev" ? prev.getMonth() - 1 : prev.getMonth() + 1);
+          break;
+        case "week":
+          newDate.setDate(prev.getDate() + (direction === "prev" ? -7 : 7));
+          break;
+        case "day":
+          newDate.setDate(prev.getDate() + (direction === "prev" ? -1 : 1));
+          break;
       }
-      return newDate
-    })
-  }
+      return newDate;
+    });
+  };
 
-  const getDaysInMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-  }
-
-  const getFirstDayOfMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
-  }
-
-  const formatDateString = (date: Date) => {
-    return date.toISOString().split("T")[0]
-  }
-
-  const getEventsForDate = (date: string) => {
-    return events.filter((event) => event.date === date)
-  }
-
-  const upcomingEvents: UpcomingEvent[] = [
-    {
-      id: 1,
-      title: "Team Standup",
-      date: "Today, 9:00 AM",
-      type: "meeting",
-      attendees: 8,
-    },
-    {
-      id: 2,
-      title: "Product Review",
-      date: "Tomorrow, 2:00 PM",
-      type: "review",
-      attendees: 12,
-    },
-    {
-      id: 3,
-      title: "Sprint Planning",
-      date: "Friday, 10:00 AM",
-      type: "planning",
-      attendees: 15,
-    },
-  ]
+  const handleDayClick = (date: Date) => {
+    setCurrentDate(date);
+    setView("day");
+  };
 
   const createEvent = async (formData: EventFormData) => {
+    setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const newEvent: Event = {
-        id: events.length + 1,
+        id: allEvents.length + 1,
         title: formData.title,
+        description: formData.description,
         date: formData.date,
         time: formData.time,
         duration: parseInt(formData.duration),
         type: formData.type,
-        attendees: [], // You can add logic to parse attendees
-        location: formData.location,
-        color: "bg-blue-500", // Default color, you can add logic to assign colors
-      }
+        attendees: ["You"],
+        location: formData.location || "Virtual",
+        color: "bg-blue-500",
+      };
 
-      setEvents(prev => [...prev, newEvent])
+      setAllEvents(prev => [...prev, newEvent]);
+      setFilterType("all");
 
       toast({
         title: "Event Created",
         description: `"${formData.title}" has been added to your calendar.`,
-      })
-
-      return true
+      });
+      setIsLoading(false);
+      return true;
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to create event. Please try again.",
         variant: "destructive",
-      })
-      return false
+      });
+      setIsLoading(false);
+      return false;
     }
-  }
+  };
 
   return {
     // State
     currentDate,
     view,
     showNewEvent,
-    selectedDate,
-    events,
+    selectedEvent,
+    filteredEvents,
     upcomingEvents,
+    isLoading,
+    filterType,
     
-    // State setters
+    // State Setters
     setCurrentDate,
     setView,
     setShowNewEvent,
-    setSelectedDate,
-    
-    // Utility functions
-    formatDate,
-    navigateMonth,
+    setSelectedEvent,
+    setFilterType,
+
+    // Event Handlers & Logic
+    navigate,
+    createEvent,
+    handleDayClick,
+
+    // Utilities (passed through for convenience)
+    formatDate: (date: Date) => formatDate(date, view),
     getDaysInMonth,
     getFirstDayOfMonth,
     formatDateString,
-    getEventsForDate,
-    createEvent,
-  }
-}
+  };
+};

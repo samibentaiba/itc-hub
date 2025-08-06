@@ -1,139 +1,16 @@
-"use client"
+import { fetchUserSettings } from "./api";
+import SettingsClientPage from "./client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Bell, Moon, Sun, Settings, Monitor } from "lucide-react"
-import { useSettingsPage } from "./hook"
+// This is the Server Component.
+// Its only job is to fetch the initial data on the server.
+export default async function SettingsPage() {
+  // Fetch the initial user settings.
+  const initialSettings = await fetchUserSettings();
 
-export default function SettingsPage() {
+  // Pass the fetched data as props to the Client Component.
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Settings className="h-6 w-6" />
-            Settings
-          </h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
-        </div>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>User Settings</CardTitle>
-          <CardDescription>Customize your experience across the ITC Hub.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserSettingsForm />
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-// User Settings Form Component
-function UserSettingsForm() {
-    const {
-    settings,
-    setSettings,
-    setTheme,
-    currentTheme,
-    isSystem,
-    isLoading,
-    handleSave,
-    handleSettingsChange,
-  } = useSettingsPage()
-
-
-  return (
-    <div className="space-y-4 max-w-2xl mx-auto">
-      <div className="space-y-2">
-        <Label htmlFor="displayName" className="text-sm font-medium">
-          Display Name
-        </Label>
-        <Input
-          id="displayName"
-          value={settings.displayName}
-          onChange={(e) => setSettings({ ...settings, displayName: e.target.value })}
-          className="text-sm border-border/50 focus:border-red-500 focus:ring-red-500/20"
-          disabled={isLoading}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm font-medium">
-          Email
-        </Label>
-        <Input
-          id="email"
-          type="email"
-          value={settings.email}
-          onChange={(e) => setSettings({ ...settings, email: e.target.value })}
-          className="text-sm border-border/50 focus:border-red-500 focus:ring-red-500/20"
-          disabled={isLoading}
-        />
-      </div>
-      <div className="flex items-center justify-between p-3 rounded-lg border border-border/50">
-        <div className="flex items-center gap-3">
-          <Bell className="h-4 w-4 text-muted-foreground" />
-          <Label htmlFor="notifications" className="text-sm font-medium">
-            Email Notifications
-          </Label>
-        </div>
-        <Button
-          variant={settings.notifications ? "default" : "outline"}
-          size="sm"
-          onClick={() => setSettings({ ...settings, notifications: !settings.notifications })}
-          className="text-xs"
-          disabled={isLoading}
-        >
-          {settings.notifications ? "On" : "Off"}
-        </Button>
-      </div>
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Theme</Label>
-        <div className="flex gap-2">
-          <Button
-            variant={currentTheme === "light" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTheme("light")}
-            className="text-xs flex-1"
-            disabled={isLoading}
-          >
-            <Sun className="mr-2 h-4 w-4" />
-            Light
-          </Button>
-          <Button
-            variant={!isSystem && currentTheme  === "dark"  ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTheme("dark")}
-            className="text-xs flex-1"
-            disabled={isLoading}
-          >
-            <Moon className="mr-2 h-4 w-4" />
-            Dark
-          </Button>
-          <Button
-            variant={isSystem  ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTheme("system")}
-            className="text-xs flex-1"
-            disabled={isLoading}
-          >
-            <Monitor className="mr-2 h-4 w-4" />
-            System
-          </Button>
-        </div>
-      </div>
-      <div className="flex justify-end pt-4">
-        <Button
-          onClick={handleSave}
-          className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-sm w-full sm:w-auto shadow-md"
-          disabled={isLoading}
-        >
-          {isLoading ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
-    </div>
-  )
+    <SettingsClientPage 
+      initialSettings={initialSettings} 
+    />
+  );
 }

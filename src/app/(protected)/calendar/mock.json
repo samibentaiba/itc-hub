@@ -1,0 +1,87 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "title": "Q3 Strategy Meeting",
+      "description": "A comprehensive meeting to outline the strategic goals for the third quarter, focusing on market expansion and product development.",
+      "date": "2025-08-04",
+      "time": "10:00",
+      "duration": 90,
+      "type": "planning",
+      "attendees": ["Sami", "Yasmine", "Omar"],
+      "location": "Conference Room 1",
+      "color": "bg-purple-500"
+    },
+    {
+      "id": 2,
+      "title": "Frontend Sync",
+      "description": "Weekly sync-up for the frontend development team to discuss progress, blockers, and upcoming tasks for the current sprint.",
+      "date": "2025-08-06",
+      "time": "11:00",
+      "duration": 30,
+      "type": "meeting",
+      "attendees": ["Sami", "Layla"],
+      "location": "Virtual",
+      "color": "bg-blue-500"
+    },
+    {
+      "id": 3,
+      "title": "Design System Review",
+      "description": "A session to review recent updates to the design system, gather feedback, and plan for the next iteration of components.",
+      "date": "2025-08-06",
+      "time": "14:00",
+      "duration": 60,
+      "type": "review",
+      "attendees": ["Yasmine", "Mona"],
+      "location": "Design Studio",
+      "color": "bg-pink-500"
+    },
+    {
+      "id": 4,
+      "title": "Backend Architecture",
+      "description": "A deep-dive workshop on the proposed microservices architecture for the new platform, covering scalability and security.",
+      "date": "2025-08-11",
+      "time": "09:30",
+      "duration": 120,
+      "type": "workshop",
+      "attendees": ["Omar", "Ali"],
+      "location": "Conference Room 2",
+      "color": "bg-green-500"
+    },
+    {
+      "id": 5,
+      "title": "All-Hands Town Hall",
+      "description": "Company-wide town hall to share quarterly results, celebrate wins, and answer questions from the team.",
+      "date": "2025-08-28",
+      "time": "15:00",
+      "duration": 60,
+      "type": "meeting",
+      "attendees": ["all"],
+      "location": "Main Auditorium",
+      "color": "bg-red-500"
+    }
+  ],
+  "upcomingEvents": [
+    {
+      "id": 2,
+      "title": "Frontend Sync",
+      "date": "Today, 11:00 AM",
+      "type": "meeting",
+      "attendees": 2
+    },
+    {
+      "id": 3,
+      "title": "Design System Review",
+      "date": "Today, 2:00 PM",
+      "type": "review",
+      "attendees": 2
+    },
+    {
+      "id": 4,
+      "title": "Backend Architecture",
+      "date": "Aug 11, 9:30 AM",
+      "type": "workshop",
+      "attendees": 2
+    }
+  ]
+}

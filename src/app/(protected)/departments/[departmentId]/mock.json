@@ -1,0 +1,47 @@
+ [
+    {
+      "id": "dept-1",
+      "name": "Engineering",
+      "description": "Software development and technical infrastructure",
+      "head": {
+        "name": "Sami Al-Rashid",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "sami"
+      },
+      "teamCount": 3,
+      "memberCount": 18,
+      "budget": "$2,400,000",
+      "status": "active",
+      "createdAt": "2023-01-15"
+    },
+    {
+      "id": "dept-2",
+      "name": "Design",
+      "description": "User experience and visual design",
+      "head": {
+        "name": "Yasmine Hassan",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "yasmine"
+      },
+      "teamCount": 1,
+      "memberCount": 5,
+      "budget": "$800,000",
+      "status": "active",
+      "createdAt": "2023-01-15"
+    },
+    {
+      "id": "dept-3",
+      "name": "Product",
+      "description": "Product strategy and management",
+      "head": {
+        "name": "Fatima Al-Zahra",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "fatima"
+      },
+      "teamCount": 1,
+      "memberCount": 4,
+      "budget": "$600,000",
+      "status": "active",
+      "createdAt": "2023-01-15"
+    }
+  ]

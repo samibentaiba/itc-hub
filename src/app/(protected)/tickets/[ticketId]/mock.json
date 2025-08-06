@@ -1,0 +1,96 @@
+{
+  "tickets": {
+    "T-001": {
+      "id": "T-001",
+      "title": "Login page not responsive on mobile",
+      "description": "The login form breaks on mobile devices below 768px width. Users are unable to complete the login process on their phones.",
+      "status": "open",
+      "priority": "high",
+      "assignee": {
+        "name": "Sami Al-Rashid",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "sami"
+      },
+      "reporter": {
+        "name": "Yasmine Hassan",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "yasmine"
+      },
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-16T14:20:00Z",
+      "team": "Frontend Team",
+      "labels": ["bug", "mobile", "ui"],
+      "type": "task",
+      "workspace": "Frontend Team",
+      "workspaceType": "team",
+      "dueDate": "2025-01-25"
+    },
+    "T-002": {
+      "id": "T-002",
+      "title": "Database connection timeout",
+      "description": "API endpoints are timing out due to database connection issues. This is affecting user experience across the platform.",
+      "status": "in-progress",
+      "priority": "urgent",
+      "assignee": {
+        "name": "Ali Mohammed",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "ali"
+      },
+      "reporter": {
+        "name": "Sami Al-Rashid",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "sami"
+      },
+      "createdAt": "2024-01-18T09:00:00Z",
+      "updatedAt": "2024-01-19T11:45:00Z",
+      "team": "Backend Team",
+      "labels": ["bug", "database", "urgent"],
+      "type": "bug",
+      "workspace": "Backend Team",
+      "workspaceType": "team",
+      "dueDate": "2025-01-22"
+    }
+  },
+  "messages": {
+    "T-001": [
+      {
+        "id": "m1",
+        "sender": { "id": "u1", "name": "Sami", "avatar": "/placeholder.svg?height=32&width=32", "role": "leader" },
+        "content": "Hey Ali, can you implement the dark mode toggle? It should be in the header and persist user preference.",
+        "type": "text",
+        "timestamp": "2025-01-20T10:00:00",
+        "reactions": [{ "emoji": "👍", "users": ["u2"], "count": 1 }],
+        "edited": false
+      },
+      {
+        "id": "m2",
+        "sender": { "id": "u2", "name": "Ali", "avatar": "/placeholder.svg?height=32&width=32", "role": "member" },
+        "content": "I'll start working on it. Should I use localStorage for persistence?",
+        "type": "text",
+        "timestamp": "2025-01-20T10:15:00",
+        "reactions": [],
+        "edited": false
+      }
+    ],
+    "T-002": [
+      {
+        "id": "m3",
+        "sender": { "id": "u1", "name": "Sami", "avatar": "/placeholder.svg?height=32&width=32", "role": "leader" },
+        "content": "The API is throwing 504 gateway timeout errors. It seems to be related to the database connection pool.",
+        "type": "text",
+        "timestamp": "2025-01-19T12:00:00",
+        "reactions": [],
+        "edited": false
+      },
+      {
+        "id": "m4",
+        "sender": { "id": "u2", "name": "Ali", "avatar": "/placeholder.svg?height=32&width=32", "role": "member" },
+        "content": "I've confirmed the issue. I'm increasing the pool size and monitoring the connections. Will update soon.",
+        "type": "text",
+        "timestamp": "2025-01-19T12:30:00",
+        "reactions": [{ "emoji": "👀", "users": ["u1"], "count": 1 }],
+        "edited": false
+      }
+    ]
+  }
+}

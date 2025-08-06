@@ -1,0 +1,60 @@
+{
+  "stats": [
+    {
+      "title": "Total Departments",
+      "value": "8",
+      "description": "Active departments",
+      "trend": "+1 this quarter"
+    },
+    {
+      "title": "Department Heads",
+      "value": "8",
+      "description": "Leadership roles",
+      "trend": "All filled"
+    },
+    {
+      "title": "Teams per Dept",
+      "value": "1.5",
+      "description": "Average teams",
+      "trend": "Optimal structure"
+    },
+    {
+      "title": "Cross-Dept Projects",
+      "value": "12",
+      "description": "Collaborative work",
+      "trend": "+3 this month"
+    }
+  ],
+  "departments": [
+    {
+      "id": "dept-1",
+      "name": "Engineering",
+      "description": "Software development and technical infrastructure",
+      "head": { "name": "Sami Al-Rashid", "avatar": "/placeholder.svg?height=32&width=32", "id": "sami" },
+      "teamCount": 3,
+      "memberCount": 18,
+      "budget": "$2,400,000",
+      "teams": [
+        { "name": "Frontend Team", "memberCount": 8 },
+        { "name": "Backend Team", "memberCount": 6 },
+        { "name": "DevOps Team", "memberCount": 4 }
+      ],
+      "recentActivity": "Launched new microservices architecture",
+      "status": "active",
+      "color": "bg-blue-500"
+    },
+    {
+      "id": "dept-2",
+      "name": "Design",
+      "description": "User experience and visual design",
+      "head": { "name": "Yasmine Hassan", "avatar": "/placeholder.svg?height=32&width=32", "id": "yasmine" },
+      "teamCount": 1,
+      "memberCount": 5,
+      "budget": "$800,000",
+      "teams": [{ "name": "Design Team", "memberCount": 5 }],
+      "recentActivity": "Completed design system overhaul",
+      "status": "active",
+      "color": "bg-purple-500"
+    }
+  ]
+}

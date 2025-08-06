@@ -1,45 +1,42 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
+import type { UserSettings } from "./types";
 
-export function useSettingsPage() {
+// The hook now accepts initial data fetched by the server.
+export function useSettingsPage(initialSettings: UserSettings) {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [settings, setSettings] = useState({
-    displayName: "Sami",
-    email: "sami@itc.com",
-    notifications: true,
-  });
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  
+  // The initial state is now set from the props.
+  const [settings, setSettings] = useState(initialSettings);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Ensure component is mounted to avoid hydration mismatch
+  // useEffect is still needed to handle client-side-only logic like theme mounting.
   useEffect(() => {
     setMounted(true);
-    // Load settings from localStorage on mount
-    const savedSettings = localStorage.getItem("user-settings");
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
   }, []);
 
-  // Get current theme state
+  // Get current theme state, ensuring it runs only after mounting.
   const currentTheme = mounted ? resolvedTheme || theme || "dark" : "dark";
   const isSystem = mounted && theme === "system";
 
-  const handleSettingsChange = (key: string, value: any) => {
+  // This handler remains for client-side form updates.
+  const handleSettingsChange = (key: keyof UserSettings, value: any) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  // The save handler simulates an API call and can still use localStorage for persistence.
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Save settings to localStorage or API
+      // In a real app, this would be a POST/PUT request to your API.
+      // We can still use localStorage for client-side persistence demonstration.
       localStorage.setItem("user-settings", JSON.stringify(settings));
-
       toast({
         title: "Settings saved",
         description: "Your preferences have been updated successfully.",
@@ -56,14 +53,13 @@ export function useSettingsPage() {
   };
 
   return {
+    settings,
+    handleSettingsChange,
+    isLoading,
+    handleSave,
     theme,
     setTheme,
     currentTheme,
     isSystem,
-    settings,
-    setSettings,
-    isLoading,
-    handleSave,
-    handleSettingsChange,
   };
 }
