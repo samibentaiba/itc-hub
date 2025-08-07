@@ -48,10 +48,15 @@ export const getFirstDayOfMonth = (date: Date): number => {
 };
 
 /**
- * Formats a date object into a "YYYY-MM-DD" string.
+ * Formats a date object into a "YYYY-MM-DD" string, respecting the local timezone.
+ * This prevents the date from shifting unexpectedly due to UTC conversion.
  * @param date - The date to format.
  * @returns The formatted date string.
  */
 export const formatDateString = (date: Date): string => {
-  return date.toISOString().split("T")[0];
+  const year = date.getFullYear();
+  // getMonth() is zero-based, so we add 1
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };

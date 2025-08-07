@@ -1,6 +1,6 @@
 // /admin/page.tsx
 
-import { fetchUsers, fetchTeams, fetchDepartments, fetchEvents, fetchUpcomingEvents } from "./api";
+import { fetchUsers, fetchTeams, fetchDepartments, fetchEvents, fetchUpcomingEvents,fetchPendingEvents } from "./api";
 import AdminClientPage from "./client";
 import { Suspense } from "react";
 import AdminLoading from "./loading";
@@ -18,13 +18,14 @@ export default async function AdminPage() {
     initialTeams,
     initialDepartments,
     initialEvents,
-    initialUpcomingEvents
+    initialUpcomingEvents,initialPendingEvents
   ] = await Promise.all([
     fetchUsers(),
     fetchTeams(),
     fetchDepartments(),
     fetchEvents(),
     fetchUpcomingEvents(),
+        fetchPendingEvents(),
   ]);
 
   // Pass the server-fetched data as props to the Client Component.
@@ -36,6 +37,7 @@ export default async function AdminPage() {
         initialDepartments={initialDepartments}
         initialEvents={initialEvents}
         initialUpcomingEvents={initialUpcomingEvents}
+        initialPendingEvents={initialPendingEvents}
       />
     </Suspense>
   );

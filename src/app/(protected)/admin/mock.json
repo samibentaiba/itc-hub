@@ -137,5 +137,35 @@
       "type": "workshop",
       "attendees": 2
     }
+  ],
+  "pendingEvents": [
+    {
+      "id": 101,
+      "title": "Team Building Activity",
+      "description": "Annual team building event for the Frontend Team.",
+      "date": "2025-09-15",
+      "time": "14:00",
+      "duration": 180,
+      "type": "workshop",
+      "attendees": ["Frontend Team"],
+      "location": "Outdoor Park",
+      "color": "bg-yellow-500",
+      "submittedBy": "Frontend Team",
+      "submittedByType": "team"
+    },
+    {
+      "id": 102,
+      "title": "Engineering Dept. Tech Talk",
+      "description": "A talk on the future of AI in software development.",
+      "date": "2025-10-05",
+      "time": "16:00",
+      "duration": 60,
+      "type": "meeting",
+      "attendees": ["Engineering Department"],
+      "location": "Main Auditorium",
+      "color": "bg-blue-500",
+      "submittedBy": "Engineering",
+      "submittedByType": "department"
+    }
   ]
 }

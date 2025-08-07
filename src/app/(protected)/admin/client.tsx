@@ -14,6 +14,7 @@ import type {
   ModalState,
   Event,
   UpcomingEvent,
+  PendingEvent,
 } from "./types";
 
 // Import consolidated and new components
@@ -33,6 +34,7 @@ interface AdminClientPageProps {
   initialDepartments: Department[];
   initialEvents: Event[];
   initialUpcomingEvents: UpcomingEvent[];
+  initialPendingEvents: PendingEvent[];
 }
 
 export default function AdminClientPage({
@@ -41,6 +43,7 @@ export default function AdminClientPage({
   initialDepartments,
   initialEvents,
   initialUpcomingEvents,
+  initialPendingEvents,
 }: AdminClientPageProps) {
   // Central state for all modals
   const [modal, setModal] = useState<ModalState>(null);
@@ -62,18 +65,46 @@ export default function AdminClientPage({
     handleChangeMemberRole,
     handleRefreshData,
     handleExportData,
+
+    // New handlers for pending events
+    pendingEvents,
+    handleAcceptEvent,
+    handleRejectEvent,
+
     // State & Props for Calendar
-    calendarView, currentDate, filteredEvents, upcomingEvents,
-    showNewEventDialog, selectedEvent, isCalendarLoading, calendarFilterType,
+    calendarView,
+    currentDate,
+    filteredEvents,
+    upcomingEvents,
+    showNewEventDialog,
+    selectedEvent,
+    isCalendarLoading,
+    calendarFilterType,
 
     // Handlers for Calendar
-    setCalendarView, navigateCalendar, createEvent, setSelectedEvent,
-    setShowNewEventDialog, setCalendarFilterType, handleDayClick,
-    handleEditEvent, handleDeleteEvent,
+    setCalendarView,
+    navigateCalendar,
+    createEvent,
+    setSelectedEvent,
+    setShowNewEventDialog,
+    setCalendarFilterType,
+    handleDayClick,
+    handleEditEvent,
+    handleDeleteEvent,
 
     // Calendar Utilities
-    formatCalendarDate, getDaysInMonth, getFirstDayOfMonth, formatDateString
-  } = useAdminPage(initialUsers, initialTeams, initialDepartments, initialEvents, initialUpcomingEvents);
+    formatCalendarDate,
+    getDaysInMonth,
+    getFirstDayOfMonth,
+    formatDateString,
+  } = useAdminPage(
+    initialUsers,
+    initialTeams,
+    initialDepartments,
+    initialEvents,
+    initialUpcomingEvents,
+    initialPendingEvents
+  );
 
   // Close modal and reset loading state if needed
   const closeModal = () => setModal(null);
@@ -180,7 +211,12 @@ export default function AdminClientPage({
           teams={teams}
           departments={departments}
           onSetModal={setModal}
-         // Calendar Props
+          // Event Props
+          pendingEvents={pendingEvents}
+          handleAcceptEvent={handleAcceptEvent}
+          handleRejectEvent={handleRejectEvent}
+          loadingAction={loadingAction}
+          // Calendar Props
           calendarView={calendarView}
           currentDate={currentDate}
           events={filteredEvents}

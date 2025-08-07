@@ -18,7 +18,7 @@ import {
   Trash2,
   CheckCircle,
   Mail,
-  Users2,Calendar, ChevronLeft, ChevronRight
+  Users2,Calendar, ChevronLeft, ChevronRight, Check, X
 } from "lucide-react";
 import {
   Table,
@@ -44,6 +44,7 @@ import type {
   ModalState,
   Event,
   UpcomingEvent,
+  PendingEvent,
 } from "../types";
 import CalendarView from "./calendar/calendar-view";
 import CalendarSidebar from "./calendar/calendar-sidebar";
@@ -52,6 +53,11 @@ interface AdminTabsProps {
   teams: Team[];
   departments: Department[];
   onSetModal: (modal: ModalState) => void;
+
+  pendingEvents: PendingEvent[];
+  handleAcceptEvent: (event: PendingEvent) => void;
+  handleRejectEvent: (event: PendingEvent) => void;
+  loadingAction: string | null;
 
   calendarView: "month" | "week" | "day";
   currentDate: Date;
@@ -81,6 +87,12 @@ export default function AdminTabs({
   teams,
   departments,
   onSetModal,
+
+   pendingEvents,
+  handleAcceptEvent,
+  handleRejectEvent,
+  loadingAction,
+
   calendarView,
   currentDate,
   events,
@@ -104,11 +116,12 @@ export default function AdminTabs({
 
   return (
     <Tabs defaultValue="users" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="users">Users</TabsTrigger>
         <TabsTrigger value="teams">Teams</TabsTrigger>
         <TabsTrigger value="departments">Departments</TabsTrigger>
         <TabsTrigger value="calendar">Calendar</TabsTrigger>
+        <TabsTrigger value="requests">Event Requests</TabsTrigger>
       </TabsList>
 
       {/* Users Tab */}
@@ -404,6 +417,7 @@ export default function AdminTabs({
           </CardContent>
         </Card>
       </TabsContent>
+
       {/* Calendar Tab */}
       <TabsContent value="calendar" className="space-y-4">
         <div className="grid gap-6 lg:grid-cols-4">
@@ -472,6 +486,79 @@ export default function AdminTabs({
             onEventClick={onSetSelectedEvent}
           />
         </div>
+      </TabsContent>
+
+      {/* --- NEW: Event Requests Tab --- */}
+      <TabsContent value="requests" className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Event Requests</CardTitle>
+            <CardDescription>
+              Review and approve event submissions from teams and departments.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Event Title</TableHead>
+                  <TableHead>Submitted By</TableHead>
+                  <TableHead>Date & Time</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pendingEvents.length > 0 ? (
+                  pendingEvents.map((event) => (
+                    <TableRow key={event.id}>
+                      <TableCell>
+                        <div className="font-medium">{event.title}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {event.description}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={event.submittedByType === 'team' ? 'secondary' : 'outline'}>
+                          {event.submittedBy}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div>{new Date(event.date).toLocaleDateString()}</div>
+                        <div className="text-xs text-muted-foreground">{event.time}</div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mr-2"
+                          onClick={() => handleRejectEvent(event)}
+                          disabled={!!loadingAction}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Reject
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleAcceptEvent(event)}
+                          disabled={!!loadingAction}
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Accept
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                      No pending event requests.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </TabsContent>
     </Tabs>
   );

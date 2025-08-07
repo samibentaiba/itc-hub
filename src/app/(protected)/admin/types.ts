@@ -114,3 +114,9 @@ export interface UpcomingEvent {
   type: string;
   attendees: number;
 }
+
+// --- NEW: For Event Requests ---
+export interface PendingEvent extends Event {
+  submittedBy: string; // e.g., "Frontend Team" or "Engineering Department"
+  submittedByType: 'team' | 'department';
+}

@@ -1,5 +1,5 @@
 // --- /admin/api.ts ---
-import type { User, Team, Department,Event, UpcomingEvent  } from "./types";
+import type { User, Team, Department,Event, UpcomingEvent,PendingEvent  } from "./types";
 import data from "./mock.json";
 
 /**
@@ -38,4 +38,10 @@ export const fetchEvents = async (): Promise<Event[]> => {
 export const fetchUpcomingEvents = async (): Promise<UpcomingEvent[]> => {
   await new Promise(resolve => setTimeout(resolve, 300));
   return data.upcomingEvents as UpcomingEvent[];
+};
+
+// --- NEW: Fetch Pending Events ---
+export const fetchPendingEvents = async (): Promise<PendingEvent[]> => {
+    await new Promise(resolve => setTimeout(resolve, 450));
+    return data.pendingEvents as PendingEvent[];
 };
