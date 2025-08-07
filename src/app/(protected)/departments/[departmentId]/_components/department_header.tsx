@@ -1,0 +1,50 @@
+/**
+ * components/department/DepartmentHeader.tsx
+ *
+ * This component is responsible for rendering the main header section
+ * of the department page, including the title, description, and the
+ * "New Initiative" button with its associated dialog.
+ */
+import { Building2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { NewTicketForm } from "@/components/new-ticket-form"; // Assuming this component exists
+import { Department } from "../../types"; // Adjust path as needed
+
+interface DepartmentHeaderProps {
+  department: Department;
+  showNewTicket: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const DepartmentHeader = ({ department, showNewTicket, onOpenChange }: DepartmentHeaderProps) => (
+  <div className="flex items-center justify-between">
+    {/* Department Title and Description */}
+    <div>
+      <h1 className="text-2xl font-bold flex items-center gap-2">
+        <Building2 className="h-6 w-6 text-red-500" />
+        {department.name}
+      </h1>
+      <p className="text-muted-foreground">{department.description}</p>
+    </div>
+
+    {/* New Initiative Dialog */}
+    <Dialog open={showNewTicket} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <Button className="bg-red-800 text-white hover:bg-red-700">
+          <Plus className="mr-2 h-4 w-4" />
+          New Initiative
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Department Initiative</DialogTitle>
+          <DialogDescription>
+            Create a new long-term initiative for {department.name}
+          </DialogDescription>
+        </DialogHeader>
+        <NewTicketForm />
+      </DialogContent>
+    </Dialog>
+  </div>
+);

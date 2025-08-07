@@ -1,7 +1,10 @@
 // /calendar/global/page.tsx
 
+import Link from "next/link";
 import { fetchGlobalEvents } from "./api";
 import GlobalCalendarClientPage from "./client";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 /**
  * The main server component for the /calendar/global route.
@@ -17,6 +20,16 @@ export default async function GlobalCalendarPage() {
 
   // Pass the server-fetched data as props to the Client Component.
   return (
-    <GlobalCalendarClientPage initialGlobalEvents={initialGlobalEvents} />
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/calendar">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Personal calendar
+          </Button>
+        </Link>
+      </div>
+      <GlobalCalendarClientPage initialGlobalEvents={initialGlobalEvents} />
+    </div>
   );
 }

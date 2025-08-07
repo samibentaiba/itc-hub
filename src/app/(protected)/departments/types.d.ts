@@ -1,27 +1,60 @@
-// Defines the structure for a single department.
-export interface Department {
+/**
+ * types.d.ts
+ *
+ * This file contains all the shared type definitions for the application.
+ * By centralizing types, we ensure consistency across different parts
+ * of the codebase, from API responses to component props.
+ */
+
+// Defines the structure for a department, now including its associated teams.
+export type Department = {
   id: string;
   name: string;
   description: string;
   head: {
     name: string;
     avatar: string;
-    id:string;
+    id: string;
   };
   teamCount: number;
   memberCount: number;
   budget: string;
-  teams: Array<{ name: string; memberCount: number }>;
-  recentActivity: string;
   status: string;
-  color: string;
-}
+  createdAt: string;
+  teams: Team[]; // Added teams to the department type for a more complete data model.
+};
 
-// Defines the structure for a single stat card.
-// The 'icon' property is removed because React components cannot be passed from Server to Client Components.
-export interface DepartmentStat {
+// Defines the structure for a leader within a department.
+export type Leader = {
+  id: string;
+  name: string;
+  role: "super_leader" | "leader";
+  avatar: string;
+  status: "online" | "offline";
+  email: string;
+  joinedDate: string;
+};
+
+// Defines the structure for a team within a department.
+export type Team = {
+  id: string;
+  name: string;
+  memberCount: number;
+  leader: string;
+  status: "active" | "planning" | "archived";
+};
+
+// Defines the structure for a ticket or initiative.
+export type Ticket = {
+  id: string;
   title: string;
-  value: string;
-  description: string;
-  trend: string;
-}
+  type: "meeting" | "task" | "event";
+  status: "in_progress" | "pending" | "scheduled";
+  assignee: string | null;
+  duration: string;
+  messages: number;
+  lastActivity: string;
+  collaborative: boolean;
+  calendarDate: Date;
+  collaborators: string[];
+};

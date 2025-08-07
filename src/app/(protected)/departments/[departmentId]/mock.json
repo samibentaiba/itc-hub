@@ -1,47 +1,58 @@
- [
-    {
-      "id": "dept-1",
-      "name": "Engineering",
-      "description": "Software development and technical infrastructure",
-      "head": {
-        "name": "Sami Al-Rashid",
-        "avatar": "/placeholder.svg?height=32&width=32",
-        "id": "sami"
-      },
-      "teamCount": 3,
-      "memberCount": 18,
-      "budget": "$2,400,000",
-      "status": "active",
-      "createdAt": "2023-01-15"
+[
+  {
+    "id": "dept-1",
+    "name": "Engineering",
+    "description": "Software development and technical infrastructure",
+    "head": {
+      "name": "Sami Al-Rashid",
+      "avatar": "/placeholder.svg?height=32&width=32",
+      "id": "sami"
     },
-    {
-      "id": "dept-2",
-      "name": "Design",
-      "description": "User experience and visual design",
-      "head": {
-        "name": "Yasmine Hassan",
-        "avatar": "/placeholder.svg?height=32&width=32",
-        "id": "yasmine"
-      },
-      "teamCount": 1,
-      "memberCount": 5,
-      "budget": "$800,000",
-      "status": "active",
-      "createdAt": "2023-01-15"
+    "teamCount": 3,
+    "memberCount": 18,
+    "budget": "$2,400,000",
+    "status": "active",
+    "createdAt": "2023-01-15",
+    "teams": [
+      { "id": "team-1", "name": "Frontend Team", "memberCount": 5, "leader": "Ali", "status": "active" },
+      { "id": "team-2", "name": "Backend Team", "memberCount": 4, "leader": "Omar", "status": "active" },
+      { "id": "team-3", "name": "Mobile Team", "memberCount": 3, "leader": "Layla", "status": "planning" }
+    ]
+  },
+  {
+    "id": "dept-2",
+    "name": "Design",
+    "description": "User experience and visual design",
+    "head": {
+      "name": "Yasmine Hassan",
+      "avatar": "/placeholder.svg?height=32&width=32",
+      "id": "yasmine"
     },
-    {
-      "id": "dept-3",
-      "name": "Product",
-      "description": "Product strategy and management",
-      "head": {
-        "name": "Fatima Al-Zahra",
-        "avatar": "/placeholder.svg?height=32&width=32",
-        "id": "fatima"
-      },
-      "teamCount": 1,
-      "memberCount": 4,
-      "budget": "$600,000",
-      "status": "active",
-      "createdAt": "2023-01-15"
-    }
-  ]
+    "teamCount": 1,
+    "memberCount": 5,
+    "budget": "$800,000",
+    "status": "active",
+    "createdAt": "2023-01-15",
+    "teams": [
+      { "id": "team-4", "name": "UX Research", "memberCount": 3, "leader": "Nora", "status": "active" }
+    ]
+  },
+  {
+    "id": "dept-3",
+    "name": "Product",
+    "description": "Product strategy and management",
+    "head": {
+      "name": "Fatima Al-Zahra",
+      "avatar": "/placeholder.svg?height=32&width=32",
+      "id": "fatima"
+    },
+    "teamCount": 1,
+    "memberCount": 4,
+    "budget": "$600,000",
+    "status": "active",
+    "createdAt": "2023-01-15",
+    "teams": [
+       { "id": "team-5", "name": "Product Growth", "memberCount": 2, "leader": "Khalid", "status": "active" }
+    ]
+  }
+]

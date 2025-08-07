@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,12 +15,37 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 
-export function NewTicketForm() {
+// Define interfaces for the component's props
+interface Workspace {
+  id: string;
+  name: string;
+  type: 'team' | 'department';
+}
+
+interface User {
+  id: string;
+  name: string;
+  role: string;
+}
+
+interface NewTicketFormProps {
+  contextType: 'department' | 'team';
+  contextId: string;
+  availableWorkspaces: Workspace[];
+  availableUsers: User[];
+}
+
+export function NewTicketForm({
+  contextType,
+  contextId,
+  availableWorkspaces,
+  availableUsers,
+}: NewTicketFormProps) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     type: "",
-    workspace: "",
+    workspace: contextType === 'team' ? contextId : "",
     assignee: "",
     dueDate: undefined as Date | undefined,
     priority: "medium",
@@ -30,25 +54,17 @@ export function NewTicketForm() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
+  const isRequest = formData.type === "meeting" || formData.type === "event"
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Title is required"
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required"
-    }
-    if (!formData.type) {
-      newErrors.type = "Type is required"
-    }
-    if (!formData.workspace) {
-      newErrors.workspace = "Workspace is required"
-    }
-    if (!formData.dueDate) {
-      newErrors.dueDate = "Due date is required"
-    }
-
+    if (!formData.title.trim()) newErrors.title = "Title is required"
+    if (!formData.description.trim()) newErrors.description = "Description is required"
+    if (!formData.type) newErrors.type = "Type is required"
+    if (!formData.workspace) newErrors.workspace = "Workspace is required"
+    if (!formData.dueDate) newErrors.dueDate = "Due date is required"
+    
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -68,50 +84,57 @@ export function NewTicketForm() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // Create ticket object
-      const newTicket = {
-        id: `ticket-${Date.now()}`,
+      const newItem = {
+        id: `${isRequest ? 'request' : 'ticket'}-${Date.now()}`,
         ...formData,
-        status: "pending",
+        status: isRequest ? "pending_approval" : "pending",
         createdAt: new Date().toISOString(),
-        createdBy: "current-user",
+        createdBy: "current-user", // This should be replaced with actual user data
         messages: 0,
+        context: {
+            type: contextType,
+            id: contextId
+        }
       }
 
-      // Save to localStorage for demo purposes
-      const existingTickets = JSON.parse(localStorage.getItem("tickets") || "[]")
-      existingTickets.push(newTicket)
-      localStorage.setItem("tickets", JSON.stringify(existingTickets))
+      const storageKey = isRequest ? "requests" : "tickets"
+      const existingItems = JSON.parse(localStorage.getItem(storageKey) || "[]")
+      existingItems.push(newItem)
+      localStorage.setItem(storageKey, JSON.stringify(existingItems))
 
-      toast({
-        title: "Ticket created successfully!",
-        description: `"${formData.title}" has been created and assigned to ${formData.assignee || "unassigned"}.`,
-      })
+      if (isRequest) {
+        toast({
+          title: "Request Sent Successfully!",
+          description: `Your request for the ${formData.type} "${formData.title}" has been sent for admin approval.`,
+        })
+      } else {
+        toast({
+          title: "Ticket Created Successfully!",
+          description: `"${formData.title}" has been created and assigned to ${formData.assignee || "unassigned"}.`,
+        })
+      }
 
-      // Reset form
       setFormData({
         title: "",
         description: "",
         type: "",
-        workspace: "",
+        workspace: contextType === 'team' ? contextId : "",
         assignee: "",
         dueDate: undefined,
         priority: "medium",
       })
       setErrors({})
 
-      // Close dialog after successful creation
       setTimeout(() => {
         const closeButton = document.querySelector("[data-dialog-close]") as HTMLButtonElement
         closeButton?.click()
       }, 1000)
     } catch {
       toast({
-        title: "Creation Failed",
-        description: "Failed to create ticket. Please try again.",
+        title: isRequest ? "Request Failed" : "Creation Failed",
+        description: `Failed to ${isRequest ? "send request" : "create ticket"}. Please try again.`,
         variant: "destructive",
       })
     } finally {
@@ -121,14 +144,14 @@ export function NewTicketForm() {
 
   const handleReset = () => {
     setFormData({
-      title: "",
-      description: "",
-      type: "",
-      workspace: "",
-      assignee: "",
-      dueDate: undefined,
-      priority: "medium",
-    })
+        title: "",
+        description: "",
+        type: "",
+        workspace: contextType === 'team' ? contextId : "",
+        assignee: "",
+        dueDate: undefined,
+        priority: "medium",
+      })
     setErrors({})
   }
 
@@ -140,7 +163,7 @@ export function NewTicketForm() {
         </Label>
         <Input
           id="title"
-          placeholder="Enter ticket title..."
+          placeholder="Enter title..."
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           className={cn("text-sm", errors.title && "border-red-500")}
@@ -215,17 +238,17 @@ export function NewTicketForm() {
         <Select
           value={formData.workspace}
           onValueChange={(value) => setFormData({ ...formData, workspace: value })}
-          disabled={isLoading}
+          disabled={isLoading || contextType === 'team'}
         >
           <SelectTrigger className={cn("text-sm", errors.workspace && "border-red-500")}>
-            <SelectValue placeholder="Select workspace" />
+            <SelectValue placeholder={contextType === 'team' ? "Not applicable for teams" : "Select workspace"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="team-1">👥 Frontend Team</SelectItem>
-            <SelectItem value="team-2">👥 Backend Team</SelectItem>
-            <SelectItem value="team-3">👥 Mobile Team</SelectItem>
-            <SelectItem value="dept-1">🏢 Development Department</SelectItem>
-            <SelectItem value="dept-2">🏢 Design Department</SelectItem>
+            {availableWorkspaces.map(ws => (
+                <SelectItem key={ws.id} value={ws.id}>
+                    {ws.type === 'team' ? '👥' : '🏢'} {ws.name}
+                </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {errors.workspace && <p className="text-xs text-red-500">{errors.workspace}</p>}
@@ -244,11 +267,11 @@ export function NewTicketForm() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="unassigned">Unassigned</SelectItem>
-              <SelectItem value="u1">👤 Sami (Admin)</SelectItem>
-              <SelectItem value="u2">👤 Ali (Developer)</SelectItem>
-              <SelectItem value="u3">👤 Sara (Designer)</SelectItem>
-              <SelectItem value="u4">👤 Yasmine (Leader)</SelectItem>
-              <SelectItem value="u5">👤 Omar (Backend)</SelectItem>
+              {availableUsers.map(user => (
+                  <SelectItem key={user.id} value={user.id}>
+                      👤 {user.name} ({user.role})
+                  </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -277,7 +300,7 @@ export function NewTicketForm() {
                 mode="single"
                 selected={formData.dueDate}
                 onSelect={(date) => setFormData({ ...formData, dueDate: date })}
-                disabled={(date) => date < new Date()}
+                disabled={(date) => date < new Date() || (date === null)}
                 initialFocus
               />
             </PopoverContent>
@@ -322,10 +345,10 @@ export function NewTicketForm() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
+              {isRequest ? "Sending Request..." : "Creating Ticket..."}
             </>
           ) : (
-            "Create Ticket"
+            isRequest ? "Send Request" : "Create Ticket"
           )}
         </Button>
       </div>

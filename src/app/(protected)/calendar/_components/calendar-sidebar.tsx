@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Filter, Users } from "lucide-react";
+import { Plus, Filter, Users, Calendar } from "lucide-react";
 import type { Event, UpcomingEvent } from "../types";
+import Link from "next/link";
 
 interface CalendarSidebarProps {
   upcomingEvents: UpcomingEvent[];
@@ -24,10 +25,14 @@ export default function CalendarSidebar({ upcomingEvents, allEvents, filterType,
       <Card>
         <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Event
+          
+          <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+            <Link href="/calendar/global">
+              <Calendar className="h-4 w-4 mr-2" />
+              Global Calendar
+            </Link>
           </Button>
+          
           <Select value={filterType} onValueChange={onFilterChange}>
             <SelectTrigger className="w-full justify-start bg-transparent">
               <Filter className="h-4 w-4 mr-2" />

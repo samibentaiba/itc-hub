@@ -57,7 +57,7 @@ export default function CalendarClientPage({ initialEvents, initialUpcomingEvent
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">Calendar</h1>
-            <p className="text-muted-foreground">Manage your schedule and events.</p>
+            <p className="text-muted-foreground">View your Personal ITC-hub calendar</p>
           </div>
           <div className="flex items-center gap-2">
             <Select value={view} onValueChange={(value) => setView(value as "month" | "week" | "day")}>

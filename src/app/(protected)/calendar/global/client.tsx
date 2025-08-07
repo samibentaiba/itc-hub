@@ -10,7 +10,6 @@ import { useGlobalCalendarPage } from "./hook";
 import type { GlobalEvent } from "./types";
 import GlobalCalendarView from "./_components/global-calendar-view";
 import GlobalCalendarSidebar from "./_components/global-calendar-sidebar";
-import CreateEventDialog from "./_components/create-event-dialog";
 import EventDetailsDialog from "./_components/event-details-dialog";
 
 interface GlobalCalendarClientPageProps {
@@ -104,14 +103,6 @@ export default function GlobalCalendarClientPage({ initialGlobalEvents }: Global
           />
         </div>
       </div>
-
-      {/* Dialogs */}
-      <CreateEventDialog
-        isOpen={showNewEvent}
-        onClose={() => setShowNewEvent(false)}
-        onSubmit={handleAddEvent}
-        isLoading={loadingAction === 'add-event'}
-      />
       <EventDetailsDialog
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}

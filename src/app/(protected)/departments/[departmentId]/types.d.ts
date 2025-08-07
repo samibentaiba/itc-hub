@@ -1,3 +1,12 @@
+/**
+ * types.d.ts
+ *
+ * This file contains all the shared type definitions for the application.
+ * By centralizing types, we ensure consistency across different parts
+ * of the codebase, from API responses to component props.
+ */
+
+// Defines the structure for a department, now including its associated teams.
 export type Department = {
   id: string;
   name: string;
@@ -12,8 +21,10 @@ export type Department = {
   budget: string;
   status: string;
   createdAt: string;
+  teams: Team[]; // Added teams to the department type for a more complete data model.
 };
 
+// Defines the structure for a leader within a department.
 export type Leader = {
   id: string;
   name: string;
@@ -24,6 +35,7 @@ export type Leader = {
   joinedDate: string;
 };
 
+// Defines the structure for a team within a department.
 export type Team = {
   id: string;
   name: string;
@@ -32,6 +44,7 @@ export type Team = {
   status: "active" | "planning" | "archived";
 };
 
+// Defines the structure for a ticket or initiative.
 export type Ticket = {
   id: string;
   title: string;
