@@ -1,4 +1,3 @@
-// --- /calendar/global/utils.ts ---
 import { format } from "date-fns";
 
 export const formatDate = (date: Date, view: "month" | "week" | "day"): string => {

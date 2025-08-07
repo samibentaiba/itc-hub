@@ -1,0 +1,81 @@
+{
+  "sami": {
+    "id": "sami",
+    "name": "Sami Al-Rashid",
+    "email": "sami@itchub.com",
+    "avatar": "https://placehold.co/128x128/E9D5FF/4C1D95?text=SR",
+    "title": "Senior Full Stack Developer",
+    "department": "Engineering",
+    "location": "Dubai, UAE",
+    "joinDate": "2022-03-15",
+    "bio": "Passionate full-stack developer with 8+ years of experience building scalable web applications. I love mentoring junior developers and contributing to open source projects that push the boundaries of technology.",
+    "stats": {
+      "projectsCompleted": 47,
+      "teamsLed": 3,
+      "mentorshipHours": 120,
+      "contributions": 234
+    },
+    "skills": [
+      { "name": "React & Next.js", "level": 95 },
+      { "name": "Node.js & Express", "level": 90 },
+      { "name": "TypeScript", "level": 88 },
+      { "name": "Python & Django", "level": 85 },
+      { "name": "AWS (EC2, S3, Lambda)", "level": 80 },
+      { "name": "Docker & Kubernetes", "level": 75 }
+    ],
+    "socialLinks": {
+      "github": "https://github.com/sami",
+      "linkedin": "https://linkedin.com/in/sami",
+      "twitter": "https://twitter.com/sami"
+    },
+    "currentProjects": [
+      { "id": 1, "name": "ITC Hub Platform V2", "role": "Lead Developer", "progress": 85, "priority": "High", "team": "Core Engineering" },
+      { "id": 2, "name": "Mobile App Development", "role": "Technical Advisor", "progress": 60, "priority": "Medium", "team": "Mobile Team" }
+    ],
+    "achievements": [
+      { "id": 1, "title": "Innovation Award 2023", "description": "For outstanding contribution to the new platform architecture.", "date": "2023-12-01", "category": "Innovation" },
+      { "id": 2, "title": "Mentor of the Year", "description": "Recognized for exceptional mentorship and knowledge sharing.", "date": "2023-06-15", "category": "Leadership" },
+      { "id": 3, "title": "Technical Excellence", "description": "Delivered 5 major projects with zero critical bugs post-launch.", "date": "2023-03-20", "category": "Technical" }
+    ],
+    "teams": [
+      { "id": 1, "name": "Core Engineering", "role": "Team Lead", "members": 8, "isLead": true },
+      { "id": 2, "name": "Architecture Committee", "role": "Senior Member", "members": 5, "isLead": false }
+    ],
+    "departments": [
+      { "id": 1, "name": "Engineering", "role": "Senior Developer", "isLead": false }
+    ]
+  },
+  "yasmine": {
+    "id": "yasmine",
+    "name": "Yasmine Hassan",
+    "email": "yasmine@itchub.com",
+    "avatar": "https://placehold.co/128x128/FBCFE8/86198F?text=YH",
+    "title": "UX/UI Designer",
+    "department": "Design",
+    "location": "Cairo, Egypt",
+    "joinDate": "2021-08-20",
+    "bio": "Creative UX/UI designer focused on creating intuitive and beautiful user experiences. Passionate about accessibility and inclusive design principles.",
+    "stats": { "projectsCompleted": 32, "teamsLed": 2, "mentorshipHours": 85, "contributions": 156 },
+    "skills": [
+        { "name": "Figma", "level": 98 },
+        { "name": "Adobe XD", "level": 92 },
+        { "name": "User Research", "level": 88 },
+        { "name": "Prototyping & Wireframing", "level": 90 },
+        { "name": "HTML/CSS", "level": 75 },
+        { "name": "Design Systems", "level": 85 }
+    ],
+    "socialLinks": { "linkedin": "https://linkedin.com/in/yasmine", "twitter": "https://twitter.com/yasmine" },
+    "currentProjects": [
+      { "id": 1, "name": "Design System Overhaul", "role": "Lead Designer", "progress": 70, "priority": "High", "team": "Design Team" }
+    ],
+    "achievements": [
+      { "id": 1, "title": "Design Excellence Award", "description": "For outstanding user experience design on the customer portal.", "date": "2023-09-15", "category": "Design" }
+    ],
+    "teams": [
+      { "id": 3, "name": "Design Team", "role": "Senior Designer", "members": 6, "isLead": false }
+    ],
+    "departments": [
+      { "id": 2, "name": "Design", "role": "Senior Designer", "isLead": false }
+    ]
+  }
+}

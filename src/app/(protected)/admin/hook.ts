@@ -1,355 +1,234 @@
-"use client"
+// /admin/hook.ts
+"use client";
 
-import { useState } from "react"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import type { User, Team, Department, Member, UserFormData, TeamFormData, DepartmentFormData, LoadingAction } from "./types";
 
-// Define types for our data for better type-safety
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  status: "verified" | "pending"
-  joinedDate: string
-  avatar: string
-  teams: string[]
-  departments: string[]
-}
+/**
+ * A custom hook to manage all state and logic for the Admin Page.
+ * This includes data state, loading states, and all action handlers.
+ * @param initialUsers - Server-fetched initial users.
+ * @param initialTeams - Server-fetched initial teams.
+ * @param initialDepartments - Server-fetched initial departments.
+ */
+export const useAdminPage = (
+  initialUsers: User[],
+  initialTeams: Team[],
+  initialDepartments: Department[]
+) => {
+  const { toast } = useToast();
+  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [teams, setTeams] = useState<Team[]>(initialTeams);
+  const [departments, setDepartments] = useState<Department[]>(initialDepartments);
+  const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
 
-export interface Team {
-  id: string
-  name: string
-  description: string
-  leader: string
-  members: string[]
-  department: string
-  createdDate: string
-  status: "active" | "planning"
-}
+  // --- SIMULATED API DELAY ---
+  const simulateApi = (duration = 1000) => new Promise(res => setTimeout(res, duration));
 
-export interface Department {
-  id: string
-  name: string
-  description: string
-  superLeader: string
-  leaders: string[]
-  teams: string[]
-  createdDate: string
-  status: "active"
-}
-
-export const useAdminPage = () => {
-  const { toast } = useToast()
-  const [showAddUser, setShowAddUser] = useState(false)
-  const [showAddTeam, setShowAddTeam] = useState(false)
-  const [showAddDepartment, setShowAddDepartment] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingAction, setLoadingAction] = useState<string | null>(null)
-
-  // Mock data for admin panel
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "u1",
-      name: "Sami",
-      email: "sami@itc.com",
-      role: "admin",
-      status: "verified",
-      joinedDate: "2024-01-01",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["Development"],
-    },
-    {
-      id: "u2",
-      name: "Yasmine",
-      email: "yasmine@itc.com",
-      role: "super_leader",
-      status: "verified",
-      joinedDate: "2024-01-15",
-      avatar: "/placeholder.svg?height=32&width=32",
-      teams: ["Frontend Team"],
-      departments: ["Development", "Design"],
-    },
-  ])
-
-  const [teams, setTeams] = useState<Team[]>([
-    {
-      id: "team-1",
-      name: "Frontend Team",
-      description: "UI/UX development team",
-      leader: "Yasmine",
-      members: ["Sami", "Ali", "Sara"],
-      department: "Development",
-      createdDate: "2024-01-01",
-      status: "active",
-    },
-  ])
-
-  const [departments, setDepartments] = useState<Department[]>([
-    {
-      id: "dept-1",
-      name: "Development",
-      description: "Software development and engineering",
-      superLeader: "Sami",
-      leaders: ["Yasmine", "Omar"],
-      teams: ["Frontend Team", "Backend Team", "Mobile Team"],
-      createdDate: "2024-01-01",
-      status: "active",
-    },
-  ])
-
-  // All handler functions are now here
-  const handleAddUser = async (formData: {
-    name: string
-    email: string
-    role: string
-  }) => {
-    setIsLoading(true)
-    setLoadingAction("add-user")
+  // --- USER HANDLERS ---
+  const handleSaveUser = async (data: UserFormData & { id?: string }) => {
+    const actionId = data.id ? `edit-${data.id}` : 'add-user';
+    setLoadingAction(actionId);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      const newUser: User = {
-        id: `u${users.length + 1}`,
-        ...formData,
-        status: "pending",
-        joinedDate: new Date().toISOString().split("T")[0],
-        avatar: "/placeholder.svg?height=32&width=32",
-        teams: [],
-        departments: [],
+      await simulateApi();
+      if (data.id) { // Edit existing user
+        setUsers(prev => prev.map(u => u.id === data.id ? { ...u, ...data } : u));
+        toast({ title: "User Updated", description: `${data.name}'s details have been saved.` });
+      } else { // Add new user
+        const newUser: User = {
+          id: `u${Date.now()}`,
+          ...data,
+          status: "pending",
+          joinedDate: new Date().toISOString().split("T")[0],
+          avatar: `https://i.pravatar.cc/150?u=${Date.now()}`,
+        };
+        setUsers(prev => [...prev, newUser]);
+        toast({ title: "User Added", description: `${data.name} can now be managed.` });
       }
-      setUsers([...users, newUser])
-      toast({
-        title: "User added successfully!",
-        description: `${formData.name} will receive a verification email.`,
-      })
-      setShowAddUser(false)
     } catch {
-      toast({ title: "Error", description: "Failed to add user.", variant: "destructive" })
+      toast({ title: "Error", description: "Could not save user details.", variant: "destructive" });
     } finally {
-      setIsLoading(false)
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
-
-  const handleVerifyUser = async (userId: string) => {
-    setLoadingAction(`verify-${userId}`)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setUsers(users.map((user) => (user.id === userId ? { ...user, status: "verified" } : user)))
-      const user = users.find((u) => u.id === userId)
-      toast({ title: "User verified", description: `${user?.name} can now access the platform.` })
-    } catch {
-      toast({ title: "Verification Failed", description: "Failed to verify user.", variant: "destructive" })
-    } finally {
-      setLoadingAction(null)
-    }
-  }
+  };
 
   const handleDeleteUser = async (userId: string) => {
-    const user = users.find((u) => u.id === userId)
-    if (!window.confirm(`Are you sure you want to delete ${user?.name}?`)) return
-    setLoadingAction(`delete-${userId}`)
+    setLoadingAction(`delete-${userId}`);
+    // Optimistic update: remove user from UI immediately
+    const originalUsers = users;
+    setUsers(prev => prev.filter(u => u.id !== userId));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setUsers(users.filter((user) => user.id !== userId))
-      toast({ title: "User deleted", description: `${user?.name} has been removed.` })
+      await simulateApi();
+      toast({ title: "User Deleted" });
     } catch {
-      toast({ title: "Deletion Failed", description: "Failed to delete user.", variant: "destructive" })
+      toast({ title: "Error Deleting User", variant: "destructive" });
+      setUsers(originalUsers); // Rollback on error
     } finally {
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
+  };
 
-  const handleSendEmail = async (userId: string) => {
-    setLoadingAction(`email-${userId}`)
+  const handleVerifyUser = async (userId: string) => {
+    setLoadingAction(`verify-${userId}`);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      const user = users.find((u) => u.id === userId)
-      toast({ title: "Email sent", description: `Email has been sent to ${user?.email}` })
+      await simulateApi(500);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'verified' } : u));
+      toast({ title: "User Verified" });
     } catch {
-      toast({ title: "Email Failed", description: "Failed to send email.", variant: "destructive" })
+      toast({ title: "Error Verifying User", variant: "destructive" });
     } finally {
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
+  };
 
-  const handleAddTeam = async (formData: {
-    name: string
-    description: string
-    department: string
-    leader: string
-  }) => {
-    setIsLoading(true)
-    setLoadingAction("add-team")
+  // --- TEAM HANDLERS ---
+  const handleSaveTeam = async (data: TeamFormData & { id?: string }) => {
+    const actionId = data.id ? `edit-${data.id}` : 'add-team';
+    setLoadingAction(actionId);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      const newTeam: Team = {
-        id: `team-${teams.length + 1}`,
-        ...formData,
-        members: [],
-        createdDate: new Date().toISOString().split("T")[0],
-        status: "active",
+      await simulateApi();
+      if (data.id) { // Edit
+        setTeams(prev => prev.map(t => t.id === data.id ? { ...t, ...data } : t));
+        toast({ title: "Team Updated" });
+      } else { // Add
+        const newTeam: Team = {
+          id: `t${Date.now()}`,
+          ...data,
+          description: data.description || "",
+          members: [],
+          createdDate: new Date().toISOString().split("T")[0],
+          status: "active",
+        };
+        setTeams(prev => [...prev, newTeam]);
+        toast({ title: "Team Created" });
       }
-      setTeams([...teams, newTeam])
-      toast({ title: "Team created!", description: `${formData.name} has been created.` })
-      setShowAddTeam(false)
     } catch {
-      toast({ title: "Error", description: "Failed to create team.", variant: "destructive" })
+      toast({ title: "Error Saving Team", variant: "destructive" });
     } finally {
-      setIsLoading(false)
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
+  };
 
   const handleDeleteTeam = async (teamId: string) => {
-    const team = teams.find((t) => t.id === teamId)
-    if (!window.confirm(`Are you sure you want to delete ${team?.name}?`)) return
-    setLoadingAction(`delete-team-${teamId}`)
+    setLoadingAction(`delete-${teamId}`);
+    const originalTeams = teams;
+    setTeams(prev => prev.filter(t => t.id !== teamId));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setTeams(teams.filter((team) => team.id !== teamId))
-      toast({ title: "Team deleted", description: `${team?.name} has been removed.` })
+      await simulateApi();
+      toast({ title: "Team Deleted" });
     } catch {
-      toast({ title: "Deletion Failed", description: "Failed to delete team.", variant: "destructive" })
+      toast({ title: "Error Deleting Team", variant: "destructive" });
+      setTeams(originalTeams);
     } finally {
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
+  };
 
-  const handleAddDepartment = async (formData: {
-    name: string
-    description: string
-    head: string
-  }) => {
-    setIsLoading(true)
-    setLoadingAction("add-department")
+  // --- DEPARTMENT HANDLERS ---
+  const handleSaveDepartment = async (data: DepartmentFormData & { id?: string }) => {
+    const actionId = data.id ? `edit-${data.id}` : 'add-department';
+    setLoadingAction(actionId);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      const newDepartment: Department = {
-        id: `dept-${departments.length + 1}`,
-        name: formData.name,
-        description: formData.description,
-        superLeader: formData.head,
-        leaders: [],
-        teams: [],
-        createdDate: new Date().toISOString().split("T")[0],
-        status: "active",
+      await simulateApi();
+      if (data.id) { // Edit
+        setDepartments(prev => prev.map(d => d.id === data.id ? { ...d, ...data } : d));
+        toast({ title: "Department Updated" });
+      } else { // Add
+        const newDept: Department = {
+          id: `d${Date.now()}`,
+          name: data.name,
+          description: data.description || "",
+          members: [],
+          teams: [],
+          createdDate: new Date().toISOString().split("T")[0],
+          status: "active",
+        };
+        setDepartments(prev => [...prev, newDept]);
+        toast({ title: "Department Created" });
       }
-      setDepartments([...departments, newDepartment])
-      toast({ title: "Department created!", description: `${formData.name} has been created.` })
-      setShowAddDepartment(false)
     } catch {
-      toast({ title: "Error", description: "Failed to create department.", variant: "destructive" })
+      toast({ title: "Error Saving Department", variant: "destructive" });
     } finally {
-      setIsLoading(false)
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
+  };
 
   const handleDeleteDepartment = async (deptId: string) => {
-    const dept = departments.find((d) => d.id === deptId)
-    if (!window.confirm(`Are you sure you want to delete ${dept?.name}?`)) return
-    setLoadingAction(`delete-dept-${deptId}`)
+    setLoadingAction(`delete-${deptId}`);
+    const originalDepts = departments;
+    setDepartments(prev => prev.filter(d => d.id !== deptId));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setDepartments(departments.filter((dept) => dept.id !== deptId))
-      toast({ title: "Department deleted", description: `${dept?.name} has been removed.` })
+      await simulateApi();
+      // Also remove teams within that department
+      setTeams(prev => prev.filter(t => t.departmentId !== deptId));
+      toast({ title: "Department Deleted" });
     } catch {
-      toast({ title: "Deletion Failed", description: "Failed to delete department.", variant: "destructive" })
+      toast({ title: "Error Deleting Department", variant: "destructive" });
+      setDepartments(originalDepts);
     } finally {
-      setLoadingAction(null)
+      setLoadingAction(null);
     }
-  }
+  };
 
-  const handleChangeUserRole = async (userId: string, newRole: string) => {
-    setLoadingAction(`role-${userId}`)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setUsers(users.map((user) => (user.id === userId ? { ...user, role: newRole } : user)))
-      const user = users.find((u) => u.id === userId)
-      toast({ title: "Role updated", description: `${user?.name}'s role is now ${newRole}.` })
-    } catch {
-      toast({ title: "Role Update Failed", description: "Failed to update role.", variant: "destructive" })
-    } finally {
-      setLoadingAction(null)
-    }
-  }
+  // --- MEMBER MANAGEMENT ---
+  const updateEntityMembers = (
+    entityId: string,
+    entityType: 'team' | 'department',
+    updateFn: (members: Member[]) => Member[]
+  ) => {
+    const stateSetter = entityType === 'team' ? setTeams : setDepartments;
+    stateSetter((prev: any) =>
+      prev.map((entity: any) =>
+        entity.id === entityId
+          ? { ...entity, members: updateFn(entity.members) }
+          : entity
+      )
+    );
+  };
 
-  const handleExportData = async () => {
-    setLoadingAction("export")
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      const exportData = { users, teams, departments, exportDate: new Date().toISOString() }
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `admin-data-export-${new Date().toISOString().split("T")[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      toast({ title: "Data exported", description: "Admin data has been exported." })
-    } catch {
-      toast({ title: "Export Failed", description: "Failed to export data.", variant: "destructive" })
-    } finally {
-      setLoadingAction(null)
-    }
-  }
+  const handleAddMember = (entityId: string, entityType: 'team' | 'department', userId: string, role: Member['role']) => {
+    updateEntityMembers(entityId, entityType, (members) => [...members, { userId, role }]);
+    toast({ title: "Member Added" });
+  };
+  
+  const handleRemoveMember = (entityId: string, entityType: 'team' | 'department', userId: string) => {
+    updateEntityMembers(entityId, entityType, (members) => members.filter((m) => m.userId !== userId));
+    toast({ title: "Member Removed" });
+  };
+
+  const handleChangeMemberRole = (entityId: string, entityType: 'team' | 'department', userId: string, newRole: Member['role']) => {
+    updateEntityMembers(entityId, entityType, (members) => members.map((m) => m.userId === userId ? { ...m, role: newRole } : m));
+    toast({ title: "Member Role Updated" });
+  };
 
   const handleRefreshData = async () => {
-    setLoadingAction("refresh")
+    setLoadingAction('refresh');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      toast({ title: "Data refreshed", description: "All data has been updated." })
+        await simulateApi(1500);
+        // In a real app, you would re-fetch from the API here.
+        // For this mock, we can just show a toast.
+        toast({ title: "Data Refreshed", description: "Latest data has been loaded." });
     } catch {
-      toast({ title: "Refresh Failed", description: "Failed to refresh data.", variant: "destructive" })
+        toast({ title: "Error", description: "Could not refresh data.", variant: "destructive" });
     } finally {
-      setLoadingAction(null)
+        setLoadingAction(null);
     }
-  }
+  };
 
-  // Helper functions
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "admin":
-      case "super_leader":
-        return "destructive"
-      case "leader":
-        return "default"
-      default:
-        return "secondary"
-    }
-  }
-
-  const getStatusBadgeVariant = (status: string) => {
-    return status === "verified" ? "default" : "secondary"
-  }
+  const handleExportData = async () => {
+      setLoadingAction('export');
+      await simulateApi(1200);
+      toast({ title: "Export Started", description: "Your data export will be available shortly." });
+      setLoadingAction(null);
+  };
 
   return {
-    users,
-    teams,
-    departments,
-    showAddUser,
-    setShowAddUser,
-    showAddTeam,
-    setShowAddTeam,
-    showAddDepartment,
-    setShowAddDepartment,
-    isLoading,
-    loadingAction,
-    handleAddUser,
-    handleVerifyUser,
-    handleDeleteUser,
-    handleSendEmail,
-    handleAddTeam,
-    handleDeleteTeam,
-    handleAddDepartment,
-    handleDeleteDepartment,
-    handleChangeUserRole,
-    handleExportData,
-    handleRefreshData,
-    getRoleBadgeVariant,
-    getStatusBadgeVariant,
-  }
-}
+    users, teams, departments, loadingAction,
+    handleSaveUser, handleDeleteUser, handleVerifyUser,
+    handleSaveTeam, handleDeleteTeam,
+    handleSaveDepartment, handleDeleteDepartment,
+    handleAddMember, handleRemoveMember, handleChangeMemberRole,
+    handleRefreshData, handleExportData
+  };
+};
