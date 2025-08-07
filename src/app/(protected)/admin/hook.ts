@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { User, Team, Department, Member, ModalState, LoadingAction, Event, UpcomingEvent, EventFormData, UserFormData, TeamFormData, DepartmentFormData,PendingEvent } from "./types";
+import type { User, Team, Department, Member, ModalState, LoadingAction, Event, UpcomingEvent, EventFormData, UserFormData, TeamFormData, DepartmentFormData, PendingEvent } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
 /**
@@ -46,6 +46,57 @@ export const useAdminPage = (
 
   // --- SIMULATED API DELAY ---
   const simulateApi = (duration = 1000) => new Promise((res) => setTimeout(res, duration));
+
+  // --- EVENT REQUEST HANDLERS ---
+  const handleAcceptEvent = async (eventToAccept: PendingEvent) => {
+    setLoadingAction(`accept-${eventToAccept.id}`);
+    try {
+      await simulateApi(700);
+
+      // FIX: Correctly handle the date string to avoid timezone shifts.
+      // The date string "YYYY-MM-DD" is treated as UTC. Appending time forces local interpretation.
+      const localDate = new Date(`${eventToAccept.date}T00:00:00`);
+      
+      // Create a new event object with the original properties but a corrected date string.
+      const acceptedEvent: Event = {
+        ...eventToAccept,
+        date: formatDateString(localDate), // Use the reliable util to format it back
+      };
+
+      // Add the corrected event to the main calendar
+      setAllEvents(prev => [...prev, acceptedEvent]);
+      
+      // Remove from pending list
+      setPendingEvents(prev => prev.filter(e => e.id !== eventToAccept.id));
+      
+      toast({
+        title: "Event Approved",
+        description: `"${eventToAccept.title}" has been added to the calendar.`,
+      });
+    } catch {
+      toast({ title: "Error", description: "Could not approve the event.", variant: "destructive" });
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleRejectEvent = async (eventToReject: PendingEvent) => {
+    setLoadingAction(`reject-${eventToReject.id}`);
+    try {
+      await simulateApi(700);
+      // Remove from pending list
+      setPendingEvents(prev => prev.filter(e => e.id !== eventToReject.id));
+      toast({
+        title: "Event Rejected",
+        description: `"${eventToReject.title}" has been rejected.`,
+        variant: "destructive",
+      });
+    } catch {
+      toast({ title: "Error", description: "Could not reject the event.", variant: "destructive" });
+    } finally {
+      setLoadingAction(null);
+    }
+  };
 
   // --- Modal State ---
   const [modal, setModal] = useState<ModalState | null>(null);
@@ -381,43 +432,6 @@ export const useAdminPage = (
     return allEvents.filter((event) => event.type === calendarFilterType);
   }, [allEvents, calendarFilterType]);
 
-  // --- EVENT REQUEST HANDLERS ---
-  const handleAcceptEvent = async (eventToAccept: PendingEvent) => {
-    setLoadingAction(`accept-${eventToAccept.id}`);
-    try {
-      await simulateApi(700);
-      // Add to main calendar events
-      setAllEvents(prev => [...prev, eventToAccept]);
-      // Remove from pending list
-      setPendingEvents(prev => prev.filter(e => e.id !== eventToAccept.id));
-      toast({
-        title: "Event Approved",
-        description: `"${eventToAccept.title}" has been added to the calendar.`,
-      });
-    } catch {
-      toast({ title: "Error", description: "Could not approve the event.", variant: "destructive" });
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
-  const handleRejectEvent = async (eventToReject: PendingEvent) => {
-    setLoadingAction(`reject-${eventToReject.id}`);
-    try {
-      await simulateApi(700);
-      // Remove from pending list
-      setPendingEvents(prev => prev.filter(e => e.id !== eventToReject.id));
-      toast({
-        title: "Event Rejected",
-        description: `"${eventToReject.title}" has been rejected.`,
-        variant: "destructive",
-      });
-    } catch {
-      toast({ title: "Error", description: "Could not reject the event.", variant: "destructive" });
-    } finally {
-      setLoadingAction(null);
-    }
-  };
   return {
     users,
     teams,
@@ -435,7 +449,6 @@ export const useAdminPage = (
     handleChangeMemberRole,
     handleRefreshData,
     handleExportData,
-    // Event Handlers
     pendingEvents,
     handleAcceptEvent,
     handleRejectEvent,
