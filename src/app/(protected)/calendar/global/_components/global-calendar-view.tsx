@@ -1,25 +1,23 @@
-// /calendar/components/CalendarView.tsx
+// /calendar/global/_components/global-calendar-view.tsx
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, MapPin } from "lucide-react";
-import type { Event } from "../types";
+import type { GlobalEvent } from "../types";
+import { getDaysInMonth, getFirstDayOfMonth, formatDateString, getEventTypeColor, getEventTypeBadgeVariant } from "../utils";
 
-interface CalendarViewProps {
+interface GlobalCalendarViewProps {
   currentDate: Date;
   view: "month" | "week" | "day";
-  events: Event[];
-  setSelectedEvent: (event: Event | null) => void;
-  handleDayClick: (date: Date) => void;
-  getDaysInMonth: (date: Date) => number;
-  getFirstDayOfMonth: (date: Date) => number;
-  formatDateString: (date: Date) => string;
+  events: GlobalEvent[];
+  onSelectEvent: (event: GlobalEvent) => void;
+  onDayClick: (date: Date) => void;
 }
 
-export default function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayClick, getDaysInMonth, getFirstDayOfMonth, formatDateString }: CalendarViewProps) {
+export default function GlobalCalendarView({ currentDate, view, events, onSelectEvent, onDayClick }: GlobalCalendarViewProps) {
   
   const getEventsForDate = (date: string) => {
-    return events.filter((event) => event.date === date);
+    return events.filter((event) => formatDateString(new Date(event.date)) === date);
   };
 
   const renderMonthView = () => {
@@ -38,10 +36,10 @@ export default function CalendarView({ currentDate, view, events, setSelectedEve
       const isToday = dateString === formatDateString(new Date());
 
       days.push(
-        <div key={day} className={`h-24 border-t border-r border-border/50 p-1.5 space-y-1 overflow-hidden cursor-pointer hover:bg-accent/50 ${isToday ? "bg-primary/10" : ""}`} onClick={() => handleDayClick(date)}>
+        <div key={day} className={`h-24 border-t border-r border-border/50 p-1.5 space-y-1 overflow-hidden cursor-pointer hover:bg-accent/50 ${isToday ? "bg-primary/10" : ""}`} onClick={() => onDayClick(date)}>
           <div className={`text-xs font-medium ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>{day}</div>
           {dayEvents.slice(0, 2).map((event) => (
-            <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate ${event.color}`} title={event.title} onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}>
+            <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate ${getEventTypeColor(event.type)}`} title={event.title} onClick={(e) => { e.stopPropagation(); onSelectEvent(event); }}>
               {event.title}
             </div>
           ))}
@@ -72,25 +70,31 @@ export default function CalendarView({ currentDate, view, events, setSelectedEve
 
     return (
         <div className="grid grid-cols-8 border-t border-l border-b border-border/50">
+            {/* Header row */}
             <div className="h-10 border-r border-border/50 bg-muted/50"></div>
             {weekDays.map(day => (
-                <div key={day.toISOString()} className="h-14 border-r border-border/50 bg-muted/50 flex flex-col items-center justify-center font-medium text-sm cursor-pointer" onClick={() => handleDayClick(day)}>
+                <div key={day.toISOString()} className="h-14 border-r border-border/50 bg-muted/50 flex flex-col items-center justify-center font-medium text-sm cursor-pointer" onClick={() => onDayClick(day)}>
                     <span>{day.toLocaleDateString('en-US', { weekday: 'short' })}</span>
                     <span className={`text-lg font-bold ${formatDateString(day) === formatDateString(new Date()) ? 'text-primary' : ''}`}>{day.getDate()}</span>
                 </div>
             ))}
+
+            {/* Time slots */}
             {Array.from({ length: 24 }, (_, i) => i + 8).map(hour => (
                 <div key={hour} className="contents">
                     <div className="h-16 border-r border-t border-border/50 p-2 text-xs text-muted-foreground text-center">{`${hour}:00`}</div>
                     {weekDays.map(day => {
                         const dayEvents = getEventsForDate(formatDateString(day)).filter(e => parseInt(e.time.split(':')[0]) === hour);
                         return (
-                            <div key={day.toISOString()} className="h-16 border-r border-t border-border/50 p-1 space-y-1 overflow-hidden">
-                                {dayEvents.map(event => (
-                                    <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${event.color}`} title={event.title} onClick={() => setSelectedEvent(event)}>
+                            // FIX: Added hour to the key to ensure uniqueness across the grid.
+                            <div key={`${hour}-${day.toISOString()}`} className="h-16 border-r border-t border-border/50 p-1 space-y-1 overflow-hidden">
+                                {/* FIX: Sliced to only show 2 events and added a "...more" indicator to prevent overflow. */}
+                                {dayEvents.slice(0, 2).map(event => (
+                                    <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${getEventTypeColor(event.type)}`} title={event.title} onClick={() => onSelectEvent(event)}>
                                         {event.title}
                                     </div>
                                 ))}
+                                {dayEvents.length > 2 && <div className="text-xs text-muted-foreground text-center">...more</div>}
                             </div>
                         );
                     })}
@@ -101,35 +105,29 @@ export default function CalendarView({ currentDate, view, events, setSelectedEve
   };
 
   const renderDayView = () => {
-    const dayToRender = currentDate;
-    const dateString = formatDateString(dayToRender);
-    const dayEvents = getEventsForDate(dateString).sort((a,b) => a.time.localeCompare(b.time));
-
+    const dayEvents = getEventsForDate(formatDateString(currentDate)).sort((a,b) => a.time.localeCompare(b.time));
     return (
       <div className="space-y-4">
-        <div className="text-center">
-          <h3 className="text-xl font-semibold">{dayToRender.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h3>
-        </div>
         <div className="space-y-3">
           {dayEvents.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">No events scheduled for this day.</div>
           ) : (
             dayEvents.map((event) => (
-              <Card key={event.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => setSelectedEvent(event)}>
+              <Card key={event.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelectEvent(event)}>
                 <CardContent className="p-4 flex items-start gap-4">
-                  <div className={`w-1.5 h-16 rounded-full ${event.color}`}></div>
+                  <div className={`w-1.5 h-16 rounded-full ${getEventTypeColor(event.type)}`}></div>
                   <div className="flex-1 space-y-1">
                     <h4 className="font-semibold">{event.title}</h4>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{event.time} ({event.duration} min)</span>
+                      <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{event.time}</span>
                       <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{event.location}</span>
                     </div>
                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        {event.attendees.join(', ')}
+                        {event.attendees} attendees
                     </div>
                   </div>
-                  <Badge variant="outline" className="capitalize">{event.type}</Badge>
+                  <Badge variant={getEventTypeBadgeVariant(event.type)} className="capitalize">{event.type}</Badge>
                 </CardContent>
               </Card>
             ))

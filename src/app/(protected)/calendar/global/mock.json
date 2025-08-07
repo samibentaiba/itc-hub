@@ -1,0 +1,10 @@
+
+{
+  "events": [
+    { "id": "ge1", "title": "ITC General Assembly", "description": "Monthly general meeting for all ITC members.", "date": "2025-08-24T14:00:00Z", "time": "14:00", "duration": "2 hours", "type": "meeting", "location": "Main Hall", "organizer": "ITC Board", "attendees": 45, "isRecurring": true },
+    { "id": "ge2", "title": "Tech Talk: AI in Development", "description": "Guest speaker on AI applications.", "date": "2025-08-26T16:00:00Z", "time": "16:00", "duration": "1.5 hours", "type": "event", "location": "Conf. Room A", "organizer": "Sami", "attendees": 25, "isRecurring": false },
+    { "id": "ge3", "title": "Project Showcase Deadline", "description": "Final deadline for project submissions.", "date": "2025-08-25T23:59:00Z", "time": "23:59", "duration": "All day", "type": "deadline", "location": "Online", "organizer": "Academics", "attendees": 0, "isRecurring": false },
+    { "id": "ge4", "title": "Networking Event", "description": "Connect with industry professionals.", "date": "2025-08-28T18:00:00Z", "time": "18:00", "duration": "3 hours", "type": "networking", "location": "Student Center", "organizer": "Careers", "attendees": 60, "isRecurring": false },
+    { "id": "ge5", "title": "Workshop: React Best Practices", "description": "Hands-on workshop for React.", "date": "2025-08-27T10:00:00Z", "time": "10:00", "duration": "4 hours", "type": "workshop", "location": "Lab 101", "organizer": "Yasmine", "attendees": 20, "isRecurring": false }
+  ]
+}
