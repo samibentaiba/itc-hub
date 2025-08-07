@@ -1,9 +1,8 @@
-// /admin/types.d.ts
+// /admin/types.ts
 
 import { z } from 'zod';
 
-// --- Base Data Models ---
-
+// --- Base Data Models (Admin) ---
 export interface Member {
   userId: string;
   role: "leader" | "member";
@@ -19,13 +18,13 @@ export interface User {
 }
 
 export interface Team {
-  id:string;
+  id: string;
   name: string;
   description: string;
   members: Member[];
   departmentId: string;
   createdDate: string;
-  status: "active" | "planning";
+  status: "active" | "archived";
 }
 
 export interface Department {
@@ -39,8 +38,6 @@ export interface Department {
 }
 
 // --- Zod Validation Schemas ---
-// These schemas define the validation rules for your forms.
-
 export const userFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -57,14 +54,24 @@ export const departmentFormSchema = z.object({
   description: z.string().optional(),
 });
 
+// Zod schema for the event form
+export const eventFormSchema = z.object({
+  title: z.string().min(3, { message: "Title must be at least 3 characters." }),
+  description: z.string().optional(),
+  date: z.string().min(1, { message: "Please select a date." }),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Please enter a valid time (HH:MM)." }),
+  duration: z.string(),
+  type: z.enum(["meeting", "review", "planning", "workshop"]),
+  location: z.string().optional(),
+});
+
 
 // --- Form Data and UI State Types ---
-
 export type UserFormData = z.infer<typeof userFormSchema>;
 export type TeamFormData = z.infer<typeof teamFormSchema>;
 export type DepartmentFormData = z.infer<typeof departmentFormSchema>;
+export type EventFormData = z.infer<typeof eventFormSchema>; // This now uses the schema
 
-// A single, unified type to manage which modal is open and what data it holds.
 export type ModalState =
   | { view: 'ADD_USER' }
   | { view: 'EDIT_USER', data: User }
@@ -76,8 +83,34 @@ export type ModalState =
   | { view: 'ADD_DEPARTMENT' }
   | { view: 'EDIT_DEPARTMENT', data: Department }
   | { view: 'DELETE_DEPARTMENT', data: Department }
-  | { view: 'MANAGE_MEMBERS', data: (Team & { entityType: 'team' }) | (Department & { entityType: 'department' }) }
+  | { view: 'MANAGE_MEMBERS', data: { id: string, name: string, entityType: 'team' | 'department' } }
+  // Modal states for calendar events
+  | { view: 'ADD_EVENT' }
+  | { view: 'EDIT_EVENT', data: Event }
+  | { view: 'DELETE_EVENT', data: Event }
+  | { view: 'VIEW_EVENT', data: Event } // For viewing details
   | null;
 
-// A specific type for the loading state to prevent multiple spinners.
 export type LoadingAction = string | null;
+
+// --- Base Data Models (Calendar) ---
+export interface Event {
+  id: number;
+  title: string;
+  description: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  duration: number; // in minutes
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+}
+
+export interface UpcomingEvent {
+  id: number;
+  title: string;
+  date: string; // Formatted string like "Today, 9:00 AM"
+  type: string;
+  attendees: number;
+}

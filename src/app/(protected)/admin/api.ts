@@ -1,5 +1,5 @@
 // --- /admin/api.ts ---
-import type { User, Team, Department } from "./types";
+import type { User, Team, Department,Event, UpcomingEvent  } from "./types";
 import data from "./mock.json";
 
 /**
@@ -27,4 +27,15 @@ export const fetchTeams = async (): Promise<Team[]> => {
 export const fetchDepartments = async (): Promise<Department[]> => {
   await new Promise(resolve => setTimeout(resolve, 400));
   return data.departments as Department[];
+};
+
+// --- NEW: Calendar Functions ---
+export const fetchEvents = async (): Promise<Event[]> => {
+  await new Promise(resolve => setTimeout(resolve, 600));
+  return data.events as Event[];
+};
+
+export const fetchUpcomingEvents = async (): Promise<UpcomingEvent[]> => {
+  await new Promise(resolve => setTimeout(resolve, 300));
+  return data.upcomingEvents as UpcomingEvent[];
 };

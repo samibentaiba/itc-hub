@@ -60,7 +60,6 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
     selectedDateTickets,
     calendarEvents,
     handleTeamAction,
-    handleLeaderAction,
     goToPreviousDay,
     goToNextDay,
   } = useDepartmentView({
@@ -105,7 +104,7 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
           <TabsTrigger value="tickets">Long-term Tickets</TabsTrigger>
           <TabsTrigger value="calendar">Department Calendar</TabsTrigger>
           <TabsTrigger value="teams">Supervised Teams</TabsTrigger>
-          <TabsTrigger value="leaders">Leadership</TabsTrigger>
+
         </TabsList>
 
         {/* Tickets Tab */}
@@ -308,64 +307,6 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
           </Card>
         </TabsContent>
 
-        {/* Leaders Tab */}
-        <TabsContent value="leaders" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Department Leadership</CardTitle>
-                  <CardDescription>
-                    Leaders who can collaborate on department tickets
-                  </CardDescription>
-                </div>
-                <Button onClick={() => handleLeaderAction("Invite Leader", "")} variant="outline">
-                  <UserPlus className="mr-2 h-4 w-4" /> Add Leader
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {department.leaders.map((leader) => (
-                  <div key={leader.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={leader.avatar || "/placeholder.svg"} alt={leader.name} />
-                        <AvatarFallback>{leader.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{leader.name}</div>
-                        <div className="text-sm text-muted-foreground">{leader.email}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={leader.role === "super_leader" ? "destructive" : "default"}>
-                        {leader.role.replace("_", " ")}
-                      </Badge>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleLeaderAction("Edit Role", leader.id)}>
-                            <Settings className="mr-2 h-4 w-4" /> Change Role
-                          </DropdownMenuItem>
-                          {leader.role !== "super_leader" && (
-                            <DropdownMenuItem onClick={() => handleLeaderAction("Remove", leader.id)} className="text-destructive">
-                              Remove Leader
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

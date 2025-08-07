@@ -1,7 +1,9 @@
 // /admin/page.tsx
 
-import { fetchUsers, fetchTeams, fetchDepartments } from "./api";
+import { fetchUsers, fetchTeams, fetchDepartments, fetchEvents, fetchUpcomingEvents } from "./api";
 import AdminClientPage from "./client";
+import { Suspense } from "react";
+import AdminLoading from "./loading";
 
 /**
  * The main server component for the /admin route.
@@ -11,18 +13,30 @@ import AdminClientPage from "./client";
 export default async function AdminPage() {
   // Fetch all data in parallel to minimize load times.
   // The `loading.tsx` component will be shown while this is in progress.
-  const [initialUsers, initialTeams, initialDepartments] = await Promise.all([
+  const [
+    initialUsers,
+    initialTeams,
+    initialDepartments,
+    initialEvents,
+    initialUpcomingEvents
+  ] = await Promise.all([
     fetchUsers(),
     fetchTeams(),
     fetchDepartments(),
+    fetchEvents(),
+    fetchUpcomingEvents(),
   ]);
 
   // Pass the server-fetched data as props to the Client Component.
   return (
-    <AdminClientPage
-      initialUsers={initialUsers}
-      initialTeams={initialTeams}
-      initialDepartments={initialDepartments}
-    />
+    <Suspense fallback={<AdminLoading />}>
+      <AdminClientPage
+        initialUsers={initialUsers}
+        initialTeams={initialTeams}
+        initialDepartments={initialDepartments}
+        initialEvents={initialEvents}
+        initialUpcomingEvents={initialUpcomingEvents}
+      />
+    </Suspense>
   );
 }
