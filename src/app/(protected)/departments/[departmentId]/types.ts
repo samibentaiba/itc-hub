@@ -33,7 +33,7 @@ export interface UpcomingEvent {
 export type Member = {
   id: string;
   name: string;
-  role: string;
+  role: 'leader' | 'member'; // UPDATED: Role is now a specific type
   avatar: string;
 };
 
