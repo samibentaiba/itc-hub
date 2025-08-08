@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Clock, MessageSquare, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Ticket } from "../../types"; // Adjust path as needed
+import { Ticket } from "./../types"; // Adjust path as needed
 
 interface TicketsTabProps {
   tickets: Ticket[];

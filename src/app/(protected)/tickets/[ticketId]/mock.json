@@ -4,8 +4,10 @@
       "id": "T-001",
       "title": "Login page not responsive on mobile",
       "description": "The login form breaks on mobile devices below 768px width. Users are unable to complete the login process on their phones.",
-      "status": "open",
+      "status": "new",
       "priority": "high",
+      "type": "Bug",
+      "from": "Frontend Team",
       "assignee": {
         "name": "Sami Al-Rashid",
         "avatar": "/placeholder.svg?height=32&width=32",
@@ -18,12 +20,8 @@
       },
       "createdAt": "2024-01-15T10:30:00Z",
       "updatedAt": "2024-01-16T14:20:00Z",
-      "team": "Frontend Team",
-      "labels": ["bug", "mobile", "ui"],
-      "type": "task",
-      "workspace": "Frontend Team",
-      "workspaceType": "team",
-      "dueDate": "2025-01-25"
+      "dueDate": "2025-08-15",
+      "comments": 3
     },
     "T-002": {
       "id": "T-002",
@@ -31,6 +29,8 @@
       "description": "API endpoints are timing out due to database connection issues. This is affecting user experience across the platform.",
       "status": "in-progress",
       "priority": "urgent",
+      "type": "Bug",
+      "from": "Backend Team",
       "assignee": {
         "name": "Ali Mohammed",
         "avatar": "/placeholder.svg?height=32&width=32",
@@ -43,12 +43,8 @@
       },
       "createdAt": "2024-01-18T09:00:00Z",
       "updatedAt": "2024-01-19T11:45:00Z",
-      "team": "Backend Team",
-      "labels": ["bug", "database", "urgent"],
-      "type": "bug",
-      "workspace": "Backend Team",
-      "workspaceType": "team",
-      "dueDate": "2025-01-22"
+      "dueDate": "2025-08-20",
+      "comments": 8
     }
   },
   "messages": {

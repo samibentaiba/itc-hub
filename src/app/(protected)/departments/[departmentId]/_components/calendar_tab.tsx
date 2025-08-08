@@ -10,14 +10,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-import { Ticket } from "../../types"; // Adjust path as needed
+import { Ticket } from "./../types"; // Adjust path as needed
 
 interface CalendarTabProps {
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
   calendarEvents: Record<string, Ticket[]>;
   selectedDateTickets: Ticket[];
-  goToPreviousDay: () => void;
+  goToPreviousDay: () => void;  
   goToNextDay: () => void;
 }
 

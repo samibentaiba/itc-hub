@@ -19,8 +19,6 @@ interface TicketDetailClientPageProps {
   initialMessages: Message[];
 }
 
-// This is the Client Component. It receives data from the server
-// and handles all user interactions.
 export default function TicketDetailClientPage({ initialTicket, initialMessages }: TicketDetailClientPageProps) {
   const {
     ticket,
@@ -43,11 +41,15 @@ export default function TicketDetailClientPage({ initialTicket, initialMessages 
     handleDeleteMessage,
     handleTicketAction,
     formatTimestamp,
-  } = useTicketDetailPage(initialTicket, initialMessages); // Pass initial data to the hook
+    // ADDED: Get helper functions from the hook
+    getStatusColor,
+    getPriorityColor,
+    formatStatus
+  } = useTicketDetailPage(initialTicket, initialMessages);
 
   const emojis = ["👍", "👎", "❤️", "😂", "😮", "😢", "😡", "🔥", "👏", "🚀"];
 
-  if (!ticket) return null; // Should be handled by the server page, but good for safety.
+  if (!ticket) return null;
 
   return (
     <div className="space-y-6">
@@ -64,12 +66,14 @@ export default function TicketDetailClientPage({ initialTicket, initialMessages 
         </div>
       </div>
       
-      {/* The rest of the UI components (TicketHeader, ChatMessage, etc.) go here */}
-      {/* They are unchanged from your original file, so I'm including one as an example */}
       <TicketHeader
         ticket={ticket}
         onVerify={handleVerifyTicket}
         onAction={handleTicketAction}
+        // PASSED: Pass helper functions to the header
+        getStatusColor={getStatusColor}
+        getPriorityColor={getPriorityColor}
+        formatStatus={formatStatus}
       />
       <Card className="flex-1">
         <CardHeader>
@@ -113,14 +117,55 @@ export default function TicketDetailClientPage({ initialTicket, initialMessages 
   );
 }
 
-// --- All other sub-components (TicketHeader, ChatMessage, etc.) would follow ---
-// They are identical to the ones in your original page.tsx file.
-// --- Prop Interfaces ---
 interface TicketHeaderProps {
   ticket: Ticket;
   onVerify: () => void;
   onAction: (action: 'edit' | 'assign' | 'due_date' | 'delete') => void;
+  // ADDED: Props for helper functions
+  getStatusColor: (status: Ticket['status']) => "destructive" | "default" | "secondary" | "outline";
+  getPriorityColor: (priority: Ticket['priority']) => "destructive" | "default" | "secondary" | "outline";
+  formatStatus: (status: string) => string;
 }
+
+// UPDATED: The TicketHeader now displays all the required fields consistently.
+const TicketHeader = ({ ticket, onVerify, onAction, getStatusColor, getPriorityColor, formatStatus }: TicketHeaderProps) => (
+    <Card>
+        <CardHeader>
+            <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle>{ticket.title}</CardTitle>
+                        <Badge variant="outline">{ticket.type}</Badge>
+                        <Badge variant={getStatusColor(ticket.status)}>{formatStatus(ticket.status)}</Badge>
+                        <Badge variant={getPriorityColor(ticket.priority)}>{ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}</Badge>
+                    </div>
+                    <CardDescription>{ticket.description}</CardDescription>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                            {ticket.from.includes("Team") ? <Users className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
+                            {ticket.from}
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Due {new Date(ticket.dueDate).toLocaleDateString()}
+                        </span>
+                        <span>Created {new Date(ticket.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    {ticket.status !== "resolved" && (
+                        <Button variant="outline" size="sm" onClick={onVerify} className="bg-green-600 hover:bg-green-700 text-white border-green-600">
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Mark as Resolved
+                        </Button>
+                    )}
+                </div>
+            </div>
+        </CardHeader>
+    </Card>
+);
+
+// --- ChatMessage and MessageInput components remain the same ---
 
 interface ChatMessageProps {
   msg: Message;
@@ -146,55 +191,6 @@ interface MessageInputProps {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
-const TicketHeader = ({ ticket, onVerify, onAction }: TicketHeaderProps) => (
-    <Card>
-        <CardHeader>
-            <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <CardTitle>{ticket.title}</CardTitle>
-                        <Badge variant="outline">{ticket.type}</Badge>
-                        <Badge variant={ticket.status === "verified" ? "default" : ticket.status === "in-progress" ? "secondary" : "destructive"}>
-                            {ticket.status.replace("_", " ")}
-                        </Badge>
-                    </div>
-                    <CardDescription>{ticket.description}</CardDescription>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                            {ticket.workspaceType === "team" ? <Users className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
-                            {ticket.workspace}
-                        </span>
-                        <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            Due {ticket.dueDate}
-                        </span>
-                        <span>Created {new Date(ticket.createdAt).toLocaleDateString()}</span>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    {ticket.status !== "verified" && (
-                        <Button variant="outline" size="sm" onClick={onVerify} className="bg-green-600 hover:bg-green-700 text-white border-green-600">
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Verify Complete
-                        </Button>
-                    )}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onAction('edit')}>Edit ticket</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onAction('assign')}>Change assignee</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onAction('due_date')}>Set due date</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onAction('delete')} className="text-destructive">Delete ticket</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-        </CardHeader>
-    </Card>
-);
 
 const ChatMessage = ({ msg, currentUser, isEditing, editContent, setEditContent, onSaveEdit, onCancelEdit, onEdit, onDelete, onAddReaction, showEmojiPicker, setShowEmojiPicker, formatTimestamp, emojis }: ChatMessageProps) => (
     <div key={msg.id} className="flex gap-3">

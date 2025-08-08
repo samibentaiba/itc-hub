@@ -9,7 +9,7 @@ import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Team } from "../../types"; // Adjust path as needed
+import { Team } from "./../types"; // Adjust path as needed
 
 interface TeamsTabProps {
   teams: Team[];

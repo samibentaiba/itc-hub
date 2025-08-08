@@ -2,15 +2,12 @@ import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { Message, Ticket } from "./types";
 
-// The hook now receives initial data, removing the need for internal fetching.
 export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Message[]) => {
   const { toast } = useToast();
   
-  // State is initialized directly from the props passed by the Server Component.
   const [ticket, setTicket] = useState<Ticket | null>(initialTicket);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
 
-  // All other state and handlers remain for client-side interactivity.
   const [message, setMessage] = useState("");
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
@@ -69,8 +66,6 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     setShowEmojiPicker(null);
   };
   
-  // ... other handler functions like handleFileUpload, handleVerifyTicket, etc. would go here ...
-  // (Keeping them the same as your original file for brevity)
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && ticket) {
@@ -90,18 +85,18 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
 
   const handleVerifyTicket = () => {
     if (ticket) {
-      setTicket({ ...ticket, status: "verified" });
+      setTicket({ ...ticket, status: "resolved" });
       const newMessage: Message = {
         id: `m${messages.length + 1}`,
         sender: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
-        content: "✅ Ticket has been verified and marked as complete!",
+        content: "✅ Ticket has been marked as resolved!",
         type: "system",
         timestamp: new Date().toISOString(),
         reactions: [],
         edited: false,
       };
       setMessages([...messages, newMessage]);
-      toast({ title: "Ticket verified!", description: "The ticket is now complete." });
+      toast({ title: "Ticket Resolved!", description: "The ticket is now complete." });
     }
   };
   
@@ -139,6 +134,32 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     return date.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
+  // ADDED: Helper functions from the /tickets/ hook to maintain consistency
+  const getStatusColor = (status: Ticket['status']) => {
+    switch (status) {
+      case "new": return "destructive";
+      case "in-progress": return "default";
+      case "resolved": return "secondary";
+      default: return "outline";
+    }
+  };
+
+  const getPriorityColor = (priority: Ticket['priority']) => {
+    switch (priority) {
+      case "urgent":
+      case "high": return "destructive";
+      case "medium": return "default";
+      case "low": return "secondary";
+      default: return "outline";
+    }
+  };
+
+  const formatStatus = (status: string) => {
+    return status
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   return {
     ticket,
@@ -161,5 +182,9 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     handleDeleteMessage,
     handleTicketAction,
     formatTimestamp,
+    // EXPOSED: Make helper functions available to the client component
+    getStatusColor,
+    getPriorityColor,
+    formatStatus,
   };
 };

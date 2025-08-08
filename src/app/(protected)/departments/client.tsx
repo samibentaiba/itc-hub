@@ -85,10 +85,6 @@ const DepartmentCard = ({ department }: { department: Department }) => (
           <CardDescription className="text-sm">{department.description}</CardDescription>
         </div>
       </div>
-      <div className="flex items-center gap-2 mt-2">
-        <div className={`w-3 h-3 rounded-full ${department.color}`} />
-        <Badge variant="outline" className="text-xs">{department.budget}</Badge>
-      </div>
     </CardHeader>
     <CardContent className="space-y-4">
       <DepartmentHead head={department.head} />

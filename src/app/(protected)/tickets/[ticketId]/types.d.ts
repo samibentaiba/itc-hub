@@ -1,4 +1,5 @@
-// src/types/tickets.ts
+// src/app/(protected)/tickets/[ticketId]/types.d.ts
+
 export interface Reaction {
   emoji: string;
   users: string[];
@@ -23,20 +24,19 @@ export interface Message {
   hasUrl?: boolean;
 }
 
+// This Ticket interface is now consistent with the /tickets page
 export interface Ticket {
     id: string;
     title: string;
     description: string;
-    status: string;
-    priority: string;
+    status: "new" | "in-progress" | "resolved";
+    priority: "low" | "medium" | "high" | "urgent";
+    type: "Task" | "Bug" | "Feature";
+    from: string; // The team or department name
     assignee: { name: string; avatar: string; id: string; };
     reporter: { name: string; avatar: string; id: string; };
     createdAt: string;
     updatedAt: string;
-    team: string;
-    labels: string[];
-    type: string;
-    workspace: string;
-    workspaceType: string;
     dueDate: string;
+    comments: number;
 }

@@ -33,7 +33,6 @@
       "head": { "name": "Sami Al-Rashid", "avatar": "/placeholder.svg?height=32&width=32", "id": "sami" },
       "teamCount": 3,
       "memberCount": 18,
-      "budget": "$2,400,000",
       "teams": [
         { "name": "Frontend Team", "memberCount": 8 },
         { "name": "Backend Team", "memberCount": 6 },
@@ -50,7 +49,6 @@
       "head": { "name": "Yasmine Hassan", "avatar": "/placeholder.svg?height=32&width=32", "id": "yasmine" },
       "teamCount": 1,
       "memberCount": 5,
-      "budget": "$800,000",
       "teams": [{ "name": "Design Team", "memberCount": 5 }],
       "recentActivity": "Completed design system overhaul",
       "status": "active",
