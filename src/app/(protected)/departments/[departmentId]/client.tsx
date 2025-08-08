@@ -1,3 +1,5 @@
+// src/app/(protected)/departments/[departmentId]/client.tsx
+
 /**
  * client.tsx
  *
@@ -14,6 +16,7 @@ import { Department } from "./types";
 import { DepartmentHeader } from "./_components/department_header";
 import { TicketsTab } from "./_components/tickets_tab";
 import { TeamsTab } from "./_components/teams_tab";
+import { MembersTab } from "./_components/members_tab"; // Import the new MembersTab component
 import {
   Card,
   CardContent,
@@ -35,6 +38,7 @@ import CalendarView from "./_components/calendar/calendar-view";
 import RequestEventDialog from "./_components/calendar/request-event-dialog";
 import EventDetailsDialog from "./_components/calendar/event-details-dialog";
 import CalendarSidebar from "./_components/calendar/calendar-sidebar";
+
 interface DepartmentViewProps {
   departmentData: Department;
 }
@@ -42,7 +46,7 @@ interface DepartmentViewProps {
 export function DepartmentView({ departmentData }: DepartmentViewProps) {
   // Use the custom hook to get all the necessary state and event handlers
   const {
-     showNewTicket,
+    showNewTicket,
     setShowNewTicket,
     calendarView,
     currentDate,
@@ -87,6 +91,7 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
           <TabsTrigger value="tickets">Long-term Tickets</TabsTrigger>
           <TabsTrigger value="calendar">Department Calendar</TabsTrigger>
           <TabsTrigger value="teams">Supervised Teams</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger> {/* Add Members Tab Trigger */}
         </TabsList>
 
         <TabsContent value="tickets">
@@ -165,6 +170,11 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
 
         <TabsContent value="teams">
           <TeamsTab teams={departmentData.teams} />
+        </TabsContent>
+        
+        {/* Add Members Tab Content */}
+        <TabsContent value="members">
+          <MembersTab members={departmentData.members} />
         </TabsContent>
       </Tabs>
       <RequestEventDialog

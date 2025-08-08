@@ -1,3 +1,5 @@
+// src/app/(protected)/departments/[departmentId]/hook.ts
+
 /**
  * hook.ts
  *
@@ -9,7 +11,7 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Ticket, Event, UpcomingEvent, EventFormData } from "./types";
+import type { Ticket, Event, UpcomingEvent, EventFormData, Member } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
 // Defines the props that the hook will receive
@@ -225,7 +227,7 @@ export const useDepartmentView = ({ tickets, initialEvents, initialUpcomingEvent
     createEvent: createOrUpdateEvent,
     handleEditEvent,
     handleDeleteEvent,
- setSelectedEvent,
+    setSelectedEvent,
     // Legacy State
     showNewTicket,
     setShowNewTicket,

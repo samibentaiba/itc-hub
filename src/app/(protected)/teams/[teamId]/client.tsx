@@ -7,13 +7,50 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { NewTicketForm } from "@/components/new-ticket-form";
-import { Clock, MessageSquare, Users, Plus, Mail, Settings, MoreVertical, ChevronLeft, ChevronRight, UserPlus, ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Clock,
+  MessageSquare,
+  Users,
+  Plus,
+  Mail,
+  Settings,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+  UserPlus,
+  ArrowLeft,
+  Calendar as CalendarIcon,
+} from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 import CalendarView from "./_components/calendar/calendar-view";
 import RequestEventDialog from "./_components/calendar/request-event-dialog";
@@ -25,7 +62,10 @@ interface TeamDetailClientPageProps {
   initialTickets: TeamTicket[];
 }
 
-export default function TeamDetailClientPage({ initialTeam, initialTickets }: TeamDetailClientPageProps) {
+export default function TeamDetailClientPage({
+  initialTeam,
+  initialTickets,
+}: TeamDetailClientPageProps) {
   const {
     team,
     tickets,
@@ -61,18 +101,18 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
   return (
     <div className="space-y-6">
       {/* Header */}
-       <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-            <Link href="/teams">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Teams
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold">{team.name}</h1>
-              <p className="text-muted-foreground">{team.description}</p>
-            </div>
+          <Link href="/teams">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Teams
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">{team.name}</h1>
+            <p className="text-muted-foreground">{team.description}</p>
+          </div>
         </div>
         <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
           <DialogTrigger asChild>
@@ -116,15 +156,37 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <h3 className="font-medium">{ticket.title}</h3>
-                          <Badge variant="outline" className="text-xs">{ticket.type}</Badge>
-                          <Badge variant={ticket.status === "verified" ? "default" : ticket.status === "in_progress" ? "secondary" : "destructive"} className="text-xs">
+                          <Badge variant="outline" className="text-xs">
+                            {ticket.type}
+                          </Badge>
+                          <Badge
+                            variant={
+                              ticket.status === "verified"
+                                ? "default"
+                                : ticket.status === "in_progress"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                            className="text-xs"
+                          >
                             {ticket.status.replace("_", " ")}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          {ticket.assignee && (<span className="flex items-center gap-1"><Users className="h-3 w-3" />{ticket.assignee}</span>)}
-                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Due {new Date(ticket.dueDate).toLocaleDateString()}</span>
-                          <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{ticket.messages} messages</span>
+                          {ticket.assignee && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {ticket.assignee}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Due {new Date(ticket.dueDate).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MessageSquare className="h-3 w-3" />
+                            {ticket.messages} messages
+                          </span>
                           <span>Last activity: {ticket.lastActivity}</span>
                         </div>
                       </div>
@@ -133,7 +195,11 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
                 </Card>
               </Link>
             ))}
-             {tickets.length === 0 && <p className="text-muted-foreground text-center py-8">No tickets found for this team.</p>}
+            {tickets.length === 0 && (
+              <p className="text-muted-foreground text-center py-8">
+                No tickets found for this team.
+              </p>
+            )}
           </div>
         </TabsContent>
 
@@ -209,33 +275,75 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <div><CardTitle>Team Members</CardTitle><CardDescription>Current team composition and roles</CardDescription></div>
-                <Button onClick={handleInviteMember} variant="outline"><UserPlus className="mr-2 h-4 w-4" />Invite Member</Button>
+                <div>
+                  <CardTitle>Team Members</CardTitle>
+                  <CardDescription>
+                    Current team composition and roles
+                  </CardDescription>
+                </div>
+              
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {team.members.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <Avatar className="h-10 w-10"><AvatarImage src={member.avatar} alt={member.name} /><AvatarFallback>{member.name.charAt(0)}</AvatarFallback></Avatar>
-                        <div className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background ${member.status === "online" ? "bg-green-500" : member.status === "away" ? "bg-yellow-500" : "bg-gray-500"}`} />
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={member.avatar} alt={member.name} />
+                          <AvatarFallback>
+                            {member.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div
+                          className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background ${
+                            member.status === "online"
+                              ? "bg-green-500"
+                              : member.status === "away"
+                              ? "bg-yellow-500"
+                              : "bg-gray-500"
+                          }`}
+                        />
                       </div>
                       <div>
                         <div className="font-medium">{member.name}</div>
-                        <div className="text-sm text-muted-foreground">{member.email}</div>
-                        <div className="text-xs text-muted-foreground">Joined {new Date(member.joinedDate).toLocaleDateString()}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {member.email}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Joined{" "}
+                          {new Date(member.joinedDate).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={member.role === "leader" ? "default" : "secondary"}>{member.role}</Badge>
+                      <Badge
+                        variant={
+                          member.role === "leader" ? "default" : "secondary"
+                        }
+                      >
+                        {member.role}
+                      </Badge>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleMemberAction("Message", member)}><Mail className="mr-2 h-4 w-4" />Send Message</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleMemberAction("Edit Role", member)}><Settings className="mr-2 h-4 w-4" />Change Role</DropdownMenuItem>
-                          {member.role !== "leader" && <DropdownMenuItem onClick={() => handleMemberAction("Remove", member)} className="text-destructive">Remove from Team</DropdownMenuItem>}
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleMemberAction("Message", member)
+                            }
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            Send Message
+                          </DropdownMenuItem>
+
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

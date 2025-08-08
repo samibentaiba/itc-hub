@@ -1,3 +1,5 @@
+// src/app/(protected)/departments/[departmentId]/types.ts
+
 /**
  * types.ts
  *
