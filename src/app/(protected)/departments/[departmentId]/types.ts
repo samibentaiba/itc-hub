@@ -77,7 +77,6 @@ export type Department = {
   tickets: Ticket[];
   members: Member[];
   events: Event[];
-  upcomingEvents: UpcomingEvent[];
 };
 
 // --- Zod Schemas for Forms ---

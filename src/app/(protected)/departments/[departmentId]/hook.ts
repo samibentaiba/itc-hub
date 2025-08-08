@@ -12,16 +12,15 @@
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { Ticket, Event, UpcomingEvent, EventFormData, Member } from "./types";
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString,formatUpcomingEventDate  } from "./utils";
 
 // Defines the props that the hook will receive
 interface UseDepartmentViewArgs {
   tickets: Ticket[];
   initialEvents: Event[];
-  initialUpcomingEvents: UpcomingEvent[];
 }
 
-export const useDepartmentView = ({ tickets, initialEvents, initialUpcomingEvents }: UseDepartmentViewArgs) => {
+export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewArgs) => {
   const { toast } = useToast();
 
   // --- State Management ---
@@ -31,7 +30,7 @@ export const useDepartmentView = ({ tickets, initialEvents, initialUpcomingEvent
   
   // State for the new, advanced calendar feature (based on events)
   const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
+  
   const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [filterType, setFilterType] = useState<string>("all");
@@ -52,7 +51,25 @@ export const useDepartmentView = ({ tickets, initialEvents, initialUpcomingEvent
 
 
   // --- Event CRUD Handlers (for New Calendar) ---
-
+    // For new calendar: Generates the list of upcoming events
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+    // Set time to 0 to compare dates only
+    now.setHours(0, 0, 0, 0); 
+    
+    return allEvents
+      .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
+      .filter(event => event.dateTime >= now)
+      .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+      .slice(0, 5) // Get the next 5 events
+      .map((event): UpcomingEvent => ({
+        id: event.id,
+        title: event.title,
+        date: formatUpcomingEventDate(event.date, event.time),
+        type: event.type,
+        attendees: event.attendees.length,
+      }));
+  }, [allEvents]);
   /**
    * Handles both creating a new event and updating an existing one.
    */

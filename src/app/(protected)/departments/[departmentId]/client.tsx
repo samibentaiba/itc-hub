@@ -74,7 +74,6 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
   } = useDepartmentView({
     tickets: departmentData.tickets, // Pass tickets to the hook
     initialEvents: departmentData.events,
-    initialUpcomingEvents: departmentData.upcomingEvents,
   });
 
   // Render the layout and pass props down to the child components

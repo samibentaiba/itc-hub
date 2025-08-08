@@ -60,3 +60,33 @@ export const formatDateString = (date: Date): string => {
   const day = date.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+
+ /**
+   * Formats an event's date and time for the "Upcoming Events" list.
+   * @param dateStr - The date string in "YYYY-MM-DD" format.
+   * @param timeStr - The time string in "HH:MM" format.
+   * @returns A user-friendly, relative date string (e.g., "Today, 10:00 AM").
+   */
+  export const formatUpcomingEventDate = (dateStr: string, timeStr: string): string => {
+      const eventDateTime = new Date(`${dateStr}T${timeStr}`);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const eventDate = new Date(eventDateTime.getFullYear(), eventDateTime.getMonth(), eventDateTime.getDate());
+
+      let dayPart;
+      if (eventDate.getTime() === today.getTime()) {
+          dayPart = "Today";
+      } else if (eventDate.getTime() === tomorrow.getTime()) {
+          dayPart = "Tomorrow";
+      } else {
+          dayPart = eventDateTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      const timePart = eventDateTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+      return `${dayPart}, ${timePart}`;
+  };
