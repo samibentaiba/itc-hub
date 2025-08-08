@@ -14,7 +14,9 @@
         { "id": "u1", "name": "Sami", "role": "leader", "avatar": "/placeholder.svg", "status": "online", "email": "sami@itc.com", "joinedDate": "2024-01-15" },
         { "id": "u2", "name": "Ali", "role": "member", "avatar": "/placeholder.svg", "status": "away", "email": "ali@itc.com", "joinedDate": "2024-02-01" },
         { "id": "u3", "name": "Sara", "role": "member", "avatar": "/placeholder.svg", "status": "offline", "email": "sara@itc.com", "joinedDate": "2024-02-15" }
-      ]
+      ],
+      "events": [],
+      "upcomingEvents": []
     },
     "team-2": {
       "id": "team-2",
@@ -29,7 +31,9 @@
        "members": [
         { "id": "u2", "name": "Ali", "role": "leader", "avatar": "/placeholder.svg", "status": "online", "email": "ali@itc.com", "joinedDate": "2024-02-01" },
         { "id": "u4", "name": "Fatima", "role": "member", "avatar": "/placeholder.svg", "status": "online", "email": "fatima@itc.com", "joinedDate": "2024-03-20" }
-      ]
+      ],
+      "events": [],
+      "upcomingEvents": []
     }
   },
   "tickets": {

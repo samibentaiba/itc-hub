@@ -1,3 +1,4 @@
+// src/app/(protected)/teams/[teamId]/client.tsx
 "use client";
 
 import { useTeamDetailPage } from "./hook";
@@ -10,9 +11,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
 import { NewTicketForm } from "@/components/new-ticket-form";
-import { Clock, MessageSquare, Users, Plus, Mail, Settings, MoreVertical, ChevronLeft, ChevronRight, UserPlus, ArrowLeft } from "lucide-react";
+import { Clock, MessageSquare, Users, Plus, Mail, Settings, MoreVertical, ChevronLeft, ChevronRight, UserPlus, ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
+import CalendarView from "./_components/calendar/calendar-view";
+import RequestEventDialog from "./_components/calendar/request-event-dialog";
+import EventDetailsDialog from "./_components/calendar/event-details-dialog";
+import CalendarSidebar from "./_components/calendar/calendar-sidebar";
 
 interface TeamDetailClientPageProps {
   initialTeam: TeamDetail;
@@ -23,14 +29,33 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
   const {
     team,
     tickets,
-    date,
-    setDate,
     showNewTicket,
     setShowNewTicket,
-    selectedDateTickets,
-    calendarEvents,
     handleInviteMember,
     handleMemberAction,
+    calendarView,
+    currentDate,
+    events,
+    upcomingEvents,
+    filterType,
+    selectedEvent,
+    isCalendarLoading,
+    showNewEventDialog,
+    onSetCalendarView,
+    onNavigateCalendar,
+    onSetSelectedEvent,
+    onNewEventClick,
+    onFilterChange,
+    onDayClick,
+    formatDate,
+    getDaysInMonth,
+    getFirstDayOfMonth,
+    formatDateString,
+    createEvent,
+    handleEditEvent,
+    handleDeleteEvent,
+    setShowNewEventDialog,
+    setSelectedEvent,
   } = useTeamDetailPage(initialTeam, initialTickets);
 
   return (
@@ -63,7 +88,6 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
                 Create a new ticket for {team.name}
               </DialogDescription>
             </DialogHeader>
-            {/* Updated NewTicketForm with correct props for the team context */}
             <NewTicketForm
               contextType="team"
               contextId={team.id}
@@ -114,39 +138,69 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
         </TabsContent>
 
         {/* Calendar Tab */}
-        <TabsContent value="calendar" className="space-y-4">
-          <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg sm:text-xl">Calendar</CardTitle>
-                <CardDescription>Select a date to view events</CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="rounded-md border w-full"
-                  modifiers={{ hasEvents: (d) => !!calendarEvents[d.toDateString()] }}
-                  modifiersStyles={{ hasEvents: { backgroundColor: "rgb(220 38 38 / 0.1)", color: "rgb(220 38 38)", fontWeight: "bold" } }}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center">
-                <div className="flex-1">
-                  <CardTitle className="text-lg sm:text-xl">{date ? `Events for ${date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : "Select a date"}</CardTitle>
-                  <CardDescription>{selectedDateTickets.length === 0 ? "No events scheduled" : `${selectedDateTickets.length} event${selectedDateTickets.length > 1 ? "s" : ""} scheduled`}</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">
-                <div className="space-y-3 sm:space-y-4 max-h-[300px] overflow-auto">
-                  {selectedDateTickets.length > 0 ? selectedDateTickets.map((ticket) => (
-                    <Link key={ticket.id} href={`/tickets/${ticket.id}`}><div className="border rounded-lg p-3 sm:p-4 hover:bg-accent/50 transition-colors cursor-pointer"><h3 className="font-semibold text-sm sm:text-base">{ticket.title}</h3></div></Link>
-                  )) : <div className="flex h-[200px] sm:h-[300px] items-center justify-center border rounded-md"><p className="text-sm text-muted-foreground">No events scheduled</p></div>}
-                </div>
-              </CardContent>
-            </Card>
+        <TabsContent value="calendar">
+          <div className="grid gap-6 lg:grid-cols-4">
+            <div className="lg:col-span-3">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <CalendarIcon className="h-5 w-5" />
+                      {formatDate(currentDate)}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={calendarView}
+                        onValueChange={(v) => onSetCalendarView(v as any)}
+                      >
+                        <SelectTrigger className="w-[120px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="month">Month</SelectItem>
+                          <SelectItem value="week">Week</SelectItem>
+                          <SelectItem value="day">Day</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => onNavigateCalendar("prev")}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => onNavigateCalendar("next")}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CalendarView
+                    currentDate={currentDate}
+                    view={calendarView}
+                    events={events}
+                    setSelectedEvent={onSetSelectedEvent}
+                    handleDayClick={onDayClick}
+                    getDaysInMonth={getDaysInMonth}
+                    getFirstDayOfMonth={getFirstDayOfMonth}
+                    formatDateString={formatDateString}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+            <CalendarSidebar
+              upcomingEvents={upcomingEvents}
+              allEvents={events}
+              filterType={filterType}
+              onFilterChange={onFilterChange}
+              onNewEventClick={onNewEventClick}
+              onEventClick={onSetSelectedEvent}
+            />
           </div>
         </TabsContent>
 
@@ -192,6 +246,19 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
           </Card>
         </TabsContent>
       </Tabs>
+      <RequestEventDialog
+        isOpen={showNewEventDialog}
+        onClose={() => setShowNewEventDialog(false)}
+        onSubmit={createEvent}
+        isLoading={isCalendarLoading}
+        initialData={selectedEvent}
+      />
+      <EventDetailsDialog
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+      />
     </div>
   );
 }

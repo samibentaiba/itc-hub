@@ -1,3 +1,4 @@
+// src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
 import { fetchTeamById, fetchTicketsByTeamId } from "./api";
 import TeamDetailClientPage from "./client";
@@ -11,18 +12,14 @@ interface PageProps {
   };
 }
 
-// This is the Server Component.
-// It fetches data on the server and passes it to the client.
 export default async function TeamDetailPage({ params }: PageProps) {
   const { teamId } = params;
 
-  // Fetch data for the specific team in parallel.
   const [team, tickets] = await Promise.all([
     fetchTeamById(teamId),
     fetchTicketsByTeamId(teamId),
   ]);
 
-  // Handle the case where the team doesn't exist.
   if (!team) {
     return (
       <div className="space-y-6">
@@ -48,7 +45,6 @@ export default async function TeamDetailPage({ params }: PageProps) {
     );
   }
 
-  // Pass the server-fetched data as props to the client component.
   return (
     <TeamDetailClientPage 
       initialTeam={team} 

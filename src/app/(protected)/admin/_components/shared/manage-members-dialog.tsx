@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, UserPlus } from "lucide-react";
-import type { User, Member } from "../types";
+import type { User, Member } from "../../types";
 
 // Updated entity type to be more specific
-type ManagingEntity = (({ entityType: 'team' } & import('../types').Team) | ({ entityType: 'department' } & import('../types').Department)) | null;
+type ManagingEntity = (({ entityType: 'team' } & import('../../types').Team) | ({ entityType: 'department' } & import('../../types').Department)) | null;
 
 interface ManageMembersDialogProps {
   isOpen: boolean;
