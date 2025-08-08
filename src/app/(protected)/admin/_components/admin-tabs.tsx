@@ -98,12 +98,14 @@ export default function AdminTabs({
   events,
   upcomingEvents,
   filterType,
+
   onSetCalendarView,
   onNavigateCalendar,
   onSetSelectedEvent,
   onNewEventClick,
   onFilterChange,
   onDayClick,
+  
   formatDate,
   getDaysInMonth,
   getFirstDayOfMonth,

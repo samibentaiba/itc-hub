@@ -218,8 +218,8 @@ export function NewTicketForm({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="task">📋 Task</SelectItem>
-              <SelectItem value="meeting">🤝 Meeting</SelectItem>
-              <SelectItem value="event">📅 Event</SelectItem>
+              {/* <SelectItem value="meeting">🤝 Meeting</SelectItem>
+              <SelectItem value="event">📅 Event</SelectItem> */}
               <SelectItem value="bug">🐛 Bug</SelectItem>
               <SelectItem value="feature">✨ Feature</SelectItem>
             </SelectContent>
