@@ -7,9 +7,9 @@
       "trend": "+12% from last month"
     },
     {
-      "title": "Open Tickets",
+      "title": "New Tickets",
       "value": "23",
-      "description": "Currently active",
+      "description": "Currently open",
       "trend": "-5% from last week"
     },
     {
@@ -30,8 +30,10 @@
       "id": "T-001",
       "title": "Login page not responsive on mobile",
       "description": "The login form breaks on mobile devices below 768px width",
-      "status": "open",
+      "status": "new",
       "priority": "high",
+      "type": "Bug",
+      "from": "Frontend Team",
       "assignee": {
         "name": "Sami Al-Rashid",
         "avatar": "/placeholder.svg?height=32&width=32",
@@ -44,8 +46,8 @@
       },
       "createdAt": "2024-01-15",
       "updatedAt": "2024-01-16",
-      "comments": 3,
-      "team": "Frontend Team"
+      "dueDate": "2025-08-15",
+      "comments": 3
     },
     {
       "id": "T-002",
@@ -53,6 +55,8 @@
       "description": "API endpoints are timing out due to database connection issues",
       "status": "in-progress",
       "priority": "urgent",
+      "type": "Bug",
+      "from": "Backend Team",
       "assignee": {
         "name": "Ali Mohammed",
         "avatar": "/placeholder.svg?height=32&width=32",
@@ -65,15 +69,40 @@
       },
       "createdAt": "2024-01-14",
       "updatedAt": "2024-01-16",
-      "comments": 8,
-      "team": "Backend Team"
+      "dueDate": "2025-08-20",
+      "comments": 8
     },
     {
       "id": "T-003",
+      "title": "Implement new dashboard feature",
+      "description": "Add a new widget to the main dashboard for tracking user activity.",
+      "status": "new",
+      "priority": "medium",
+      "type": "Feature",
+      "from": "Product Department",
+      "assignee": {
+        "name": "Unassigned",
+        "avatar": "",
+        "id": "unassigned"
+      },
+      "reporter": {
+        "name": "Fatima Al-Zahra",
+        "avatar": "/placeholder.svg?height=32&width=32",
+        "id": "fatima"
+      },
+      "createdAt": "2024-01-12",
+      "updatedAt": "2024-01-12",
+      "dueDate": "2025-09-01",
+      "comments": 0
+    },
+    {
+      "id": "T-004",
       "title": "Update user profile design",
       "description": "Redesign the user profile page according to new design system",
       "status": "resolved",
       "priority": "medium",
+      "type": "Task",
+      "from": "Design Team",
       "assignee": {
         "name": "Yasmine Hassan",
         "avatar": "/placeholder.svg?height=32&width=32",
@@ -86,8 +115,8 @@
       },
       "createdAt": "2024-01-10",
       "updatedAt": "2024-01-15",
-      "comments": 5,
-      "team": "Design Team"
+      "dueDate": "2025-08-10",
+      "comments": 5
     }
   ]
 }

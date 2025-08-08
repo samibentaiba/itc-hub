@@ -7,9 +7,9 @@ export function useTicketsPage(initialTickets: Ticket[], initialStats: Stat[]) {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")
+  const [typeFilter, setTypeFilter] = useState("all") // ADDED: State for the new type filter
 
   const filteredTickets = useMemo(() => {
-    // If no initial tickets are provided, return an empty array
     if (!initialTickets) return [];
     
     return initialTickets.filter((ticket) => {
@@ -17,23 +17,24 @@ export function useTicketsPage(initialTickets: Ticket[], initialStats: Stat[]) {
         ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (ticket.description && ticket.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
         ticket.id.toLowerCase().includes(searchTerm.toLowerCase())
+      
       const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
       const matchesPriority = priorityFilter === "all" || ticket.priority === priorityFilter
+      const matchesType = typeFilter === "all" || ticket.type === typeFilter // ADDED: Logic for type filter
 
-      return matchesSearch && matchesStatus && matchesPriority
+      return matchesSearch && matchesStatus && matchesPriority && matchesType
     })
-  }, [searchTerm, statusFilter, priorityFilter, initialTickets])
+  }, [searchTerm, statusFilter, priorityFilter, typeFilter, initialTickets]) // ADDED: typeFilter to dependency array
 
   const getStatusColor = (status: Ticket['status']) => {
     switch (status) {
-      case "open":
+      // UPDATED: Cases to match new statuses
+      case "new":
         return "destructive"
       case "in-progress":
         return "default"
       case "resolved":
         return "secondary"
-      case "closed":
-        return "outline"
       default:
         return "outline"
     }
@@ -60,11 +61,13 @@ export function useTicketsPage(initialTickets: Ticket[], initialStats: Stat[]) {
     searchTerm,
     statusFilter,
     priorityFilter,
-    stats: initialStats, // Pass through the stats from props
+    typeFilter, // EXPOSED: Expose new state and setter
+    stats: initialStats,
     filteredTickets,
     setSearchTerm,
     setStatusFilter,
     setPriorityFilter,
+    setTypeFilter, // EXPOSED: Expose new state and setter
     getStatusColor,
     getPriorityColor,
     formatStatus,

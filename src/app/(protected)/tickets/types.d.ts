@@ -5,8 +5,14 @@ export interface Ticket {
   id: string;
   title: string;
   description: string;
-  status: "open" | "in-progress" | "resolved" | "closed";
-  priority: "low" | "medium" | "high" | "urgent";
+  // UPDATED: Status values changed to match your requirements
+  status: "new" | "in-progress" | "resolved"; 
+  // ADDED: Priority field as requested
+  priority: "low" | "medium" | "high" | "urgent"; 
+  // ADDED: Type field as requested
+  type: "Task" | "Bug" | "Feature"; 
+  // ADDED: Workspace to show if it's from a team or department
+  from: string; 
   assignee: {
     name: string;
     avatar: string;
@@ -19,8 +25,8 @@ export interface Ticket {
   };
   createdAt: string;
   updatedAt: string;
+  dueDate: string;
   comments: number;
-  team: string;
 }
 
 // Define and export the structure for stats
