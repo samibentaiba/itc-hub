@@ -27,13 +27,12 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
     setDate,
     showNewTicket,
     setShowNewTicket,
-    tickets,
     selectedDateTickets,
     calendarEvents,
     goToPreviousDay,
     goToNextDay,
   } = useDepartmentView({
-    departmentName: departmentData.name,
+    tickets: departmentData.tickets, // Pass tickets to the hook
   });
 
   // Render the layout and pass props down to the child components
@@ -53,7 +52,8 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
         </TabsList>
 
         <TabsContent value="tickets">
-          <TicketsTab tickets={tickets} />
+          {/* Pass tickets directly to the tab */}
+          <TicketsTab tickets={departmentData.tickets} />
         </TabsContent>
 
         <TabsContent value="calendar">

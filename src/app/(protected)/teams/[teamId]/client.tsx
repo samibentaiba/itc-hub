@@ -63,7 +63,12 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
                 Create a new ticket for {team.name}
               </DialogDescription>
             </DialogHeader>
-            <NewTicketForm />
+            {/* Updated NewTicketForm with correct props for the team context */}
+            <NewTicketForm
+              contextType="team"
+              contextId={team.id}
+              availableUsers={team.members}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -133,7 +138,6 @@ export default function TeamDetailClientPage({ initialTeam, initialTickets }: Te
                   <CardTitle className="text-lg sm:text-xl">{date ? `Events for ${date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : "Select a date"}</CardTitle>
                   <CardDescription>{selectedDateTickets.length === 0 ? "No events scheduled" : `${selectedDateTickets.length} event${selectedDateTickets.length > 1 ? "s" : ""} scheduled`}</CardDescription>
                 </div>
-                {/* Calendar navigation buttons can be added here */}
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="space-y-3 sm:space-y-4 max-h-[300px] overflow-auto">

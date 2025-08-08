@@ -3,28 +3,20 @@
  *
  * This file contains the custom hook `useDepartmentView` which encapsulates
  * the client-side state and logic for the department view page. This includes
- * managing the calendar state, dialog visibility, and mock ticket data.
+ * managing the calendar state, dialog visibility, and processing ticket data.
  */
 import { useState, useMemo } from "react";
 import { Ticket } from "./types";
 
 interface UseDepartmentViewArgs {
-  departmentName: string;
+  tickets: Ticket[];
 }
 
-export const useDepartmentView = ({ departmentName }: UseDepartmentViewArgs) => {
+export const useDepartmentView = ({ tickets }: UseDepartmentViewArgs) => {
   // State for the selected date in the calendar
   const [date, setDate] = useState<Date | undefined>(new Date());
   // State to control the visibility of the "New Initiative" dialog
   const [showNewTicket, setShowNewTicket] = useState(false);
-
-  // Mock data for tickets. In a real-world app, this would likely be fetched from an API.
-  const tickets: Ticket[] = useMemo(() => [
-    { id: "t1", title: "Q1 Architecture Review", type: "meeting", status: "in_progress", assignee: null, duration: "2 months", messages: 12, lastActivity: "1 hour ago", collaborative: true, calendarDate: new Date("2025-01-25"), collaborators: ["Sami", "Yasmine"] },
-    { id: "t2", title: "Tech Stack Migration Plan", type: "task", status: "pending", assignee: "Yasmine", duration: "6 months", messages: 8, lastActivity: "2 days ago", collaborative: false, calendarDate: new Date("2025-01-30"), collaborators: [] },
-    { id: "t3", title: "Annual Development Conference", type: "event", status: "scheduled", assignee: null, duration: "1 year", messages: 25, lastActivity: "5 hours ago", collaborative: true, calendarDate: new Date("2025-01-28"), collaborators: ["Sami", "Yasmine"] },
-    { id: "t4", title: "Security Audit Planning", type: "meeting", status: "scheduled", assignee: "Sami", duration: "3 months", messages: 3, lastActivity: "1 day ago", collaborative: true, calendarDate: new Date("2025-01-26"), collaborators: ["Sami"] },
-  ], []);
 
   // Memoized calculation to filter tickets for the selected date
   const selectedDateTickets = useMemo(() => {
@@ -68,7 +60,6 @@ export const useDepartmentView = ({ departmentName }: UseDepartmentViewArgs) => 
     setDate,
     showNewTicket,
     setShowNewTicket,
-    tickets,
     selectedDateTickets,
     calendarEvents,
     goToPreviousDay,

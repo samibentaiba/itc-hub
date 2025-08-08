@@ -194,7 +194,14 @@ export function NewTicketForm({
           </Label>
           <Select
             value={formData.type}
-            onValueChange={(value) => setFormData({ ...formData, type: value })}
+            onValueChange={(value) => {
+              const isMeetingOrEvent = value === "meeting" || value === "event";
+              setFormData({ 
+                ...formData, 
+                type: value,
+                assignee: isMeetingOrEvent ? "" : formData.assignee 
+              });
+            }}
             disabled={isLoading}
           >
             <SelectTrigger className={cn("text-sm", errors.type && "border-red-500")}>
@@ -255,28 +262,30 @@ export function NewTicketForm({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-sm">Assignee</Label>
-          <Select
-            value={formData.assignee}
-            onValueChange={(value) => setFormData({ ...formData, assignee: value })}
-            disabled={isLoading}
-          >
-            <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Assign to..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
-              {availableUsers.map(user => (
-                  <SelectItem key={user.id} value={user.id}>
-                      👤 {user.name} ({user.role})
-                  </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {!isRequest && (
+            <div className="space-y-2">
+            <Label className="text-sm">Assignee</Label>
+            <Select
+                value={formData.assignee}
+                onValueChange={(value) => setFormData({ ...formData, assignee: value })}
+                disabled={isLoading}
+            >
+                <SelectTrigger className="text-sm">
+                <SelectValue placeholder="Assign to..." />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {availableUsers.map(user => (
+                    <SelectItem key={user.id} value={user.id}>
+                        👤 {user.name} ({user.role})
+                    </SelectItem>
+                ))}
+                </SelectContent>
+            </Select>
+            </div>
+        )}
 
-        <div className="space-y-2">
+        <div className={cn("space-y-2", isRequest && "sm:col-span-2")}>
           <Label className="text-sm">
             Due Date <span className="text-red-500">*</span>
           </Label>

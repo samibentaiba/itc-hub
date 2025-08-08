@@ -17,6 +17,20 @@
       { "id": "team-1", "name": "Frontend Team", "memberCount": 5, "leader": "Ali", "status": "active" },
       { "id": "team-2", "name": "Backend Team", "memberCount": 4, "leader": "Omar", "status": "active" },
       { "id": "team-3", "name": "Mobile Team", "memberCount": 3, "leader": "Layla", "status": "planning" }
+    ],
+    "tickets": [
+      { "id": "t1", "title": "Q1 Architecture Review", "type": "meeting", "status": "in_progress", "assignee": null, "duration": "2 months", "messages": 12, "lastActivity": "1 hour ago", "collaborative": true, "calendarDate": "2025-01-25T00:00:00.000Z", "collaborators": ["Sami", "Yasmine"] },
+      { "id": "t2", "title": "Tech Stack Migration Plan", "type": "task", "status": "pending", "assignee": "Yasmine", "duration": "6 months", "messages": 8, "lastActivity": "2 days ago", "collaborative": false, "calendarDate": "2025-01-30T00:00:00.000Z", "collaborators": [] },
+      { "id": "t3", "title": "Annual Development Conference", "type": "event", "status": "scheduled", "assignee": null, "duration": "1 year", "messages": 25, "lastActivity": "5 hours ago", "collaborative": true, "calendarDate": "2025-01-28T00:00:00.000Z", "collaborators": ["Sami", "Yasmine"] },
+      { "id": "t4", "title": "Security Audit Planning", "type": "meeting", "status": "scheduled", "assignee": "Sami", "duration": "3 months", "messages": 3, "lastActivity": "1 day ago", "collaborative": true, "calendarDate": "2025-01-26T00:00:00.000Z", "collaborators": ["Sami"] }
+    ],
+    "members": [
+      { "id": "user-1", "name": "Sami Al-Rashid", "role": "Department Head", "avatar": "/placeholder.svg" },
+      { "id": "user-2", "name": "Ali Hassan", "role": "Frontend Lead", "avatar": "/placeholder.svg" },
+      { "id": "user-3", "name": "Omar Farid", "role": "Backend Lead", "avatar": "/placeholder.svg" },
+      { "id": "user-4", "name": "Layla Abbasi", "role": "Mobile Lead", "avatar": "/placeholder.svg" },
+      { "id": "user-5", "name": "Aisha Khan", "role": "Software Engineer", "avatar": "/placeholder.svg" },
+      { "id": "user-6", "name": "Bilal Ahmed", "role": "Software Engineer", "avatar": "/placeholder.svg" }
     ]
   },
   {
@@ -35,6 +49,12 @@
     "createdAt": "2023-01-15",
     "teams": [
       { "id": "team-4", "name": "UX Research", "memberCount": 3, "leader": "Nora", "status": "active" }
+    ],
+    "tickets": [],
+    "members": [
+        { "id": "user-7", "name": "Yasmine Hassan", "role": "Design Head", "avatar": "/placeholder.svg" },
+        { "id": "user-8", "name": "Nora Said", "role": "UX Lead", "avatar": "/placeholder.svg" },
+        { "id": "user-9", "name": "Karim Nader", "role": "UI/UX Designer", "avatar": "/placeholder.svg" }
     ]
   },
   {
@@ -53,6 +73,11 @@
     "createdAt": "2023-01-15",
     "teams": [
        { "id": "team-5", "name": "Product Growth", "memberCount": 2, "leader": "Khalid", "status": "active" }
+    ],
+    "tickets": [],
+    "members": [
+        { "id": "user-10", "name": "Fatima Al-Zahra", "role": "Product Head", "avatar": "/placeholder.svg" },
+        { "id": "user-11", "name": "Khalid Ibrahim", "role": "Product Manager", "avatar": "/placeholder.svg" }
     ]
   }
 ]

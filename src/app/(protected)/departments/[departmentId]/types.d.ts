@@ -6,7 +6,15 @@
  * of the codebase, from API responses to component props.
  */
 
-// Defines the structure for a department, now including its associated teams.
+// Defines the structure for a department member.
+export type Member = {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+};
+
+// Defines the structure for a department, now including its associated teams, tickets, and members.
 export type Department = {
   id: string;
   name: string;
@@ -21,7 +29,9 @@ export type Department = {
   budget: string;
   status: string;
   createdAt: string;
-  teams: Team[]; // Added teams to the department type for a more complete data model.
+  teams: Team[];
+  tickets: Ticket[];
+  members: Member[];
 };
 
 // Defines the structure for a leader within a department.
