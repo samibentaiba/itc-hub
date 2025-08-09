@@ -12,12 +12,13 @@ import { Ticket } from "./../types"; // Adjust path as needed
 
 interface TicketsTabProps {
   tickets: Ticket[];
+  departmentId: string;
 }
 
-export const TicketsTab = ({ tickets }: TicketsTabProps) => (
+export const TicketsTab = ({ tickets , departmentId }: TicketsTabProps) => (
   <div className="grid gap-4">
     {tickets.map((ticket) => (
-      <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
+      <Link key={ticket.id} href={`/tickets/${ticket.id}?from=/departments/${departmentId}`}>
         <Card className="hover:bg-accent/50 transition-colors cursor-pointer p-0">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">

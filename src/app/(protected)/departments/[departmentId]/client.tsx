@@ -95,7 +95,7 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
 
         <TabsContent value="tickets">
           {/* Pass tickets directly to the tab */}
-          <TicketsTab tickets={departmentData.tickets} />
+          <TicketsTab tickets={departmentData.tickets} departmentId={departmentData.id} />
         </TabsContent>
 
         <TabsContent value="calendar">

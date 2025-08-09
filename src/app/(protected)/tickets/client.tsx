@@ -164,7 +164,7 @@ function TicketsTable({ tickets, getStatusColor, getPriorityColor, formatStatus 
             <TableRow key={ticket.id}>
               <TableCell>
                 <div className="space-y-1">
-                  <Link href={`/tickets/${ticket.id}`} className="font-medium hover:underline">
+                  <Link href={`/tickets/${ticket.id}?from=/tickets`} className="font-medium hover:underline">
                     {ticket.id}
                   </Link>
                   <div className="text-sm text-muted-foreground">{ticket.title}</div>
@@ -217,7 +217,7 @@ function TicketsTable({ tickets, getStatusColor, getPriorityColor, formatStatus 
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                      <Link href={`/tickets/${ticket.id}`}>
+                      <Link href={`/tickets/${ticket.id}?from=/tickets`}>
                         <Eye className="mr-2 h-4 w-4" />
                         View details
                       </Link>

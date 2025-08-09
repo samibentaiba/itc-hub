@@ -38,13 +38,13 @@
   },
   "tickets": {
     "team-1": [
-      { "id": "t1", "title": "Implement dark mode toggle", "type": "task", "status": "in_progress", "assignee": "Ali", "dueDate": "2025-08-25", "messages": 5, "lastActivity": "2 hours ago" },
-      { "id": "t2", "title": "Weekly team standup", "type": "meeting", "status": "scheduled", "assignee": null, "dueDate": "2025-08-24", "messages": 1, "lastActivity": "1 day ago" },
-      { "id": "t3", "title": "Code review session", "type": "event", "status": "pending", "assignee": "Sara", "dueDate": "2025-08-26", "messages": 3, "lastActivity": "3 hours ago" }
+      { "id": "T-001", "title": "Implement dark mode toggle", "type": "task", "status": "in_progress", "assignee": "Ali", "dueDate": "2025-08-25", "messages": 5, "lastActivity": "2 hours ago" },
+      { "id": "T-002", "title": "Weekly team standup", "type": "meeting", "status": "scheduled", "assignee": null, "dueDate": "2025-08-24", "messages": 1, "lastActivity": "1 day ago" },
+      { "id": "T-003", "title": "Code review session", "type": "event", "status": "pending", "assignee": "Sara", "dueDate": "2025-08-26", "messages": 3, "lastActivity": "3 hours ago" }
     ],
     "team-2": [
-       { "id": "t4", "title": "Optimize database queries", "type": "task", "status": "in_progress", "assignee": "Fatima", "dueDate": "2025-09-05", "messages": 2, "lastActivity": "5 hours ago" },
-       { "id": "t5", "title": "API v2 planning", "type": "meeting", "status": "scheduled", "assignee": null, "dueDate": "2025-09-10", "messages": 0, "lastActivity": "Yesterday" }
+       { "id": "T-004", "title": "Optimize database queries", "type": "task", "status": "in_progress", "assignee": "Fatima", "dueDate": "2025-09-05", "messages": 2, "lastActivity": "5 hours ago" },
+       { "id": "T-005", "title": "API v2 planning", "type": "meeting", "status": "scheduled", "assignee": null, "dueDate": "2025-09-10", "messages": 0, "lastActivity": "Yesterday" }
     ]
   }
 }

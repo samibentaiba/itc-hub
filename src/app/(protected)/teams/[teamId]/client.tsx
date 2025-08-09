@@ -149,7 +149,7 @@ export default function TeamDetailClientPage({
         <TabsContent value="tickets" className="space-y-4">
           <div className="grid gap-4">
             {tickets.map((ticket) => (
-              <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
+              <Link key={ticket.id} href={`/tickets/${ticket.id}?from=/teams/${team.id}`}>
                 <Card className="hover:bg-accent/50 transition-colors cursor-pointer p-0">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
