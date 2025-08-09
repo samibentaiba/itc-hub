@@ -7,7 +7,13 @@
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Team } from "./../types"; // Adjust path as needed
 
@@ -19,7 +25,9 @@ export const TeamsTab = ({ teams }: TeamsTabProps) => (
   <Card>
     <CardHeader>
       <CardTitle>Supervised Teams</CardTitle>
-      <CardDescription>Teams under this department's oversight</CardDescription>
+      <CardDescription>
+        Teams under this department&aposs oversight
+      </CardDescription>
     </CardHeader>
     <CardContent>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -29,12 +37,20 @@ export const TeamsTab = ({ teams }: TeamsTabProps) => (
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="font-medium">{team.name}</h3>
-                  <p className="text-sm text-muted-foreground">{team.memberCount} members</p>
+                  <p className="text-sm text-muted-foreground">
+                    {team.memberCount} members
+                  </p>
                 </div>
-                <Badge variant={team.status === "active" ? "default" : "secondary"}>{team.status}</Badge>
+                <Badge
+                  variant={team.status === "active" ? "default" : "secondary"}
+                >
+                  {team.status}
+                </Badge>
               </div>
               <Link href={`/teams/${team.id}`}>
-                <Button size="sm" variant="outline"><Eye className="mr-1 h-3 w-3" /> View</Button>
+                <Button size="sm" variant="outline">
+                  <Eye className="mr-1 h-3 w-3" /> View
+                </Button>
               </Link>
             </CardContent>
           </Card>

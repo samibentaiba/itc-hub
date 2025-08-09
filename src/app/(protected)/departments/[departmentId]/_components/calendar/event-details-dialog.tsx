@@ -1,4 +1,4 @@
-// /admin/_components/event-details-dialog.tsx
+// /_components/calendar/event-details-dialog.tsx
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";

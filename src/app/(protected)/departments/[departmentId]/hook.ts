@@ -11,7 +11,7 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Ticket, Event, UpcomingEvent, EventFormData, Member } from "./types";
+import type { Ticket, Event, UpcomingEvent, EventFormData,  } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString,formatUpcomingEventDate  } from "./utils";
 
 // Defines the props that the hook will receive

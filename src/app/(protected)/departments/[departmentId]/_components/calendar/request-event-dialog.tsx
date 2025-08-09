@@ -1,4 +1,4 @@
-// /admin/_components/event-form-dialog.tsx
+// /admin/_components/request-event-dialog.tsx
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -31,7 +31,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import type { Event, EventFormData } from "../../types";
-import { eventFormSchema } from "../../types";
+import { requestEventSchema } from "../../types";
 
 interface RequestEventDialogProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export default function RequestEventDialog({
   const isEditMode = !!initialData;
 
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema),
+    resolver: zodResolver(requestEventSchema),
     defaultValues: {
       title: "",
       description: "",

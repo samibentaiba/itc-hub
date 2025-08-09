@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import {
   UserPlus,
   Plus,
@@ -18,7 +24,12 @@ import {
   Trash2,
   CheckCircle,
   Mail,
-  Users2,Calendar, ChevronLeft, ChevronRight, Check, X
+  Users2,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  X,
 } from "lucide-react";
 import {
   Table,
@@ -88,7 +99,7 @@ export default function AdminTabs({
   departments,
   onSetModal,
 
-   pendingEvents,
+  pendingEvents,
   handleAcceptEvent,
   handleRejectEvent,
   loadingAction,
@@ -105,7 +116,7 @@ export default function AdminTabs({
   onNewEventClick,
   onFilterChange,
   onDayClick,
-  
+
   formatDate,
   getDaysInMonth,
   getFirstDayOfMonth,
@@ -435,7 +446,9 @@ export default function AdminTabs({
                   <div className="flex items-center gap-2">
                     <Select
                       value={calendarView}
-                      onValueChange={(v) => onSetCalendarView(v as any)}
+                      onValueChange={(v) =>
+                        onSetCalendarView(v as "month" | "week" | "day")
+                      } //view: "month" | "week" | "day"
                     >
                       <SelectTrigger className="w-[120px]">
                         <SelectValue />
@@ -520,13 +533,21 @@ export default function AdminTabs({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={event.submittedByType === 'team' ? 'secondary' : 'outline'}>
+                        <Badge
+                          variant={
+                            event.submittedByType === "team"
+                              ? "secondary"
+                              : "outline"
+                          }
+                        >
                           {event.submittedBy}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div>{new Date(event.date).toLocaleDateString()}</div>
-                        <div className="text-xs text-muted-foreground">{event.time}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {event.time}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -552,7 +573,10 @@ export default function AdminTabs({
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-muted-foreground py-8"
+                    >
                       No pending event requests.
                     </TableCell>
                   </TableRow>

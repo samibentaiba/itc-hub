@@ -1,4 +1,4 @@
-// /calendar/components/CalendarSidebar.tsx
+// /_components/calendar/calendar-sidebar.tsx
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

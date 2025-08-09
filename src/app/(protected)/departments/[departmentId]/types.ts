@@ -80,7 +80,7 @@ export type Department = {
 };
 
 // --- Zod Schemas for Forms ---
-export const eventFormSchema = z.object({
+export const requestEventSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters." }),
   description: z.string().optional(),
   date: z.string().min(1, { message: "Please select a date." }),
@@ -90,4 +90,4 @@ export const eventFormSchema = z.object({
   location: z.string().optional(),
 });
 
-export type EventFormData = z.infer<typeof eventFormSchema>;
+export type EventFormData = z.infer<typeof requestEventSchema>;

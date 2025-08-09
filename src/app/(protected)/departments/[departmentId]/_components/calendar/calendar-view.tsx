@@ -1,4 +1,4 @@
-// /calendar/components/CalendarView.tsx
+// /_components/calendar/calendar-view.tsx
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

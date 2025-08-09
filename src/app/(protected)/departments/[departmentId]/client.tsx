@@ -13,14 +13,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDepartmentView } from "./hook";
 import { Department } from "./types";
-import { DepartmentHeader } from "./_components/department_header";
-import { TicketsTab } from "./_components/tickets_tab";
-import { TeamsTab } from "./_components/teams_tab";
-import { MembersTab } from "./_components/members_tab"; // Import the new MembersTab component
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -32,7 +27,12 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { DepartmentHeader } from "./_components/department_header";
+import { TicketsTab } from "./_components/tickets_tab";
+import { TeamsTab } from "./_components/teams_tab";
+import { MembersTab } from "./_components/members_tab"; // Import the new MembersTab component
 
 import CalendarView from "./_components/calendar/calendar-view";
 import RequestEventDialog from "./_components/calendar/request-event-dialog";
@@ -112,7 +112,7 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
                     <div className="flex items-center gap-2">
                       <Select
                         value={calendarView}
-                        onValueChange={(v) => onSetCalendarView(v as any)}
+                        onValueChange={(v) => onSetCalendarView(v as "month" | "week" | "day")}
                       >
                         <SelectTrigger className="w-[120px]">
                           <SelectValue />
