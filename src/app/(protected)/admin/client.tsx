@@ -1,7 +1,6 @@
 // /admin/client.tsx
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield, Download, RefreshCw } from "lucide-react";
 
@@ -11,7 +10,6 @@ import type {
   User,
   Team,
   Department,
-  ModalState,
   Event,
   UpcomingEvent,
   PendingEvent,
@@ -45,9 +43,6 @@ export default function AdminClientPage({
   initialUpcomingEvents,
   initialPendingEvents,
 }: AdminClientPageProps) {
-  // Central state for all modals
-  const [modal, setModal] = useState<ModalState>(null);
-
   const {
     users,
     teams,
@@ -65,13 +60,19 @@ export default function AdminClientPage({
     handleChangeMemberRole,
     handleRefreshData,
     handleExportData,
-
-    // New handlers for pending events
     pendingEvents,
     handleAcceptEvent,
     handleRejectEvent,
-
-    // State & Props for Calendar
+    // Modal State & Handlers from hook
+    modal,
+    setModal,
+    closeModal,
+    handleActionConfirm,
+    entityForDialog,
+    isUserFormLoading,
+    isTeamFormLoading,
+    isDeptFormLoading,
+    // Calendar State & Props from hook
     calendarView,
     currentDate,
     filteredEvents,
@@ -80,8 +81,7 @@ export default function AdminClientPage({
     selectedEvent,
     isCalendarLoading,
     calendarFilterType,
-
-    // Handlers for Calendar
+    // Handlers for Calendar from hook
     setCalendarView,
     navigateCalendar,
     createEvent,
@@ -91,8 +91,7 @@ export default function AdminClientPage({
     handleDayClick,
     handleEditEvent,
     handleDeleteEvent,
-
-    // Calendar Utilities
+    // Calendar Utilities from hook
     formatCalendarDate,
     getDaysInMonth,
     getFirstDayOfMonth,
@@ -105,61 +104,6 @@ export default function AdminClientPage({
     initialUpcomingEvents,
     initialPendingEvents
   );
-
-  // Close modal and reset loading state if needed
-  const closeModal = () => setModal(null);
-
-  const handleActionConfirm = () => {
-    if (!modal) return;
-
-    switch (modal.view) {
-      case "DELETE_USER":
-        handleDeleteUser(modal.data.id).then(closeModal);
-        break;
-      case "VERIFY_USER":
-        handleVerifyUser(modal.data.id).then(closeModal);
-        break;
-      case "DELETE_TEAM":
-        handleDeleteTeam(modal.data.id).then(closeModal);
-        break;
-      case "DELETE_DEPARTMENT":
-        handleDeleteDepartment(modal.data.id).then(closeModal);
-        break;
-    }
-  };
-
-  // Specific loading states for each form dialog to prevent incorrect spinners
-  const isUserFormLoading =
-    (modal?.view === "ADD_USER" && loadingAction === "add-user") ||
-    (modal?.view === "EDIT_USER" && loadingAction === `edit-${modal.data.id}`);
-
-  const isTeamFormLoading =
-    (modal?.view === "ADD_TEAM" && loadingAction === "add-team") ||
-    (modal?.view === "EDIT_TEAM" && loadingAction === `edit-${modal.data.id}`);
-
-  const isDeptFormLoading =
-    (modal?.view === "ADD_DEPARTMENT" && loadingAction === "add-department") ||
-    (modal?.view === "EDIT_DEPARTMENT" &&
-      loadingAction === `edit-${modal.data.id}`);
-
-  // This is the key change:
-  // Instead of passing stale data from the modal state, we find the *current*
-  // version of the entity from the main state arrays (teams, departments).
-  // This ensures the dialog always has the latest list of members.
-  const currentManagingEntity =
-    modal?.view === "MANAGE_MEMBERS"
-      ? modal.data.entityType === "team"
-        ? teams.find((t) => t.id === modal.data.id)
-        : departments.find((d) => d.id === modal.data.id)
-      : null;
-
-  const entityForDialog = currentManagingEntity
-    ? {
-        ...currentManagingEntity,
-        entityType:
-          modal?.view === "MANAGE_MEMBERS" ? modal.data.entityType : "team",
-      }
-    : null;
 
   return (
     <>
@@ -300,13 +244,25 @@ export default function AdminClientPage({
             : "This action cannot be undone."
         }
       />
+      
       {/* Calendar Dialogs */}
       <CreateEventDialog
         isOpen={showNewEventDialog}
-        onClose={() => setShowNewEventDialog(false)}
-        onSubmit={createEvent}
+        onClose={() => {
+          setSelectedEvent(null)
+          setShowNewEventDialog(false)
+        }}
+        onSubmit={async (data) => {
+          const success = await createEvent(data);
+          if (success) {
+            setSelectedEvent(null);
+            setShowNewEventDialog(false);
+          }
+        }}
         isLoading={isCalendarLoading}
+        initialData={selectedEvent || undefined}
       />
+
       <EventDetailsDialog
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}

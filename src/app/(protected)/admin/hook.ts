@@ -30,6 +30,9 @@ export const useAdminPage = (
   const [departments, setDepartments] =
     useState<Department[]>(initialDepartments);
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
+  
+  // --- Modal State ---
+  const [modal, setModal] = useState<ModalState | null>(null);
 
   // --- State for Event Requests ---
   const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>(initialPendingEvents);
@@ -47,26 +50,43 @@ export const useAdminPage = (
   // --- SIMULATED API DELAY ---
   const simulateApi = (duration = 1000) => new Promise((res) => setTimeout(res, duration));
 
+  // --- Modal and Action Handlers ---
+  const closeModal = () => setModal(null);
+  
+  const handleActionConfirm = () => {
+    if (!modal) return;
+
+    switch (modal.view) {
+      case "DELETE_USER":
+        handleDeleteUser(modal.data.id).then(closeModal);
+        break;
+      case "VERIFY_USER":
+        handleVerifyUser(modal.data.id).then(closeModal);
+        break;
+      case "DELETE_TEAM":
+        handleDeleteTeam(modal.data.id).then(closeModal);
+        break;
+      case "DELETE_DEPARTMENT":
+        handleDeleteDepartment(modal.data.id).then(closeModal);
+        break;
+    }
+  };
+
+
   // --- EVENT REQUEST HANDLERS ---
   const handleAcceptEvent = async (eventToAccept: PendingEvent) => {
     setLoadingAction(`accept-${eventToAccept.id}`);
     try {
       await simulateApi(700);
 
-      // FIX: Correctly handle the date string to avoid timezone shifts.
-      // The date string "YYYY-MM-DD" is treated as UTC. Appending time forces local interpretation.
       const localDate = new Date(`${eventToAccept.date}T00:00:00`);
       
-      // Create a new event object with the original properties but a corrected date string.
       const acceptedEvent: Event = {
         ...eventToAccept,
-        date: formatDateString(localDate), // Use the reliable util to format it back
+        date: formatDateString(localDate), 
       };
 
-      // Add the corrected event to the main calendar
       setAllEvents(prev => [...prev, acceptedEvent]);
-      
-      // Remove from pending list
       setPendingEvents(prev => prev.filter(e => e.id !== eventToAccept.id));
       
       toast({
@@ -84,7 +104,6 @@ export const useAdminPage = (
     setLoadingAction(`reject-${eventToReject.id}`);
     try {
       await simulateApi(700);
-      // Remove from pending list
       setPendingEvents(prev => prev.filter(e => e.id !== eventToReject.id));
       toast({
         title: "Event Rejected",
@@ -98,18 +117,30 @@ export const useAdminPage = (
     }
   };
 
-  // --- Modal State ---
-  const [modal, setModal] = useState<ModalState | null>(null);
-
   // --- Memoized Derived State ---
-  const currentManagingEntity = useMemo(() => {
+  const isUserFormLoading =
+    (modal?.view === "ADD_USER" && loadingAction === "add-user") ||
+    (modal?.view === "EDIT_USER" && loadingAction === `edit-${modal.data.id}`);
+
+  const isTeamFormLoading =
+    (modal?.view === "ADD_TEAM" && loadingAction === "add-team") ||
+    (modal?.view === "EDIT_TEAM" && loadingAction === `edit-${modal.data.id}`);
+
+  const isDeptFormLoading =
+    (modal?.view === "ADD_DEPARTMENT" && loadingAction === "add-department") ||
+    (modal?.view === "EDIT_DEPARTMENT" &&
+      loadingAction === `edit-${modal.data.id}`);
+
+  const entityForDialog = useMemo(() => {
     if (modal?.view !== 'MANAGE_MEMBERS') return null;
-    const { entityType, id } = modal.data;
-    const entity = entityType === 'team'
-      ? teams.find(t => t.id === id)
-      : departments.find(d => d.id === id);
-    return entity ? { ...entity, entityType } : null;
+    
+    const entity = modal.data.entityType === 'team'
+      ? teams.find(t => t.id === modal.data.id)
+      : departments.find(d => d.id === modal.data.id);
+      
+    return entity ? { ...entity, entityType: modal.data.entityType } : null;
   }, [modal, teams, departments]);
+
 
   // --- USER HANDLERS ---
   const handleSaveUser = async (data: UserFormData & { id?: string }) => {
@@ -118,7 +149,6 @@ export const useAdminPage = (
     try {
       await simulateApi();
       if (data.id) {
-        // Edit existing user
         setUsers((prev) =>
           prev.map((u) => (u.id === data.id ? { ...u, ...data } : u))
         );
@@ -127,7 +157,6 @@ export const useAdminPage = (
           description: `${data.name}'s details have been saved.`,
         });
       } else {
-        // Add new user
         const newUser: User = {
           id: `u${Date.now()}`,
           ...data,
@@ -154,7 +183,6 @@ export const useAdminPage = (
 
   const handleDeleteUser = async (userId: string) => {
     setLoadingAction(`delete-${userId}`);
-    // Optimistic update: remove user from UI immediately
     const originalUsers = users;
     setUsers((prev) => prev.filter((u) => u.id !== userId));
     try {
@@ -162,7 +190,7 @@ export const useAdminPage = (
       toast({ title: "User Deleted" });
     } catch {
       toast({ title: "Error Deleting User", variant: "destructive" });
-      setUsers(originalUsers); // Rollback on error
+      setUsers(originalUsers);
     } finally {
       setLoadingAction(null);
     }
@@ -190,13 +218,11 @@ export const useAdminPage = (
     try {
       await simulateApi();
       if (data.id) {
-        // Edit
         setTeams((prev) =>
           prev.map((t) => (t.id === data.id ? { ...t, ...data } : t))
         );
         toast({ title: "Team Updated" });
       } else {
-        // Add
         const newTeam: Team = {
           id: `t${Date.now()}`,
           ...data,
@@ -239,13 +265,11 @@ export const useAdminPage = (
     try {
       await simulateApi();
       if (data.id) {
-        // Edit
         setDepartments((prev) =>
           prev.map((d) => (d.id === data.id ? { ...d, ...data } : d))
         );
         toast({ title: "Department Updated" });
       } else {
-        // Add
         const newDept: Department = {
           id: `d${Date.now()}`,
           name: data.name,
@@ -271,7 +295,6 @@ export const useAdminPage = (
     setDepartments((prev) => prev.filter((d) => d.id !== deptId));
     try {
       await simulateApi();
-      // Also remove teams within that department
       setTeams((prev) => prev.filter((t) => t.departmentId !== deptId));
       toast({ title: "Department Deleted" });
     } catch {
@@ -338,8 +361,6 @@ export const useAdminPage = (
     setLoadingAction("refresh");
     try {
       await simulateApi(1500);
-      // In a real app, you would re-fetch from the API here.
-      // For this mock, we can just show a toast.
       toast({
         title: "Data Refreshed",
         description: "Latest data has been loaded.",
@@ -388,7 +409,7 @@ export const useAdminPage = (
       const newEvent: Event = {
         id: allEvents.length + 1,
         title: formData.title,
-        description: formData.description || "", // Handle undefined description
+        description: formData.description || "",
         date: formData.date,
         time: formData.time,
         duration: parseInt(formData.duration),
@@ -452,11 +473,20 @@ export const useAdminPage = (
     pendingEvents,
     handleAcceptEvent,
     handleRejectEvent,
+    // Modal State & Handlers
+    modal,
+    setModal,
+    closeModal,
+    handleActionConfirm,
+    entityForDialog,
+    isUserFormLoading,
+    isTeamFormLoading,
+    isDeptFormLoading,
     // Calendar State
     calendarView, 
     currentDate, 
     filteredEvents, 
-    upcomingEvents, // Now properly defined
+    upcomingEvents,
     showNewEventDialog, 
     selectedEvent, 
     isCalendarLoading, 

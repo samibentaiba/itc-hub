@@ -25,7 +25,7 @@ export default async function AdminPage() {
     fetchDepartments(),
     fetchEvents(),
     fetchUpcomingEvents(),
-        fetchPendingEvents(),
+    fetchPendingEvents(),
   ]);
 
   // Pass the server-fetched data as props to the Client Component.

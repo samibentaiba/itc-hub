@@ -9,12 +9,12 @@ export async function fetchDepartment(departmentId: string): Promise<Department 
   const departmentData = (mockDepartments as any[]).find(
     (dept) => dept.id === departmentId
   );
-
+  
   if (!departmentData) {
     return null;
   }
   
-  const ticketsWithDates: Ticket[] = (departmentData.tickets || []).map((ticket: any) => ({
+  const ticketsWithDates: Ticket[] = (departmentData.tickets || []).map((ticket: Ticket) => ({
     ...ticket,
     calendarDate: new Date(ticket.calendarDate),
   }));
