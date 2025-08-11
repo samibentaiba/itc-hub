@@ -83,3 +83,5 @@ export const getSettingsData = async (): Promise<T.SettingsData> => {
     await simulateDelay();
     return mockData.settings;
 }
+
+

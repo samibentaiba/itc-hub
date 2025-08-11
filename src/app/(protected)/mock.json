@@ -1,0 +1,150 @@
+{
+  "users": [
+    {
+      "id": "USER-001",
+      "name": "Sami Bentaiba",
+      "email": "sami.bentaiba@example.com",
+      "avatar": "/avatars/sami.png",
+      "role": "admin",
+      "department": "Executive",
+      "team": "Management"
+    },
+    {
+      "id": "USER-002",
+      "name": "Jane Doe",
+      "email": "jane.doe@example.com",
+      "avatar": "/avatars/jane.png",
+      "role": "manager",
+      "department": "Engineering",
+      "team": "Frontend"
+    },
+    {
+      "id": "USER-003",
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "avatar": "/avatars/john.png",
+      "role": "user",
+      "department": "Engineering",
+      "team": "Frontend"
+    }
+  ],
+  "departments": [
+    {
+      "id": "DEP-001",
+      "name": "Engineering",
+      "managerId": "USER-002",
+      "memberCount": 4,
+      "ticketCount": 120,
+      "teamIds": ["TEAM-001", "TEAM-002"],
+      "memberIds": ["USER-002", "USER-003", "USER-004", "USER-005"],
+      "description": "Responsible for all software development and product engineering."
+    },
+    {
+      "id": "DEP-002",
+      "name": "Support",
+      "managerId": "USER-006",
+      "memberCount": 3,
+      "ticketCount": 350,
+      "teamIds": ["TEAM-003", "TEAM-004"],
+      "memberIds": ["USER-006", "USER-007", "USER-008"],
+      "description": "Dedicated to providing world-class customer support."
+    }
+  ],
+  "teams": [
+    {
+      "id": "TEAM-001",
+      "name": "Frontend",
+      "leaderId": "USER-002",
+      "departmentId": "DEP-001",
+      "memberCount": 2,
+      "memberIds": ["USER-002", "USER-003"],
+      "description": "Develops and maintains the user interface."
+    },
+    {
+      "id": "TEAM-002",
+      "name": "Backend",
+      "leaderId": "USER-004",
+      "departmentId": "DEP-001",
+      "memberCount": 2,
+      "memberIds": ["USER-004", "USER-005"],
+      "description": "Manages the server-side logic and database."
+    }
+  ],
+  "tickets": [
+    {
+      "id": "TICKET-001",
+      "title": "Login button unresponsive on Firefox",
+      "description": "Users on the latest Firefox version are reporting that the main login button does not trigger any action.",
+      "status": "open",
+      "priority": "high",
+      "assigneeId": "USER-003",
+      "reporterId": "USER-007",
+      "departmentId": "DEP-001",
+      "teamId": "TEAM-001",
+      "createdAt": "2025-08-11T10:00:00Z",
+      "updatedAt": "2025-08-11T11:30:00Z"
+    },
+    {
+      "id": "TICKET-002",
+      "title": "API endpoint /api/users returning 500 error",
+      "description": "The user list endpoint is consistently failing with an internal server error. This is blocking user management tasks.",
+      "status": "in_progress",
+      "priority": "high",
+      "assigneeId": "USER-005",
+      "reporterId": "USER-001",
+      "departmentId": "DEP-001",
+      "teamId": "TEAM-002",
+      "createdAt": "2025-08-11T09:30:00Z",
+      "updatedAt": "2025-08-11T14:00:00Z"
+    }
+  ],
+  "dashboard": {
+    "stats": {
+      "openTickets": 2,
+      "closedTickets": 1,
+      "newUsers": 3,
+      "pendingIssues": 1
+    },
+    "recentTicketIds": ["TICKET-004", "TICKET-001", "TICKET-002"],
+    "upcomingEventIds": ["EVENT-001"],
+    "recentActivityIds": ["ACT-001"]
+  },
+  "personalCalendar": {
+    "personalEventIds": ["PE-001"],
+    "teamEventIds": ["TE-002"],
+    "departmentEventIds": ["DE-001"]
+  },
+  "globalCalendar": {
+    "eventIds": ["GE-001"]
+  },
+  "profile": {
+    "id": "USER-001",
+    "name": "Sami Bentaiba",
+    "email": "sami.bentaiba@example.com",
+    "avatar": "/avatars/sami.png",
+    "role": "admin",
+    "department": "Executive",
+    "team": "Management",
+    "bio": "Founder and CEO of ITC Hub. Passionate about building tools that empower teams.",
+    "skills": ["Leadership", "Product Management", "Software Architecture", "Public Speaking"],
+    "socialLinks": {
+      "linkedin": "https://www.linkedin.com/in/samibentaiba",
+      "twitter": "https://twitter.com/samibentaiba",
+      "github": "https://github.com/samibentaiba"
+    }
+  },
+  "settings": {
+    "profile": {
+      "name": "Sami Bentaiba",
+      "email": "sami.bentaiba@example.com",
+      "bio": "Founder and CEO..."
+    },
+    "notifications": {
+      "email": true,
+      "push": true,
+      "ticketUpdates": true,
+      "mentions": true
+    },
+    "theme": "dark"
+  }
+}
