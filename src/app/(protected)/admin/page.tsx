@@ -1,9 +1,10 @@
 // /admin/page.tsx
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { fetchUsers, fetchTeams, fetchDepartments, fetchEvents, fetchUpcomingEvents,fetchPendingEvents } from "./api";
 import AdminClientPage from "./client";
-import { Suspense } from "react";
-import AdminLoading from "./loading";
 
 /**
  * The main server component for the /admin route.
@@ -11,6 +12,11 @@ import AdminLoading from "./loading";
  * efficient data loading and enabling Suspense for a better UX.
  */
 export default async function AdminPage() {
+  const session = await getServerSession(authOptions);
+
+  // Check if the user is an admin. If not, redirect them to the dashboard.
+  console.log("Session:", session);
+
   // Fetch all data in parallel to minimize load times.
   // The `loading.tsx` component will be shown while this is in progress.
   const [
@@ -30,7 +36,7 @@ export default async function AdminPage() {
 
   // Pass the server-fetched data as props to the Client Component.
   return (
-    <Suspense fallback={<AdminLoading />}>
+  
       <AdminClientPage
         initialUsers={initialUsers}
         initialTeams={initialTeams}
@@ -39,6 +45,6 @@ export default async function AdminPage() {
         initialUpcomingEvents={initialUpcomingEvents}
         initialPendingEvents={initialPendingEvents}
       />
-    </Suspense>
+
   );
 }

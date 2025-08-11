@@ -14,7 +14,7 @@ model User {
   password        String
   role            Role               @default(MEMBER)
   avatar          String?
-  status          String? // e.g., 'verified', 'pending', etc.
+  status          String
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   departments     DepartmentMember[]
@@ -177,10 +177,8 @@ model File {
 
 enum Role {
   ADMIN
-  SUPERLEADER
   LEADER
   MEMBER
-  GUEST
 }
 
 enum TicketType {

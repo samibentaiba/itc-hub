@@ -1,8 +1,8 @@
-import { NextAuthOptions } from "next-auth"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
-import { prisma } from "@/lib/prisma"
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { User } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,46 +10,48 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         try {
           const user = await prisma.user.findUnique({
             where: {
-              email: credentials.email
-            }
-          })
+              email: credentials.email,
+            },
+          });
 
           if (!user) {
-            return null
+            return null;
           }
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
-          )
+          );
 
           if (!isPasswordValid) {
-            return null
+            return null;
           }
 
+          // Return the user object, ensuring avatar is undefined if null
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
-            avatar: user.avatar,
-          }
+            // This fixes the type error by converting null to undefined
+            avatar: user.avatar ?? undefined,
+          };
         } catch (error) {
-          console.error("Auth error:", error)
-          return null
+          console.error("Auth error:", error);
+          return null;
         }
-      }
-    })
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -58,24 +60,25 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role
-        token.id = user.id
-        token.avatar = user.avatar
+        token.id = user.id;
+        token.role = user.role;
+        token.avatar = user.avatar;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
-        session.user.avatar = token.avatar as string
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        // Safely assign the avatar, which can be string or undefined
+        session.user.avatar = token.avatar;
       }
-      return session
-    }
+      return session;
+    },
   },
   pages: {
     signIn: "/login",
     error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
-} 
+};

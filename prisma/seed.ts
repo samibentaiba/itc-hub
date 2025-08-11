@@ -20,6 +20,7 @@ async function main() {
       password: adminPassword,
       role: 'ADMIN',
       avatar: '/placeholder.svg?height=32&width=32',
+      status: 'verified', // Added status field
     },
   })
 
@@ -33,6 +34,7 @@ async function main() {
       password: userPassword,
       role: 'MEMBER',
       avatar: '/placeholder.svg?height=32&width=32',
+      status: 'verified', // Added status field
     },
   })
 
