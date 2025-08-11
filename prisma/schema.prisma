@@ -8,8 +8,6 @@ datasource db {
 }
 
 // --- NextAuth Models ---
-// These are required for the PrismaAdapter to function correctly.
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -45,30 +43,31 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-// --- Your Application Models ---
-
+// --- Application Models ---
 model User {
-  id              String             @id @default(cuid())
-  email           String             @unique
-  name            String
-  password        String
-  role            Role               @default(MEMBER)
-  avatar          String?
-  status          String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  departments     DepartmentMember[]
-  teams           TeamMember[]
-  ticketsCreated  Ticket[]           @relation("CreatedTickets")
-  ticketsAssigned Ticket[]           @relation("AssignedTickets")
-  messages        Message[]
-  notifications   Notification[]
-  eventsOrganized Event[]            @relation("OrganizedEvents")
-  profile         Profile?
-  files           File[]
-
-  // Relations to NextAuth models
+  id                     String             @id @default(cuid())
+  email                  String             @unique
+  name                   String
+  password               String
+  role                   Role               @default(MEMBER)
+  avatar                 String?
+  status                 String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  departments            DepartmentMember[]
+  teams                  TeamMember[]
+  createdTickets         Ticket[]           @relation("CreatedTickets")
+  assignedTickets        Ticket[]           @relation("AssignedTickets")
+  organizedEvents        Event[]            @relation("OrganizedEvents")
+  messages               Message[]
+  notifications          Notification[]
+  files                  File[]
+  profile                Profile?
+  headedDepartments      Department[]       @relation("DepartmentHead")
+  ledTeams               Team[]             @relation("TeamLeader")
+  collaboratingOnTickets Ticket[]           @relation("TicketCollaborators")
+  attendedEvents         Event[]            @relation("EventAttendees")
+    // Relations to NextAuth models
   accounts Account[]
   sessions Session[]
 }
@@ -78,11 +77,15 @@ model Department {
   name        String             @unique
   description String?
   status      String?
+  color       String?
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
   members     DepartmentMember[]
   teams       Team[]
   tickets     Ticket[]
+  events      Event[]
+  head        User?              @relation("DepartmentHead", fields: [headId], references: [id])
+  headId      String?            @unique
 }
 
 model DepartmentMember {
@@ -108,6 +111,8 @@ model Team {
   members      TeamMember[]
   tickets      Ticket[]
   department   Department   @relation(fields: [departmentId], references: [id])
+  leader       User?        @relation("TeamLeader", fields: [leaderId], references: [id])
+  leaderId     String?
 }
 
 model TeamMember {
@@ -123,25 +128,25 @@ model TeamMember {
 }
 
 model Ticket {
-  id           String       @id @default(cuid())
-  title        String
-  description  String
-  type         TicketType   @default(TASK)
-  status       TicketStatus @default(OPEN)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  dueDate      DateTime?
-  teamId       String?
-  departmentId String?
-  assigneeId   String?
-  createdById  String
-  team         Team?        @relation(fields: [teamId], references: [id])
-  department   Department?  @relation(fields: [departmentId], references: [id])
-  assignee     User?        @relation("AssignedTickets", fields: [assigneeId], references: [id])
-  createdBy    User         @relation("CreatedTickets", fields: [createdById], references: [id])
-  messages     Message[]
-  files        File[]
-  workingUsers Profile[]    @relation("ProfileWorkingOn")
+  id            String       @id @default(cuid())
+  title         String
+  description   String?
+  type          TicketType   @default(TASK)
+  status        TicketStatus @default(OPEN)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  dueDate       DateTime?
+  teamId        String?
+  departmentId  String?
+  assigneeId    String?
+  createdById   String
+  team          Team?        @relation(fields: [teamId], references: [id])
+  department    Department?  @relation(fields: [departmentId], references: [id])
+  assignee      User?        @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  createdBy     User         @relation("CreatedTickets", fields: [createdById], references: [id])
+  messages      Message[]
+  files         File[]
+  collaborators User[]       @relation("TicketCollaborators")
 }
 
 model Message {
@@ -159,20 +164,22 @@ model Message {
 }
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  date        DateTime
-  time        String?
-  duration    String?
-  type        String
-  location    String?
-  organizerId String?
-  attendees   Int?
-  isRecurring Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  organizer   User?    @relation("OrganizedEvents", fields: [organizerId], references: [id])
+  id           String    @id @default(cuid())
+  title        String
+  description  String?
+  date         DateTime
+  time         String?
+  duration     Int?
+  type         String?
+  location     String?
+  organizerId  String?
+  isRecurring  Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  organizer    User?     @relation("OrganizedEvents", fields: [organizerId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  attendees    User[]    @relation("EventAttendees")
 }
 
 model Notification {
@@ -189,11 +196,10 @@ model Notification {
 model Profile {
   id           String        @id @default(cuid())
   userId       String        @unique
-  realName     String
+  realName     String?
   bio          String?
   profilePic   Bytes?
   achievements Achievement[]
-  workingOn    Ticket[]      @relation("ProfileWorkingOn")
   user         User          @relation(fields: [userId], references: [id])
 }
 
@@ -239,6 +245,7 @@ enum TicketStatus {
   VERIFIED
   CLOSED
   CANCELLED
+  PENDING
 }
 
 enum NotificationType {
