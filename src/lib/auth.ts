@@ -1,6 +1,4 @@
-// src/lib/auth.ts
-import { NextAuthOptions, User } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+
 // src/lib/auth.ts
 import { NextAuthOptions, User } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";

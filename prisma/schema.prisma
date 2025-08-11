@@ -27,9 +27,6 @@ model User {
   eventsOrganized Event[]            @relation("OrganizedEvents")
   profile         Profile?
   files           File[]
-  // Add relations to the new models
-  accounts        Account[]
-  sessions        Session[]
 }
 
 model Department {
