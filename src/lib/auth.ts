@@ -1,10 +1,14 @@
-import { NextAuthOptions } from "next-auth";
+// src/lib/auth.ts
+import { NextAuthOptions, User } from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { User } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
+  // Add the PrismaAdapter to connect NextAuth.js to your database
+  adapter: PrismaAdapter(prisma),
+
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -37,13 +41,11 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          // Return the user object, ensuring avatar is undefined if null
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
-            // This fixes the type error by converting null to undefined
             avatar: user.avatar ?? undefined,
           };
         } catch (error) {
@@ -54,27 +56,20 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: {
-    strategy: "jwt",
+    // This is the key change: switch from 'jwt' to 'database'
+    strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.avatar = user.avatar;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        // Safely assign the avatar, which can be string or undefined
-        session.user.avatar = token.avatar;
+    async session({ session, user }) {
+      if (user && session.user) {
+        session.user.id = user.id;
+        session.user.role = user.role;
+        session.user.avatar = user.avatar;
       }
       return session;
     },
+    // The JWT callback is not needed for the database strategy
   },
   pages: {
     signIn: "/login",

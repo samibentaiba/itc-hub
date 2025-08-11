@@ -7,6 +7,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// These are the models required by NextAuth.js Prisma Adapter
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+
 model User {
   id              String             @id @default(cuid())
   email           String             @unique
@@ -14,7 +51,7 @@ model User {
   password        String
   role            Role               @default(MEMBER)
   avatar          String?
-  status          String
+  status          String? // e.g., 'verified', 'pending', etc.
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   departments     DepartmentMember[]
@@ -26,6 +63,9 @@ model User {
   eventsOrganized Event[]            @relation("OrganizedEvents")
   profile         Profile?
   files           File[]
+  // Add relations to the new models
+  accounts        Account[]
+  sessions        Session[]
 }
 
 model Department {
