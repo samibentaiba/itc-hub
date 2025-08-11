@@ -11,14 +11,12 @@
             "id": "d13ad9925b1f696b",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "excalidraw",
               "state": {
-                "file": "AUTHENTICATION_SETUP.md",
-                "mode": "source",
-                "source": false
+                "file": "itc-hub-Pattern-design.excalidraw"
               },
-              "icon": "lucide-file",
-              "title": "AUTHENTICATION_SETUP"
+              "icon": "excalidraw-icon",
+              "title": "itc-hub-Pattern-design"
             }
           }
         ]
@@ -171,6 +169,7 @@
   },
   "active": "d13ad9925b1f696b",
   "lastOpenFiles": [
+    "AUTHENTICATION_SETUP.md",
     "AUTHORIZATION_SYSTEM_GUIDE.md",
     "ITC-hub analyse.md",
     "Untitled.canvas",
@@ -181,7 +180,6 @@
     "Untitled.md",
     "ITC-hub analyse arabic version.md",
     "API_DOCUMENTATION.md",
-    "AUTHENTICATION_SETUP.md",
     "Untitled 1.md",
     "Welcome.md"
   ]

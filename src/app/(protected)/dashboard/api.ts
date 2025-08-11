@@ -1,28 +1,62 @@
-// /dashboard/api.ts
+// /dashboard/api.ts - Updated to use your comprehensive API system
 
-import { type Ticket, type WorkspaceStats } from "./types";
-import data from "./mock.json";
+import { getDashboardData } from '../api';
+import type { DashboardData } from '../types';
 
 /**
- * Simulates fetching dashboard statistics from an API.
- * Includes a delay to mimic real-world network latency.
- * @returns A promise that resolves to the workspace stats.
+ * Fetches comprehensive dashboard data using the existing API system
+ * This replaces the previous separate fetchWorkspaceStats and fetchTickets functions
  */
-export const fetchWorkspaceStats = async (): Promise<WorkspaceStats> => {
-  console.log("Fetching workspace stats...");
-  await new Promise(resolve => setTimeout(resolve, 0)); // Simulate network delay
-  console.log("Fetched workspace stats.");
-  return data.stats as WorkspaceStats;
+export const fetchDashboardData = async (): Promise<DashboardData> => {
+  console.log("Fetching dashboard data...");
+  const data = await getDashboardData();
+  console.log("Fetched dashboard data:", data);
+  return data;
 };
 
-/**
- * Simulates fetching a list of assigned tickets from an API.
- * Includes a delay to mimic real-world network latency.
- * @returns A promise that resolves to an array of tickets.
- */
-export const fetchTickets = async (): Promise<Ticket[]> => {
-  console.log("Fetching tickets...");
-  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate a slightly longer delay
-  console.log("Fetched tickets.");
-  return data.tickets as Ticket[];
+// Keep these for backward compatibility if needed elsewhere
+export const fetchWorkspaceStats = async () => {
+  const dashboardData = await fetchDashboardData();
+  
+  // Transform dashboard stats to match the expected WorkspaceStats interface
+  return {
+    teams: { 
+      count: 2, // You can derive this from dashboardData or your mock data
+      change: "+1 this month", 
+      trend: "up" 
+    },
+    departments: { 
+      count: 2, 
+      change: "No change", 
+      trend: "stable" 
+    },
+    activeTickets: { 
+      count: dashboardData.stats.openTickets + dashboardData.stats.pendingIssues, 
+      change: `+${dashboardData.stats.pendingIssues} this week`, 
+      trend: "up" 
+    },
+    completedThisWeek: { 
+      count: dashboardData.stats.closedTickets, 
+      change: `+${dashboardData.stats.closedTickets} from last week`, 
+      trend: "up" 
+    }
+  };
+};
+
+export const fetchTickets = async () => {
+  const dashboardData = await fetchDashboardData();
+  
+  // Transform recent tickets to match the expected Ticket interface
+  return dashboardData.recentTickets.map(ticket => ({
+    id: ticket.id || '',
+    title: ticket.title || '',
+    type: 'task', // Default type since it's not in original data
+    workspace: ticket.team?.name || ticket.department?.name || 'Unknown',
+    workspaceType: ticket.team ? 'team' : 'department',
+    status: ticket.status || 'open',
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 1 week from now
+    messages: Math.floor(Math.random() * 10) + 1, // Random for demo
+    priority: ticket.priority || 'medium',
+    assignedBy: ticket.assignee?.name || 'System'
+  }));
 };
