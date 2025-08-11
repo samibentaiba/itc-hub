@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Your application models (NextAuth models removed since we're using JWT)
 model User {
   id              String             @id @default(cuid())
   email           String             @unique
@@ -14,7 +15,7 @@ model User {
   password        String
   role            Role               @default(MEMBER)
   avatar          String?
-  status          String
+  status          String?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   departments     DepartmentMember[]
@@ -32,7 +33,7 @@ model Department {
   id          String             @id @default(cuid())
   name        String             @unique
   description String?
-  status      String? // e.g., 'active', 'planning', etc.
+  status      String?
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
   members     DepartmentMember[]
@@ -56,7 +57,7 @@ model Team {
   id           String       @id @default(cuid())
   name         String       @unique
   description  String?
-  status       String? // e.g., 'active', 'planning', etc.
+  status       String?
   departmentId String
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
@@ -104,7 +105,7 @@ model Message {
   ticketId  String
   senderId  String
   content   String
-  type      String // 'text', 'image', 'file', etc.
+  type      String
   timestamp DateTime @default(now())
   reactions Json?
   edited    Boolean  @default(false)
@@ -120,7 +121,7 @@ model Event {
   date        DateTime
   time        String?
   duration    String?
-  type        String // 'meeting', 'event', 'deadline', 'workshop', 'networking', etc.
+  type        String
   location    String?
   organizerId String?
   attendees   Int?
@@ -157,7 +158,7 @@ model Achievement {
   profileId   String
   title       String
   description String?
-  badge       String? // e.g., emoji or badge name
+  badge       String?
   profile     Profile @relation(fields: [profileId], references: [id])
 }
 
