@@ -74,8 +74,8 @@ export interface Team {
   description: string;
 }
 
-// Calendar & Event Types
-export type EventType = "meeting" | "deadline" | "personal" | "team-event" | "department-event";
+// --- Calendar & Event Types ---
+export type EventType = "meeting" | "deadline" | "personal" | "team-event" | "department-event" | "global";
 
 export interface CalendarEvent {
   id: string;
@@ -89,7 +89,20 @@ export interface CalendarEvent {
   location?: string;
 }
 
-// Page-specific Data Types
+// Represents the aggregated data for a user's personal calendar view
+export interface PersonalCalendarData {
+    personalEvents: CalendarEvent[];
+    teamEvents: CalendarEvent[];
+    departmentEvents: CalendarEvent[];
+}
+
+// Represents the data for the global, company-wide calendar
+export interface GlobalCalendarData {
+    events: CalendarEvent[];
+}
+
+
+// --- Page-specific Data Types ---
 
 // Dashboard
 export interface DashboardStats {
@@ -112,14 +125,6 @@ export interface DashboardData {
   recentTickets: Partial<Ticket>[];
   upcomingEvents: Partial<CalendarEvent>[];
   recentActivity: Partial<RecentActivity>[];
-}
-
-// Calendar Page
-export interface CalendarData {
-    personalEvents: CalendarEvent[];
-    teamEvents: CalendarEvent[];
-    departmentEvents: CalendarEvent[];
-    globalEvents: CalendarEvent[];
 }
 
 // Departments Page
@@ -185,4 +190,21 @@ export interface File {
   type: string; // e.g., 'application/pdf', 'image/jpeg'
   uploadedAt: string;
   uploadedBy: Partial<User>;
+}
+
+// Root type for the entire mock data structure.
+export interface MockData {
+  dashboard: DashboardData;
+  personalCalendar: PersonalCalendarData;
+  globalCalendar: GlobalCalendarData;
+  departments: DepartmentsPageData;
+  departmentDetail: DepartmentDetailData;
+  profile: Profile;
+  settings: SettingsData;
+  teams: TeamsPageData;
+  teamDetail: TeamDetailData;
+  tickets: TicketsPageData;
+  ticketDetail: TicketDetails;
+  users: UsersPageData;
+  userDetail: UserDetailData;
 }
