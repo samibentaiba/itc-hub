@@ -1,5 +1,6 @@
 // /admin/page.tsx
 
+import { redirect } from "next/navigation";
 import {
   fetchUsers,
   fetchTeams,
@@ -7,6 +8,7 @@ import {
   fetchEvents,
   fetchUpcomingEvents,
   fetchPendingEvents,
+  fetchRole,
 } from "./api";
 import AdminClientPage from "./client";
 export default async function AdminPage() {
@@ -25,6 +27,10 @@ export default async function AdminPage() {
     fetchUpcomingEvents(),
     fetchPendingEvents(),
   ]);
+  const role = await fetchRole();
+  if(role !== 'ADMIN') {
+    redirect('/');
+  }
   return (
     <AdminClientPage
       initialUsers={initialUsers}

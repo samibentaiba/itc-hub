@@ -1,6 +1,45 @@
 // --- /admin/api.ts ---
 import type { User, Team, Department,Event, UpcomingEvent,PendingEvent  } from "./types";
 import data from "./mock.json";
+import { headers } from "next/headers";
+// Helper to construct the full URL for API requests
+const getApiUrl = (path: string) => {
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  return `${baseUrl}${path}`;
+};
+
+
+/**
+ * Fetches the current user's role from the dedicated API endpoint.
+ * This is used for server-side authorization checks.
+ * @returns The user's role as a string (e.g., "ADMIN", "USER").
+ */
+export async function fetchRole(): Promise<string | null> {
+  try {
+    // We must forward the cookies from the original request to the API route
+    // so that NextAuth can identify the user's session.
+    const cookie = (await headers()).get("cookie");
+
+    const response = await fetch(getApiUrl("/api/auth/role"), {
+      headers: {
+        // Pass the cookie to the API route
+        cookie: cookie || "",
+      },
+      cache: 'no-store', // Always fetch the latest role
+    });
+
+    if (!response.ok) {
+      // Handles 401 Unauthorized and other errors
+      return null;
+    }
+
+    const data = await response.json();
+    return data.role;
+  } catch (error) {
+    console.error("Failed to fetch user role:", error);
+    return null;
+  }
+}
 
 /**
  * Fetches all users.
