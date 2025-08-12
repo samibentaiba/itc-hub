@@ -1,12 +1,6 @@
-// Defines the structure for social media links
-export interface SocialLinks {
-  github: string;
-  linkedin: string;
-  twitter: string;
-  website: string;
-}
+// ===== IMPROVED types.d.ts =====
+// src/app/(protected)/profile/types.d.ts
 
-// Defines the main user profile information
 export interface UserProfile {
   name: string;
   email: string;
@@ -19,7 +13,13 @@ export interface UserProfile {
   socialLinks: SocialLinks;
 }
 
-// Defines the structure for the quick stats card
+export interface SocialLinks {
+  github?: string;
+  linkedin?: string;
+  twitter?: string;
+  website?: string;
+}
+
 export interface ProfileStats {
   projectsCompleted: number;
   teamsLed: number;
@@ -27,13 +27,11 @@ export interface ProfileStats {
   contributions: number;
 }
 
-// Defines a single skill with its proficiency level
 export interface Skill {
   name: string;
   level: number;
 }
 
-// Defines a single project the user is working on
 export interface Project {
   id: number;
   name: string;
@@ -43,16 +41,14 @@ export interface Project {
   team: string;
 }
 
-// Defines a single achievement or award
 export interface Achievement {
   id: number;
   title: string;
   description: string;
   date: string;
-  category: "Innovation" | "Leadership" | "Technical";
+  category: "Innovation" | "Leadership" | "Technical" | "Design";
 }
 
-// Defines a team the user is a member of
 export interface TeamMembership {
   id: number;
   name: string;
@@ -61,7 +57,7 @@ export interface TeamMembership {
   isLead: boolean;
 }
 
-// A single, comprehensive object to hold all profile data
+// Single comprehensive data object - following the user route pattern
 export interface ProfileData {
   profile: UserProfile;
   stats: ProfileStats;
@@ -69,5 +65,5 @@ export interface ProfileData {
   projects: Project[];
   achievements: Achievement[];
   teams: TeamMembership[];
-  departments: TeamMembership[]; // Reusing TeamMembership for simplicity
+  departments: TeamMembership[];
 }

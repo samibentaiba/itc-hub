@@ -1,15 +1,24 @@
+// ===== IMPROVED api.ts =====
+// src/app/(protected)/profile/api.ts
 import { type ProfileData } from "./types";
 import data from "./mock.json";
 
-/**
- * Simulates fetching the complete profile data for a user.
- * @returns A promise that resolves to the ProfileData object.
- */
-export const fetchProfileData = async (): Promise<ProfileData> => {
-  // Simulate a network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // In a real app, you might fetch different parts of the profile
-  // and assemble them here. For now, we return the whole mock object.
-  return data as ProfileData;
+export const fetchProfileData = async (): Promise<ProfileData | null> => {
+  try {
+    // Simulate network delay for realistic loading experience
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Validate data structure before returning
+    const profileData = data as ProfileData;
+    
+    // Basic validation
+    if (!profileData.profile?.name || !profileData.profile?.email) {
+      throw new Error("Invalid profile data structure");
+    }
+    
+    return profileData;
+  } catch (error) {
+    console.error("Failed to fetch profile data:", error);
+    return null;
+  }
 };
