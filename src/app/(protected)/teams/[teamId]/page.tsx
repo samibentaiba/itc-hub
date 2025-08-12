@@ -1,6 +1,6 @@
 // src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
-import { fetchTeamById, fetchTicketsByTeamId } from "./api";
+import { fetchTeamByIdDetail, fetchTicketsByTeamId } from "../../api";
 import TeamDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,11 @@ interface PageProps {
   };
 }
 
-export default async function TeamDetailPage({ params }: PageProps) {
-  const { teamId } = params;
+export default async function TeamDetailPage(props: PageProps) {
+  const { teamId } = props.params;
 
   const [team, tickets] = await Promise.all([
-    fetchTeamById(teamId),
+    fetchTeamByIdDetail(teamId),
     fetchTicketsByTeamId(teamId),
   ]);
 

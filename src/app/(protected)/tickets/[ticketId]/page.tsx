@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fetchTicketById, fetchMessagesByTicketId } from "./api"; // Note the relative path
+import { fetchTicketByIdDetail, fetchMessagesByTicketId } from "../../api"; // Import from central API
 import TicketDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,22 +7,19 @@ import { ArrowLeft } from "lucide-react";
 
 // This is a Server Component.
 // It fetches data on the server and passes it to the client component.
-export default async function TicketDetailPage({
-  params,
-  searchParams,
-}: {
+export default async function TicketDetailPage(props: {
   params: { ticketId: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const { ticketId } = params;
+  const { ticketId } = props.params;
 
   // Get the 'from' query parameter to create the throwback link, or default to '/tickets'
   const fromPath =
-    typeof searchParams.from === "string" ? searchParams.from : "/tickets";
+    typeof props.searchParams.from === "string" ? props.searchParams.from : "/tickets";
 
   // Fetch data for the specific ticket in parallel
   const [ticket, messages] = await Promise.all([
-    fetchTicketById(ticketId),
+    fetchTicketByIdDetail(ticketId),
     fetchMessagesByTicketId(ticketId),
   ]);
 
