@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { User, Team, Department, Member, ModalState, LoadingAction, Event, UpcomingEvent, EventFormData, UserFormData, TeamFormData, DepartmentFormData, PendingEvent } from "./types";
+import type { User, Team, Department,EventFormData , Member, ModalState, LoadingAction, Event, UpcomingEvent,  UserFormData, TeamFormData, DepartmentFormData, PendingEvent } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
 /**
