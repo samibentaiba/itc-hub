@@ -25,7 +25,7 @@ export function useSettingsPage(initialSettings: UserSettingsLocal) {
   const isSystem = mounted && theme === "system";
 
   // This handler remains for client-side form updates.
-  const handleSettingsChange = (key: keyof UserSettings, value: any) => {
+  const handleSettingsChange = (key: keyof UserSettingsLocal, value: string | boolean) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 

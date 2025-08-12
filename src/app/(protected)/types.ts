@@ -672,3 +672,139 @@ export interface UserDetailLocal {
   teams: UserTeamLocal[];
   departments: UserDepartmentLocal[];
 }
+
+// Admin Types
+export interface MemberAdmin {
+  userId: string;
+  role: "leader" | "member";
+}
+
+export interface UserAdmin {
+  id: string;
+  name: string;
+  email: string;
+  status: "verified" | "pending";
+  joinedDate: string;
+  avatar: string;
+}
+
+export interface TeamAdmin {
+  id: string;
+  name: string;
+  description: string;
+  members: MemberAdmin[];
+  departmentId: string;
+  createdDate: string;
+  status: "active" | "archived";
+}
+
+export interface DepartmentAdmin {
+  id: string;
+  name: string;
+  description: string;
+  members: MemberAdmin[];
+  teams: string[]; // Array of team IDs
+  createdDate: string;
+  status: "active";
+}
+
+export interface EventAdmin {
+  id: number;
+  title: string;
+  description: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  duration: number; // in minutes
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+}
+
+export interface UpcomingEventAdmin {
+  id: number;
+  title: string;
+  date: string; // Formatted string like "Today, 9:00 AM"
+  type: string;
+  attendees: number;
+}
+
+export interface PendingEventAdmin extends EventAdmin {
+  submittedBy: string; // e.g., "Frontend Team" or "Engineering Department"
+  submittedByType: 'team' | 'department';
+}
+
+// Admin Form Data Types
+export interface UserFormDataAdmin {
+  name: string;
+  email: string;
+}
+
+export interface TeamFormDataAdmin {
+  name: string;
+  description?: string;
+  departmentId: string;
+}
+
+export interface DepartmentFormDataAdmin {
+  name: string;
+  description?: string;
+}
+
+export interface EventFormDataAdmin {
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location?: string;
+}
+
+// Admin Modal State Types
+export type ModalStateAdmin =
+  | { view: 'ADD_USER' }
+  | { view: 'EDIT_USER', data: UserAdmin }
+  | { view: 'DELETE_USER', data: UserAdmin }
+  | { view: 'VERIFY_USER', data: UserAdmin }
+  | { view: 'ADD_TEAM' }
+  | { view: 'EDIT_TEAM', data: TeamAdmin }
+  | { view: 'DELETE_TEAM', data: TeamAdmin }
+  | { view: 'ADD_DEPARTMENT' }
+  | { view: 'EDIT_DEPARTMENT', data: DepartmentAdmin }
+  | { view: 'DELETE_DEPARTMENT', data: DepartmentAdmin }
+  | { view: 'MANAGE_MEMBERS', data: { id: string, name: string, entityType: 'team' | 'department' } }
+  | { view: 'ADD_EVENT' }
+  | { view: 'EDIT_EVENT', data: EventAdmin }
+  | { view: 'DELETE_EVENT', data: EventAdmin }
+  | { view: 'VIEW_EVENT', data: EventAdmin }
+  | null;
+
+export type LoadingActionAdmin = string | null;
+
+// Global Calendar Types
+export interface GlobalEventLocal {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  time: string;
+  duration: string;
+  type: string;
+  location: string;
+  organizer: string;
+  attendees: number;
+  isRecurring: boolean;
+}
+
+export interface GlobalEventFormDataLocal {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  type: string;
+  location: string;
+  isRecurring: boolean;
+}
+
+export type GlobalLoadingActionLocal = "add-event" | "export" | "refresh" | null;

@@ -63,6 +63,16 @@ export default function DashboardClientPage({
     }
   };
 
+  interface StatCardProps {
+    title: string;
+    value: string | number;
+    change: string;
+    trend: string;
+    icon: React.ComponentType<{ className?: string }>;
+    onClick: () => void;
+    isSelected: boolean;
+  }
+
   const StatCard = ({
     title,
     value,
@@ -71,7 +81,7 @@ export default function DashboardClientPage({
     icon: Icon,
     onClick,
     isSelected,
-  }: any) => (
+  }: StatCardProps) => (
     <Card
       className="cursor-pointer hover:bg-accent/50 transition-colors"
       onClick={onClick}

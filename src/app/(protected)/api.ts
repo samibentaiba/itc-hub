@@ -522,7 +522,7 @@ export const fetchDepartment = async (departmentId: string): Promise<T.Departmen
       name: team.name || '',
       memberCount: team.memberCount || 0,
       leader: team.leader?.name || 'Unknown',
-      status: 'active' as 'active' | 'planning' | 'archived'
+      status: 'active' as const
     })),
     tickets: ticketsWithDates,
     members: (departmentDetail.members || []).map(member => ({
@@ -567,7 +567,7 @@ export const fetchTeamByIdDetail = async (teamId: string): Promise<T.TeamDetailL
       avatar: teamDetail.leader?.avatar || '',
       id: teamDetail.leader?.id || ''
     },
-    status: 'active' as 'active' | 'inactive',
+    status: 'active' as const,
     createdAt: new Date().toISOString(),
     members: (teamDetail.members || []).map(member => ({
       id: member.id || '',
@@ -746,6 +746,134 @@ export const fetchUserByIdDetail = async (userId: string): Promise<T.UserDetailL
       }
     ]
   };
+};
+
+// Admin Functions
+export const fetchRole = async (): Promise<string | null> => {
+  try {
+    // In a real implementation, this would check the user's session
+    // For now, we'll return 'ADMIN' for demo purposes
+    await simulateDelay();
+    return 'ADMIN';
+  } catch (error) {
+    console.error("Failed to fetch user role:", error);
+    return null;
+  }
+};
+
+export const fetchUsersAdmin = async (): Promise<T.UserAdmin[]> => {
+  await simulateDelay();
+  // Transform existing users data to admin format
+  const users = await getUsers();
+  return users.map(user => ({
+    id: user.id || '',
+    name: user.name || '',
+    email: user.email || '',
+    status: (Math.random() > 0.5 ? 'verified' : 'pending') as 'verified' | 'pending',
+    joinedDate: new Date().toISOString(),
+    avatar: user.avatar || ''
+  }));
+};
+
+export const fetchTeamsAdmin = async (): Promise<T.TeamAdmin[]> => {
+  await simulateDelay();
+  const teams = await getTeams();
+  return teams.map(team => ({
+    id: team.id || '',
+    name: team.name || '',
+    description: team.description || '',
+    members: (team.members || []).map(member => ({
+      userId: member.id || '',
+      role: (member.role === 'manager' ? 'leader' : 'member') as 'leader' | 'member'
+    })),
+    departmentId: 'dept-1', // Default department
+    createdDate: new Date().toISOString(),
+    status: 'active' as const
+  }));
+};
+
+export const fetchDepartmentsAdmin = async (): Promise<T.DepartmentAdmin[]> => {
+  await simulateDelay();
+  const departments = await getDepartments();
+  return departments.map(dept => ({
+    id: dept.id || '',
+    name: dept.name || '',
+    description: dept.description || '',
+    members: (dept.members || []).map(member => ({
+      userId: member.id || '',
+      role: (member.role === 'manager' ? 'leader' : 'member') as 'leader' | 'member'
+    })),
+    teams: (dept.teams || []).map(team => team.id || ''),
+    createdDate: new Date().toISOString(),
+    status: 'active' as const
+  }));
+};
+
+export const fetchEventsAdmin = async (): Promise<T.EventAdmin[]> => {
+  await simulateDelay();
+  const events = await getPersonalCalendarData();
+  return events.slice(0, 10).map((event, index) => ({
+    id: index + 1,
+    title: event.title,
+    description: event.description,
+    date: event.start.split('T')[0],
+    time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
+    duration: 60,
+    type: (event.type === 'meeting' ? 'meeting' : 'workshop') as 'meeting' | 'review' | 'planning' | 'workshop',
+    attendees: event.participants?.map(p => p.name || '') || [],
+    location: event.location || 'Conference Room',
+    color: event.type === 'meeting' ? '#3b82f6' : '#10b981'
+  }));
+};
+
+export const fetchUpcomingEventsAdmin = async (): Promise<T.UpcomingEventAdmin[]> => {
+  await simulateDelay();
+  const events = await getPersonalCalendarData();
+  return events.slice(0, 5).map((event, index) => ({
+    id: index + 1,
+    title: event.title,
+    date: new Date(event.start).toLocaleDateString(),
+    type: event.type,
+    attendees: event.participants?.length || 0
+  }));
+};
+
+export const fetchPendingEventsAdmin = async (): Promise<T.PendingEventAdmin[]> => {
+  await simulateDelay();
+  const events = await getPersonalCalendarData();
+  return events.slice(0, 3).map((event, index) => ({
+    id: index + 1,
+    title: event.title,
+    description: event.description,
+    date: event.start.split('T')[0],
+    time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
+    duration: 60,
+    type: (event.type === 'meeting' ? 'meeting' : 'workshop') as 'meeting' | 'review' | 'planning' | 'workshop',
+    attendees: event.participants?.map(p => p.name || '') || [],
+    location: event.location || 'Conference Room',
+    color: event.type === 'meeting' ? '#3b82f6' : '#10b981',
+    submittedBy: 'Engineering Team',
+    submittedByType: 'team' as 'team' | 'department'
+  }));
+};
+
+// Global Calendar Functions
+export const fetchGlobalEvents = async (): Promise<T.GlobalEventLocal[]> => {
+  await simulateDelay();
+  const globalEvents = await getGlobalCalendarData();
+  return globalEvents.map(event => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    date: new Date(event.start),
+    time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
+    duration: '60 minutes',
+    type: event.type,
+    location: event.location || 'Conference Room',
+    organizer: 'System Admin',
+    attendees: event.participants?.length || 0,
+    isRecurring: false
+  }));
 };
 
 

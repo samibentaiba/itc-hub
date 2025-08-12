@@ -312,8 +312,8 @@ export const useAdminPage = (
     updateFn: (members: Member[]) => Member[]
   ) => {
     const stateSetter = entityType === "team" ? setTeams : setDepartments;
-    stateSetter((prev: any) =>
-      prev.map((entity: any) =>
+    stateSetter((prev: Team[] | Department[]) =>
+      prev.map((entity: Team | Department) =>
         entity.id === entityId
           ? { ...entity, members: updateFn(entity.members) }
           : entity

@@ -210,7 +210,7 @@ export default function AdminClientPage({
       <ManageMembersDialog
         isOpen={modal?.view === "MANAGE_MEMBERS"}
         onClose={closeModal}
-        entity={entityForDialog as any}
+        entity={entityForDialog as (Team & { entityType: 'team' }) | (Department & { entityType: 'department' }) | null}
         allUsers={users}
         onAddMember={handleAddMember}
         onRemoveMember={handleRemoveMember}

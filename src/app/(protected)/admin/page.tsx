@@ -2,14 +2,14 @@
 
 import { redirect } from "next/navigation";
 import {
-  fetchUsers,
-  fetchTeams,
-  fetchDepartments,
-  fetchEvents,
-  fetchUpcomingEvents,
-  fetchPendingEvents,
+  fetchUsersAdmin,
+  fetchTeamsAdmin,
+  fetchDepartmentsAdmin,
+  fetchEventsAdmin,
+  fetchUpcomingEventsAdmin,
+  fetchPendingEventsAdmin,
   fetchRole,
-} from "./api";
+} from "../api";
 import AdminClientPage from "./client";
 export default async function AdminPage() {
   const [
@@ -20,12 +20,12 @@ export default async function AdminPage() {
     initialUpcomingEvents,
     initialPendingEvents,
   ] = await Promise.all([
-    fetchUsers(),
-    fetchTeams(),
-    fetchDepartments(),
-    fetchEvents(),
-    fetchUpcomingEvents(),
-    fetchPendingEvents(),
+    fetchUsersAdmin(),
+    fetchTeamsAdmin(),
+    fetchDepartmentsAdmin(),
+    fetchEventsAdmin(),
+    fetchUpcomingEventsAdmin(),
+    fetchPendingEventsAdmin(),
   ]);
   const role = await fetchRole();
   if(role !== 'ADMIN') {

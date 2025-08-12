@@ -1,7 +1,7 @@
 // /calendar/global/page.tsx
 
 import Link from "next/link";
-import { fetchGlobalEvents } from "./api";
+import { fetchGlobalEvents } from "../../api";
 import GlobalCalendarClientPage from "./client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
