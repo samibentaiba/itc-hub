@@ -479,4 +479,273 @@ export const fetchUserSettings = async (): Promise<T.UserSettingsLocal> => {
   };
 };
 
+// Department Detail Functions
+export const fetchDepartment = async (departmentId: string): Promise<T.DepartmentDetailLocal | null> => {
+  await simulateDelay();
+  const departmentDetail = await getDepartmentById(departmentId);
+  
+  if (!departmentDetail) {
+    return null;
+  }
+
+  // Transform to match local department detail structure
+  const ticketsWithDates: T.DeptTicketLocal[] = (departmentDetail.tickets || []).map((ticket) => ({
+    id: ticket.id || '',
+    title: ticket.title || '',
+    type: (ticket.status === 'open' ? 'task' : ticket.status === 'in_progress' ? 'meeting' : 'event') as 'meeting' | 'task' | 'event',
+    status: (ticket.status === 'open' ? 'in_progress' : ticket.status === 'in_progress' ? 'pending' : 'scheduled') as 'in_progress' | 'pending' | 'scheduled',
+    assignee: ticket.assignee?.name || null,
+    duration: '2 hours', // Default duration
+    messages: Math.floor(Math.random() * 10) + 1,
+    lastActivity: 'Recently',
+    collaborative: true,
+    calendarDate: new Date(),
+    collaborators: [ticket.assignee?.name || '', ticket.reporter?.name || ''].filter(Boolean)
+  }));
+
+  return {
+    id: departmentDetail.id,
+    name: departmentDetail.name,
+    description: departmentDetail.description,
+    head: {
+      name: departmentDetail.manager?.name || 'Unknown',
+      avatar: departmentDetail.manager?.avatar || '',
+      id: departmentDetail.manager?.id || ''
+    },
+    teamCount: departmentDetail.teams?.length || 0,
+    memberCount: departmentDetail.memberCount || 0,
+    budget: '$500,000', // Default budget
+    status: 'Active',
+    createdAt: new Date().toISOString(),
+    teams: (departmentDetail.teams || []).map(team => ({
+      id: team.id || '',
+      name: team.name || '',
+      memberCount: team.memberCount || 0,
+      leader: team.leader?.name || 'Unknown',
+      status: 'active' as 'active' | 'planning' | 'archived'
+    })),
+    tickets: ticketsWithDates,
+    members: (departmentDetail.members || []).map(member => ({
+      id: member.id || '',
+      name: member.name || '',
+      role: (member.role === 'manager' ? 'leader' : 'member') as 'leader' | 'member',
+      avatar: member.avatar || ''
+    })),
+    events: (departmentDetail.events || []).map((event, index) => ({
+      id: index + 1,
+      title: event.title || '',
+      description: event.description || '',
+      date: event.start?.split('T')[0] || new Date().toISOString().split('T')[0],
+      time: event.start?.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
+      duration: 60,
+      type: (event.type === 'meeting' ? 'meeting' : 'workshop') as 'meeting' | 'review' | 'planning' | 'workshop',
+      attendees: event.participants?.map(p => p.name || '') || [],
+      location: event.location || 'Conference Room',
+      color: event.type === 'meeting' ? '#3b82f6' : '#10b981'
+    }))
+  };
+};
+
+// Team Detail Functions  
+export const fetchTeamByIdDetail = async (teamId: string): Promise<T.TeamDetailLocalFull | null> => {
+  await simulateDelay();
+  const teamDetail = await getTeamById(teamId);
+  
+  if (!teamDetail) {
+    return null;
+  }
+
+  return {
+    id: teamDetail.id,
+    name: teamDetail.name,
+    description: teamDetail.description,
+    department: teamDetail.department || 'Unknown',
+    memberCount: teamDetail.memberCount || 0,
+    activeProjects: 3, // Default value
+    lead: {
+      name: teamDetail.leader?.name || 'Unknown',
+      avatar: teamDetail.leader?.avatar || '',
+      id: teamDetail.leader?.id || ''
+    },
+    status: 'active' as 'active' | 'inactive',
+    createdAt: new Date().toISOString(),
+    members: (teamDetail.members || []).map(member => ({
+      id: member.id || '',
+      name: member.name || '',
+      role: (member.role === 'manager' ? 'leader' : 'member') as 'leader' | 'member',
+      avatar: member.avatar || '',
+      status: 'online' as 'online' | 'away' | 'offline',
+      email: member.email || '',
+      joinedDate: new Date().toISOString()
+    })),
+    events: (teamDetail.events || []).map((event, index) => ({
+      id: index + 1,
+      title: event.title || '',
+      description: event.description || '',
+      date: event.start?.split('T')[0] || new Date().toISOString().split('T')[0],
+      time: event.start?.split('T')[1]?.split(':').slice(0, 2).join(':') || '10:00',
+      duration: 60,
+      type: (event.type === 'meeting' ? 'meeting' : 'planning') as 'meeting' | 'review' | 'planning' | 'workshop',
+      attendees: event.participants?.map(p => p.name || '') || [],
+      location: event.location || 'Virtual',
+      color: event.type === 'meeting' ? 'bg-blue-500' : 'bg-purple-500'
+    })),
+    upcomingEvents: [
+      { id: 1, title: 'Team Standup', date: 'Today, 10:00 AM', type: 'meeting', attendees: 2 }
+    ]
+  };
+};
+
+export const fetchTicketsByTeamId = async (teamId: string): Promise<T.TeamTicketLocal[]> => {
+  await simulateDelay();
+  const teamDetail = await getTeamById(teamId);
+  
+  if (!teamDetail || !teamDetail.tickets) {
+    return [];
+  }
+
+  return teamDetail.tickets.map(ticket => ({
+    id: ticket.id || '',
+    title: ticket.title || '',
+    type: (ticket.status === 'open' ? 'task' : ticket.status === 'in_progress' ? 'meeting' : 'event') as 'task' | 'meeting' | 'event',
+    status: (ticket.status === 'open' ? 'in_progress' : ticket.status === 'in_progress' ? 'scheduled' : 'verified') as 'in_progress' | 'scheduled' | 'pending' | 'verified',
+    assignee: ticket.assignee?.name || null,
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    messages: Math.floor(Math.random() * 10) + 1,
+    lastActivity: 'Recently'
+  }));
+};
+
+// Ticket Detail Functions
+export const fetchTicketByIdDetail = async (ticketId: string): Promise<T.TicketDetailLocal | null> => {
+  await simulateDelay();
+  const ticketDetail = await getTicketById(ticketId);
+  
+  if (!ticketDetail) {
+    return null;
+  }
+
+  return {
+    id: ticketDetail.id,
+    title: ticketDetail.title,
+    description: ticketDetail.description,
+    status: (ticketDetail.status === 'open' ? 'new' : ticketDetail.status === 'in_progress' ? 'in-progress' : 'resolved') as 'new' | 'in-progress' | 'resolved',
+    priority: (ticketDetail.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
+    type: 'Task' as 'Task' | 'Bug' | 'Feature',
+    from: ticketDetail.department?.name || ticketDetail.team?.name || 'Unknown',
+    assignee: {
+      name: ticketDetail.assignee?.name || 'Unassigned',
+      avatar: ticketDetail.assignee?.avatar || '',
+      id: ticketDetail.assignee?.id || ''
+    },
+    reporter: {
+      name: ticketDetail.reporter?.name || 'System',
+      avatar: ticketDetail.reporter?.avatar || '',
+      id: ticketDetail.reporter?.id || ''
+    },
+    createdAt: ticketDetail.createdAt || new Date().toISOString(),
+    updatedAt: ticketDetail.updatedAt || new Date().toISOString(),
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    comments: ticketDetail.comments?.length || 0
+  };
+};
+
+export const fetchMessagesByTicketId = async (ticketId: string): Promise<T.MessageLocal[]> => {
+  await simulateDelay();
+  const ticketDetail = await getTicketById(ticketId);
+  
+  if (!ticketDetail || !ticketDetail.comments) {
+    return [];
+  }
+
+  return ticketDetail.comments.map((comment, index) => ({
+    id: comment.id || index.toString(),
+    sender: {
+      id: comment.user?.id || '',
+      name: comment.user?.name || 'Anonymous',
+      avatar: comment.user?.avatar || '',
+      role: (comment.user?.role === 'manager' ? 'leader' : 'member') as 'leader' | 'member'
+    },
+    content: comment.comment || '',
+    type: 'text' as 'text' | 'image' | 'file' | 'system',
+    timestamp: comment.createdAt || new Date().toISOString(),
+    reactions: [],
+    edited: false,
+    hasUrl: false
+  }));
+};
+
+// User Detail Functions
+export const fetchUserByIdDetail = async (userId: string): Promise<T.UserDetailLocal | null> => {
+  await simulateDelay();
+  const userDetail = await getUserById(userId);
+  
+  if (!userDetail) {
+    return null;
+  }
+
+  return {
+    id: userDetail.id,
+    name: userDetail.name,
+    email: userDetail.email,
+    avatar: userDetail.avatar,
+    title: userDetail.role,
+    department: userDetail.department || 'Unknown',
+    location: 'San Francisco, CA', // Default location
+    joinDate: new Date().toISOString(),
+    bio: userDetail.profile?.bio || '',
+    stats: {
+      projectsCompleted: 15,
+      teamsLed: 2,
+      mentorshipHours: 120,
+      contributions: 89
+    },
+    skills: (userDetail.profile?.skills || []).map((skill, index) => ({
+      name: skill,
+      level: Math.floor(Math.random() * 5) + 1
+    })),
+    socialLinks: {
+      github: userDetail.profile?.socialLinks?.github,
+      linkedin: userDetail.profile?.socialLinks?.linkedin || '',
+      twitter: userDetail.profile?.socialLinks?.twitter
+    },
+    currentProjects: [
+      {
+        id: 1,
+        name: 'Project Alpha',
+        role: 'Lead Developer',
+        progress: 75,
+        priority: 'High',
+        team: 'Engineering'
+      }
+    ],
+    achievements: [
+      {
+        id: 1,
+        title: 'Innovation Award',
+        description: 'Outstanding contribution to product development',
+        date: '2024-01-15',
+        category: 'Innovation'
+      }
+    ],
+    teams: [
+      {
+        id: 1,
+        name: 'Engineering',
+        role: 'Senior Developer',
+        members: 8,
+        isLead: false
+      }
+    ],
+    departments: [
+      {
+        id: 1,
+        name: userDetail.department || 'Engineering',
+        role: userDetail.role,
+        isLead: false
+      }
+    ]
+  };
+};
+
 

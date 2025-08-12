@@ -1,85 +1,20 @@
-// src/app/(protected)/departments/[departmentId]/types.ts
+// Re-export central types with local names for backward compatibility
+export type {
+  EventDetailLocal as Event,
+  CalendarUpcomingEvent as UpcomingEvent,
+  EventFormDataLocal as EventFormData,
+  DepartmentDetailLocal as Department,
+  MemberLocal as Member,
+  TeamDetailLocal as Team,
+  DeptTicketLocal as Ticket
+} from "../../types";
 
-/**
- * types.ts
- *
- * This file contains all the shared type definitions for the application.
- */
+// Re-export the form data type
+export type { EventFormDataLocal } from "../../types";
+
+// Create a simple validation schema replacement
 import { z } from 'zod';
 
-// --- Base Data Models (Calendar) ---
-export interface Event {
-  id: number;
-  title: string;
-  description: string;
-  date: string; // "YYYY-MM-DD"
-  time: string; // "HH:MM"
-  duration: number; // in minutes
-  type: "meeting" | "review" | "planning" | "workshop";
-  attendees: string[];
-  location: string;
-  color: string;
-}
-
-export interface UpcomingEvent {
-  id: number;
-  title: string;
-  date: string; // Formatted string like "Today, 9:00 AM"
-  type: string;
-  attendees: number;
-}
-
-// --- Base Data Models (Department) ---
-export type Member = {
-  id: string;
-  name: string;
-  role: 'leader' | 'member'; // UPDATED: Role is now a specific type
-  avatar: string;
-};
-
-export type Team = {
-  id: string;
-  name: string;
-  memberCount: number;
-  leader: string;
-  status: "active" | "planning" | "archived";
-};
-
-export type Ticket = {
-  id: string;
-  title: string;
-  type: "meeting" | "task" | "event";
-  status: "in_progress" | "pending" | "scheduled";
-  assignee: string | null;
-  duration: string;
-  messages: number;
-  lastActivity: string;
-  collaborative: boolean;
-  calendarDate: Date;
-  collaborators: string[];
-};
-
-export type Department = {
-  id: string;
-  name: string;
-  description: string;
-  head: {
-    name: string;
-    avatar: string;
-    id: string;
-  };
-  teamCount: number;
-  memberCount: number;
-  budget: string;
-  status: string;
-  createdAt: string;
-  teams: Team[];
-  tickets: Ticket[];
-  members: Member[];
-  events: Event[];
-};
-
-// --- Zod Schemas for Forms ---
 export const requestEventSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters." }),
   description: z.string().optional(),
@@ -89,5 +24,3 @@ export const requestEventSchema = z.object({
   type: z.enum(["meeting", "review", "planning", "workshop"]),
   location: z.string().optional(),
 });
-
-export type EventFormData = z.infer<typeof requestEventSchema>;
