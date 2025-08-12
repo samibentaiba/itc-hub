@@ -3,7 +3,19 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, MapPin } from "lucide-react";
-import type { Event } from "../../types";
+// Define local type for Event
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
 
 interface CalendarViewProps {
   currentDate: Date;

@@ -127,6 +127,63 @@ export const getDepartmentById = async (id: string): Promise<T.DepartmentDetailD
     return mockData.departmentDetail.id === id ? mockData.departmentDetail : undefined;
 }
 
+// Helper function to transform central Department type to local Department type for compatibility
+export const transformDepartmentForDetail = (department: T.DepartmentDetailData): T.TransformedDepartmentDetail => {
+    return {
+        id: department.id,
+        name: department.name,
+        description: department.description,
+        head: {
+            name: department.manager?.name || 'Unknown',
+            avatar: department.manager?.avatar || '',
+            id: department.manager?.id || ''
+        },
+        teamCount: department.teams?.length || 0,
+        memberCount: department.memberCount || 0,
+        budget: "$500,000", // Default value
+        status: "active",
+        createdAt: new Date().toISOString(),
+        teams: department.teams?.map(team => ({
+            id: team.id || '',
+            name: team.name || '',
+            memberCount: team.memberCount || 0,
+            leader: team.leader?.name || 'Unknown',
+            status: "active" as "active" | "planning" | "archived"
+        })) || [],
+        tickets: department.tickets?.map(ticket => ({
+            id: ticket.id || '',
+            title: ticket.title || '',
+            type: "task" as "meeting" | "task" | "event",
+            status: (ticket.status === 'open' ? 'pending' : ticket.status === 'in_progress' ? 'in_progress' : 'scheduled') as "in_progress" | "pending" | "scheduled",
+            assignee: ticket.assignee?.name || null,
+            duration: "2 hours", // Default value
+            messages: 0,
+            lastActivity: ticket.updatedAt || new Date().toISOString(),
+            collaborative: true,
+            calendarDate: new Date(ticket.createdAt || Date.now()),
+            collaborators: []
+        })) || [],
+        members: department.members?.map(member => ({
+            id: member.id || '',
+            name: member.name || '',
+            role: 'member' as 'leader' | 'member',
+            avatar: member.avatar || ''
+        })) || [],
+        events: department.events?.map(event => ({
+            id: parseInt(event.id),
+            title: event.title,
+            description: event.description,
+            date: event.start.split('T')[0],
+            time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '00:00',
+            duration: 60,
+            type: "meeting" as "meeting" | "review" | "planning" | "workshop",
+            attendees: event.participants?.map(p => p.name || '') || [],
+            location: event.location || '',
+            color: "#3b82f6"
+        })) || []
+    };
+};
+
 // Departments - Additional functions from local departments API
 export const fetchDepartments = async (): Promise<T.DepartmentLocal[]> => {
   await simulateDelay();
@@ -192,6 +249,76 @@ export const getTeamById = async (id: string): Promise<T.TeamDetailData | undefi
     await simulateDelay();
     return mockData.teamDetail.id === id ? mockData.teamDetail : undefined;
 }
+
+// Helper function to transform central Team type to local Team type for compatibility
+export const transformTeamForDetail = (team: T.TeamDetailData): T.TransformedTeamDetail => {
+    return {
+        id: team.id,
+        name: team.name,
+        description: team.description,
+        department: team.department || '',
+        memberCount: team.memberCount || 0,
+        activeProjects: 3, // Default value
+        lead: {
+            name: team.leader?.name || 'Unknown',
+            avatar: team.leader?.avatar || '',
+            id: team.leader?.id || ''
+        },
+        status: "active" as "active" | "inactive",
+        createdAt: new Date().toISOString(),
+        members: team.members?.map(member => ({
+            id: member.id || '',
+            name: member.name || '',
+            role: 'member' as "leader" | "member",
+            avatar: member.avatar || '',
+            status: "online" as "online" | "away" | "offline",
+            email: member.email || '',
+            joinedDate: new Date().toISOString()
+        })) || [],
+        events: team.events?.map(event => ({
+            id: parseInt(event.id),
+            title: event.title,
+            description: event.description,
+            date: event.start.split('T')[0],
+            time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '00:00',
+            duration: 60,
+            type: "meeting" as "meeting" | "review" | "planning" | "workshop",
+            attendees: event.participants?.map(p => p.name || '') || [],
+            location: event.location || '',
+            color: "bg-blue-500"
+        })) || [],
+        upcomingEvents: team.events?.slice(0, 3).map(event => ({
+            id: parseInt(event.id),
+            title: event.title,
+            date: "Today, 10:00 AM", // Default formatted date
+            type: event.type,
+            attendees: event.participants?.length || 0
+        })) || []
+    };
+};
+
+// Helper function to transform central Ticket type to local TeamTicket type for compatibility
+export const transformTicketsForTeam = (tickets: T.Ticket[]): Array<{
+    id: string;
+    title: string;
+    type: "task" | "meeting" | "event";
+    status: "in_progress" | "scheduled" | "pending" | "verified";
+    assignee: string | null;
+    dueDate: string;
+    messages: number;
+    lastActivity: string;
+}> => {
+    return tickets.map(ticket => ({
+        id: ticket.id,
+        title: ticket.title,
+        type: "task" as "task" | "meeting" | "event",
+        status: (ticket.status === 'open' ? 'pending' : ticket.status === 'in_progress' ? 'in_progress' : 'verified') as "in_progress" | "scheduled" | "pending" | "verified",
+        assignee: ticket.assignee?.name || null,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        messages: 0,
+        lastActivity: ticket.updatedAt || new Date().toISOString()
+    }));
+};
 
 // Teams - Additional functions from local teams API
 export const fetchTeams = async (): Promise<T.TeamLocal[]> => {
@@ -259,6 +386,40 @@ export const getTicketById = async (id: string): Promise<T.TicketDetails | undef
     await simulateDelay();
     return mockData.ticketDetail.id === id ? mockData.ticketDetail : undefined;
 }
+
+export const fetchMessagesByTicketId = async (ticketId: string): Promise<T.Message[]> => {
+    await simulateDelay();
+    // For now, return empty array since mock data doesn't have messages
+    // In a real app, this would fetch from the actual API
+    return [];
+}
+
+// Helper function to transform central Ticket type to local Ticket type for compatibility
+export const transformTicketForDetail = (ticket: T.TicketDetails): T.TicketLocal => {
+    return {
+        id: ticket.id,
+        title: ticket.title,
+        description: ticket.description,
+        status: (ticket.status === 'open' ? 'new' : ticket.status === 'in_progress' ? 'in-progress' : 'resolved') as 'new' | 'in-progress' | 'resolved',
+        priority: (ticket.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
+        type: 'Task' as 'Task' | 'Bug' | 'Feature',
+        from: ticket.department?.name || ticket.team?.name || 'Unknown',
+        assignee: {
+            name: ticket.assignee?.name || 'Unassigned',
+            avatar: ticket.assignee?.avatar || '',
+            id: ticket.assignee?.id || ''
+        },
+        reporter: {
+            name: ticket.reporter?.name || 'System',
+            avatar: ticket.reporter?.avatar || '',
+            id: ticket.reporter?.id || ''
+        },
+        createdAt: ticket.createdAt,
+        updatedAt: ticket.updatedAt,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        comments: ticket.comments?.length || 0
+    };
+};
 
 // Tickets - Additional functions from local tickets API (renamed to avoid conflicts)
 export const fetchTicketsLocal = async (): Promise<T.TicketLocal[]> => {
@@ -330,6 +491,70 @@ export const getUserById = async (id: string): Promise<T.UserDetailData | undefi
     await simulateDelay();
     return mockData.userDetail.id === id ? mockData.userDetail : undefined;
 }
+
+// Helper function to transform central User type to local User type for compatibility
+export const transformUserForDetail = (user: T.UserDetailData): T.TransformedUserDetail => {
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        title: user.role,
+        department: user.department || '',
+        location: "San Francisco, CA", // Default value
+        joinDate: new Date().toISOString(),
+        bio: user.profile?.bio || '',
+        stats: {
+            projectsCompleted: 15, // Default value
+            teamsLed: 2, // Default value
+            mentorshipHours: 120, // Default value
+            contributions: 89 // Default value
+        },
+        skills: user.profile?.skills?.map((skill, index) => ({
+            name: skill,
+            level: Math.floor(Math.random() * 5) + 1
+        })) || [],
+        socialLinks: {
+            github: user.profile?.socialLinks?.github || '',
+            linkedin: user.profile?.socialLinks?.linkedin || '',
+            twitter: user.profile?.socialLinks?.twitter || ''
+        },
+        currentProjects: [
+            {
+                id: 1,
+                name: "Project Alpha",
+                role: "Lead Developer",
+                progress: 75,
+                priority: "High",
+                team: "Engineering"
+            }
+        ],
+        achievements: [
+            {
+                id: 1,
+                title: "Innovation Award",
+                description: "Outstanding contribution to product development",
+                date: "2024-01-15",
+                category: "Innovation"
+            }
+        ],
+        teams: user.assignedTickets?.map(ticket => ({
+            id: parseInt(ticket.id),
+            name: ticket.team?.name || 'Unknown Team',
+            role: "Developer",
+            members: 8,
+            isLead: false
+        })) || [],
+        departments: [
+            {
+                id: 1,
+                name: user.department || "Engineering",
+                role: user.role,
+                isLead: false
+            }
+        ]
+    };
+};
 
 // Users - Additional functions from local users API
 export const fetchUsers = async (): Promise<T.UserLocal[]> => {

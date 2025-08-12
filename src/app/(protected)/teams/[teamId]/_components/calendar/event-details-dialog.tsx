@@ -4,7 +4,19 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Users, MapPin, Edit, Trash2 } from "lucide-react";
-import { Event } from "../../types";
+// Define local type for Event
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
 
 interface EventDetailsDialogProps {
   event: Event | null;

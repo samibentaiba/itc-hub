@@ -11,8 +11,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import type { Event, EventFormData } from "../../types";
-import { eventFormSchema } from "../../types";
+// Define local types for the request event dialog
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
+
+type EventFormData = {
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location?: string;
+};
+
+// Define the schema for form validation
+const eventFormSchema = {
+  title: { min: 3, message: "Title must be at least 3 characters." },
+  date: { required: true, message: "Please select a date." },
+  time: { pattern: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, message: "Please enter a valid time (HH:MM)." }
+};
 
 interface RequestEventDialogProps {
   isOpen: boolean;

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { fetchDepartment } from "./api"; // Import the new data fetching function
+import { getDepartmentById, transformDepartmentForDetail } from "../../api"; // Use central API
 import { DepartmentView } from "./client"; // Import the new client component
 
 // Define the props for the page, including params from the URL
@@ -18,9 +18,9 @@ interface PageProps {
  * While data is being fetched, Next.js will automatically show the `loading.tsx` component.
  * @param {PageProps} props - The page props, including URL parameters.
  */
-export default async function DepartmentDetailPage({ params }: PageProps) {
+export default async function DepartmentDetailPage(props: { params: { departmentId: string } }) {
   // Fetch data on the server. This will suspend rendering until the data is ready.
-  const department = await fetchDepartment(params.departmentId);
+  const department = await getDepartmentById(props.params.departmentId);
 
   // Handle the case where the department is not found
   if (!department) {
@@ -48,6 +48,9 @@ export default async function DepartmentDetailPage({ params }: PageProps) {
     );
   }
 
+  // Transform the department data to match the expected format
+  const transformedDepartment = transformDepartmentForDetail(department);
+
   // Render the page with the fetched data
   return (
     <div className="space-y-6">
@@ -64,7 +67,7 @@ export default async function DepartmentDetailPage({ params }: PageProps) {
       </div>
 
       {/* Pass the server-fetched data to the client component */}
-      <DepartmentView departmentData={department} />
+      <DepartmentView departmentData={transformedDepartment} />
     </div>
   );
 }

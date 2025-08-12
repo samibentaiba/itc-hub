@@ -41,7 +41,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useTicketDetailPage } from "./hook";
-import type { Message, Ticket, Reaction } from "./types";
+import type { Message, Ticket, Reaction } from "../../types";
 
 interface TicketDetailClientPageProps {
   initialTicket: Ticket;

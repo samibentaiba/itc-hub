@@ -5,7 +5,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Filter, Users } from "lucide-react";
-import type { Event, UpcomingEvent } from "../../types";
+// Define local types for the calendar sidebar
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
+
+type UpcomingEvent = {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  attendees: number;
+};
 
 interface CalendarSidebarProps {
   upcomingEvents: UpcomingEvent[];

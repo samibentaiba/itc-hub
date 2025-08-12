@@ -24,7 +24,37 @@ import RequestEventDialog from "./calendar/request-event-dialog";
 import EventDetailsDialog from "./calendar/event-details-dialog";
 
 // Import necessary types
-import type { Event, UpcomingEvent, EventFormData } from "../types";
+// Define local types for the calendar tab
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
+
+type UpcomingEvent = {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  attendees: number;
+};
+
+type EventFormData = {
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location?: string;
+};
 
 // Define the props that this component will receive from its parent
 interface CalendarTabProps {

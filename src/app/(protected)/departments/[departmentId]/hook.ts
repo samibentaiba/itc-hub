@@ -11,8 +11,42 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Ticket, Event, UpcomingEvent, EventFormData,  } from "./types";
+import type { TransformedDepartmentDetail } from "../../types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString,formatUpcomingEventDate  } from "./utils";
+
+// Define local types for the hook
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
+
+type UpcomingEvent = {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  attendees: number;
+};
+
+type EventFormData = {
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location?: string;
+};
+
+type Ticket = TransformedDepartmentDetail['tickets'][0];
 
 // Defines the props that the hook will receive
 interface UseDepartmentViewArgs {

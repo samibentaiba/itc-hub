@@ -3,11 +3,64 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { TeamDetail, TeamTicket, TeamMember, Event, UpcomingEvent, EventFormData } from "./types";
+import type { TransformedTeamDetail } from "../../types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
+// Define local types for the hook
+type TeamTicket = {
+  id: string;
+  title: string;
+  type: "task" | "meeting" | "event";
+  status: "in_progress" | "scheduled" | "pending" | "verified";
+  assignee: string | null;
+  dueDate: string;
+  messages: number;
+  lastActivity: string;
+};
+
+type TeamMember = {
+  id: string;
+  name: string;
+  role: "leader" | "member";
+  avatar: string;
+  status: "online" | "away" | "offline";
+  email: string;
+  joinedDate: string;
+};
+
+type Event = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  attendees: string[];
+  location: string;
+  color: string;
+};
+
+type UpcomingEvent = {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  attendees: number;
+};
+
+type EventFormData = {
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location?: string;
+};
+
 export function useTeamDetailPage(
-  initialTeam: TeamDetail,
+  initialTeam: TransformedTeamDetail,
   initialTickets: TeamTicket[]
 ) {
   const { toast } = useToast();

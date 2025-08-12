@@ -3,7 +3,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDepartmentView } from "./hook";
-import { Department } from "./types";
+import { TransformedDepartmentDetail } from "../../types";
 
 // Import all the tab components
 import { DepartmentHeader } from "./_components/department_header";
@@ -13,7 +13,7 @@ import { MembersTab } from "./_components/members_tab";
 import { CalendarTab } from "./_components/calendar_tab";
 
 interface DepartmentViewProps {
-  departmentData: Department;
+  departmentData: TransformedDepartmentDetail;
 }
 
 export function DepartmentView({ departmentData }: DepartmentViewProps) {

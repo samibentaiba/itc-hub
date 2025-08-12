@@ -17,7 +17,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Member } from "../types";
+// Define local type for Member
+type Member = {
+  id: string;
+  name: string;
+  role: "leader" | "member";
+  avatar: string;
+};
 
 interface MembersTabProps {
   members: Member[];

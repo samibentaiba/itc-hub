@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fetchTicketById, fetchMessagesByTicketId } from "./api"; // Note the relative path
+import { getTicketById, fetchMessagesByTicketId, transformTicketForDetail } from "../../api"; // Use central API
 import TicketDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,14 +7,11 @@ import { ArrowLeft } from "lucide-react";
 
 // This is a Server Component.
 // It fetches data on the server and passes it to the client component.
-export default async function TicketDetailPage({
-  params,
-  searchParams,
-}: {
+export default async function TicketDetailPage(props: {
   params: { ticketId: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const { ticketId } = params;
+  const { ticketId } = props.params;
 
   // Get the 'from' query parameter to create the throwback link, or default to '/tickets'
   const fromPath =
@@ -22,7 +19,7 @@ export default async function TicketDetailPage({
 
   // Fetch data for the specific ticket in parallel
   const [ticket, messages] = await Promise.all([
-    fetchTicketById(ticketId),
+    getTicketById(ticketId),
     fetchMessagesByTicketId(ticketId),
   ]);
 
@@ -52,10 +49,13 @@ export default async function TicketDetailPage({
     );
   }
 
+  // Transform the ticket data to match the expected format
+  const transformedTicket = transformTicketForDetail(ticket);
+
   // Pass the server-fetched data and the fromPath as props to the client component.
   return (
     <TicketDetailClientPage
-      initialTicket={ticket}
+      initialTicket={transformedTicket}
       initialMessages={messages}
       fromPath={fromPath} // Pass the path to the client component
     />

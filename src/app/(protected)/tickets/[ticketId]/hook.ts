@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Message, Ticket } from "./types";
+import type { Message, Ticket } from "../../types";
 
 export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Message[]) => {
   const { toast } = useToast();

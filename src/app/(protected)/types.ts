@@ -46,6 +46,30 @@ export interface TicketComment {
     createdAt: string;
 }
 
+export interface Reaction {
+  emoji: string;
+  users: string[];
+  count: number;
+}
+
+export interface Sender {
+  id: string;
+  name: string;
+  avatar: string;
+  role: "leader" | "member";
+}
+
+export interface Message {
+  id: string;
+  sender: Sender;
+  content: string;
+  type: "text" | "image" | "file" | "system";
+  timestamp: string;
+  reactions: Reaction[];
+  edited: boolean;
+  hasUrl?: boolean;
+}
+
 export interface TicketDetails extends Ticket {
     comments: TicketComment[];
     attachments: File[];
@@ -445,4 +469,163 @@ export interface UserSettingsLocal {
   displayName: string;
   email: string;
   notifications: boolean;
+}
+
+// Transformed Types for Dynamic Pages
+export interface TransformedTicketDetail {
+  id: string;
+  title: string;
+  description: string;
+  status: "new" | "in-progress" | "resolved";
+  priority: "low" | "medium" | "high" | "urgent";
+  type: "Task" | "Bug" | "Feature";
+  from: string;
+  assignee: { name: string; avatar: string; id: string; };
+  reporter: { name: string; avatar: string; id: string; };
+  createdAt: string;
+  updatedAt: string;
+  dueDate: string;
+  comments: number;
+}
+
+export interface TransformedDepartmentDetail {
+  id: string;
+  name: string;
+  description: string;
+  head: { name: string; avatar: string; id: string; };
+  teamCount: number;
+  memberCount: number;
+  budget: string;
+  status: string;
+  createdAt: string;
+  teams: Array<{
+    id: string;
+    name: string;
+    memberCount: number;
+    leader: string;
+    status: "active" | "planning" | "archived";
+  }>;
+  tickets: Array<{
+    id: string;
+    title: string;
+    type: "meeting" | "task" | "event";
+    status: "in_progress" | "pending" | "scheduled";
+    assignee: string | null;
+    duration: string;
+    messages: number;
+    lastActivity: string;
+    collaborative: boolean;
+    calendarDate: Date;
+    collaborators: string[];
+  }>;
+  members: Array<{
+    id: string;
+    name: string;
+    role: "leader" | "member";
+    avatar: string;
+  }>;
+  events: Array<{
+    id: number;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    duration: number;
+    type: "meeting" | "review" | "planning" | "workshop";
+    attendees: string[];
+    location: string;
+    color: string;
+  }>;
+}
+
+export interface TransformedTeamDetail {
+  id: string;
+  name: string;
+  description: string;
+  department: string;
+  memberCount: number;
+  activeProjects: number;
+  lead: { name: string; avatar: string; id: string; };
+  status: "active" | "inactive";
+  createdAt: string;
+  members: Array<{
+    id: string;
+    name: string;
+    role: "leader" | "member";
+    avatar: string;
+    status: "online" | "away" | "offline";
+    email: string;
+    joinedDate: string;
+  }>;
+  events: Array<{
+    id: number;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    duration: number;
+    type: "meeting" | "review" | "planning" | "workshop";
+    attendees: string[];
+    location: string;
+    color: string;
+  }>;
+  upcomingEvents: Array<{
+    id: number;
+    title: string;
+    date: string;
+    type: string;
+    attendees: number;
+  }>;
+}
+
+export interface TransformedUserDetail {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  title: string;
+  department: string;
+  location: string;
+  joinDate: string;
+  bio: string;
+  stats: {
+    projectsCompleted: number;
+    teamsLed: number;
+    mentorshipHours: number;
+    contributions: number;
+  };
+  skills: Array<{ name: string; level: number; }>;
+  socialLinks: {
+    github?: string;
+    linkedin: string;
+    twitter?: string;
+  };
+  currentProjects: Array<{
+    id: number;
+    name: string;
+    role: string;
+    progress: number;
+    priority: string;
+    team: string;
+  }>;
+  achievements: Array<{
+    id: number;
+    title: string;
+    description: string;
+    date: string;
+    category: string;
+  }>;
+  teams: Array<{
+    id: number;
+    name: string;
+    role: string;
+    members: number;
+    isLead: boolean;
+  }>;
+  departments: Array<{
+    id: number;
+    name: string;
+    role: string;
+    isLead: boolean;
+  }>;
 }

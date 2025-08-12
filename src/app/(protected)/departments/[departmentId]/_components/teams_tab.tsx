@@ -15,7 +15,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Team } from "./../types"; // Adjust path as needed
+// Define local type for Team
+type Team = {
+  id: string;
+  name: string;
+  memberCount: number;
+  leader: string;
+  status: "active" | "planning" | "archived";
+};
 
 interface TeamsTabProps {
   teams: Team[];

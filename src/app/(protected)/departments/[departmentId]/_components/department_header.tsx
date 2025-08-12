@@ -9,10 +9,10 @@ import { Building2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NewTicketForm } from "@/components/new-ticket-form";
-import { Department } from "../types";
+import { TransformedDepartmentDetail } from "../../types";
 
 interface DepartmentHeaderProps {
-  department: Department;
+  department: TransformedDepartmentDetail;
   showNewTicket: boolean;
   onOpenChange: (open: boolean) => void;
 }

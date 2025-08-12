@@ -2,7 +2,29 @@
 "use client";
 
 import { useTeamDetailPage } from "./hook";
-import type { TeamDetail, TeamTicket, TeamMember } from "./types";
+import type { TransformedTeamDetail } from "../../types";
+
+// Define local types for the teams client
+type TeamTicket = {
+  id: string;
+  title: string;
+  type: "task" | "meeting" | "event";
+  status: "in_progress" | "scheduled" | "pending" | "verified";
+  assignee: string | null;
+  dueDate: string;
+  messages: number;
+  lastActivity: string;
+};
+
+type TeamMember = {
+  id: string;
+  name: string;
+  role: "leader" | "member";
+  avatar: string;
+  status: "online" | "away" | "offline";
+  email: string;
+  joinedDate: string;
+};
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -58,7 +80,7 @@ import EventDetailsDialog from "./_components/calendar/event-details-dialog";
 import CalendarSidebar from "./_components/calendar/calendar-sidebar";
 
 interface TeamDetailClientPageProps {
-  initialTeam: TeamDetail;
+  initialTeam: TransformedTeamDetail;
   initialTickets: TeamTicket[];
 }
 

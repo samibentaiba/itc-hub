@@ -11,7 +11,7 @@
 | found, it displays a "Not Found" message.                                    |
 ================================================================================
 */
-import { fetchUserById } from "./api";
+import { getUserById, transformUserForDetail } from "../../api";
 import UserProfileClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,12 +26,12 @@ interface PageProps {
 }
 
 // This is the main Server Component for the dynamic route.
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function UserProfilePage(props: { params: { userId: string } }) {
   // Extract the userId from the URL parameters.
-  const { userId } = params;
+  const { userId } = props.params;
 
   // Fetch the specific user's data on the server.
-  const user = await fetchUserById(userId);
+  const user = await getUserById(userId);
 
   // If no user is found for the given ID, render a "Not Found" state.
   if (!user) {
@@ -58,6 +58,9 @@ export default async function UserProfilePage({ params }: PageProps) {
     );
   }
 
+  // Transform the user data to match the expected format
+  const transformedUser = transformUserForDetail(user);
+
   // If the user is found, render the Client Component and pass the data as a prop.
-  return <UserProfileClientPage user={user} />;
+  return <UserProfileClientPage user={transformedUser} />;
 }

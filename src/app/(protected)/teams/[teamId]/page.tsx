@@ -1,6 +1,6 @@
 // src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
-import { fetchTeamById, fetchTicketsByTeamId } from "./api";
+import { getTeamById, transformTeamForDetail, transformTicketsForTeam } from "../../api";
 import TeamDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,12 @@ interface PageProps {
   };
 }
 
-export default async function TeamDetailPage({ params }: PageProps) {
-  const { teamId } = params;
+export default async function TeamDetailPage(props: { params: { teamId: string } }) {
+  const { teamId } = props.params;
 
   const [team, tickets] = await Promise.all([
-    fetchTeamById(teamId),
-    fetchTicketsByTeamId(teamId),
+    getTeamById(teamId),
+    Promise.resolve([]), // We'll get tickets from the team data instead
   ]);
 
   if (!team) {
@@ -45,10 +45,14 @@ export default async function TeamDetailPage({ params }: PageProps) {
     );
   }
 
+  // Transform the team data to match the expected format
+  const transformedTeam = transformTeamForDetail(team);
+  const transformedTickets = transformTicketsForTeam(team.tickets || []);
+
   return (
     <TeamDetailClientPage 
-      initialTeam={team} 
-      initialTickets={tickets} 
+      initialTeam={transformedTeam} 
+      initialTickets={transformedTickets} 
     />
   );
 }
