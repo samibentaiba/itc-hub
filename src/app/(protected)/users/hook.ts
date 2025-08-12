@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { User } from "./types";
+import type { UserLocal } from "../types";
 
-export function useUsersPage(initialUsers: User[]) {
+export function useUsersPage(initialUsers: UserLocal[]) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");

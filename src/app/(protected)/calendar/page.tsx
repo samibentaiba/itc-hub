@@ -1,6 +1,6 @@
 // /calendar/page.tsx
 
-import { fetchEvents, fetchUpcomingEvents } from "./api";
+import { fetchEvents, fetchUpcomingEvents } from "../api";
 import CalendarClientPage from "./client";
 
 /**

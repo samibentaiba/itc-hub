@@ -51,7 +51,6 @@ export interface TicketDetails extends Ticket {
     attachments: File[];
 }
 
-
 // Department & Team Types
 export interface Department {
   id: string;
@@ -100,7 +99,6 @@ export interface PersonalCalendarData {
 export interface GlobalCalendarData {
     events: CalendarEvent[];
 }
-
 
 // --- Page-specific Data Types ---
 
@@ -207,4 +205,244 @@ export interface MockData {
   ticketDetail: TicketDetails;
   users: UsersPageData;
   userDetail: UserDetailData;
+}
+
+// === LOCAL TYPES FROM INDIVIDUAL DIRECTORIES ===
+
+// Dashboard Local Types
+export interface DashboardTicketLocal {
+  id: string;
+  title: string;
+  type: string;
+  workspace: string;
+  workspaceType: string;
+  status: string;
+  dueDate: string;
+  messages: number;
+  priority: string;
+  assignedBy: string;
+}
+
+export interface WorkspaceStats {
+  teams: { count: number; change: string; trend: string };
+  departments: { count: number; change: string; trend: string };
+  activeTickets: { count: number; change: string; trend: string };
+  completedThisWeek: { count: number; change: string; trend: string };
+}
+
+// Calendar Local Types
+export interface CalendarLocalEvent {
+  id: number;
+  title: string;
+  description: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  duration: number; // in minutes
+  type: string;
+  attendees: string[];
+  location: string;
+  color: string;
+}
+
+export interface CalendarUpcomingEvent {
+  id: number;
+  title: string;
+  date: string; // Formatted string like "Today, 9:00 AM"
+  type: string;
+  attendees: number;
+}
+
+export interface EventFormData {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: string;
+  location: string;
+}
+
+// Departments Local Types
+export interface DepartmentStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+export interface TeamLocalForDept {
+  name: string;
+  memberCount: number;
+}
+
+export interface DepartmentLocal {
+  id: string;
+  name: string;
+  description: string;
+  head: {
+    name: string;
+    avatar: string;
+    id: string;
+  };
+  teamCount: number;
+  memberCount: number;
+  status: "active" | "inactive";
+  recentActivity: string;
+  color: string;
+  teams: TeamLocalForDept[];
+}
+
+// Teams Local Types
+export interface TeamLocal {
+  id: string;
+  name: string;
+  description: string;
+  department: string;
+  memberCount: number;
+  activeProjects: number;
+  lead: {
+    name: string;
+    avatar: string;
+    id: string;
+  };
+  members: {
+    name: string;
+    avatar: string;
+    id: string;
+  }[];
+  recentActivity: string;
+  status: "active" | "inactive";
+}
+
+export interface TeamStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+// Tickets Local Types
+export interface TicketLocal {
+  id: string;
+  title: string;
+  description: string;
+  status: "new" | "in-progress" | "resolved";
+  priority: "low" | "medium" | "high" | "urgent";
+  type: "Task" | "Bug" | "Feature";
+  from: string;
+  assignee: {
+    name: string;
+    avatar: string;
+    id: string;
+  };
+  reporter: {
+    name: string;
+    avatar: string;
+    id: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  dueDate: string;
+  comments: number;
+}
+
+export interface TicketStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+// Users Local Types
+export interface UserLocal {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
+  department: string;
+  status: "Active" | "Away" | "Offline";
+  lastActive: string;
+  projects: number;
+}
+
+export interface UserStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+// Profile Local Types
+export interface UserProfileLocal {
+  name: string;
+  email: string;
+  phone: string;
+  title: string;
+  department: string;
+  location: string;
+  bio: string;
+  avatar: string;
+  socialLinks: SocialLinksLocal;
+}
+
+export interface SocialLinksLocal {
+  github?: string;
+  linkedin?: string;
+  twitter?: string;
+  website?: string;
+}
+
+export interface ProfileStatsLocal {
+  projectsCompleted: number;
+  teamsLed: number;
+  mentorshipHours: number;
+  contributions: number;
+}
+
+export interface SkillLocal {
+  name: string;
+  level: number;
+}
+
+export interface ProjectLocal {
+  id: number;
+  name: string;
+  role: string;
+  progress: number;
+  priority: "High" | "Medium" | "Low";
+  team: string;
+}
+
+export interface AchievementLocal {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  category: "Innovation" | "Leadership" | "Technical" | "Design";
+}
+
+export interface TeamMembershipLocal {
+  id: number;
+  name: string;
+  role: string;
+  members: number;
+  isLead: boolean;
+}
+
+export interface ProfileDataLocal {
+  profile: UserProfileLocal;
+  stats: ProfileStatsLocal;
+  skills: SkillLocal[];
+  projects: ProjectLocal[];
+  achievements: AchievementLocal[];
+  teams: TeamMembershipLocal[];
+  departments: TeamMembershipLocal[];
+}
+
+// Settings Local Types
+export interface UserSettingsLocal {
+  displayName: string;
+  email: string;
+  notifications: boolean;
 }

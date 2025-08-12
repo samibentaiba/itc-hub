@@ -1,4 +1,4 @@
-import { fetchDepartments, fetchDepartmentStats } from "./api";
+import { fetchDepartments, fetchDepartmentStats } from "../api";
 import DepartmentsClientPage from "./client";
 
 // This is the Server Component.

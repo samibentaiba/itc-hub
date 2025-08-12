@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Event, UpcomingEvent, EventFormData } from "./types";
+import type { CalendarLocalEvent, CalendarUpcomingEvent, EventFormData } from "../types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
 /**
@@ -12,10 +12,10 @@ import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from
  * @param initialUpcomingEvents - The initial list of upcoming events.
  */
 export const useCalendarPage = (
-  initialEvents: Event[],
-  initialUpcomingEvents: UpcomingEvent[]
+  initialEvents: CalendarLocalEvent[],
+  initialUpcomingEvents: CalendarUpcomingEvent[]
 ) => {
-  const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
+  const [allEvents, setAllEvents] = useState<CalendarLocalEvent[]>(initialEvents);
   const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
   const [view, setView] = useState<"month" | "week" | "day">("month");
   const [showNewEvent, setShowNewEvent] = useState(false);
@@ -61,7 +61,7 @@ export const useCalendarPage = (
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      const newEvent: Event = {
+      const newEvent: CalendarLocalEvent = {
         id: allEvents.length + 1,
         title: formData.title,
         description: formData.description,

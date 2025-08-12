@@ -7,15 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCalendarPage } from "./hook";
-import type { Event, UpcomingEvent } from "./types";
+import type { CalendarLocalEvent, CalendarUpcomingEvent } from "../types";
 import CalendarView from "./_components/calendar-view";
 import CreateEventDialog from "./_components/create-event-dialog";
 import EventDetailsDialog from "./_components/event-details-dialog";
 import CalendarSidebar from "./_components/calendar-sidebar";
 
 interface CalendarClientPageProps {
-  initialEvents: Event[];
-  initialUpcomingEvents: UpcomingEvent[];
+  initialEvents: CalendarLocalEvent[];
+  initialUpcomingEvents: CalendarUpcomingEvent[];
 }
 
 /**

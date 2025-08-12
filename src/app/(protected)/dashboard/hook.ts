@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import type { Ticket, WorkspaceStats } from "./types";
+import type { DashboardTicketLocal, WorkspaceStats } from "../types";
 
 /**
  * A custom hook to manage the state and logic for the dashboard's client-side interactions.
@@ -14,7 +14,7 @@ import type { Ticket, WorkspaceStats } from "./types";
  * @param initialStats - The initial workspace stats from the server.
  */
 export const useDashboardPage = (
-  initialTickets: Ticket[],
+  initialTickets: DashboardTicketLocal[],
   initialStats: WorkspaceStats
 ) => {
   const [selectedStatCard, setSelectedStatCard] = useState<string | null>(null);
