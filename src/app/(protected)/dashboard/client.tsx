@@ -25,11 +25,11 @@ import {
   User,
 } from "lucide-react";
 import { useDashboardPage } from "./hook";
-import type { Ticket, WorkspaceStats } from "./types";
+import type { DashboardTicketLocal, WorkspaceStats } from "../types";
 import type { DashboardData } from "../types";
 
 interface DashboardClientPageProps {
-  initialTickets: Ticket[];
+  initialTickets: DashboardTicketLocal[];
   initialStats: WorkspaceStats;
   dashboardData?: DashboardData | null; // Add the full dashboard data
 }

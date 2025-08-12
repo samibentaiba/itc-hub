@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Bell, Moon, Sun, Settings, Monitor } from "lucide-react";
 import { useSettingsPage } from "./hook";
-import type { UserSettings } from "./types";
+import type { UserSettingsLocal } from "../types";
 
 interface SettingsClientPageProps {
-  initialSettings: UserSettings;
+  initialSettings: UserSettingsLocal;
 }
 
 // This is the main client component for the settings page.

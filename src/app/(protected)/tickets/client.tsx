@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Search, MoreHorizontal, Eye, Edit, Trash2, MessageSquare } from "lucide-react"
 import { useTicketsPage} from "./hook"
-import { Ticket, Stat } from "./types"
+import { TicketLocal, TicketStatLocal } from "../types"
 
 // UI Components
 import { Input } from "@/components/ui/input"
@@ -16,8 +16,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
 interface TicketsClientPageProps {
-  initialTickets: Ticket[]
-  initialStats: Stat[]
+  initialTickets: TicketLocal[]
+  initialStats: TicketStatLocal[]
 }
 
 // This is the Client Component that handles user interactions

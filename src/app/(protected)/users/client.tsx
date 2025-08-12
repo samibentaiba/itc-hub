@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useUsersPage } from "./hook";
-import type { User, UserStat } from "./types";
+import type { UserLocal, UserStatLocal } from "../types";
 import { Users, UserCheck, UserX, TrendingUp, MoreHorizontal, Eye, Mail } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 
 interface UsersClientPageProps {
-  initialUsers: User[];
-  initialStats: UserStat[];
+  initialUsers: UserLocal[];
+  initialStats: UserStatLocal[];
 }
 
 const iconMap = {

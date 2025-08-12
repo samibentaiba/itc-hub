@@ -1,4 +1,4 @@
-import { fetchUserSettings } from "./api";
+import { fetchUserSettings } from "../api";
 import SettingsClientPage from "./client";
 
 // This is the Server Component.

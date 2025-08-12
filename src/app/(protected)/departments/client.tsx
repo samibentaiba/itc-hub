@@ -5,13 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useDepartmentsPage } from "./hook";
-import type { Department, DepartmentStat } from "./types";
+import type { DepartmentLocal, DepartmentStatLocal } from "../types";
 // Import icons directly into the client component
 import { Building2, Users, Briefcase, TrendingUp } from "lucide-react";
 
 interface DepartmentsClientPageProps {
-  initialDepartments: Department[];
-  initialStats: DepartmentStat[];
+  initialDepartments: DepartmentLocal[];
+  initialStats: DepartmentStatLocal[];
 }
 
 // The mapping from stat title to Icon component now lives on the client.

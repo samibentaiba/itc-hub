@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { ProfileData, UserProfile } from "./types";
+import type { ProfileDataLocal, UserProfileLocal } from "../types";
 
 // The hook now accepts the initial data fetched by the server.
-export function useProfilePage(initialData: ProfileData) {
+export function useProfilePage(initialData: ProfileDataLocal) {
   const { toast } = useToast();
   
   // State for client-side interactions (e.g., editing mode)

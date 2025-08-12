@@ -16,10 +16,10 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import type { ProfileData, UserProfile } from "./types";
+import type { ProfileDataLocal, UserProfileLocal } from "../types";
 
 interface ProfileClientPageProps {
-  profileData: ProfileData;
+  profileData: ProfileDataLocal;
 }
 
 // Icon mapping for achievements - must be on client side

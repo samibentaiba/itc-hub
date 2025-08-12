@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTeamsPage } from "./hook";
-import type { Team, TeamStat } from "./types";
+import type { TeamLocal, TeamStatLocal } from "../types";
 // Import the icons directly into the client component
 import { Users, TrendingUp, Clock } from "lucide-react";
 
@@ -13,8 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 interface TeamsClientPageProps {
-  initialTeams: Team[];
-  initialStats: TeamStat[];
+  initialTeams: TeamLocal[];
+  initialStats: TeamStatLocal[];
 }
 
 // The mapping from stat title to Icon component now lives on the client.

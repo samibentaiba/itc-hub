@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import type { Ticket, Stat } from "./types"
+import type { TicketLocal, TicketStatLocal } from "../types"
 
-export function useTicketsPage(initialTickets: Ticket[], initialStats: Stat[]) {
+export function useTicketsPage(initialTickets: TicketLocal[], initialStats: TicketStatLocal[]) {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")

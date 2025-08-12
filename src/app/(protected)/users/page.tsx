@@ -1,5 +1,5 @@
 
-import { fetchUserStats, fetchUsers } from "./api";
+import { fetchUserStats, fetchUsers } from "../api";
 import UsersClientPage from "./client";
 
 export default async function UsersPage() {

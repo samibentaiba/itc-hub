@@ -1,6 +1,6 @@
 // ===== IMPROVED page.tsx =====
 // src/app/(protected)/profile/page.tsx
-import { fetchProfileData } from "./api";
+import { fetchProfileData } from "../api";
 import ProfileClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

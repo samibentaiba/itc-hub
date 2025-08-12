@@ -1,6 +1,6 @@
 // /dashboard/page.tsx - Updated to use comprehensive API
 
-import { fetchDashboardData } from "./api";
+import { fetchDashboardData } from "../api";
 import DashboardClientPage from "./client";
 
 /**

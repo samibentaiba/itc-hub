@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
-import type { UserSettings } from "./types";
+import type { UserSettingsLocal } from "../types";
 
 // The hook now accepts initial data fetched by the server.
-export function useSettingsPage(initialSettings: UserSettings) {
+export function useSettingsPage(initialSettings: UserSettingsLocal) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { toast } = useToast();
   
