@@ -4,17 +4,25 @@
 import type { TeamLocal, TeamStatLocal } from "../types";
 
 // The hook is simplified to just manage the initial data and helper functions.
-export function useTeamsPage(initialTeams: TeamLocal[], initialStats: TeamStatLocal[]) {
-
+export function useTeamsPage(
+  initialTeams: TeamLocal[],
+  initialStats: TeamStatLocal[]
+) {
   // Helper function for department colors remains on the client
   const getDepartmentColor = (department: string) => {
     switch (department) {
-      case "Engineering": return "bg-blue-500";
-      case "Design": return "bg-purple-500";
-      case "Infrastructure": return "bg-green-500";
-      case "Quality Assurance": return "bg-orange-500";
-      case "Product": return "bg-pink-500";
-      default: return "bg-gray-500";
+      case "Engineering":
+        return "bg-blue-500";
+      case "Design":
+        return "bg-purple-500";
+      case "Infrastructure":
+        return "bg-green-500";
+      case "Quality Assurance":
+        return "bg-orange-500";
+      case "Product":
+        return "bg-pink-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
