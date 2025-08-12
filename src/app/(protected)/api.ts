@@ -567,6 +567,7 @@ export const fetchTeamByIdDetail = async (teamId: string): Promise<T.TeamDetailL
       avatar: teamDetail.leader?.avatar || '',
       id: teamDetail.leader?.id || ''
     },
+
     status: 'active' as const,
     createdAt: new Date().toISOString(),
     members: (teamDetail.members || []).map(member => ({
@@ -748,6 +749,7 @@ export const fetchUserByIdDetail = async (userId: string): Promise<T.UserDetailL
   };
 };
 
+
 // Admin Functions
 export const fetchRole = async (): Promise<string | null> => {
   try {
@@ -875,5 +877,6 @@ export const fetchGlobalEvents = async (): Promise<T.GlobalEventLocal[]> => {
     isRecurring: false
   }));
 };
+
 
 
