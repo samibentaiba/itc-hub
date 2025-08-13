@@ -1,10 +1,37 @@
 // /admin/hook.ts
 "use client";
 
+ import {
+  createEventAdmin,
+  updateEventAdmin,
+  addMemberToEntity,
+  removeMemberFromEntity,
+  updateMemberRoleInEntity,
+} from "../api"; // <-- Import API functions but in reality those api doesnt exists !
+ 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { User, Team, Department, Member, ModalState, LoadingAction, Event, UpcomingEvent, EventFormData, UserFormData, TeamFormData, DepartmentFormData, PendingEvent } from "./types";
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
+import type {
+  User,
+  Team,
+  Department,
+  Member,
+  ModalState,
+  LoadingAction,
+  Event,
+  UpcomingEvent,
+  EventFormData,
+  UserFormData,
+  TeamFormData,
+  DepartmentFormData,
+  PendingEvent,
+} from "./types";
+import {
+  formatDate,
+  getDaysInMonth,
+  getFirstDayOfMonth,
+  formatDateString,
+} from "./utils";
 
 /**
  * A custom hook to manage all state and logic for the Admin Page.
@@ -30,29 +57,35 @@ export const useAdminPage = (
   const [departments, setDepartments] =
     useState<Department[]>(initialDepartments);
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
-  
+
   // --- Modal State ---
   const [modal, setModal] = useState<ModalState | null>(null);
 
   // --- State for Event Requests ---
-  const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>(initialPendingEvents);
+  const [pendingEvents, setPendingEvents] =
+    useState<PendingEvent[]>(initialPendingEvents);
 
   // --- State for Calendar ---
   const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(
+    initialUpcomingEvents
+  );
   const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
-  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">(
+    "month"
+  );
   const [showNewEventDialog, setShowNewEventDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isCalendarLoading, setIsCalendarLoading] = useState(false);
   const [calendarFilterType, setCalendarFilterType] = useState<string>("all");
 
   // --- SIMULATED API DELAY ---
-  const simulateApi = (duration = 1000) => new Promise((res) => setTimeout(res, duration));
+  const simulateApi = (duration = 1000) =>
+    new Promise((res) => setTimeout(res, duration));
 
   // --- Modal and Action Handlers ---
   const closeModal = () => setModal(null);
-  
+
   const handleActionConfirm = () => {
     if (!modal) return;
 
@@ -72,7 +105,6 @@ export const useAdminPage = (
     }
   };
 
-
   // --- EVENT REQUEST HANDLERS ---
   const handleAcceptEvent = async (eventToAccept: PendingEvent) => {
     setLoadingAction(`accept-${eventToAccept.id}`);
@@ -80,21 +112,25 @@ export const useAdminPage = (
       await simulateApi(700);
 
       const localDate = new Date(`${eventToAccept.date}T00:00:00`);
-      
+
       const acceptedEvent: Event = {
         ...eventToAccept,
-        date: formatDateString(localDate), 
+        date: formatDateString(localDate),
       };
 
-      setAllEvents(prev => [...prev, acceptedEvent]);
-      setPendingEvents(prev => prev.filter(e => e.id !== eventToAccept.id));
-      
+      setAllEvents((prev) => [...prev, acceptedEvent]);
+      setPendingEvents((prev) => prev.filter((e) => e.id !== eventToAccept.id));
+
       toast({
         title: "Event Approved",
         description: `"${eventToAccept.title}" has been added to the calendar.`,
       });
     } catch {
-      toast({ title: "Error", description: "Could not approve the event.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Could not approve the event.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingAction(null);
     }
@@ -104,14 +140,18 @@ export const useAdminPage = (
     setLoadingAction(`reject-${eventToReject.id}`);
     try {
       await simulateApi(700);
-      setPendingEvents(prev => prev.filter(e => e.id !== eventToReject.id));
+      setPendingEvents((prev) => prev.filter((e) => e.id !== eventToReject.id));
       toast({
         title: "Event Rejected",
         description: `"${eventToReject.title}" has been rejected.`,
         variant: "destructive",
       });
     } catch {
-      toast({ title: "Error", description: "Could not reject the event.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Could not reject the event.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingAction(null);
     }
@@ -132,15 +172,15 @@ export const useAdminPage = (
       loadingAction === `edit-${modal.data.id}`);
 
   const entityForDialog = useMemo(() => {
-    if (modal?.view !== 'MANAGE_MEMBERS') return null;
-    
-    const entity = modal.data.entityType === 'team'
-      ? teams.find(t => t.id === modal.data.id)
-      : departments.find(d => d.id === modal.data.id);
-      
+    if (modal?.view !== "MANAGE_MEMBERS") return null;
+
+    const entity =
+      modal.data.entityType === "team"
+        ? teams.find((t) => t.id === modal.data.id)
+        : departments.find((d) => d.id === modal.data.id);
+
     return entity ? { ...entity, entityType: modal.data.entityType } : null;
   }, [modal, teams, departments]);
-
 
   // --- USER HANDLERS ---
   const handleSaveUser = async (data: UserFormData & { id?: string }) => {
@@ -390,9 +430,14 @@ export const useAdminPage = (
   const navigateCalendar = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
-      if (calendarView === "month") newDate.setMonth(direction === 'prev' ? prev.getMonth() - 1 : prev.getMonth() + 1);
-      if (calendarView === "week") newDate.setDate(prev.getDate() + (direction === 'prev' ? -7 : 7));
-      if (calendarView === "day") newDate.setDate(prev.getDate() + (direction === 'prev' ? -1 : 1));
+      if (calendarView === "month")
+        newDate.setMonth(
+          direction === "prev" ? prev.getMonth() - 1 : prev.getMonth() + 1
+        );
+      if (calendarView === "week")
+        newDate.setDate(prev.getDate() + (direction === "prev" ? -7 : 7));
+      if (calendarView === "day")
+        newDate.setDate(prev.getDate() + (direction === "prev" ? -1 : 1));
       return newDate;
     });
   };
@@ -402,28 +447,26 @@ export const useAdminPage = (
     setCalendarView("day");
   };
 
-  const createEvent = async (formData: EventFormData): Promise<boolean> => {
+  const createEvent = async (
+    data: EventFormData & { id?: number }
+  ): Promise<boolean> => {
     setIsCalendarLoading(true);
     try {
-      await simulateApi();
-      const newEvent: Event = {
-        id: allEvents.length + 1,
-        title: formData.title,
-        description: formData.description || "",
-        date: formData.date,
-        time: formData.time,
-        duration: parseInt(formData.duration),
-        type: formData.type,
-        attendees: ["You"],
-        location: formData.location || "Virtual",
-        color: "bg-blue-500",
-      };
-      setAllEvents(prev => [...prev, newEvent].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
-      toast({ title: "Event Created", description: `"${formData.title}" has been added.` });
-      return true;
-    } catch {
-      toast({ title: "Error Creating Event", variant: "destructive" });
-      return false;
+      if (data.id) {
+        const updatedEvent = await updateEventAdmin(data.id, data);
+        setAllEvents((prev) =>
+          prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+        );
+        toast({ title: "Event updated successfully" });
+      } else {
+        const newEvent = await createEventAdmin(data);
+        setAllEvents((prev) => [...prev, newEvent]);
+        toast({ title: "Event created successfully" });
+      }
+      return true; // Return true on success
+    } catch (error) {
+      toast({ title: "Error Creating/Updating Event", variant: "destructive" });
+      return false; // Return false on error
     } finally {
       setIsCalendarLoading(false);
     }
@@ -438,8 +481,11 @@ export const useAdminPage = (
     setIsCalendarLoading(true);
     try {
       await simulateApi();
-      setAllEvents(prev => prev.filter(e => e.id !== event.id));
-      toast({ title: "Event Deleted", description: `"${event.title}" has been removed.` });
+      setAllEvents((prev) => prev.filter((e) => e.id !== event.id));
+      toast({
+        title: "Event Deleted",
+        description: `"${event.title}" has been removed.`,
+      });
       setSelectedEvent(null);
     } catch {
       toast({ title: "Error Deleting Event", variant: "destructive" });
@@ -483,28 +529,28 @@ export const useAdminPage = (
     isTeamFormLoading,
     isDeptFormLoading,
     // Calendar State
-    calendarView, 
-    currentDate, 
-    filteredEvents, 
+    calendarView,
+    currentDate,
+    filteredEvents,
     upcomingEvents,
-    showNewEventDialog, 
-    selectedEvent, 
-    isCalendarLoading, 
+    showNewEventDialog,
+    selectedEvent,
+    isCalendarLoading,
     calendarFilterType,
     // Calendar Handlers
-    setCalendarView, 
-    navigateCalendar, 
-    createEvent, 
+    setCalendarView,
+    navigateCalendar,
+    createEvent,
     setSelectedEvent,
-    setShowNewEventDialog, 
-    setCalendarFilterType, 
+    setShowNewEventDialog,
+    setCalendarFilterType,
     handleDayClick,
     handleEditEvent,
     handleDeleteEvent,
     // Utilities
     formatCalendarDate: (date: Date) => formatDate(date, calendarView),
-    getDaysInMonth, 
-    getFirstDayOfMonth, 
+    getDaysInMonth,
+    getFirstDayOfMonth,
     formatDateString,
   };
 };

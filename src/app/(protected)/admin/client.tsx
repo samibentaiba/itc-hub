@@ -252,12 +252,13 @@ export default function AdminClientPage({
           setSelectedEvent(null)
           setShowNewEventDialog(false)
         }}
-        onSubmit={async (data) => {
+            onSubmit={async (data) => {
           const success = await createEvent(data);
           if (success) {
             setSelectedEvent(null);
             setShowNewEventDialog(false);
           }
+          return success; // Make sure to return the result
         }}
         isLoading={isCalendarLoading}
         initialData={selectedEvent || undefined}
