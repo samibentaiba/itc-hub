@@ -672,7 +672,6 @@ export interface UserDetailLocal {
   teams: UserTeamLocal[];
   departments: UserDepartmentLocal[];
 }
-
 // Admin Types
 export interface MemberAdmin {
   userId: string;
