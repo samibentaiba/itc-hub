@@ -1,7 +1,7 @@
 // src/app/(protected)/calendar/global/page.tsx
 
 import GlobalCalendarClientPage from "./client";
-import { getGlobalCalendarData } from "../../api";
+import { getGlobalCalendarData } from "@/lib/server-api";
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.

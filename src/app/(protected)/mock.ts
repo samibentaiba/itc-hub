@@ -1,24 +1,6 @@
 // src/app/(protected)/mock.ts
 import * as T from "./types";
 
-// A root type for the entire mock data structure.
-// This is defined in types.ts
-interface MockData {
-  dashboard: T.DashboardData;
-  personalCalendar: T.PersonalCalendarData;
-  globalCalendar: T.GlobalCalendarData;
-  departments: T.DepartmentsPageData;
-  departmentDetail: T.DepartmentDetailData;
-  profile: T.Profile;
-  settings: T.SettingsData;
-  teams: T.TeamsPageData;
-  teamDetail: T.TeamDetailData;
-  tickets: T.TicketsPageData;
-  ticketDetail: T.TicketDetails;
-  users: T.UsersPageData;
-  userDetail: T.UserDetailData;
-}
-
 const users: T.User[] = [
   {
     id: "USER-001",
@@ -242,7 +224,7 @@ const tickets: T.Ticket[] = [
   },
 ];
 
-export const mockData: MockData = {
+export const mockData: T.MockData = {
   dashboard: {
     stats: {
       openTickets: 2,

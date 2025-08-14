@@ -2,6 +2,7 @@
 "use client";
 
 import { useTeamDetailPage } from "./hook";
+import { useAuthorization, AuthorizedComponent } from "@/hooks/use-authorization";
 import type { TeamDetail, TeamTicket, TeamMember } from "./types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -114,27 +115,29 @@ export default function TeamDetailClientPage({
             <p className="text-muted-foreground">{team.description}</p>
           </div>
         </div>
-        <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
-          <DialogTrigger asChild>
-            <Button className="bg-red-800 text-white hover:bg-red-700">
-              <Plus className="mr-2 h-4 w-4" />
-              New Ticket
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Team Ticket</DialogTitle>
-              <DialogDescription>
-                Create a new ticket for {team.name}
-              </DialogDescription>
-            </DialogHeader>
-            <NewTicketForm
-              contextType="team"
-              contextId={team.id}
-              availableUsers={team.members}
-            />
-          </DialogContent>
-        </Dialog>
+        <AuthorizedComponent teamId={team.id} action="manage">
+          <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
+            <DialogTrigger asChild>
+              <Button className="bg-red-800 text-white hover:bg-red-700">
+                <Plus className="mr-2 h-4 w-4" />
+                New Ticket
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Team Ticket</DialogTitle>
+                <DialogDescription>
+                  Create a new ticket for {team.name}
+                </DialogDescription>
+              </DialogHeader>
+              <NewTicketForm
+                contextType="team"
+                contextId={team.id}
+                availableUsers={team.members}
+              />
+            </DialogContent>
+          </Dialog>
+        </AuthorizedComponent>
       </div>
 
       {/* Tabs */}

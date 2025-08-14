@@ -1,10 +1,9 @@
-// src/app/(protected)/api.ts
+// src/lib/server-api.ts
 import { headers } from 'next/headers';
-import * as T from './types';
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const headersList = headers();
+  const headersList = await headers();
   const cookie = headersList.get('cookie');
   
   return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
@@ -18,7 +17,7 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
 }
 
 // Dashboard
-export const getDashboardData = async (): Promise<T.DashboardData> => {
+export const getDashboardData = async () => {
   const response = await authenticatedFetch('/api/dashboard');
   
   if (!response.ok) {
@@ -29,7 +28,7 @@ export const getDashboardData = async (): Promise<T.DashboardData> => {
 };
 
 // Calendar
-export const getPersonalCalendarData = async (): Promise<T.CalendarEvent[]> => {
+export const getPersonalCalendarData = async () => {
   const response = await authenticatedFetch('/api/events?type=personal');
   
   if (!response.ok) {
@@ -40,7 +39,7 @@ export const getPersonalCalendarData = async (): Promise<T.CalendarEvent[]> => {
   return data.events || [];
 };
 
-export const getGlobalCalendarData = async (): Promise<T.CalendarEvent[]> => {
+export const getGlobalCalendarData = async () => {
   const response = await authenticatedFetch('/api/events?type=global');
   
   if (!response.ok) {
@@ -52,7 +51,7 @@ export const getGlobalCalendarData = async (): Promise<T.CalendarEvent[]> => {
 };
 
 // Departments
-export const getDepartments = async (): Promise<T.DepartmentsPageData> => {
+export const getDepartments = async () => {
   const response = await authenticatedFetch('/api/departments');
   
   if (!response.ok) {
@@ -63,7 +62,7 @@ export const getDepartments = async (): Promise<T.DepartmentsPageData> => {
   return data.departments;
 };
 
-export const getDepartmentById = async (id: string): Promise<T.DepartmentDetailData | undefined> => {
+export const getDepartmentById = async (id: string) => {
   const response = await authenticatedFetch(`/api/departments/${id}`);
   
   if (!response.ok) {
@@ -77,7 +76,7 @@ export const getDepartmentById = async (id: string): Promise<T.DepartmentDetailD
 };
 
 // Teams
-export const getTeams = async (): Promise<T.TeamsPageData> => {
+export const getTeams = async () => {
   const response = await authenticatedFetch('/api/teams');
   
   if (!response.ok) {
@@ -88,7 +87,7 @@ export const getTeams = async (): Promise<T.TeamsPageData> => {
   return data.teams;
 };
 
-export const getTeamById = async (id: string): Promise<T.TeamDetailData | undefined> => {
+export const getTeamById = async (id: string) => {
   const response = await authenticatedFetch(`/api/teams/${id}`);
   
   if (!response.ok) {
@@ -102,7 +101,7 @@ export const getTeamById = async (id: string): Promise<T.TeamDetailData | undefi
 };
 
 // Tickets
-export const getTickets = async (): Promise<T.TicketsPageData> => {
+export const getTickets = async () => {
   const response = await authenticatedFetch('/api/tickets');
   
   if (!response.ok) {
@@ -112,7 +111,7 @@ export const getTickets = async (): Promise<T.TicketsPageData> => {
   return response.json();
 };
 
-export const getTicketById = async (id: string): Promise<T.TicketDetails | undefined> => {
+export const getTicketById = async (id: string) => {
   const response = await authenticatedFetch(`/api/tickets/${id}`);
   
   if (!response.ok) {
@@ -126,7 +125,7 @@ export const getTicketById = async (id: string): Promise<T.TicketDetails | undef
 };
 
 // Users
-export const getUsers = async (): Promise<T.UsersPageData> => {
+export const getUsers = async () => {
   const response = await authenticatedFetch('/api/users');
   
   if (!response.ok) {
@@ -137,7 +136,7 @@ export const getUsers = async (): Promise<T.UsersPageData> => {
   return data.users;
 };
 
-export const getUserById = async (id: string): Promise<T.UserDetailData | undefined> => {
+export const getUserById = async (id: string) => {
   const response = await authenticatedFetch(`/api/users/${id}`);
   
   if (!response.ok) {
@@ -151,7 +150,7 @@ export const getUserById = async (id: string): Promise<T.UserDetailData | undefi
 };
 
 // Profile
-export const getProfileData = async (): Promise<T.Profile> => {
+export const getProfileData = async () => {
   const response = await authenticatedFetch('/api/profile');
   
   if (!response.ok) {
@@ -162,7 +161,7 @@ export const getProfileData = async (): Promise<T.Profile> => {
 };
 
 // Settings
-export const getSettingsData = async (): Promise<T.SettingsData> => {
+export const getSettingsData = async () => {
   const response = await authenticatedFetch('/api/settings');
   
   if (!response.ok) {
@@ -188,5 +187,3 @@ export const getUserRole = async (): Promise<string | null> => {
     return null;
   }
 };
-
-

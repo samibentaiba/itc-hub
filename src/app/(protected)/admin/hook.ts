@@ -7,7 +7,7 @@
   addMemberToEntity,
   removeMemberFromEntity,
   updateMemberRoleInEntity,
-} from "../api"; // <-- Import API functions but in reality those api doesnt exists !
+} from "@/lib/client-api";
  
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
