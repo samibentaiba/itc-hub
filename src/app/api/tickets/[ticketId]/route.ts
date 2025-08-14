@@ -22,7 +22,8 @@ export async function GET(
             id: true,
             name: true,
             email: true,
-            avatar: true
+            avatar: true,
+            role: true
           }
         },
         createdBy: {
@@ -30,7 +31,8 @@ export async function GET(
             id: true,
             name: true,
             email: true,
-            avatar: true
+            avatar: true,
+            role: true
           }
         },
         team: {
@@ -54,7 +56,8 @@ export async function GET(
                 id: true,
                 name: true,
                 email: true,
-                avatar: true
+                avatar: true,
+                role: true
               }
             },
             files: {
@@ -84,21 +87,6 @@ export async function GET(
               }
             }
           }
-        },
-        workingUsers: {
-          select: {
-            id: true,
-            realName: true,
-            bio: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true
-              }
-            }
-          }
         }
       }
     })
@@ -107,7 +95,70 @@ export async function GET(
       return NextResponse.json({ error: "Ticket not found" }, { status: 404 })
     }
 
-    return NextResponse.json(ticket)
+    // Transform ticket to match frontend expectations
+    const transformedTicket = {
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description || "",
+      status: ticket.status.toLowerCase(),
+      priority: ticket.priority.toLowerCase(),
+      assignee: ticket.assignee ? {
+        id: ticket.assignee.id,
+        name: ticket.assignee.name,
+        email: ticket.assignee.email,
+        avatar: ticket.assignee.avatar,
+        role: ticket.assignee.role.toLowerCase() === 'admin' ? 'admin' : 
+              ticket.assignee.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      reporter: ticket.createdBy ? {
+        id: ticket.createdBy.id,
+        name: ticket.createdBy.name,
+        email: ticket.createdBy.email,
+        avatar: ticket.createdBy.avatar,
+        role: ticket.createdBy.role.toLowerCase() === 'admin' ? 'admin' : 
+              ticket.createdBy.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      department: ticket.department ? {
+        id: ticket.department.id,
+        name: ticket.department.name,
+        description: ticket.department.description || ""
+      } : null,
+      team: ticket.team ? {
+        id: ticket.team.id,
+        name: ticket.team.name,
+        description: ticket.team.description || ""
+      } : null,
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      comments: ticket.messages.map(message => ({
+        id: message.id,
+        user: {
+          id: message.sender.id,
+          name: message.sender.name,
+          email: message.sender.email,
+          avatar: message.sender.avatar,
+          role: message.sender.role.toLowerCase() === 'admin' ? 'admin' : 
+                message.sender.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        },
+        comment: message.content,
+        createdAt: message.timestamp.toISOString()
+      })),
+      attachments: ticket.files.map(file => ({
+        id: file.id,
+        name: file.filename,
+        url: `/api/files/${file.id}`,
+        size: 0, // Would need to store this separately
+        type: file.mimetype,
+        uploadedAt: file.uploadedAt.toISOString(),
+        uploadedBy: {
+          id: file.uploadedBy.id,
+          name: file.uploadedBy.name,
+          email: file.uploadedBy.email
+        }
+      }))
+    }
+
+    return NextResponse.json(transformedTicket)
   } catch (error) {
     console.error("Error fetching ticket:", error)
     return NextResponse.json(
@@ -129,7 +180,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { title, description, type, status, dueDate, assigneeId, teamId, departmentId } = body
+    const { title, description, type, status, priority, dueDate, assigneeId, teamId, departmentId } = body
 
     // Check if ticket exists
     const existingTicket = await prisma.ticket.findUnique({
@@ -143,7 +194,7 @@ export async function PUT(
     // Check permissions - only creator, assignee, or admins can update
     const canUpdate = 
       session.user.role === "ADMIN" ||
-      session.user.role === "SUPERLEADER" ||
+      session.user.role === "MANAGER" ||
       existingTicket.createdById === session.user.id ||
       existingTicket.assigneeId === session.user.id
 
@@ -157,6 +208,7 @@ export async function PUT(
     if (description) updateData.description = description
     if (type) updateData.type = type
     if (status) updateData.status = status
+    if (priority) updateData.priority = priority
     if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null
     if (assigneeId !== undefined) updateData.assigneeId = assigneeId
     if (teamId !== undefined) updateData.teamId = teamId
@@ -171,7 +223,8 @@ export async function PUT(
             id: true,
             name: true,
             email: true,
-            avatar: true
+            avatar: true,
+            role: true
           }
         },
         createdBy: {
@@ -179,7 +232,8 @@ export async function PUT(
             id: true,
             name: true,
             email: true,
-            avatar: true
+            avatar: true,
+            role: true
           }
         },
         team: {
@@ -244,7 +298,7 @@ export async function DELETE(
     // Check permissions - only creator or admins can delete
     const canDelete = 
       session.user.role === "ADMIN" ||
-      session.user.role === "SUPERLEADER" ||
+      session.user.role === "MANAGER" ||
       existingTicket.createdById === session.user.id
 
     if (!canDelete) {

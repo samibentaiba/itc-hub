@@ -85,7 +85,7 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || !["ADMIN", "SUPERLEADER", "LEADER"].includes(session.user.role)) {
+    if (!session?.user || !["ADMIN", "MANAGER"].includes(session.user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -137,7 +137,7 @@ export async function PUT(
           data: memberIds.map((userId: string) => ({
             userId: userId,
             teamId: params.teamId,
-            role: "MEMBER"
+            role: "USER"
           }))
         })
       }

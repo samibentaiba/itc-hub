@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "10")
+    const limit = parseInt(searchParams.get("limit") || "100")
     const search = searchParams.get("search") || ""
     const status = searchParams.get("status") || ""
 
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } }
+        { name: { contains: search } },
+        { description: { contains: search } }
       ]
     }
 
@@ -38,6 +38,15 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         include: {
+          manager: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              avatar: true
+            }
+          },
           members: {
             include: {
               user: {
@@ -53,6 +62,15 @@ export async function GET(request: NextRequest) {
           },
           teams: {
             include: {
+              leader: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  role: true,
+                  avatar: true
+                }
+              },
               members: {
                 include: {
                   user: {
@@ -73,6 +91,7 @@ export async function GET(request: NextRequest) {
               id: true,
               title: true,
               status: true,
+              priority: true,
               createdAt: true
             }
           }
@@ -84,8 +103,54 @@ export async function GET(request: NextRequest) {
       prisma.department.count({ where })
     ])
 
+    // Transform departments to match frontend expectations
+    const transformedDepartments = departments.map(dept => ({
+      id: dept.id,
+      name: dept.name,
+      manager: dept.manager ? {
+        id: dept.manager.id,
+        name: dept.manager.name,
+        email: dept.manager.email,
+        avatar: dept.manager.avatar,
+        role: dept.manager.role.toLowerCase() === 'admin' ? 'admin' : 
+              dept.manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      memberCount: dept.members.length,
+      ticketCount: dept.tickets.length,
+      teams: dept.teams.map(team => ({
+        id: team.id,
+        name: team.name,
+        leader: team.leader ? {
+          id: team.leader.id,
+          name: team.leader.name,
+          email: team.leader.email,
+          avatar: team.leader.avatar,
+          role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
+                team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        } : null,
+        memberCount: team.members.length,
+        members: team.members.map(member => ({
+          id: member.user.id,
+          name: member.user.name,
+          email: member.user.email,
+          avatar: member.user.avatar,
+          role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
+                member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        }))
+      })),
+      members: dept.members.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        email: member.user.email,
+        avatar: member.user.avatar,
+        role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
+              member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
+      description: dept.description || ""
+    }))
+
     return NextResponse.json({
-      departments,
+      departments: transformedDepartments,
       pagination: {
         page,
         limit,
@@ -106,12 +171,12 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || !["ADMIN", "SUPERLEADER"].includes(session.user.role)) {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { name, description, status, memberIds } = body
+    const { name, description, status, memberIds, managerId } = body
 
     if (!name) {
       return NextResponse.json(
@@ -138,16 +203,26 @@ export async function POST(request: NextRequest) {
         name,
         description,
         status: status || "active",
+        managerId,
         ...(memberIds && memberIds.length > 0 && {
           members: {
             create: memberIds.map((userId: string) => ({
               userId: userId,
-              role: "MEMBER"
+              role: "USER"
             }))
           }
         })
       },
       include: {
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar: true
+          }
+        },
         members: {
           include: {
             user: {

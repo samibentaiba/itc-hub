@@ -139,13 +139,13 @@ export async function POST(request: NextRequest) {
         name,
         email,
         password: hashedPassword,
-        role: role || "MEMBER",
+        role: role || "USER",
         status: "verified",
         ...(departmentIds && departmentIds.length > 0 && {
           departments: {
             create: departmentIds.map((deptId: string) => ({
               departmentId: deptId,
-              role: "MEMBER"
+              role: "USER"
             }))
           }
         }),
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
           teams: {
             create: teamIds.map((teamId: string) => ({
               teamId: teamId,
-              role: "MEMBER"
+              role: "USER"
             }))
           }
         })

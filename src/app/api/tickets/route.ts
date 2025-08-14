@@ -13,10 +13,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "10")
+    const limit = parseInt(searchParams.get("limit") || "100")
     const search = searchParams.get("search") || ""
     const status = searchParams.get("status") || ""
     const type = searchParams.get("type") || ""
+    const priority = searchParams.get("priority") || ""
     const assigneeId = searchParams.get("assigneeId") || ""
     const createdById = searchParams.get("createdById") || ""
     const teamId = searchParams.get("teamId") || ""
@@ -28,8 +29,8 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } }
+        { title: { contains: search } },
+        { description: { contains: search } }
       ]
     }
 
@@ -39,6 +40,10 @@ export async function GET(request: NextRequest) {
 
     if (type) {
       where.type = type
+    }
+
+    if (priority) {
+      where.priority = priority
     }
 
     if (assigneeId) {
@@ -68,7 +73,8 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
-              avatar: true
+              avatar: true,
+              role: true
             }
           },
           createdBy: {
@@ -76,7 +82,8 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
-              avatar: true
+              avatar: true,
+              role: true
             }
           },
           team: {
@@ -127,8 +134,53 @@ export async function GET(request: NextRequest) {
       prisma.ticket.count({ where })
     ])
 
+    // Transform tickets to match frontend expectations
+    const transformedTickets = tickets.map(ticket => ({
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description || "",
+      status: ticket.status.toLowerCase(),
+      priority: ticket.priority.toLowerCase(),
+      assignee: ticket.assignee ? {
+        id: ticket.assignee.id,
+        name: ticket.assignee.name,
+        email: ticket.assignee.email,
+        avatar: ticket.assignee.avatar,
+        role: ticket.assignee.role.toLowerCase() === 'admin' ? 'admin' : 
+              ticket.assignee.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      reporter: ticket.createdBy ? {
+        id: ticket.createdBy.id,
+        name: ticket.createdBy.name,
+        email: ticket.createdBy.email,
+        avatar: ticket.createdBy.avatar,
+        role: ticket.createdBy.role.toLowerCase() === 'admin' ? 'admin' : 
+              ticket.createdBy.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      department: ticket.department ? {
+        id: ticket.department.id,
+        name: ticket.department.name,
+        description: ticket.department.description || ""
+      } : null,
+      team: ticket.team ? {
+        id: ticket.team.id,
+        name: ticket.team.name,
+        description: ticket.team.description || ""
+      } : null,
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString()
+    }))
+
+    // Calculate stats for frontend
+    const stats = {
+      open: tickets.filter(t => t.status === 'OPEN').length,
+      inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
+      closed: tickets.filter(t => t.status === 'CLOSED').length
+    }
+
     return NextResponse.json({
-      tickets,
+      tickets: transformedTickets,
+      stats,
       pagination: {
         page,
         limit,
@@ -154,7 +206,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, type, status, dueDate, assigneeId, teamId, departmentId } = body
+    const { title, description, type, status, priority, dueDate, assigneeId, teamId, departmentId } = body
 
     if (!title || !description) {
       return NextResponse.json(
@@ -209,6 +261,7 @@ export async function POST(request: NextRequest) {
         description,
         type: type || "TASK",
         status: status || "OPEN",
+        priority: priority || "MEDIUM",
         dueDate: dueDate ? new Date(dueDate) : null,
         assigneeId,
         teamId,
@@ -221,7 +274,8 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            avatar: true
+            avatar: true,
+            role: true
           }
         },
         createdBy: {
@@ -229,7 +283,8 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            avatar: true
+            avatar: true,
+            role: true
           }
         },
         team: {
