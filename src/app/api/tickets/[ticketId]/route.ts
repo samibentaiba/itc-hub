@@ -2,20 +2,22 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getAuthenticatedUser, canManageTicket } from "@/lib/auth-helpers"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ticketId: string } }
+  { params }: { params: Promise<{ ticketId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { ticketId } = await params;
+    const session = await getAuthenticatedUser()
     
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const ticket = await prisma.ticket.findUnique({
-      where: { id: params.ticketId },
+      where: { id: ticketId },
       include: {
         assignee: {
           select: {
@@ -170,13 +172,19 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { ticketId: string } }
+  { params }: { params: Promise<{ ticketId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { ticketId } = await params;
+    const session = await getAuthenticatedUser()
     
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user can manage this ticket
+    if (!(await canManageTicket(session.user.id, ticketId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have permission to update this ticket" }, { status: 403 })
     }
 
     const body = await request.json()
@@ -184,22 +192,11 @@ export async function PUT(
 
     // Check if ticket exists
     const existingTicket = await prisma.ticket.findUnique({
-      where: { id: params.ticketId }
+      where: { id: ticketId }
     })
 
     if (!existingTicket) {
       return NextResponse.json({ error: "Ticket not found" }, { status: 404 })
-    }
-
-    // Check permissions - only creator, assignee, or admins can update
-    const canUpdate = 
-      session.user.role === "ADMIN" ||
-      session.user.role === "MANAGER" ||
-      existingTicket.createdById === session.user.id ||
-      existingTicket.assigneeId === session.user.id
-
-    if (!canUpdate) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     const updateData: any = {}
@@ -215,7 +212,7 @@ export async function PUT(
     if (departmentId !== undefined) updateData.departmentId = departmentId
 
     const ticket = await prisma.ticket.update({
-      where: { id: params.ticketId },
+      where: { id: ticketId },
       data: updateData,
       include: {
         assignee: {
@@ -277,37 +274,33 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { ticketId: string } }
+  { params }: { params: Promise<{ ticketId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { ticketId } = await params;
+    const session = await getAuthenticatedUser()
     
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Check if user can manage this ticket
+    if (!(await canManageTicket(session.user.id, ticketId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have permission to delete this ticket" }, { status: 403 })
+    }
+
     // Check if ticket exists
     const existingTicket = await prisma.ticket.findUnique({
-      where: { id: params.ticketId }
+      where: { id: ticketId }
     })
 
     if (!existingTicket) {
       return NextResponse.json({ error: "Ticket not found" }, { status: 404 })
     }
 
-    // Check permissions - only creator or admins can delete
-    const canDelete = 
-      session.user.role === "ADMIN" ||
-      session.user.role === "MANAGER" ||
-      existingTicket.createdById === session.user.id
-
-    if (!canDelete) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
     // Delete ticket and all related data
     await prisma.ticket.delete({
-      where: { id: params.ticketId }
+      where: { id: ticketId }
     })
 
     return NextResponse.json({ message: "Ticket deleted successfully" })

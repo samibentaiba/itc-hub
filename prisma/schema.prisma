@@ -89,13 +89,13 @@ model Department {
 }
 
 model DepartmentMember {
-  id           String     @id @default(cuid())
+  id           String         @id @default(cuid())
   userId       String
   departmentId String
-  role         Role       @default(USER)
-  joinedAt     DateTime   @default(now())
-  user         User       @relation(fields: [userId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
+  role         MembershipRole @default(MEMBER)
+  joinedAt     DateTime       @default(now())
+  user         User           @relation(fields: [userId], references: [id])
+  department   Department     @relation(fields: [departmentId], references: [id])
 
   @@unique([userId, departmentId])
 }
@@ -116,13 +116,13 @@ model Team {
 }
 
 model TeamMember {
-  id       String   @id @default(cuid())
+  id       String         @id @default(cuid())
   userId   String
   teamId   String
-  role     Role     @default(USER)
-  joinedAt DateTime @default(now())
-  user     User     @relation(fields: [userId], references: [id])
-  team     Team     @relation(fields: [teamId], references: [id])
+  role     MembershipRole @default(MEMBER)
+  joinedAt DateTime       @default(now())
+  user     User           @relation(fields: [userId], references: [id])
+  team     Team           @relation(fields: [teamId], references: [id])
 
   @@unique([userId, teamId])
 }
@@ -231,6 +231,11 @@ enum Role {
   ADMIN
   MANAGER
   USER
+}
+
+enum MembershipRole {
+  MANAGER
+  MEMBER
 }
 
 enum TicketType {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTicketById } from "../../api"; // Updated import from clean API
+import { getTicketById } from "@/lib/server-api";
 import TicketDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,15 @@ import { ArrowLeft } from "lucide-react";
 // This is a Server Component.
 // It fetches data on the server and passes it to the client component.
 export default async function TicketDetailPage(props: {
-  params: { ticketId: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ ticketId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { ticketId } = props.params;
+  const { ticketId } = await props.params;
 
   // Get the 'from' query parameter to create the throwback link, or default to '/tickets'
+  const searchParams = await props.searchParams;
   const fromPath =
-    typeof props.searchParams.from === "string" ? props.searchParams.from : "/tickets";
+    typeof searchParams.from === "string" ? searchParams.from : "/tickets";
 
   // Fetch data for the specific ticket
   const ticket = await getTicketById(ticketId);

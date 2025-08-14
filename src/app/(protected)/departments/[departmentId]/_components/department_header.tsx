@@ -9,6 +9,7 @@ import { Building2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NewTicketForm } from "@/components/new-ticket-form";
+import { AuthorizedComponent } from "@/hooks/use-authorization";
 import { Department } from "../types";
 
 interface DepartmentHeaderProps {
@@ -36,13 +37,14 @@ export const DepartmentHeader = ({ department, showNewTicket, onOpenChange }: De
       </div>
 
       {/* New Initiative Dialog */}
-      <Dialog open={showNewTicket} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild>
-          <Button className="bg-red-800 text-white hover:bg-red-700">
-            <Plus className="mr-2 h-4 w-4" />
-            New Initiative
-          </Button>
-        </DialogTrigger>
+      <AuthorizedComponent departmentId={department.id} action="manage">
+        <Dialog open={showNewTicket} onOpenChange={onOpenChange}>
+          <DialogTrigger asChild>
+            <Button className="bg-red-800 text-white hover:bg-red-700">
+              <Plus className="mr-2 h-4 w-4" />
+              New Initiative
+            </Button>
+          </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create Department Initiative</DialogTitle>
@@ -58,6 +60,7 @@ export const DepartmentHeader = ({ department, showNewTicket, onOpenChange }: De
           />
         </DialogContent>
       </Dialog>
+      </AuthorizedComponent>
     </div>
   );
 };

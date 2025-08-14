@@ -2,20 +2,27 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getAuthenticatedUser, canAccessTeam, canManageTeam } from "@/lib/auth-helpers"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { teamId } = await params;
+    const session = await getAuthenticatedUser()
     
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Check if user can access this team
+    if (!(await canAccessTeam(session.user.id, teamId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have access to this team" }, { status: 403 })
+    }
+
     const team = await prisma.team.findUnique({
-      where: { id: params.teamId },
+      where: { id: teamId },
       include: {
         department: {
           select: {
@@ -80,13 +87,19 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { teamId } = await params;
+    const session = await getAuthenticatedUser()
     
-    if (!session?.user || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user can manage this team
+    if (!(await canManageTeam(session.user.id, teamId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have permission to manage this team" }, { status: 403 })
     }
 
     const body = await request.json()
@@ -100,7 +113,7 @@ export async function PUT(
     if (departmentId) updateData.departmentId = departmentId
 
     const team = await prisma.team.update({
-      where: { id: params.teamId },
+      where: { id: teamId },
       data: updateData,
       include: {
         department: {
@@ -129,15 +142,15 @@ export async function PUT(
     // Handle member updates if provided
     if (memberIds !== undefined) {
       await prisma.teamMember.deleteMany({
-        where: { teamId: params.teamId }
+        where: { teamId: teamId }
       })
 
       if (memberIds.length > 0) {
         await prisma.teamMember.createMany({
           data: memberIds.map((userId: string) => ({
             userId: userId,
-            teamId: params.teamId,
-            role: "USER"
+            teamId: teamId,
+            role: "MEMBER"
           }))
         })
       }
@@ -155,18 +168,24 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { teamId } = await params;
+    const session = await getAuthenticatedUser()
     
-    if (!session?.user || !["ADMIN", "SUPERLEADER"].includes(session.user.role)) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user can manage this team
+    if (!(await canManageTeam(session.user.id, teamId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have permission to delete this team" }, { status: 403 })
     }
 
     // Check if team exists
     const existingTeam = await prisma.team.findUnique({
-      where: { id: params.teamId }
+      where: { id: teamId }
     })
 
     if (!existingTeam) {
@@ -175,7 +194,7 @@ export async function DELETE(
 
     // Delete team and all related data
     await prisma.team.delete({
-      where: { id: params.teamId }
+      where: { id: teamId }
     })
 
     return NextResponse.json({ message: "Team deleted successfully" })

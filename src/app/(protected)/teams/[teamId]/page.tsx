@@ -1,19 +1,19 @@
 // src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
-import { getTeamById } from "../../api"; // Updated import from clean API
+import { getTeamById } from "@/lib/server-api";
 import TeamDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     teamId: string;
-  };
+  }>;
 }
 
 export default async function TeamDetailPage(props: PageProps) {
-  const { teamId } = props.params;
+  const { teamId } = await props.params;
 
   // Fetch team data
   const team = await getTeamById(teamId);

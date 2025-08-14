@@ -11,7 +11,7 @@
 | found, it displays a "Not Found" message.                                    |
 ================================================================================
 */
-import { getUserById } from "../../api"; // Updated import from clean API
+import { getUserById } from "@/lib/server-api";
 import UserProfileClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,15 +20,15 @@ import { ArrowLeft } from "lucide-react";
 
 // Define the props for the page, which includes URL parameters.
 interface PageProps {
-  params: {
+  params: Promise<{
     userId: string;
-  };
+  }>;
 }
 
 // This is the main Server Component for the dynamic route.
 export default async function UserProfilePage(props: PageProps) {
   // Extract the userId from the URL parameters.
-  const { userId } = props.params;
+  const { userId } = await props.params;
 
   // Fetch the specific user's data on the server.
   const user = await getUserById(userId);

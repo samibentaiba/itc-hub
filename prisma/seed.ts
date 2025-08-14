@@ -218,28 +218,28 @@ async function main() {
       data: {
         userId: 'USER-002',
         departmentId: 'DEP-001',
-        role: 'MANAGER',
+        role: 'MANAGER', // Jane Doe is Department Manager
       },
     }),
     prisma.departmentMember.create({
       data: {
         userId: 'USER-003',
         departmentId: 'DEP-001',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
     prisma.departmentMember.create({
       data: {
         userId: 'USER-004',
         departmentId: 'DEP-001',
-        role: 'MANAGER',
+        role: 'MEMBER', // Bob Wilson is Team Leader, but Department Member
       },
     }),
     prisma.departmentMember.create({
       data: {
         userId: 'USER-005',
         departmentId: 'DEP-001',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
     // Support department members
@@ -247,29 +247,29 @@ async function main() {
       data: {
         userId: 'USER-006',
         departmentId: 'DEP-002',
-        role: 'MANAGER',
+        role: 'MANAGER', // David Lee is Department Manager
       },
     }),
     prisma.departmentMember.create({
       data: {
         userId: 'USER-007',
         departmentId: 'DEP-002',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
     prisma.departmentMember.create({
       data: {
         userId: 'USER-008',
         departmentId: 'DEP-002',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
-    // Executive department members
+    // Executive department members - Admin should still be a member, not using ADMIN role for membership
     prisma.departmentMember.create({
       data: {
         userId: 'USER-001',
         departmentId: 'DEP-003',
-        role: 'ADMIN',
+        role: 'MANAGER', // Sami is Executive Department Manager
       },
     }),
   ])
@@ -278,65 +278,65 @@ async function main() {
 
   // Create team memberships
   await Promise.all([
-    // Frontend team
+    // Frontend team - Jane Doe is Team Leader
     prisma.teamMember.create({
       data: {
         userId: 'USER-002',
         teamId: 'TEAM-001',
-        role: 'MANAGER',
+        role: 'MANAGER', // Jane Doe is Team Leader
       },
     }),
     prisma.teamMember.create({
       data: {
         userId: 'USER-003',
         teamId: 'TEAM-001',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
-    // Backend team
+    // Backend team - Bob Wilson is Team Leader
     prisma.teamMember.create({
       data: {
         userId: 'USER-004',
         teamId: 'TEAM-002',
-        role: 'MANAGER',
+        role: 'MANAGER', // Bob Wilson is Team Leader
       },
     }),
     prisma.teamMember.create({
       data: {
         userId: 'USER-005',
         teamId: 'TEAM-002',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
-    // Tier 1 Support
+    // Tier 1 Support - David Lee is Team Leader
     prisma.teamMember.create({
       data: {
         userId: 'USER-006',
         teamId: 'TEAM-003',
-        role: 'MANAGER',
+        role: 'MANAGER', // David Lee is Team Leader
       },
     }),
     prisma.teamMember.create({
       data: {
         userId: 'USER-007',
         teamId: 'TEAM-003',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
-    // Tier 2 Support
+    // Tier 2 Support - No manager assigned yet
     prisma.teamMember.create({
       data: {
         userId: 'USER-008',
         teamId: 'TEAM-004',
-        role: 'USER',
+        role: 'MEMBER',
       },
     }),
-    // Management
+    // Management team - Sami is Team Leader
     prisma.teamMember.create({
       data: {
         userId: 'USER-001',
         teamId: 'TEAM-005',
-        role: 'ADMIN',
+        role: 'MANAGER', // Sami is Management Team Leader
       },
     }),
   ])

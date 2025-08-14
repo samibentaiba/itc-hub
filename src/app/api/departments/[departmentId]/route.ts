@@ -2,20 +2,27 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getAuthenticatedUser, canAccessDepartment, canManageDepartment } from "@/lib/auth-helpers"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { departmentId: string } }
+  { params }: { params: Promise<{ departmentId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { departmentId } = await params;
+    const session = await getAuthenticatedUser()
     
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Check if user can access this department
+    if (!(await canAccessDepartment(session.user.id, departmentId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have access to this department" }, { status: 403 })
+    }
+
     const department = await prisma.department.findUnique({
-      where: { id: params.departmentId },
+      where: { id: departmentId },
       include: {
         manager: {
           select: {
@@ -181,13 +188,19 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { departmentId: string } }
+  { params }: { params: Promise<{ departmentId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { departmentId } = await params;
+    const session = await getAuthenticatedUser()
     
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user can manage this department
+    if (!(await canManageDepartment(session.user.id, departmentId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have permission to manage this department" }, { status: 403 })
     }
 
     const body = await request.json()
@@ -200,7 +213,7 @@ export async function PUT(
     if (status) updateData.status = status
 
     const department = await prisma.department.update({
-      where: { id: params.departmentId },
+      where: { id: departmentId },
       data: updateData,
       include: {
         members: {
@@ -248,18 +261,24 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { departmentId: string } }
+  { params }: { params: Promise<{ departmentId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { departmentId } = await params;
+    const session = await getAuthenticatedUser()
     
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user can manage this department
+    if (!(await canManageDepartment(session.user.id, departmentId))) {
+      return NextResponse.json({ error: "Forbidden - You don't have permission to delete this department" }, { status: 403 })
     }
 
     // Check if department exists
     const existingDepartment = await prisma.department.findUnique({
-      where: { id: params.departmentId }
+      where: { id: departmentId }
     })
 
     if (!existingDepartment) {
@@ -268,7 +287,7 @@ export async function DELETE(
 
     // Delete department and all related data
     await prisma.department.delete({
-      where: { id: params.departmentId }
+      where: { id: departmentId }
     })
 
     return NextResponse.json({ message: "Department deleted successfully" })

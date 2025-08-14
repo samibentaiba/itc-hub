@@ -1,5 +1,5 @@
 import TicketsClientPage from "./client";
-import { getTickets } from "../api";
+import { getTickets } from "@/lib/server-api";
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
