@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "10")
+    const limit = parseInt(searchParams.get("limit") || "100")
     const search = searchParams.get("search") || ""
     const status = searchParams.get("status") || ""
     const departmentId = searchParams.get("departmentId") || ""
@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } }
+        { name: { contains: search } },
+        { description: { contains: search } }
       ]
     }
 
@@ -50,6 +50,15 @@ export async function GET(request: NextRequest) {
               description: true
             }
           },
+          leader: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              avatar: true
+            }
+          },
           members: {
             include: {
               user: {
@@ -68,6 +77,7 @@ export async function GET(request: NextRequest) {
               id: true,
               title: true,
               status: true,
+              priority: true,
               createdAt: true
             }
           }
@@ -79,8 +89,33 @@ export async function GET(request: NextRequest) {
       prisma.team.count({ where })
     ])
 
+    // Transform teams to match frontend expectations
+    const transformedTeams = teams.map(team => ({
+      id: team.id,
+      name: team.name,
+      leader: team.leader ? {
+        id: team.leader.id,
+        name: team.leader.name,
+        email: team.leader.email,
+        avatar: team.leader.avatar,
+        role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
+              team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      department: team.department?.name || "",
+      memberCount: team.members.length,
+      members: team.members.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        email: member.user.email,
+        avatar: member.user.avatar,
+        role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
+              member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
+      description: team.description || ""
+    }))
+
     return NextResponse.json({
-      teams,
+      teams: transformedTeams,
       pagination: {
         page,
         limit,
@@ -101,12 +136,12 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || !["ADMIN", "SUPERLEADER", "LEADER"].includes(session.user.role)) {
+    if (!session?.user || !["ADMIN", "MANAGER"].includes(session.user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { name, description, status, departmentId, memberIds } = body
+    const { name, description, status, departmentId, memberIds, leaderId } = body
 
     if (!name || !departmentId) {
       return NextResponse.json(
@@ -146,11 +181,12 @@ export async function POST(request: NextRequest) {
         description,
         status: status || "active",
         departmentId,
+        leaderId,
         ...(memberIds && memberIds.length > 0 && {
           members: {
             create: memberIds.map((userId: string) => ({
               userId: userId,
-              role: "MEMBER"
+              role: "USER"
             }))
           }
         })
@@ -161,6 +197,15 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             description: true
+          }
+        },
+        leader: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar: true
           }
         },
         members: {

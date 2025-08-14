@@ -1,15 +1,19 @@
 // src/app/(protected)/api.ts
-import { mockData } from './mock'; // Imports from the typed mock.ts file
 import * as T from './types';
-
-const MOCK_API_DELAY = 500; // ms
-
-const simulateDelay = () => new Promise(res => setTimeout(res, MOCK_API_DELAY));
 
 // Dashboard
 export const getDashboardData = async (): Promise<T.DashboardData> => {
-  await simulateDelay();
-  return mockData.dashboard;
+  const response = await fetch('/api/dashboard', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch dashboard data');
+  }
+  
+  return response.json();
 };
 
 // Dashboard - Additional functions for backward compatibility
@@ -26,12 +30,12 @@ export const fetchWorkspaceStats = async () => {
   // Transform dashboard stats to match the expected WorkspaceStats interface
   return {
     teams: { 
-      count: 2, // You can derive this from dashboardData or your mock data
+      count: 5, // You can derive this from dashboardData or your mock data
       change: "+1 this month", 
       trend: "up" 
     },
     departments: { 
-      count: 2, 
+      count: 3, 
       change: "No change", 
       trend: "stable" 
     },
@@ -69,24 +73,42 @@ export const fetchTickets = async () => {
 // --- Calendar ---
 // Gets the aggregated calendar for the current user (personal, team, department)
 export const getPersonalCalendarData = async (): Promise<T.CalendarEvent[]> => {
-  await simulateDelay();
-  const { personalEvents, teamEvents, departmentEvents } = mockData.personalCalendar;
-  return [...personalEvents, ...teamEvents, ...departmentEvents];
+  const response = await fetch('/api/events?type=personal', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch personal calendar data');
+  }
+  
+  const events = await response.json();
+  return events.events || [];
 };
 
 // Gets the global calendar with company-wide events
 export const getGlobalCalendarData = async (): Promise<T.CalendarEvent[]> => {
-  await simulateDelay();
-  return mockData.globalCalendar.events;
+  const response = await fetch('/api/events?type=global', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch global calendar data');
+  }
+  
+  const events = await response.json();
+  return events.events || [];
 };
 
 // Calendar - Additional functions from local calendar API
 export const fetchEvents = async (): Promise<T.CalendarLocalEvent[]> => {
   console.log("Fetching calendar events...");
-  await simulateDelay();
-  console.log("Fetched calendar events.");
-  // Transform central calendar events to match local Event interface
   const events = await getPersonalCalendarData();
+  console.log("Fetched calendar events.");
+  
   return events.map((event, index) => ({
     id: parseInt(event.id),
     title: event.title,
@@ -103,9 +125,9 @@ export const fetchEvents = async (): Promise<T.CalendarLocalEvent[]> => {
 
 export const fetchUpcomingEvents = async (): Promise<T.CalendarUpcomingEvent[]> => {
   console.log("Fetching upcoming events...");
-  await simulateDelay();
-  console.log("Fetched upcoming events.");
   const events = await getPersonalCalendarData();
+  console.log("Fetched upcoming events.");
+  
   return events.slice(0, 5).map((event, index) => ({
     id: parseInt(event.id),
     title: event.title,
@@ -117,19 +139,39 @@ export const fetchUpcomingEvents = async (): Promise<T.CalendarUpcomingEvent[]> 
 
 // Departments
 export const getDepartments = async (): Promise<T.DepartmentsPageData> => {
-    await simulateDelay();
-    return mockData.departments;
+  const response = await fetch('/api/departments', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch departments');
+  }
+  
+  const data = await response.json();
+  return data.departments;
 }
 
 export const getDepartmentById = async (id: string): Promise<T.DepartmentDetailData | undefined> => {
-    await simulateDelay();
-    // In a real app, you would find the specific department from the list.
-    return mockData.departmentDetail.id === id ? mockData.departmentDetail : undefined;
+  const response = await fetch(`/api/departments/${id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    if (response.status === 404) {
+      return undefined;
+    }
+    throw new Error('Failed to fetch department');
+  }
+  
+  return response.json();
 }
 
 // Departments - Additional functions from local departments API
 export const fetchDepartments = async (): Promise<T.DepartmentLocal[]> => {
-  await simulateDelay();
   const departments = await getDepartments();
   return departments.map(dept => ({
     id: dept.id || '',
@@ -153,23 +195,23 @@ export const fetchDepartments = async (): Promise<T.DepartmentLocal[]> => {
 };
 
 export const fetchDepartmentStats = async (): Promise<T.DepartmentStatLocal[]> => {
-  await simulateDelay();
+  const departments = await getDepartments();
   return [
     {
       title: "Total Departments",
-      value: "8",
+      value: departments.length.toString(),
       description: "Active departments",
       trend: "+2 this quarter"
     },
     {
       title: "Total Teams",
-      value: "24",
+      value: departments.reduce((sum, dept) => sum + (dept.teams?.length || 0), 0).toString(),
       description: "Across all departments",
       trend: "+3 this month"
     },
     {
       title: "Total Members",
-      value: "156",
+      value: departments.reduce((sum, dept) => sum + (dept.memberCount || 0), 0).toString(),
       description: "Active employees",
       trend: "+12 this quarter"
     },
@@ -184,18 +226,39 @@ export const fetchDepartmentStats = async (): Promise<T.DepartmentStatLocal[]> =
 
 // Teams
 export const getTeams = async (): Promise<T.TeamsPageData> => {
-    await simulateDelay();
-    return mockData.teams;
+  const response = await fetch('/api/teams', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch teams');
+  }
+  
+  const data = await response.json();
+  return data.teams;
 }
 
 export const getTeamById = async (id: string): Promise<T.TeamDetailData | undefined> => {
-    await simulateDelay();
-    return mockData.teamDetail.id === id ? mockData.teamDetail : undefined;
+  const response = await fetch(`/api/teams/${id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    if (response.status === 404) {
+      return undefined;
+    }
+    throw new Error('Failed to fetch team');
+  }
+  
+  return response.json();
 }
 
 // Teams - Additional functions from local teams API
 export const fetchTeams = async (): Promise<T.TeamLocal[]> => {
-  await simulateDelay();
   const teams = await getTeams();
   return teams.map(team => ({
     id: team.id || '',
@@ -220,17 +283,17 @@ export const fetchTeams = async (): Promise<T.TeamLocal[]> => {
 };
 
 export const fetchTeamStats = async (): Promise<T.TeamStatLocal[]> => {
-  await simulateDelay();
+  const teams = await getTeams();
   return [
     {
       title: "Total Teams",
-      value: "24",
+      value: teams.length.toString(),
       description: "Active teams",
       trend: "+3 this month"
     },
     {
       title: "Team Members",
-      value: "156",
+      value: teams.reduce((sum, team) => sum + (team.memberCount || 0), 0).toString(),
       description: "Across all teams",
       trend: "+12 this quarter"
     },
@@ -251,18 +314,38 @@ export const fetchTeamStats = async (): Promise<T.TeamStatLocal[]> => {
 
 // Tickets
 export const getTickets = async (): Promise<T.TicketsPageData> => {
-    await simulateDelay();
-    return mockData.tickets;
+  const response = await fetch('/api/tickets', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch tickets');
+  }
+  
+  return response.json();
 }
 
 export const getTicketById = async (id: string): Promise<T.TicketDetails | undefined> => {
-    await simulateDelay();
-    return mockData.ticketDetail.id === id ? mockData.ticketDetail : undefined;
+  const response = await fetch(`/api/tickets/${id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    if (response.status === 404) {
+      return undefined;
+    }
+    throw new Error('Failed to fetch ticket');
+  }
+  
+  return response.json();
 }
 
 // Tickets - Additional functions from local tickets API (renamed to avoid conflicts)
 export const fetchTicketsLocal = async (): Promise<T.TicketLocal[]> => {
-  await simulateDelay();
   const ticketsData = await getTickets();
   return ticketsData.tickets.map(ticket => ({
     id: ticket.id || '',
@@ -290,7 +373,6 @@ export const fetchTicketsLocal = async (): Promise<T.TicketLocal[]> => {
 };
 
 export const fetchStats = async (): Promise<T.TicketStatLocal[]> => {
-  await simulateDelay();
   const ticketsData = await getTickets();
   return [
     {
@@ -322,18 +404,39 @@ export const fetchStats = async (): Promise<T.TicketStatLocal[]> => {
 
 // Users
 export const getUsers = async (): Promise<T.UsersPageData> => {
-    await simulateDelay();
-    return mockData.users;
+  const response = await fetch('/api/users', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch users');
+  }
+  
+  const data = await response.json();
+  return data.users;
 }
 
 export const getUserById = async (id: string): Promise<T.UserDetailData | undefined> => {
-    await simulateDelay();
-    return mockData.userDetail.id === id ? mockData.userDetail : undefined;
+  const response = await fetch(`/api/users/${id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    if (response.status === 404) {
+      return undefined;
+    }
+    throw new Error('Failed to fetch user');
+  }
+  
+  return response.json();
 }
 
 // Users - Additional functions from local users API
 export const fetchUsers = async (): Promise<T.UserLocal[]> => {
-  await simulateDelay();
   const users = await getUsers();
   return users.map(user => ({
     id: user.id || '',
@@ -349,11 +452,11 @@ export const fetchUsers = async (): Promise<T.UserLocal[]> => {
 };
 
 export const fetchUserStats = async (): Promise<T.UserStatLocal[]> => {
-  await simulateDelay();
+  const users = await getUsers();
   return [
     {
       title: "Total Users",
-      value: "156",
+      value: users.length.toString(),
       description: "Active employees",
       trend: "+12 this quarter"
     },
@@ -380,14 +483,22 @@ export const fetchUserStats = async (): Promise<T.UserStatLocal[]> => {
 
 // Profile
 export const getProfileData = async (): Promise<T.Profile> => {
-    await simulateDelay();
-    return mockData.profile;
+  const response = await fetch('/api/profile', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch profile data');
+  }
+  
+  return response.json();
 }
 
 // Profile - Additional functions from local profile API
 export const fetchProfileData = async (): Promise<T.ProfileDataLocal | null> => {
   try {
-    await simulateDelay();
     const profile = await getProfileData();
     
     // Transform central profile to local profile format
@@ -464,13 +575,21 @@ export const fetchProfileData = async (): Promise<T.ProfileDataLocal | null> => 
 
 // Settings
 export const getSettingsData = async (): Promise<T.SettingsData> => {
-    await simulateDelay();
-    return mockData.settings;
+  const response = await fetch('/api/settings', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch settings data');
+  }
+  
+  return response.json();
 }
 
 // Settings - Additional functions from local settings API
 export const fetchUserSettings = async (): Promise<T.UserSettingsLocal> => {
-  await simulateDelay();
   const settings = await getSettingsData();
   return {
     displayName: settings.profile?.name || '',
@@ -481,7 +600,6 @@ export const fetchUserSettings = async (): Promise<T.UserSettingsLocal> => {
 
 // Department Detail Functions
 export const fetchDepartment = async (departmentId: string): Promise<T.DepartmentDetailLocal | null> => {
-  await simulateDelay();
   const departmentDetail = await getDepartmentById(departmentId);
   
   if (!departmentDetail) {
@@ -548,7 +666,6 @@ export const fetchDepartment = async (departmentId: string): Promise<T.Departmen
 
 // Team Detail Functions  
 export const fetchTeamByIdDetail = async (teamId: string): Promise<T.TeamDetailLocalFull | null> => {
-  await simulateDelay();
   const teamDetail = await getTeamById(teamId);
   
   if (!teamDetail) {
@@ -597,7 +714,6 @@ export const fetchTeamByIdDetail = async (teamId: string): Promise<T.TeamDetailL
 };
 
 export const fetchTicketsByTeamId = async (teamId: string): Promise<T.TeamTicketLocal[]> => {
-  await simulateDelay();
   const teamDetail = await getTeamById(teamId);
   
   if (!teamDetail || !teamDetail.tickets) {
@@ -618,7 +734,6 @@ export const fetchTicketsByTeamId = async (teamId: string): Promise<T.TeamTicket
 
 // Ticket Detail Functions
 export const fetchTicketByIdDetail = async (ticketId: string): Promise<T.TicketDetailLocal | null> => {
-  await simulateDelay();
   const ticketDetail = await getTicketById(ticketId);
   
   if (!ticketDetail) {
@@ -651,7 +766,6 @@ export const fetchTicketByIdDetail = async (ticketId: string): Promise<T.TicketD
 };
 
 export const fetchMessagesByTicketId = async (ticketId: string): Promise<T.MessageLocal[]> => {
-  await simulateDelay();
   const ticketDetail = await getTicketById(ticketId);
   
   if (!ticketDetail || !ticketDetail.comments) {
@@ -677,7 +791,6 @@ export const fetchMessagesByTicketId = async (ticketId: string): Promise<T.Messa
 
 // User Detail Functions
 export const fetchUserByIdDetail = async (userId: string): Promise<T.UserDetailLocal | null> => {
-  await simulateDelay();
   const userDetail = await getUserById(userId);
   
   if (!userDetail) {
@@ -752,9 +865,18 @@ export const fetchUserByIdDetail = async (userId: string): Promise<T.UserDetailL
 export const fetchRole = async (): Promise<string | null> => {
   try {
     // In a real implementation, this would check the user's session
-    // For now, we'll return 'ADMIN' for demo purposes
-    await simulateDelay();
-    return 'ADMIN';
+    const response = await fetch('/api/auth/role', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch user role');
+    }
+    
+    const data = await response.json();
+    return data.role;
   } catch (error) {
     console.error("Failed to fetch user role:", error);
     return null;
@@ -762,8 +884,6 @@ export const fetchRole = async (): Promise<string | null> => {
 };
 
 export const fetchUsersAdmin = async (): Promise<T.UserAdmin[]> => {
-  await simulateDelay();
-  // Transform existing users data to admin format
   const users = await getUsers();
   return users.map(user => ({
     id: user.id || '',
@@ -776,7 +896,6 @@ export const fetchUsersAdmin = async (): Promise<T.UserAdmin[]> => {
 };
 
 export const fetchTeamsAdmin = async (): Promise<T.TeamAdmin[]> => {
-  await simulateDelay();
   const teams = await getTeams();
   return teams.map(team => ({
     id: team.id || '',
@@ -793,7 +912,6 @@ export const fetchTeamsAdmin = async (): Promise<T.TeamAdmin[]> => {
 };
 
 export const fetchDepartmentsAdmin = async (): Promise<T.DepartmentAdmin[]> => {
-  await simulateDelay();
   const departments = await getDepartments();
   return departments.map(dept => ({
     id: dept.id || '',
@@ -810,7 +928,6 @@ export const fetchDepartmentsAdmin = async (): Promise<T.DepartmentAdmin[]> => {
 };
 
 export const fetchEventsAdmin = async (): Promise<T.EventAdmin[]> => {
-  await simulateDelay();
   const events = await getPersonalCalendarData();
   return events.slice(0, 10).map((event, index) => ({
     id: index + 1,
@@ -827,7 +944,6 @@ export const fetchEventsAdmin = async (): Promise<T.EventAdmin[]> => {
 };
 
 export const fetchUpcomingEventsAdmin = async (): Promise<T.UpcomingEventAdmin[]> => {
-  await simulateDelay();
   const events = await getPersonalCalendarData();
   return events.slice(0, 5).map((event, index) => ({
     id: index + 1,
@@ -839,7 +955,6 @@ export const fetchUpcomingEventsAdmin = async (): Promise<T.UpcomingEventAdmin[]
 };
 
 export const fetchPendingEventsAdmin = async (): Promise<T.PendingEventAdmin[]> => {
-  await simulateDelay();
   const events = await getPersonalCalendarData();
   return events.slice(0, 3).map((event, index) => ({
     id: index + 1,
@@ -859,7 +974,6 @@ export const fetchPendingEventsAdmin = async (): Promise<T.PendingEventAdmin[]> 
 
 // Global Calendar Functions
 export const fetchGlobalEvents = async (): Promise<T.GlobalEventLocal[]> => {
-  await simulateDelay();
   const globalEvents = await getGlobalCalendarData();
   return globalEvents.map(event => ({
     id: event.id,

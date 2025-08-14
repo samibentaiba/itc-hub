@@ -17,6 +17,15 @@ export async function GET(
     const department = await prisma.department.findUnique({
       where: { id: params.departmentId },
       include: {
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar: true
+          }
+        },
         members: {
           include: {
             user: {
@@ -33,6 +42,15 @@ export async function GET(
         },
         teams: {
           include: {
+            leader: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                avatar: true
+              }
+            },
             members: {
               include: {
                 user: {
@@ -55,7 +73,8 @@ export async function GET(
                 id: true,
                 name: true,
                 email: true,
-                avatar: true
+                avatar: true,
+                role: true
               }
             },
             createdBy: {
@@ -63,7 +82,8 @@ export async function GET(
                 id: true,
                 name: true,
                 email: true,
-                avatar: true
+                avatar: true,
+                role: true
               }
             }
           },
@@ -78,7 +98,78 @@ export async function GET(
       return NextResponse.json({ error: "Department not found" }, { status: 404 })
     }
 
-    return NextResponse.json(department)
+    // Transform to match frontend expectations
+    const transformedDepartment = {
+      id: department.id,
+      name: department.name,
+      manager: department.manager ? {
+        id: department.manager.id,
+        name: department.manager.name,
+        email: department.manager.email,
+        avatar: department.manager.avatar,
+        role: department.manager.role.toLowerCase() === 'admin' ? 'admin' : 
+              department.manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      memberCount: department.members.length,
+      ticketCount: department.tickets.length,
+      teams: department.teams.map(team => ({
+        id: team.id,
+        name: team.name,
+        leader: team.leader ? {
+          id: team.leader.id,
+          name: team.leader.name,
+          email: team.leader.email,
+          avatar: team.leader.avatar,
+          role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
+                team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        } : null,
+        memberCount: team.members.length,
+        members: team.members.map(member => ({
+          id: member.user.id,
+          name: member.user.name,
+          email: member.user.email,
+          avatar: member.user.avatar,
+          role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
+                member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        }))
+      })),
+      members: department.members.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        email: member.user.email,
+        avatar: member.user.avatar,
+        role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
+              member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
+      tickets: department.tickets.map(ticket => ({
+        id: ticket.id,
+        title: ticket.title,
+        status: ticket.status.toLowerCase(),
+        priority: ticket.priority.toLowerCase(),
+        assignee: ticket.assignee ? {
+          id: ticket.assignee.id,
+          name: ticket.assignee.name,
+          email: ticket.assignee.email,
+          avatar: ticket.assignee.avatar,
+          role: ticket.assignee.role.toLowerCase() === 'admin' ? 'admin' : 
+                ticket.assignee.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        } : null,
+        reporter: ticket.createdBy ? {
+          id: ticket.createdBy.id,
+          name: ticket.createdBy.name,
+          email: ticket.createdBy.email,
+          avatar: ticket.createdBy.avatar,
+          role: ticket.createdBy.role.toLowerCase() === 'admin' ? 'admin' : 
+                ticket.createdBy.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        } : null,
+        createdAt: ticket.createdAt.toISOString(),
+        updatedAt: ticket.updatedAt.toISOString()
+      })),
+      description: department.description || "",
+      events: [] // Will be populated by events API if needed
+    }
+
+    return NextResponse.json(transformedDepartment)
   } catch (error) {
     console.error("Error fetching department:", error)
     return NextResponse.json(
@@ -95,7 +186,7 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || !["ADMIN", "SUPERLEADER"].includes(session.user.role)) {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -139,7 +230,7 @@ export async function PUT(
           data: memberIds.map((userId: string) => ({
             userId: userId,
             departmentId: params.departmentId,
-            role: "MEMBER"
+            role: "USER"
           }))
         })
       }

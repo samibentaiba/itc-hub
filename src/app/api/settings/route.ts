@@ -14,17 +14,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        profile: true,
-        departments: {
-          include: {
-            department: true
-          }
-        },
-        teams: {
-          include: {
-            team: true
-          }
-        }
+        profile: true
       }
     })
 
@@ -32,28 +22,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Transform to match frontend profile interface
-    const profileData = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role.toLowerCase() === 'admin' ? 'admin' : 
-            user.role.toLowerCase() === 'manager' ? 'manager' : 'user',
-      team: user.teams[0]?.team?.name || '',
-      department: user.departments[0]?.department?.name || '',
-      bio: user.profile?.bio || "No bio available",
-      skills: ["React", "TypeScript", "Next.js", "Prisma"], // Default skills
-      socialLinks: {
-        linkedin: "https://www.linkedin.com/in/example",
-        twitter: "https://twitter.com/example",
-        github: "https://github.com/example"
-      }
+    // Transform to match frontend settings interface
+    const settingsData = {
+      profile: {
+        name: user.name,
+        email: user.email,
+        bio: user.profile?.bio || ""
+      },
+      notifications: {
+        email: true,
+        push: true,
+        ticketUpdates: true,
+        mentions: true
+      },
+      theme: "dark" as const
     }
 
-    return NextResponse.json(profileData)
+    return NextResponse.json(settingsData)
   } catch (error) {
-    console.error("Error fetching profile:", error)
+    console.error("Error fetching settings:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -70,22 +57,20 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, bio, socialLinks } = body
+    const { profile, notifications, theme } = body
 
-    // Update user basic info
+    // Update user settings (for now just profile data)
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        name: name || undefined,
+        name: profile?.name || undefined,
         profile: {
           upsert: {
             create: {
-              bio: bio || "",
-              realName: name || undefined
+              bio: profile?.bio || ""
             },
             update: {
-              bio: bio || undefined,
-              realName: name || undefined
+              bio: profile?.bio || undefined
             }
           }
         }
@@ -95,12 +80,12 @@ export async function PUT(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(updatedUser)
+    return NextResponse.json({ message: "Settings updated successfully" })
   } catch (error) {
-    console.error("Error updating profile:", error)
+    console.error("Error updating settings:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     )
   }
-} 
+}
