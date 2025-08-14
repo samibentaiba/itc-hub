@@ -1,35 +1,29 @@
-// /calendar/global/page.tsx
+// src/app/(protected)/calendar/global/page.tsx
 
-import Link from "next/link";
-import { fetchGlobalEvents } from "../../api";
 import GlobalCalendarClientPage from "./client";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { getGlobalCalendarData } from "../../api";
 
-/**
- * The main server component for the /calendar/global route.
- * Its only job is to fetch data on the server, which allows for
- * efficient data loading and enables the use of Suspense for a
-
- * better loading experience.
- */
+// This is a Server Component. 
+// It fetches data on the server and passes it to the client component.
 export default async function GlobalCalendarPage() {
-  // Fetch the initial data. The `loading.tsx` component will be shown
-  // while this data is being fetched.
-  const initialGlobalEvents = await fetchGlobalEvents();
+  // Fetch global calendar data using the clean API
+  const globalEvents = await getGlobalCalendarData();
 
-  // Pass the server-fetched data as props to the Client Component.
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/calendar">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Personal calendar
-          </Button>
-        </Link>
-      </div>
-      <GlobalCalendarClientPage initialGlobalEvents={initialGlobalEvents} />
-    </div>
-  );
+  // Transform events to match the expected format
+  const transformedEvents = globalEvents.map(event => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    date: new Date(event.start),
+    time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
+    duration: '60 minutes',
+    type: event.type,
+    location: event.location || 'Conference Room',
+    organizer: 'System Admin',
+    attendees: event.participants?.length || 0,
+    isRecurring: false
+  }));
+
+  // Pass the server-fetched data as props to the client component.
+  return <GlobalCalendarClientPage initialEvents={transformedEvents} />;
 }

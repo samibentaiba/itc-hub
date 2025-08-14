@@ -1,16 +1,19 @@
-import { fetchUserSettings } from "../api";
+import { getSettingsData } from "../api";
 import SettingsClientPage from "./client";
 
-// This is the Server Component.
-// Its only job is to fetch the initial data on the server.
+// This is a Server Component. 
+// It fetches data on the server and passes it to the client component.
 export default async function SettingsPage() {
-  // Fetch the initial user settings.
-  const initialSettings = await fetchUserSettings();
+  // Fetch settings data using the clean API
+  const settings = await getSettingsData();
 
-  // Pass the fetched data as props to the Client Component.
-  return (
-    <SettingsClientPage 
-      initialSettings={initialSettings} 
-    />
-  );
+  // Transform to match expected format
+  const userSettings = {
+    displayName: settings.profile?.name || '',
+    email: settings.profile?.email || '',
+    notifications: settings.notifications.email
+  };
+
+  // Pass the server-fetched data as props to the client component.
+  return <SettingsClientPage initialSettings={userSettings} />;
 }

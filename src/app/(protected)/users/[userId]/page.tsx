@@ -11,7 +11,7 @@
 | found, it displays a "Not Found" message.                                    |
 ================================================================================
 */
-import { fetchUserByIdDetail } from "../../api";
+import { getUserById } from "../../api"; // Updated import from clean API
 import UserProfileClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export default async function UserProfilePage(props: PageProps) {
   const { userId } = props.params;
 
   // Fetch the specific user's data on the server.
-  const user = await fetchUserByIdDetail(userId);
+  const user = await getUserById(userId);
 
   // If no user is found for the given ID, render a "Not Found" state.
   if (!user) {
