@@ -1,6 +1,0 @@
-name,email,password,role,avatar,status,realName,bio,achievements
-Sami,sami@itc.com,password,ADMIN,/placeholder.svg?height=32&width=32,verified,Sami Elhadi,"Lead developer and project admin.",🏆:Top Performer;💡:Innovator
-Yasmine,yasmine@itc.com,password,SUPERLEADER,/placeholder.svg?height=32&width=32,verified,Yasmine Benali,"Super leader and team motivator.",🌟:Team Star;🎯:Goal Setter
-Ali,ali@itc.com,password,LEADER,/placeholder.svg?height=32&width=32,verified,Ali Mansour,"Frontend team leader.",🚀:Fast Delivery
-Sara,sara@itc.com,password,MEMBER,/placeholder.svg?height=32&width=32,pending,Sara Kamel,"UI/UX designer.",🎨:Design Guru
-Guest,guest@itc.com,password,GUEST,/placeholder.svg?height=32&width=32,pending,Guest User,Guest account for demo., 

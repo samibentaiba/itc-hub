@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fetchTicketByIdDetail, fetchMessagesByTicketId } from "../../api"; // Import from central API
+import { getTicketById } from "../../api"; // Updated import from clean API
 import TicketDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,8 @@ export default async function TicketDetailPage(props: {
   const fromPath =
     typeof props.searchParams.from === "string" ? props.searchParams.from : "/tickets";
 
-  // Fetch data for the specific ticket in parallel
-  const [ticket, messages] = await Promise.all([
-    fetchTicketByIdDetail(ticketId),
-    fetchMessagesByTicketId(ticketId),
-  ]);
+  // Fetch data for the specific ticket
+  const ticket = await getTicketById(ticketId);
 
   // Handle the case where the ticket doesn't exist
   if (!ticket) {
@@ -53,7 +50,7 @@ export default async function TicketDetailPage(props: {
   return (
     <TicketDetailClientPage
       initialTicket={ticket}
-      initialMessages={messages}
+      initialMessages={ticket.comments || []} // Use comments from ticket data
       fromPath={fromPath} // Pass the path to the client component
     />
   );

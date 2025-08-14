@@ -1,6 +1,6 @@
 // src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
-import { fetchTeamByIdDetail, fetchTicketsByTeamId } from "../../api";
+import { getTeamById } from "../../api"; // Updated import from clean API
 import TeamDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,8 @@ interface PageProps {
 export default async function TeamDetailPage(props: PageProps) {
   const { teamId } = props.params;
 
-  const [team, tickets] = await Promise.all([
-    fetchTeamByIdDetail(teamId),
-    fetchTicketsByTeamId(teamId),
-  ]);
+  // Fetch team data
+  const team = await getTeamById(teamId);
 
   if (!team) {
     return (
@@ -48,7 +46,7 @@ export default async function TeamDetailPage(props: PageProps) {
   return (
     <TeamDetailClientPage 
       initialTeam={team} 
-      initialTickets={tickets} 
+      initialTickets={team.tickets || []} // Use tickets from team data
     />
   );
 }

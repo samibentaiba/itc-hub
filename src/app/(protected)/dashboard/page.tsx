@@ -1,26 +1,25 @@
-// /dashboard/page.tsx - Updated to use comprehensive API
+// /dashboard/page.tsx - Updated to use clean API
 
-import { fetchDashboardData } from "../api";
+import { getDashboardData } from "../api";
 import DashboardClientPage from "./client";
 
 /**
- * Updated Server Component that uses the comprehensive API system
- * This fetches all dashboard data in one call for better performance
+ * Server Component that fetches dashboard data using the clean API
  */
 export default async function DashboardPage() {
   try {
-    // Fetch comprehensive dashboard data using your existing API
-    const dashboardData = await fetchDashboardData();
+    // Fetch dashboard data using the clean API
+    const dashboardData = await getDashboardData();
 
     // Transform the data to match what the client component expects
     const stats = {
       teams: { 
-        count: 2, // You can derive this from your data or fetch separately
+        count: 5, // You can derive this from your data or fetch separately
         change: "+1 this month", 
         trend: "up" as const
       },
       departments: { 
-        count: 2, 
+        count: 3, 
         change: "No change", 
         trend: "stable" as const
       },
@@ -54,7 +53,7 @@ export default async function DashboardPage() {
       <DashboardClientPage
         initialStats={stats}
         initialTickets={tickets}
-        dashboardData={dashboardData} // Pass the full dashboard data for potential future use
+        dashboardData={dashboardData}
       />
     );
   } catch (error) {

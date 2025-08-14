@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { fetchDepartment } from "../../api"; // Import from central API
+import { getDepartmentById } from "../../api"; // Updated import from clean API
 import { DepartmentView } from "./client"; // Import the new client component
 
 // Define the props for the page, including params from the URL
@@ -20,7 +20,7 @@ interface PageProps {
  */
 export default async function DepartmentDetailPage(props: PageProps) {
   // Fetch data on the server. This will suspend rendering until the data is ready.
-  const department = await fetchDepartment(props.params.departmentId);
+  const department = await getDepartmentById(props.params.departmentId);
 
   // Handle the case where the department is not found
   if (!department) {

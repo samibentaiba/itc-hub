@@ -1,14 +1,64 @@
 import TicketsClientPage from "./client";
-import { fetchTicketsLocal, fetchStats } from "../api";
+import { getTickets } from "../api";
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
 export default async function TicketsPage() {
-  // --- Fetch data using the new API functions ---
-  // These functions simulate a network request.
-  const tickets = await fetchTicketsLocal();
-  const stats = await fetchStats();
-  // --- End of Data Fetching ---
+  // Fetch tickets data using the clean API
+  const ticketsData = await getTickets();
+
+  // Transform tickets to match the expected format
+  const tickets = ticketsData.tickets.map(ticket => ({
+    id: ticket.id || '',
+    title: ticket.title || '',
+    description: ticket.description || '',
+    status: (ticket.status === 'open' ? 'new' : ticket.status === 'in_progress' ? 'in-progress' : 'resolved') as 'new' | 'in-progress' | 'resolved',
+    priority: (ticket.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
+    type: 'Task' as 'Task' | 'Bug' | 'Feature',
+    from: ticket.department?.name || ticket.team?.name || 'Unknown',
+    assignee: {
+      name: ticket.assignee?.name || 'Unassigned',
+      avatar: ticket.assignee?.avatar || '',
+      id: ticket.assignee?.id || ''
+    },
+    reporter: {
+      name: ticket.reporter?.name || 'System',
+      avatar: ticket.reporter?.avatar || '',
+      id: ticket.reporter?.id || ''
+    },
+    createdAt: ticket.createdAt || new Date().toISOString(),
+    updatedAt: ticket.updatedAt || new Date().toISOString(),
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    comments: 0
+  }));
+
+  // Generate stats from the tickets data
+  const stats = [
+    {
+      title: "Total Tickets",
+      value: ticketsData.tickets.length.toString(),
+      description: "All time",
+      trend: "+12 this month"
+    },
+    {
+      title: "Open Tickets",
+      value: ticketsData.stats.open.toString(),
+      description: "Need attention",
+      trend: "+3 this week"
+    },
+    {
+      title: "In Progress",
+      value: ticketsData.stats.inProgress.toString(),
+      description: "Being worked on",
+      trend: "+5 this week"
+    },
+    {
+      title: "Resolved",
+      value: ticketsData.stats.closed.toString(),
+      description: "This month",
+      trend: "+18 this month"
+    }
+  ];
 
   // Pass the server-fetched data as props to the client component.
   return (
