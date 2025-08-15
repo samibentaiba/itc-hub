@@ -31,6 +31,15 @@ export async function GET(
             description: true
           }
         },
+        leader: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar: true
+          }
+        },
         members: {
           include: {
             user: {
@@ -62,6 +71,11 @@ export async function GET(
                 email: true,
                 avatar: true
               }
+            },
+            messages: {
+              select: {
+                id: true
+              }
             }
           },
           orderBy: {
@@ -75,7 +89,95 @@ export async function GET(
       return NextResponse.json({ error: "Team not found" }, { status: 404 })
     }
 
-    return NextResponse.json(team)
+    // Transform the data to match frontend expectations
+    const transformedTeam = {
+      id: team.id,
+      name: team.name,
+      description: team.description || "",
+      status: team.status || "active",
+      department: team.department ? {
+        id: team.department.id,
+        name: team.department.name,
+        description: team.department.description || ""
+      } : null,
+      leader: team.leader ? {
+        id: team.leader.id,
+        name: team.leader.name,
+        email: team.leader.email,
+        avatar: team.leader.avatar || "",
+        role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
+              team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      } : null,
+      members: team.members.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        email: member.user.email,
+        avatar: member.user.avatar || "",
+        role: member.role.toLowerCase() === 'manager' ? 'leader' : 'member',
+        status: member.user.status || 'offline',
+        joinedDate: member.joinedAt.toISOString()
+      })),
+      tickets: team.tickets.map(ticket => ({
+        id: ticket.id,
+        title: ticket.title,
+        description: ticket.description || "",
+        type: ticket.type.toLowerCase(),
+        status: ticket.status.toLowerCase().replace('_', '_'),
+        priority: ticket.priority.toLowerCase(),
+        assignee: ticket.assignee?.name || null,
+        createdBy: ticket.createdBy.name,
+        dueDate: ticket.dueDate?.toISOString() || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        messages: ticket.messages.length,
+        lastActivity: ticket.updatedAt.toLocaleDateString(),
+        createdAt: ticket.createdAt.toISOString(),
+        updatedAt: ticket.updatedAt.toISOString()
+      })),
+      // Mock calendar data for now
+      events: [
+        {
+          id: 1,
+          title: "Team Standup",
+          description: "Daily team standup meeting",
+          date: "2025-08-16",
+          time: "09:00",
+          duration: 30,
+          type: "meeting",
+          attendees: ["Team Members"],
+          location: "Conference Room A",
+          color: "bg-blue-500"
+        },
+        {
+          id: 2,
+          title: "Sprint Review",
+          description: "Review completed sprint work",
+          date: "2025-08-18",
+          time: "14:00",
+          duration: 60,
+          type: "review",
+          attendees: ["Team Members", "Stakeholders"],
+          location: "Main Conference Room",
+          color: "bg-green-500"
+        }
+      ],
+      upcomingEvents: [
+        {
+          id: 1,
+          title: "Team Standup",
+          date: "Tomorrow, 9:00 AM",
+          type: "meeting",
+          attendees: 5
+        },
+        {
+          id: 2,
+          title: "Sprint Review",
+          date: "Aug 18, 2:00 PM",
+          type: "review",
+          attendees: 8
+        }
+      ]
+    }
+
+    return NextResponse.json(transformedTeam)
   } catch (error) {
     console.error("Error fetching team:", error)
     return NextResponse.json(
@@ -205,4 +307,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}

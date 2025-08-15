@@ -289,69 +289,80 @@ export default function TeamDetailClientPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {team.members.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={member.avatar} alt={member.name} />
-                          <AvatarFallback>
-                            {member.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div
-                          className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background ${
-                            member.status === "online"
-                              ? "bg-green-500"
-                              : member.status === "away"
-                              ? "bg-yellow-500"
-                              : "bg-gray-500"
-                          }`}
-                        />
+                {team.members && team.members.map((member) => {
+                  // Safety check for member data
+                  if (!member || !member.name) {
+                    return null;
+                  }
+                  
+                  return (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={member.avatar || ""} alt={member.name} />
+                            <AvatarFallback>
+                              {member.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div
+                            className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background ${
+                              member.status === "online"
+                                ? "bg-green-500"
+                                : member.status === "away"
+                                ? "bg-yellow-500"
+                                : "bg-gray-500"
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <div className="font-medium">{member.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {member.email || "No email"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Joined{" "}
+                            {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : "Unknown"}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-medium">{member.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {member.email}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Joined{" "}
-                          {new Date(member.joinedDate).toLocaleDateString()}
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            member.role === "leader" ? "default" : "secondary"
+                          }
+                        >
+                          {member.role || "member"}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleMemberAction("Message", member)
+                              }
+                            >
+                              <Mail className="mr-2 h-4 w-4" />
+                              Send Message
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={
-                          member.role === "leader" ? "default" : "secondary"
-                        }
-                      >
-                        {member.role}
-                      </Badge>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleMemberAction("Message", member)
-                            }
-                          >
-                            <Mail className="mr-2 h-4 w-4" />
-                            Send Message
-                          </DropdownMenuItem>
-
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
+                {(!team.members || team.members.length === 0) && (
+                  <p className="text-muted-foreground text-center py-8">
+                    No members found for this team.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

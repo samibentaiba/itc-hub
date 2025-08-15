@@ -1,14 +1,6 @@
-// Re-export central types with local names for backward compatibility
-export type {
-  EventDetailLocal as Event,
-  CalendarUpcomingEvent as UpcomingEvent,
-  EventFormDataLocal as EventFormData,
-  TeamDetailLocalFull as TeamDetail,
-  TeamMemberLocal as TeamMember,
-  TeamTicketLocal as TeamTicket
-} from "../../types";
+// src/app/(protected)/teams/[teamId]/types.ts
 
-// Create a simple validation schema replacement
+// Create validation schema
 import { z } from 'zod';
 
 export const eventFormSchema = z.object({
@@ -20,3 +12,85 @@ export const eventFormSchema = z.object({
   type: z.enum(["meeting", "review", "planning", "workshop"]),
   location: z.string().optional(),
 });
+
+// Event types for calendar
+export interface Event {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: string;
+  attendees: string[];
+  location: string;
+  color: string;
+}
+
+export interface UpcomingEvent {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  attendees: number;
+}
+
+export interface EventFormData {
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location?: string;
+}
+
+// Team-specific types that match the API response
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: "leader" | "member";
+  status: "online" | "away" | "offline";
+  joinedDate: string;
+}
+
+export interface TeamTicket {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  priority: string;
+  assignee: string | null;
+  createdBy: string;
+  dueDate: string;
+  messages: number;
+  lastActivity: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeamDetail {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  department: {
+    id: string;
+    name: string;
+    description: string;
+  } | null;
+  leader: {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    role: "admin" | "manager" | "user";
+  } | null;
+  members: TeamMember[];
+  tickets: TeamTicket[];
+  events: Event[];
+  upcomingEvents: UpcomingEvent[];
+}
