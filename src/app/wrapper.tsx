@@ -543,25 +543,58 @@ const navigationItems = [
     ],
   },
 ];
+import axios from "axios"; // Make sure to install axios: npm install axios
+
+// Define a type for the user data you expect from the API
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: string;
+}
 
 function AppSidebar() {
   const pathname = usePathname();
-  const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const { data: session, status } = useSession();
+  // State to hold user data fetched from the API
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Ensure component is mounted to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
+
+    const fetchUserData = async () => {
+      try {
+        // Fetch user data from the API route
+        const response = await axios.get("/api/auth/data");
+        if (response.data.userData) {
+          setUserData(response.data.userData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        // If the request fails (e.g., 401 Unauthorized), userData will remain null
+        setUserData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, []);
 
-  // Only render sidebar if user is authenticated
-  const isAuthenticated = status === "authenticated" && session?.user;
-  if (!isAuthenticated) {
+  // Show a loading state or nothing while fetching data or before mounting
+  if (isLoading || !mounted) {
+    // You can return a skeleton loader here for a better UX
     return null;
   }
 
-  // Logo source is now handled by the Logo component
+  // Only render the sidebar if user data was successfully fetched
+  if (!userData) {
+    return null;
+  }
+
+  const isAdmin = userData.role === "ADMIN";
 
   return (
     <Sidebar variant="inset">
@@ -603,29 +636,36 @@ function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild >
+              <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
                   className={`data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground
                     flex items-center ${
-                      pathname == "/profile" || pathname == "/settings" || pathname == "/admin"
+                      pathname == "/profile" ||
+                      pathname == "/settings" ||
+                      pathname == "/admin"
                         ? "bg-sidebar-accent text-sidebar-accent-foreground"
                         : ""
                     }
                     `}
-                       
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src="/placeholder.svg?height=32&width=32"
-                      alt="Sami"
+                      src={
+                        userData.avatar || "/placeholder.svg?height=32&width=32"
+                      }
+                      alt={userData.name || "User"}
                     />
-                    <AvatarFallback className="rounded-lg">S</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">
+                      {userData.name?.[0]?.toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Sami</span>
+                    <span className="truncate font-semibold">
+                      {userData.name}
+                    </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      sami@itchub.com
+                      {userData.email}
                     </span>
                   </div>
                 </SidebarMenuButton>
@@ -649,19 +689,22 @@ function AppSidebar() {
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/admin"
-                    className={`flex items-center ${
-                      pathname == "/admin"
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : ""
-                    }`}
-                  >
-                    <Shield className="mr-2 h-4 w-4" />
-                    admin
-                  </Link>
-                </DropdownMenuItem>
+                {/* Conditionally render the Admin link */}
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/admin"
+                      className={`flex items-center ${
+                        pathname == "/admin"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : ""
+                      }`}
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/settings"
@@ -672,11 +715,13 @@ function AppSidebar() {
                     }`}
                   >
                     <Settings className="mr-2 h-4 w-4" />
-                    settings
+                    Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
