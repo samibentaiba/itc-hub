@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import AdminClientPage from "./client";
 import { headers } from 'next/headers';
+import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -21,20 +22,11 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
 
 export default async function AdminPage() {
   // Check if user has admin role
-  try {
-    const roleResponse = await authenticatedFetch('/api/auth/role');
-    if (!roleResponse.ok) {
-      throw new Error('Failed to fetch user role');
-    }
-    const roleData = await roleResponse.json();
-    if (roleData.role !== "admin") {
-      redirect("/dashboard");
-    }
-  } catch (error) {
-    console.error("Failed to fetch user role:", error);
-    redirect("/dashboard");
-  }
-
+  // 🔹 Get user from session
+  const user = await getAuthenticatedUser();
+  const isAdminUser = await isAdmin(user?.user.id || '');
+  if(!isAdminUser) redirect('/')
+    
   // Fetch data using direct API calls
   const [usersResponse, teamsResponse, departmentsResponse, eventsResponse] = await Promise.all([
     authenticatedFetch('/api/users'),
