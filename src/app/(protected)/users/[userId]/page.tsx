@@ -11,12 +11,27 @@
 | found, it displays a "Not Found" message.                                    |
 ================================================================================
 */
-import { getUserById } from "@/lib/server-api";
 import UserProfileClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { headers } from 'next/headers';
+
+// Helper function for authenticated server-side fetch requests
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headersList = await headers();
+  const cookie = headersList.get('cookie');
+  
+  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookie && { Cookie: cookie }),
+      ...options.headers,
+    },
+  });
+}
 
 // Define the props for the page, which includes URL parameters.
 interface PageProps {
@@ -30,8 +45,15 @@ export default async function UserProfilePage(props: PageProps) {
   // Extract the userId from the URL parameters.
   const { userId } = await props.params;
 
-  // Fetch the specific user's data on the server.
-  const user = await getUserById(userId);
+  // Fetch the specific user's data on the server directly
+  const response = await authenticatedFetch(`/api/users/${userId}`);
+  let user = null;
+  
+  if (response.ok) {
+    user = await response.json();
+  } else if (response.status !== 404) {
+    throw new Error('Failed to fetch user');
+  }
 
   // If no user is found for the given ID, render a "Not Found" state.
   if (!user) {

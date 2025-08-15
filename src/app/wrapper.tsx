@@ -676,7 +676,7 @@ function AppSidebar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -715,7 +715,7 @@ import {
   type ThemeProviderProps,
   useTheme,
 } from "next-themes";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider, useSession, signOut } from "next-auth/react";
 import {} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

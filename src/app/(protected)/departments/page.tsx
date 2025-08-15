@@ -1,11 +1,31 @@
-import { getDepartments } from "@/lib/server-api";
 import DepartmentsClientPage from "./client";
+import { headers } from 'next/headers';
+
+// Helper function for authenticated server-side fetch requests
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headersList = await headers();
+  const cookie = headersList.get('cookie');
+  
+  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookie && { Cookie: cookie }),
+      ...options.headers,
+    },
+  });
+}
 
 // This is the Server Component.
 // Its only job is to fetch data on the server.
 export default async function DepartmentsPage() {
-  // Fetch departments data
-  const departments = await getDepartments();
+  // Fetch departments data directly from API
+  const response = await authenticatedFetch('/api/departments');
+  if (!response.ok) {
+    throw new Error('Failed to fetch departments');
+  }
+  const data = await response.json();
+  const departments = data.departments;
 
   // Generate stats from the departments data
   const stats = [
