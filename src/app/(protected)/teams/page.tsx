@@ -1,5 +1,5 @@
 import TeamsClientPage from "./client";
-import { getTeams } from "@/lib/server-api";
+import { getTeams } from "@/lib/data-services";
 
 // This is the Server Component.
 // Its only job is to fetch data on the server.

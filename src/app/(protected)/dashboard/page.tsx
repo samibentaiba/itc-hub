@@ -1,6 +1,6 @@
 // /dashboard/page.tsx - Updated to use clean API
 
-import { getDashboardData } from "@/lib/server-api";
+import { getDashboardData } from "@/lib/data-services";
 import DashboardClientPage from "./client";
 
 /**

@@ -1,4 +1,4 @@
-import { getDepartments } from "@/lib/server-api";
+import { getDepartments } from "@/lib/data-services";
 import DepartmentsClientPage from "./client";
 
 // This is the Server Component.

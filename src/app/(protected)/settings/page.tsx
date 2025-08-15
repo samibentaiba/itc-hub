@@ -1,4 +1,4 @@
-import { getSettingsData } from "@/lib/server-api";
+import { getSettingsData } from "@/lib/data-services";
 import SettingsClientPage from "./client";
 
 // This is a Server Component. 

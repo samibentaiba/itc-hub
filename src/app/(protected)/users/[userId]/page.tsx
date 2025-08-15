@@ -11,7 +11,7 @@
 | found, it displays a "Not Found" message.                                    |
 ================================================================================
 */
-import { getUserById } from "@/lib/server-api";
+import { getUserById } from "@/lib/data-services";
 import UserProfileClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

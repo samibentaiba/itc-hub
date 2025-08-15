@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTicketById } from "@/lib/server-api";
+import { getTicketById } from "@/lib/data-services";
 import TicketDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

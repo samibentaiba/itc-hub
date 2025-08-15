@@ -1,7 +1,7 @@
 // /calendar/page.tsx
 
 import CalendarClientPage from "./client";
-import { getPersonalCalendarData } from "@/lib/server-api";
+import { getPersonalCalendarData } from "@/lib/data-services";
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.

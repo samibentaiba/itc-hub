@@ -1,6 +1,6 @@
 // src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
-import { getTeamById } from "@/lib/server-api";
+import { getTeamById } from "@/lib/data-services";
 import TeamDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,35 @@ interface PageProps {
 export default async function TeamDetailPage(props: PageProps) {
   const { teamId } = await props.params;
 
-  // Fetch team data
-  const team = await getTeamById(teamId);
+  let team;
+  try {
+    team = await getTeamById(teamId);
+  } catch (error) {
+    // Handle authorization errors
+    if (error instanceof Error && error.message.includes('Forbidden')) {
+      return (
+        <div className="space-y-6">
+          <Link href="/teams">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Teams
+            </Button>
+          </Link>
+          <Card>
+            <CardContent className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold">Access Denied</h3>
+                <p className="text-muted-foreground">
+                  You don&apos;t have permission to view this team.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    throw error;
+  }
 
   if (!team) {
     return (

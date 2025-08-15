@@ -1,7 +1,7 @@
 // /admin/page.tsx
 
 import { redirect } from "next/navigation";
-import { getUsers, getTeams, getDepartments, getPersonalCalendarData, getUserRole } from "@/lib/server-api";
+import { getUsers, getTeams, getDepartments, getPersonalCalendarData, getUserRole } from "@/lib/data-services";
 import AdminClientPage from "./client";
 
 export default async function AdminPage() {

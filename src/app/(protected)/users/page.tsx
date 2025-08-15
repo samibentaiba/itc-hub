@@ -1,6 +1,6 @@
 
 import UsersClientPage from "./client";
-import { getUsers } from "@/lib/server-api";
+import { getUsers } from "@/lib/data-services";
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.

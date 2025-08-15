@@ -1,7 +1,7 @@
 // ===== IMPROVED page.tsx =====
 // src/app/(protected)/profile/page.tsx
 import ProfileClientPage from "./client";
-import { getProfileData } from "@/lib/server-api";
+import { getProfileData } from "@/lib/data-services";
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
