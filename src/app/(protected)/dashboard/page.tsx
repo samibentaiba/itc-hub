@@ -1,15 +1,34 @@
 // /dashboard/page.tsx - Updated to use clean API
 
-import { getDashboardData } from "@/lib/server-api";
 import DashboardClientPage from "./client";
+import { headers } from 'next/headers';
+
+// Helper function for authenticated server-side fetch requests
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headersList = await headers();
+  const cookie = headersList.get('cookie');
+  
+  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookie && { Cookie: cookie }),
+      ...options.headers,
+    },
+  });
+}
 
 /**
  * Server Component that fetches dashboard data using the clean API
  */
 export default async function DashboardPage() {
   try {
-    // Fetch dashboard data using the clean API
-    const dashboardData = await getDashboardData();
+    // Fetch dashboard data directly from API
+    const response = await authenticatedFetch('/api/dashboard');
+    if (!response.ok) {
+      throw new Error('Failed to fetch dashboard data');
+    }
+    const dashboardData = await response.json();
 
     // Transform the data to match what the client component expects
     const stats = {
