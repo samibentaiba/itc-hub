@@ -1,12 +1,32 @@
 
 import UsersClientPage from "./client";
-import { getUsers } from "@/lib/server-api";
+import { headers } from 'next/headers';
+
+// Helper function for authenticated server-side fetch requests
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headersList = await headers();
+  const cookie = headersList.get('cookie');
+  
+  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookie && { Cookie: cookie }),
+      ...options.headers,
+    },
+  });
+}
 
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
 export default async function UsersPage() {
-  // Fetch users data using the clean API
-  const users = await getUsers();
+  // Fetch users data directly from API
+  const response = await authenticatedFetch('/api/users');
+  if (!response.ok) {
+    throw new Error('Failed to fetch users');
+  }
+  const data = await response.json();
+  const users = data.users;
 
   // Transform users to match the expected format
   const transformedUsers = users.map(user => ({

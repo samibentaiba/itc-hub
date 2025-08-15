@@ -1,13 +1,7 @@
 // /admin/hook.ts
 "use client";
 
- import {
-  createEventAdmin,
-  updateEventAdmin,
-  addMemberToEntity,
-  removeMemberFromEntity,
-  updateMemberRoleInEntity,
-} from "@/lib/client-api";
+// Removed client-api imports and will use direct fetch calls
  
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -453,13 +447,39 @@ export const useAdminPage = (
     setIsCalendarLoading(true);
     try {
       if (data.id) {
-        const updatedEvent = await updateEventAdmin(data.id, data);
+        // Update event
+        const response = await fetch(`/api/events/${data.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update event');
+        }
+
+        const updatedEvent = await response.json();
         setAllEvents((prev) =>
           prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
         );
         toast({ title: "Event updated successfully" });
       } else {
-        const newEvent = await createEventAdmin(data);
+        // Create new event
+        const response = await fetch('/api/events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create event');
+        }
+
+        const newEvent = await response.json();
         setAllEvents((prev) => [...prev, newEvent]);
         toast({ title: "Event created successfully" });
       }

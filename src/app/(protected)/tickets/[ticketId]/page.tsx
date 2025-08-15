@@ -1,9 +1,24 @@
 import Link from "next/link";
-import { getTicketById } from "@/lib/server-api";
 import TicketDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { headers } from 'next/headers';
+
+// Helper function for authenticated server-side fetch requests
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headersList = await headers();
+  const cookie = headersList.get('cookie');
+  
+  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookie && { Cookie: cookie }),
+      ...options.headers,
+    },
+  });
+}
 
 // This is a Server Component.
 // It fetches data on the server and passes it to the client component.
@@ -18,8 +33,15 @@ export default async function TicketDetailPage(props: {
   const fromPath =
     typeof searchParams.from === "string" ? searchParams.from : "/tickets";
 
-  // Fetch data for the specific ticket
-  const ticket = await getTicketById(ticketId);
+  // Fetch data for the specific ticket directly
+  const response = await authenticatedFetch(`/api/tickets/${ticketId}`);
+  let ticket = null;
+  
+  if (response.ok) {
+    ticket = await response.json();
+  } else if (response.status !== 404) {
+    throw new Error('Failed to fetch ticket');
+  }
 
   // Handle the case where the ticket doesn't exist
   if (!ticket) {

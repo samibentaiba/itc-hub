@@ -2,8 +2,23 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getDepartmentById } from "@/lib/server-api";
 import { DepartmentView } from "./client"; // Import the new client component
+import { headers } from 'next/headers';
+
+// Helper function for authenticated server-side fetch requests
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headersList = await headers();
+  const cookie = headersList.get('cookie');
+  
+  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookie && { Cookie: cookie }),
+      ...options.headers,
+    },
+  });
+}
 
 // Define the props for the page, including params from the URL
 interface PageProps {
@@ -21,7 +36,15 @@ interface PageProps {
 export default async function DepartmentDetailPage(props: PageProps) {
   // Fetch data on the server. This will suspend rendering until the data is ready.
   const { departmentId } = await props.params;
-  const department = await getDepartmentById(departmentId);
+  
+  const response = await authenticatedFetch(`/api/departments/${departmentId}`);
+  let department = null;
+  
+  if (response.ok) {
+    department = await response.json();
+  } else if (response.status !== 404) {
+    throw new Error('Failed to fetch department');
+  }
 
   // Handle the case where the department is not found
   if (!department) {
