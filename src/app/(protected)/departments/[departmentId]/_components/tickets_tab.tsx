@@ -26,24 +26,54 @@ export const TicketsTab = ({ tickets , departmentId }: TicketsTabProps) => (
                 {/* Ticket Title and Badges */}
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-medium">{ticket.title}</h3>
-                  <Badge variant="outline">{ticket.type}</Badge>
-                  {ticket.collaborative && <Badge variant="secondary">Collaborative</Badge>}
-                  <Badge variant={ticket.status === "in_progress" ? "secondary" : ticket.status === "scheduled" ? "outline" : "destructive"}>
+                  {/* Use priority instead of type (which doesn't exist in API) */}
+                  <Badge variant="outline">{ticket.priority}</Badge>
+                  {/* Status badge */}
+                  <Badge variant={
+                    ticket.status === "in_progress" ? "secondary" : 
+                    ticket.status === "open" ? "outline" : 
+                    "default"
+                  }>
                     {ticket.status.replace("_", " ")}
                   </Badge>
                 </div>
                 {/* Ticket Metadata */}
                 <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                  {/* Fixed: Render assignee name instead of the whole object */}
                   {ticket.assignee && (
-                    <span className="flex items-center gap-1"><Users className="h-3 w-3" />{ticket.assignee}</span>
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      Assigned to: {ticket.assignee.name}
+                    </span>
                   )}
-                  {ticket.collaborative && ticket.collaborators.length > 0 && (
-                    <span className="flex items-center gap-1"><Users className="h-3 w-3" />{ticket.collaborators.join(", ")}</span>
+                  {/* Show reporter information */}
+                  {ticket.reporter && (
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      Reporter: {ticket.reporter.name}
+                    </span>
                   )}
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Duration: {ticket.duration}</span>
-                  <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{ticket.messages} messages</span>
-                  <span>Last activity: {ticket.lastActivity}</span>
+                  {/* Show created date */}
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Created: {new Date(ticket.createdAt).toLocaleDateString()}
+                  </span>
+                  {/* Show due date if available */}
+                  {ticket.dueDate && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      Due: {new Date(ticket.dueDate).toLocaleDateString()}
+                    </span>
+                  )}
+                  {/* Show last updated */}
+                  <span>Last updated: {new Date(ticket.updatedAt).toLocaleDateString()}</span>
                 </div>
+                {/* Show description if available */}
+                {ticket.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+                    {ticket.description}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>

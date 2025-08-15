@@ -197,15 +197,25 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
   }, [allEvents, filterType]);
 
   // For old calendar: Filters tickets for the selected date
+  // Fixed: Use createdAt or dueDate instead of calendarDate which doesn't exist
   const selectedDateTickets = useMemo(() => {
     if (!date) return [];
-    return tickets.filter(ticket => ticket.calendarDate.toDateString() === date.toDateString());
+    
+    return tickets.filter(ticket => {
+      // Use dueDate if available, otherwise use createdAt
+      const ticketDate = ticket.dueDate ? new Date(ticket.dueDate) : new Date(ticket.createdAt);
+      return ticketDate.toDateString() === date.toDateString();
+    });
   }, [tickets, date]);
 
   // For old calendar: Creates a map of tickets by date
+  // Fixed: Use createdAt or dueDate instead of calendarDate which doesn't exist
   const calendarEvents = useMemo(() => {
     return tickets.reduce((acc, ticket) => {
-      const dateKey = ticket.calendarDate.toDateString();
+      // Use dueDate if available, otherwise use createdAt
+      const ticketDate = ticket.dueDate ? new Date(ticket.dueDate) : new Date(ticket.createdAt);
+      const dateKey = ticketDate.toDateString();
+      
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
