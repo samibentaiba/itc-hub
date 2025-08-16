@@ -9,6 +9,8 @@ export interface User {
   role: "admin" | "user" | "manager";
   team?: string;
   department?: string;
+  status: string; // verified, pending, etc.
+  joinedDate: string;
 }
 
 export interface Profile extends User {
@@ -52,25 +54,35 @@ export interface TicketDetails extends Ticket {
 }
 
 // Department & Team Types
+export type Member = {
+  userId: string;
+  role: 'leader' | 'member';
+};
+
 export interface Department {
   id: string;
   name: string;
-  manager: Partial<User>;
-  memberCount: number;
-  ticketCount: number;
-  teams: Partial<Team>[];
-  members: Partial<User>[];
+  manager?: Partial<User>;
+  memberCount?: number;
+  ticketCount?: number;
+  teams?: Partial<Team>[];
+  members: Member[];
   description: string;
+  createdDate: string;
+  status: string;
 }
 
 export interface Team {
   id: string;
   name: string;
-  leader: Partial<User>;
-  department: string;
-  memberCount: number;
-  members: Partial<User>[];
+  leader?: Partial<User>;
+  department?: string;
+  departmentId: string;
+  memberCount?: number;
+  members: Member[];
   description: string;
+  createdDate: string;
+  status: string;
 }
 
 // --- Calendar & Event Types ---
@@ -86,6 +98,13 @@ export interface CalendarEvent {
   description: string;
   participants?: Partial<User>[];
   location?: string;
+  date: string;
+  time: string;
+  duration: number;
+  attendees: string[];
+  color: string;
+  submittedBy?: string;
+  submittedByType?: 'team' | 'department';
 }
 
 // Represents the aggregated data for a user's personal calendar view
@@ -131,7 +150,7 @@ export type DepartmentsPageData = Partial<Department>[];
 // Department Detail Page
 export interface DepartmentDetailData extends Department {
     teams: Partial<Team>[];
-    members: Partial<User>[];
+    members: Member[];
     tickets: Partial<Ticket>[];
     events: Partial<CalendarEvent>[];
 }
@@ -141,7 +160,7 @@ export type TeamsPageData = Partial<Team>[];
 
 // Team Detail Page
 export interface TeamDetailData extends Team {
-    members: Partial<User>[];
+    members: Member[];
     tickets: Partial<Ticket>[];
     events: Partial<CalendarEvent>[];
 }

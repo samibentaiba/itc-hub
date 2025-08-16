@@ -33,7 +33,7 @@ export default function ManageMembersDialog({
   if (!entity) return null;
 
   const entityMembers = entity.members;
-  const memberUserIds = new Set(entityMembers.map(m => m.userId));
+    const memberUserIds = new Set(entityMembers.map(m => m.userId));
   const potentialNewMembers = allUsers.filter(u => !memberUserIds.has(u.id));
 
   const getUserById = (userId: string) => allUsers.find(u => u.id === userId);
@@ -90,7 +90,7 @@ export default function ManageMembersDialog({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {entityMembers.length > 0 ? entityMembers.map(member => {
+                {entityMembers.length > 0 ? entityMembers.map((member: { userId: string, role: 'leader' | 'member' }) => {
                   const user = getUserById(member.userId);
                   return user ? (
                     <TableRow key={member.userId}>

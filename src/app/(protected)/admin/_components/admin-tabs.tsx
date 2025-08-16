@@ -56,6 +56,7 @@ import type {
   Event,
   UpcomingEvent,
   PendingEvent,
+  Member,
 } from "../types";
 import CalendarView from "./calendar/calendar-view";
 import CalendarSidebar from "./calendar/calendar-sidebar";
@@ -375,7 +376,7 @@ export default function AdminTabs({
                       </TableCell>
                       <TableCell>{leaders || "N/A"}</TableCell>
                       <TableCell>{dept.members.length}</TableCell>
-                      <TableCell>{dept.teams.length}</TableCell>
+                      <TableCell>{dept.teams?.length}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

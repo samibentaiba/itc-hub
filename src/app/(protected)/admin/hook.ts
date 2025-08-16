@@ -197,6 +197,7 @@ export const useAdminPage = (
           status: "pending",
           joinedDate: new Date().toISOString().split("T")[0],
           avatar: `https://i.pravatar.cc/150?u=${Date.now()}`,
+          role: "user",
         };
         setUsers((prev) => [...prev, newUser]);
         toast({
@@ -312,6 +313,9 @@ export const useAdminPage = (
           teams: [],
           createdDate: new Date().toISOString().split("T")[0],
           status: "active",
+          manager: undefined,
+          memberCount: 0,
+          ticketCount: 0,
         };
         setDepartments((prev) => [...prev, newDept]);
         toast({ title: "Department Created" });
@@ -346,7 +350,7 @@ export const useAdminPage = (
     updateFn: (members: Member[]) => Member[]
   ) => {
     const stateSetter = entityType === "team" ? setTeams : setDepartments;
-    stateSetter((prev: Team[] | Department[]) =>
+    stateSetter((prev: any) =>
       prev.map((entity: Team | Department) =>
         entity.id === entityId
           ? { ...entity, members: updateFn(entity.members) }
@@ -442,7 +446,7 @@ export const useAdminPage = (
   };
 
   const createEvent = async (
-    data: EventFormData & { id?: number }
+    data: EventFormData & { id?: string }
   ): Promise<boolean> => {
     setIsCalendarLoading(true);
     try {

@@ -1,19 +1,25 @@
 // Re-export central types with local names for backward compatibility
 export type {
-  MemberAdmin as Member,
-  UserAdmin as User,
-  TeamAdmin as Team,
-  DepartmentAdmin as Department,
-  EventAdmin as Event,
-  UpcomingEventAdmin as UpcomingEvent,
-  PendingEventAdmin as PendingEvent,
-  UserFormDataAdmin as UserFormData,
-  TeamFormDataAdmin as TeamFormData,
-  DepartmentFormDataAdmin as DepartmentFormData,
-  EventFormDataAdmin as EventFormData,
-  ModalStateAdmin as ModalState,
-  LoadingActionAdmin as LoadingAction
+  Member,
+  User,
+  Team,
+  Department,
+  CalendarEvent as Event,
+  CalendarEvent as UpcomingEvent,
+  CalendarEvent as PendingEvent,
 } from "../types";
+
+export type UserFormData = z.infer<typeof userFormSchema>;
+export type TeamFormData = z.infer<typeof teamFormSchema>;
+export type DepartmentFormData = z.infer<typeof departmentFormSchema>;
+export type EventFormData = z.infer<typeof eventFormSchema>;
+
+export type ModalState = {
+    view: | "ADD_USER" | "EDIT_USER" | "DELETE_USER" | "VERIFY_USER" | "ADD_TEAM" | "EDIT_TEAM" | "DELETE_TEAM" | "MANAGE_MEMBERS" | "ADD_DEPARTMENT" | "EDIT_DEPARTMENT" | "DELETE_DEPARTMENT";
+    data?: any;
+} | null;
+
+export type LoadingAction = string | null;
 
 // Re-export validation schemas
 import { z } from 'zod';

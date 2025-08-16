@@ -16,7 +16,7 @@ import { eventFormSchema } from "../types";
 interface CreateEventDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: EventFormData & { id?: number }) => Promise<boolean>;
+  onSubmit: (data: EventFormData & { id?: string }) => Promise<boolean>;
   isLoading: boolean;
   initialData?: Event | null; // Optional prop for editing
 }
@@ -52,7 +52,7 @@ export default function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading
           date: initialData.date,
           time: initialData.time,
           duration: String(initialData.duration),
-          type: initialData.type,
+          type: initialData.type as any,
           location: initialData.location,
         });
       } else {

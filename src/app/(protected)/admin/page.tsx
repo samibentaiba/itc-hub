@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AdminClientPage from "./client";
 import { headers } from 'next/headers';
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
+import type { User, Team, Department, CalendarEvent } from "@/app/(protected)/types";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -49,7 +50,7 @@ export default async function AdminPage() {
   const events = eventsData.events || [];
 
   // Transform data for admin interface
-  const initialUsers = users.map(user => ({
+  const initialUsers = users.map((user: Partial<User>) => ({
     id: user.id || '',
     name: user.name || '',
     email: user.email || '',
@@ -58,7 +59,7 @@ export default async function AdminPage() {
     avatar: user.avatar || ''
   }));
 
-  const initialTeams = teams.map(team => ({
+  const initialTeams = teams.map((team: Partial<Team>) => ({
     id: team.id || '',
     name: team.name || '',
     description: team.description || '',
@@ -68,7 +69,7 @@ export default async function AdminPage() {
     status: "active" as const
   }));
 
-  const initialDepartments = departments.map(dept => ({
+  const initialDepartments = departments.map((dept: Partial<Department>) => ({
     id: dept.id || '',
     name: dept.name || '',
     description: dept.description || '',
@@ -78,15 +79,15 @@ export default async function AdminPage() {
     status: "active" as const
   }));
 
-  const initialEvents = events.slice(0, 10).map((event, index) => ({
+  const initialEvents = events.slice(0, 10).map((event: Partial<CalendarEvent>, index: number) => ({
     id: index + 1,
     title: event.title,
     description: event.description,
-    date: event.start.split('T')[0],
-    time: event.start.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
+    date: event.start!.split('T')[0],
+    time: event.start!.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
     duration: 60,
     type: "meeting" as const,
-    attendees: event.participants?.map(p => p.name || '') || [],
+    attendees: event.participants?.map((p: Partial<User>) => p.name || '') || [],
     location: event.location || 'Conference Room',
     color: '#3b82f6'
   }));
