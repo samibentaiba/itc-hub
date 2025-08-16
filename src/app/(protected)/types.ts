@@ -23,6 +23,97 @@ export interface Profile extends User {
   };
 }
 
+// User-related types for the users page
+export interface UserLocal {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
+  department: string;
+  status: "Active" | "Away" | "Offline";
+  lastActive: string;
+  projects: number;
+}
+
+export interface UserStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+// User skill, project, achievement types for user detail page
+export interface UserSkillLocal {
+  name: string;
+  level: number;
+}
+
+export interface UserProjectLocal {
+  id: string;
+  name: string;
+  role: string;
+  team: string;
+  priority: string;
+  progress: number;
+}
+
+export interface UserAchievementLocal {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  date: string;
+}
+
+export interface UserTeamLocal {
+  id: string;
+  name: string;
+  role: string;
+  members: number;
+  isLead: boolean;
+}
+
+export interface UserDepartmentLocal {
+  id: string;
+  name: string;
+  role: string;
+}
+
+export interface UserStatsLocal {
+  projectsCompleted: number;
+  teamsLed: number;
+  mentorshipHours: number;
+  contributions: number;
+}
+
+export interface UserSocialLinksLocal {
+  github: string;
+  linkedin: string;
+  twitter: string;
+}
+
+export interface UserDetailLocal {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+  status: string;
+  joinDate: string;
+  title: string;
+  department: string;
+  location: string;
+  bio: string;
+  socialLinks: UserSocialLinksLocal;
+  stats: UserStatsLocal;
+  skills: UserSkillLocal[];
+  currentProjects: UserProjectLocal[];
+  achievements: UserAchievementLocal[];
+  teams: UserTeamLocal[];
+  departments: UserDepartmentLocal[];
+}
+
 // Ticket Types
 export type TicketStatus = "open" | "in_progress" | "closed";
 export type TicketPriority = "low" | "medium" | "high";

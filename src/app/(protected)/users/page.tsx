@@ -1,4 +1,3 @@
-
 import UsersClientPage from "./client";
 import { headers } from 'next/headers';
 
@@ -29,43 +28,48 @@ export default async function UsersPage() {
   const users = data.users;
 
   // Transform users to match the expected format
-  const transformedUsers = users.map(user => ({
+  const transformedUsers = users.map((user: any) => ({
     id: user.id || '',
     name: user.name || '',
     email: user.email || '',
-    avatar: user.avatar || '',
-    role: user.role || 'user',
-    department: user.department || '',
-    status: "Active" as "Active" | "Away" | "Offline",
+    avatar: user.avatar || `/avatars/${user.name.toLowerCase().replace(' ', '')}.png`,
+    role: user.role?.toLowerCase() || 'user',
+    department: user.departments?.[0]?.department?.name || 'Unassigned',
+    status: "Active" as const,
     lastActive: "Just now",
     projects: Math.floor(Math.random() * 10) + 1
   }));
 
-  // Generate stats from the users data
+  // Calculate real stats from the users data
+  const totalUsers = users.length;
+  const activeUsers = users.filter((user: any) => user.status === 'verified').length;
+  const adminUsers = users.filter((user: any) => user.role === 'ADMIN').length;
+  const managerUsers = users.filter((user: any) => user.role === 'MANAGER').length;
+  
   const stats = [
     {
       title: "Total Users",
-      value: users.length.toString(),
-      description: "Active employees",
+      value: totalUsers.toString(),
+      description: "All registered users",
       trend: "+12 this quarter"
     },
     {
-      title: "New Users",
-      value: "8",
-      description: "This month",
+      title: "Active Users", 
+      value: activeUsers.toString(),
+      description: "Verified accounts",
       trend: "+3 this week"
     },
     {
-      title: "Active Now",
-      value: "89",
-      description: "Currently online",
-      trend: "+5 from yesterday"
+      title: "Managers",
+      value: managerUsers.toString(),
+      description: "Management level",
+      trend: "+1 this month"
     },
     {
-      title: "Teams",
-      value: "24",
-      description: "Total teams",
-      trend: "+2 this month"
+      title: "Admins",
+      value: adminUsers.toString(),
+      description: "System administrators", 
+      trend: "No change"
     }
   ];
 

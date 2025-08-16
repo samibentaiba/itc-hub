@@ -1,4 +1,3 @@
-
 /*
 ================================================================================
 |                                   page.tsx                                   |
@@ -6,9 +5,9 @@
 | Description:                                                                 |
 | This is the main Server Component for the dynamic user profile route         |
 | (`/users/[userId]`). Its job is to extract the `userId` from the URL, use it |
-| to fetch the specific user's data via the `api.ts` module, and then pass     |
-| that data to the `UserProfileClientPage` component. If the user is not       |
-| found, it displays a "Not Found" message.                                    |
+| to fetch the specific user's data via the API, and then pass that data to    |
+| the `UserProfileClientPage` component. If the user is not found, it displays |
+| a "Not Found" message.                                                       |
 ================================================================================
 */
 import UserProfileClientPage from "./client";
@@ -42,17 +41,56 @@ interface PageProps {
 
 // This is the main Server Component for the dynamic route.
 export default async function UserProfilePage(props: PageProps) {
-  // Extract the userId from the URL parameters.
-  const { userId } = await props.params;
+  // Extract the userId from the URL parameters - await the params first
+  const params = await props.params;
+  const { userId } = params;
 
   // Fetch the specific user's data on the server directly
-  const response = await authenticatedFetch(`/api/users/${userId}`);
   let user = null;
+  let error = null;
   
-  if (response.ok) {
-    user = await response.json();
-  } else if (response.status !== 404) {
-    throw new Error('Failed to fetch user');
+  try {
+    const response = await authenticatedFetch(`/api/users/${userId}`);
+    
+    if (response.ok) {
+      user = await response.json();
+    } else if (response.status === 404) {
+      // User not found - this is expected behavior
+      user = null;
+    } else {
+      // Other error occurred
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      error = errorData.error || 'Failed to fetch user';
+      console.error('API Error:', response.status, errorData);
+    }
+  } catch (fetchError) {
+    error = 'Network error occurred';
+    console.error('Fetch Error:', fetchError);
+  }
+
+  // If there was an error (not just user not found), render an error state
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="mb-6">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/users">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Users
+            </Link>
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <h2 className="text-2xl font-bold mb-2">Error Loading User</h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
+            <Button asChild>
+              <Link href="/users">Browse All Users</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   // If no user is found for the given ID, render a "Not Found" state.
@@ -60,19 +98,19 @@ export default async function UserProfilePage(props: PageProps) {
     return (
       <div className="container mx-auto p-6">
         <div className="mb-6">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/users">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Users
-              </Link>
-            </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/users">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Users
+            </Link>
+          </Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-20">
             <h2 className="text-2xl font-bold mb-2">User Not Found</h2>
             <p className="text-muted-foreground mb-6">The user profile you&apos;re looking for doesn&apos;t exist or could not be loaded.</p>
             <Button asChild>
-                <Link href="/users">Browse All Users</Link>
+              <Link href="/users">Browse All Users</Link>
             </Button>
           </CardContent>
         </Card>

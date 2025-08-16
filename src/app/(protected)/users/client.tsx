@@ -40,7 +40,7 @@ export default function UsersClientPage({ initialUsers, initialStats }: UsersCli
     getStatusVariant
   } = useUsersPage(initialUsers);
 
-  const handleSendEmail = (user: User) => {
+  const handleSendEmail = (user: UserLocal) => {
     toast({
       title: "Email Sent (Simulated)",
       description: `An email has been sent to ${user.name} at ${user.email}.`,
@@ -97,10 +97,8 @@ export default function UsersClientPage({ initialUsers, initialStats }: UsersCli
                   <SelectContent>
                     <SelectItem value="all">All Departments</SelectItem>
                     <SelectItem value="Engineering">Engineering</SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Product">Product</SelectItem>
-                    <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-                    <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
+                    <SelectItem value="Support">Support</SelectItem>
+                    <SelectItem value="Executive">Executive</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -136,7 +134,7 @@ export default function UsersClientPage({ initialUsers, initialStats }: UsersCli
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={user.avatar} alt={user.name} />
-                            <AvatarFallback>{user.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback>
+                            <AvatarFallback>{user.name.split(" ").map((n: string) => n[0]).join("")}</AvatarFallback>
                           </Avatar>
                           <div>
                             <Link href={`/users/${user.id}`} className="font-medium hover:underline">{user.name}</Link>

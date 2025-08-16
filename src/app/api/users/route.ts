@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "10")
+    const limit = parseInt(searchParams.get("limit") || "50")
     const search = searchParams.get("search") || ""
     const role = searchParams.get("role") || ""
     const departmentId = searchParams.get("departmentId") || ""
@@ -66,12 +66,37 @@ export async function GET(request: NextRequest) {
           createdAt: true,
           departments: {
             include: {
-              department: true
+              department: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true
+                }
+              }
             }
           },
           teams: {
             include: {
-              team: true
+              team: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true
+                }
+              }
+            }
+          },
+          // Get ticket counts for stats
+          assignedTickets: {
+            select: {
+              id: true,
+              status: true
+            }
+          },
+          createdTickets: {
+            select: {
+              id: true,
+              status: true
             }
           }
         },
@@ -82,8 +107,21 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where })
     ])
 
+    // Transform users to include computed fields
+    const transformedUsers = users.map(user => ({
+      ...user,
+      department: user.departments[0]?.department?.name || 'Unassigned',
+      teamCount: user.teams.length,
+      ticketsAssigned: user.assignedTickets.length,
+      ticketsCreated: user.createdTickets.length,
+      completedTickets: user.assignedTickets.filter(t => t.status === 'CLOSED').length,
+      // Remove the full ticket arrays to reduce payload size
+      assignedTickets: undefined,
+      createdTickets: undefined
+    }))
+
     return NextResponse.json({
-      users,
+      users: transformedUsers,
       pagination: {
         page,
         limit,
@@ -145,7 +183,7 @@ export async function POST(request: NextRequest) {
           departments: {
             create: departmentIds.map((deptId: string) => ({
               departmentId: deptId,
-              role: "USER"
+              role: "MEMBER"
             }))
           }
         }),
@@ -153,7 +191,7 @@ export async function POST(request: NextRequest) {
           teams: {
             create: teamIds.map((teamId: string) => ({
               teamId: teamId,
-              role: "USER"
+              role: "MEMBER"
             }))
           }
         })
@@ -177,4 +215,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}
