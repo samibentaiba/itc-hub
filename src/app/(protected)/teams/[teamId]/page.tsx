@@ -56,7 +56,7 @@ export default async function TeamDetailPage(props: PageProps) {
             <div className="text-center">
               <h3 className="text-lg font-semibold">Team not found</h3>
               <p className="text-muted-foreground">
-                The team you're looking for doesn't exist.
+                The team you&apos;re looking for doesn&apos;t exist.
               </p>
             </div>
           </CardContent>

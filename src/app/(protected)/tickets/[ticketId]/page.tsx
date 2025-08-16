@@ -60,7 +60,7 @@ export default async function TicketDetailPage(props: {
             <div className="text-center">
               <h3 className="text-lg font-semibold">Ticket not found</h3>
               <p className="text-muted-foreground">
-                The ticket you're looking for doesn't exist.
+                The ticket you&apos;re looking for doesn&apos;t exist.
               </p>
             </div>
           </CardContent>

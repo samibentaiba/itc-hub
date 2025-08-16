@@ -1,0 +1,49 @@
+import { Event } from "@prisma/client";
+
+const events: Omit<
+  Event,
+  | "isRecurring"
+  | "createdAt"
+  | "updatedAt"
+  | "attendees"
+  | "department"
+  | "organizer"
+>[] = [
+  {
+    id: "EVENT-001",
+    title: "Q3 Planning Meeting",
+    description: "Quarterly planning session for all managers.",
+    date: new Date("2025-08-12T14:00:00Z"),
+    time: "14:00",
+    duration: 60,
+    type: "meeting",
+    location: "Conference Room A",
+    organizerId: "USER-001",
+    departmentId: "DEP-003",
+  },
+  {
+    id: "TE-001",
+    title: "Frontend Team Sync",
+    description: "Weekly team sync for Frontend.",
+    date: new Date("2025-08-13T09:00:00Z"),
+    time: "09:00",
+    duration: 30,
+    type: "team-event",
+    location: "Virtual",
+    organizerId: "USER-002",
+    departmentId: "DEP-001",
+  },
+  {
+    id: "DE-001",
+    title: "Engineering All-Hands",
+    description: "Monthly sync for the entire engineering department.",
+    date: new Date("2025-08-14T11:00:00Z"),
+    time: "11:00",
+    duration: 60,
+    type: "department-event",
+    location: "Main Hall",
+    organizerId: "USER-002",
+    departmentId: "DEP-001",
+  },
+];
+export default events;

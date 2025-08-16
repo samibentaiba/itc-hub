@@ -39,7 +39,7 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
   const [tempProfile, setTempProfile] = useState<UserProfile>(profileData.profile);
 
   // Helper functions - following the user route pattern
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): "destructive" | "default" | "secondary" | "outline" => {
     switch (priority.toLowerCase()) {
       case "high": return "destructive";
       case "medium": return "default";
@@ -361,7 +361,7 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                             {project.role} • {project.team}
                           </p>
                         </div>
-                        <Badge variant={getPriorityColor(project.priority) as any}>
+                        <Badge variant={getPriorityColor(project.priority)}>
                           {project.priority}
                         </Badge>
                       </div>

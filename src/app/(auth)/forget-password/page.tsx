@@ -115,10 +115,10 @@ export default function ForgotPasswordPage() {
                   <CheckCircle className="h-16 w-16 text-green-500" />
                 </div>
                 <div className="text-center space-y-2">
-                  <p className="text-sm text-muted-foreground">We've sent a password reset link to:</p>
+                  <p className="text-sm text-muted-foreground">We&apos;ve sent a password reset link to:</p>
                   <p className="font-medium">{formData.email}</p>
                   <p className="text-sm text-muted-foreground">
-                    Click the link in the email to reset your password. If you don't see the email, check your spam
+                    Click the link in the email to reset your password. If you don&apos;t see the email, check your spam
                     folder.
                   </p>
                 </div>

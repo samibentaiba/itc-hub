@@ -201,7 +201,7 @@ export default function LandingClientPage({ initialData }: LandingClientPageProp
         <section id="achievements">
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-2xl">Our Club's Achievements</CardTitle>
+                    <CardTitle className="text-2xl">Our Club&apos;s Achievements</CardTitle>
                     <CardDescription>Celebrating excellence and innovation in our community</CardDescription>
                 </CardHeader>
                 <CardContent>

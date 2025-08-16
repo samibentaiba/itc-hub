@@ -1,0 +1,80 @@
+import {
+  Ticket,
+  TicketType,
+  TicketStatus,
+  TicketPriority,
+} from "@prisma/client";
+
+const tickets: Omit<
+  Ticket,
+  | "dueDate"
+  | "assignee"
+  | "collaborators"
+  | "createdBy"
+  | "department"
+  | "files"
+  | "messages"
+  | "team"
+>[] = [
+  {
+    id: "TICKET-001",
+    title: "Login button unresponsive on Firefox",
+    description:
+      "Users on the latest Firefox version are reporting that the main login button does not trigger any action.",
+    type: TicketType.TASK,
+    status: TicketStatus.OPEN,
+    priority: TicketPriority.HIGH,
+    assigneeId: "USER-003",
+    createdById: "USER-007",
+    departmentId: "DEP-001",
+    teamId: "TEAM-001",
+    createdAt: new Date("2025-08-11T10:00:00Z"),
+    updatedAt: new Date("2025-08-11T11:30:00Z"),
+  },
+  {
+    id: "TICKET-002",
+    title: "API endpoint /api/users returning 500 error",
+    description:
+      "The user list endpoint is consistently failing with an internal server error. This is blocking user management tasks.",
+    type: TicketType.TASK,
+    status: TicketStatus.IN_PROGRESS,
+    priority: TicketPriority.HIGH,
+    assigneeId: "USER-005",
+    createdById: "USER-001",
+    departmentId: "DEP-001",
+    teamId: "TEAM-002",
+    createdAt: new Date("2025-08-11T09:30:00Z"),
+    updatedAt: new Date("2025-08-11T14:00:00Z"),
+  },
+  {
+    id: "TICKET-003",
+    title: "Update password policy documentation",
+    description:
+      "The internal documentation for password requirements needs to be updated to reflect the new 12-character minimum.",
+    type: TicketType.TASK,
+    status: TicketStatus.CLOSED,
+    priority: TicketPriority.LOW,
+    assigneeId: "USER-007",
+    createdById: "USER-002",
+    departmentId: "DEP-002",
+    teamId: "TEAM-003",
+    createdAt: new Date("2025-08-10T15:00:00Z"),
+    updatedAt: new Date("2025-08-10T16:00:00Z"),
+  },
+  {
+    id: "TICKET-004",
+    title: "Customer cannot reset their password",
+    description:
+      "A customer (user ID: CUST-554) is unable to reset their password via the forgot password link. They are not receiving the email.",
+    type: TicketType.TASK,
+    status: TicketStatus.OPEN,
+    priority: TicketPriority.MEDIUM,
+    assigneeId: "USER-008",
+    createdById: "USER-007",
+    departmentId: "DEP-002",
+    teamId: "TEAM-004",
+    createdAt: new Date("2025-08-11T18:00:00Z"),
+    updatedAt: new Date("2025-08-11T18:00:00Z"),
+  },
+];
+export default tickets;

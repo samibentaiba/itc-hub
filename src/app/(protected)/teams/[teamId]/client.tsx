@@ -220,7 +220,7 @@ export default function TeamDetailClientPage({
                     <div className="flex items-center gap-2">
                       <Select
                         value={calendarView}
-                        onValueChange={(v) => onSetCalendarView(v as any)}
+                        onValueChange={(v) => onSetCalendarView(v)}
                       >
                         <SelectTrigger className="w-[120px]">
                           <SelectValue />

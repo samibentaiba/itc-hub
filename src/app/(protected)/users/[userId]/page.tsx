@@ -70,7 +70,7 @@ export default async function UserProfilePage(props: PageProps) {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-20">
             <h2 className="text-2xl font-bold mb-2">User Not Found</h2>
-            <p className="text-muted-foreground mb-6">The user profile you're looking for doesn't exist or could not be loaded.</p>
+            <p className="text-muted-foreground mb-6">The user profile you&apos;re looking for doesn&apos;t exist or could not be loaded.</p>
             <Button asChild>
                 <Link href="/users">Browse All Users</Link>
             </Button>
