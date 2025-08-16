@@ -285,17 +285,17 @@ const ChatMessage = ({
 }: ChatMessageProps) => (
   <div key={msg.id} className="flex gap-3">
     <Avatar className="h-8 w-8">
-      <AvatarImage src={msg.sender.avatar || "/placeholder.svg"} alt={msg.sender.name} />
-      <AvatarFallback>{msg.sender.name.charAt(0)}</AvatarFallback>
+      <AvatarImage src={msg.user.avatar || "/placeholder.svg"} alt={msg.user.name} />
+      <AvatarFallback>{msg.user.name.charAt(0)}</AvatarFallback>
     </Avatar>
     <div className="flex-1 space-y-1">
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="font-medium text-sm">{msg.sender.name}</span>
+        <span className="font-medium text-sm">{msg.user.name}</span>
         <Badge
-          variant={msg.sender.role === "leader" ? "default" : "secondary"}
+          variant={msg.user.role === "leader" ? "default" : "secondary"}
           className="text-xs"
         >
-          {msg.sender.role}
+          {msg.user.role}
         </Badge>
         <span className="text-xs text-muted-foreground">
           {formatTimestamp(msg.timestamp)}
@@ -325,7 +325,7 @@ const ChatMessage = ({
         <>
           <div className="text-sm bg-accent/50 rounded-lg p-3 relative group">
             <MessageContent msg={msg} />
-            {msg.sender.id === currentUser && msg.type !== "system" && (
+            {msg.user.id === currentUser && msg.type !== "system" && (
               <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -351,7 +351,7 @@ const ChatMessage = ({
             )}
           </div>
           <div className="flex items-center gap-1 flex-wrap">
-            {msg.reactions.map((reaction: Reaction) => (
+            {Array.isArray(msg.reactions) && msg.reactions.map((reaction: Reaction) => (
               <Button
                 key={reaction.emoji}
                 variant="outline"
@@ -397,10 +397,10 @@ const MessageContent = ({ msg }: { msg: Message }) => {
   if (msg.type === "image") {
     return (
       <img
-        src={msg.content}
+        src={msg.comment}
         alt="Shared content"
         className="max-w-sm rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={() => window.open(msg.content, "_blank")}
+        onClick={() => window.open(msg.comment, "_blank")}
       />
     );
   }
@@ -408,7 +408,7 @@ const MessageContent = ({ msg }: { msg: Message }) => {
     return (
       <div className="mt-2 p-3 border rounded-lg bg-accent/50 max-w-sm flex items-center gap-2">
         <Paperclip className="h-4 w-4" />
-        <span className="text-sm">{msg.content}</span>
+        <span className="text-sm">{msg.comment}</span>
       </div>
     );
   }
@@ -419,16 +419,16 @@ const MessageContent = ({ msg }: { msg: Message }) => {
           variant="outline"
           className="bg-green-100 text-green-800 border-green-300"
         >
-          {msg.content}
+          {msg.comment}
         </Badge>
       </div>
     );
   }
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  if (urlRegex.test(msg.content)) {
+  if (msg.comment && urlRegex.test(msg.comment)) {
     return (
       <div>
-        {msg.content.split(urlRegex).map((part, index) =>
+        {msg.comment.split(urlRegex).map((part: string, index: number) =>
           part.match(urlRegex) ? (
             <a
               key={index}
@@ -446,7 +446,7 @@ const MessageContent = ({ msg }: { msg: Message }) => {
       </div>
     );
   }
-  return <div>{msg.content}</div>;
+  return <div>{msg.comment}</div>;
 };
 
 const MessageInput = ({

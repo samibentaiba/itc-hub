@@ -104,6 +104,7 @@ export async function GET(
       description: ticket.description || "",
       status: ticket.status.toLowerCase(),
       priority: ticket.priority.toLowerCase(),
+      type: ticket.type,
       assignee: ticket.assignee ? {
         id: ticket.assignee.id,
         name: ticket.assignee.name,
@@ -143,7 +144,8 @@ export async function GET(
                 message.sender.role.toLowerCase() === 'manager' ? 'manager' : 'user'
         },
         comment: message.content,
-        createdAt: message.timestamp.toISOString()
+        createdAt: message.timestamp.toISOString(),
+        reactions: message.reactions
       })),
       attachments: ticket.files.map(file => ({
         id: file.id,
@@ -311,4 +313,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}
