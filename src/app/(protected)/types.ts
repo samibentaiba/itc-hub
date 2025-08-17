@@ -198,6 +198,67 @@ export interface CalendarEvent {
   submittedByType?: 'team' | 'department';
 }
 
+// MISSING TYPES - Adding these to fix the TypeScript errors
+export interface CalendarLocalEvent {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: string;
+  attendees: string[];
+  location: string;
+  color: string;
+}
+
+export interface CalendarUpcomingEvent {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  attendees: number;
+}
+
+export interface EventFormData {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: string;
+  location: string;
+  isRecurring?: boolean;
+}
+
+// Global Calendar Types
+export interface GlobalEventLocal {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  time: string;
+  duration: string;
+  type: string;
+  location: string;
+  organizer: string;
+  attendees: number;
+  isRecurring: boolean;
+}
+
+export interface GlobalEventFormDataLocal {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: string;
+  location: string;
+  isRecurring?: boolean;
+}
+
+export type GlobalLoadingActionLocal = "add-event" | "refresh" | "export" | null;
+
 // Represents the aggregated data for a user's personal calendar view
 export interface PersonalCalendarData {
     personalEvents: CalendarEvent[];

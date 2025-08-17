@@ -4,4 +4,3 @@ export type {
   GlobalEventFormDataLocal as EventFormData,
   GlobalLoadingActionLocal as LoadingAction
 } from "../../types";
-

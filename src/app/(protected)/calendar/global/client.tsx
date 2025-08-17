@@ -16,7 +16,7 @@ interface GlobalCalendarClientPageProps {
   initialGlobalEvents: GlobalEvent[];
 }
 
-export default function GlobalCalendarClientPage({ initialGlobalEvents }: GlobalCalendarClientPageProps) {
+export default function GlobalCalendarClientPage({ initialGlobalEvents = [] }: GlobalCalendarClientPageProps) {
   const {
     currentDate,
     view,
@@ -36,6 +36,24 @@ export default function GlobalCalendarClientPage({ initialGlobalEvents }: Global
     handleDayClick,
     setFilterType,
   } = useGlobalCalendarPage(initialGlobalEvents);
+
+  // Safely filter upcoming events
+  const upcomingEvents = (initialGlobalEvents || [])
+    .filter(event => {
+      try {
+        return new Date(event.date) > new Date();
+      } catch {
+        return false;
+      }
+    })
+    .sort((a, b) => {
+      try {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      } catch {
+        return 0;
+      }
+    })
+    .slice(0, 5);
 
   return (
     <>
@@ -91,8 +109,8 @@ export default function GlobalCalendarClientPage({ initialGlobalEvents }: Global
 
           {/* Sidebar */}
           <GlobalCalendarSidebar
-            upcomingEvents={initialGlobalEvents.filter(event => new Date(event.date) > new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 5)}
-            allEvents={initialGlobalEvents}
+            upcomingEvents={upcomingEvents}
+            allEvents={initialGlobalEvents || []}
             filterType={filterType}
             loadingAction={loadingAction}
             onFilterChange={setFilterType}
