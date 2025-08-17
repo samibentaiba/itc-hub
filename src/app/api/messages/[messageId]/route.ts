@@ -4,9 +4,11 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 
+type RouteParams = Promise<{ messageId: string }>
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,8 +17,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { messageId } = await params
+
     const message = await prisma.message.findUnique({
-      where: { id: params.messageId },
+      where: { id: messageId },
       include: {
         sender: {
           select: {
@@ -66,7 +70,7 @@ interface UpdateMessageBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -75,12 +79,13 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { messageId } = await params
     const body: UpdateMessageBody = await request.json()
     const { content, type, reactions } = body
 
     // Check if message exists
     const existingMessage = await prisma.message.findUnique({
-      where: { id: params.messageId }
+      where: { id: messageId }
     })
 
     if (!existingMessage) {
@@ -100,7 +105,7 @@ export async function PUT(
     updateData.edited = true
 
     const message = await prisma.message.update({
-      where: { id: params.messageId },
+      where: { id: messageId },
       data: updateData,
       include: {
         sender: {
@@ -134,7 +139,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -143,9 +148,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { messageId } = await params
+
     // Check if message exists
     const existingMessage = await prisma.message.findUnique({
-      where: { id: params.messageId }
+      where: { id: messageId }
     })
 
     if (!existingMessage) {
@@ -164,7 +171,7 @@ export async function DELETE(
 
     // Delete message and all related data
     await prisma.message.delete({
-      where: { id: params.messageId }
+      where: { id: messageId }
     })
 
     return NextResponse.json({ message: "Message deleted successfully" })
@@ -175,4 +182,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}

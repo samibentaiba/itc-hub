@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
-type RouteParams = Promise<{ fileId: string }>
+type RouteParams = Promise<{ eventId: string }>
 
 export async function GET(
   request: NextRequest,
@@ -16,12 +17,12 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { fileId } = await params
+    const { eventId } = await params
 
-    const file = await prisma.file.findUnique({
-      where: { id: fileId },
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
       include: {
-        uploadedBy: {
+        organizer: {
           select: {
             id: true,
             name: true,
@@ -29,40 +30,133 @@ export async function GET(
             avatar: true
           }
         },
-        ticket: {
+        department: {
           select: {
             id: true,
-            title: true
+            name: true,
+            color: true
           }
         },
-        message: {
+        attendees: {
           select: {
             id: true,
-            content: true
+            name: true,
+            email: true,
+            avatar: true
           }
         }
       }
     })
 
-    if (!file) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 })
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
     }
 
-    // Check if user has access to this file
-    // For now, allow access if user is authenticated
-    // You might want to add more specific permission checks
-
-    return NextResponse.json({
-      id: file.id,
-      filename: file.filename,
-      mimetype: file.mimetype,
-      uploadedAt: file.uploadedAt,
-      uploadedBy: file.uploadedBy,
-      ticket: file.ticket,
-      message: file.message
-    })
+    return NextResponse.json(event)
   } catch (error) {
-    console.error("Error fetching file:", error)
+    console.error("Error fetching event:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
+interface UpdateEventBody {
+  title?: string;
+  description?: string;
+  date?: string;
+  time?: string;
+  duration?: number;
+  type?: string;
+  location?: string;
+  attendees?: { id: string }[];
+  isRecurring?: boolean;
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: RouteParams }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { eventId } = await params
+    const body: UpdateEventBody = await request.json()
+    const { title, description, date, time, duration, type, location, attendees, isRecurring } = body
+
+    // Check if event exists
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: eventId }
+    })
+
+    if (!existingEvent) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+    }
+
+    // Check permissions - only organizer or admins can update
+    const canUpdate = 
+      session.user.role === "ADMIN" ||
+      session.user.role === "SUPERLEADER" ||
+      existingEvent.organizerId === session.user.id
+
+    if (!canUpdate) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const updateData: Prisma.EventUpdateInput = {}
+
+    if (title) updateData.title = title
+    if (description) updateData.description = description
+    if (date) updateData.date = new Date(date)
+    if (time !== undefined) updateData.time = time
+    if (duration !== undefined) updateData.duration = duration
+    if (type) updateData.type = type
+    if (location !== undefined) updateData.location = location
+    if (attendees !== undefined) {
+      updateData.attendees = {
+        set: attendees.map(attendee => ({ id: attendee.id }))
+      }
+    }
+    if (isRecurring !== undefined) updateData.isRecurring = isRecurring
+
+    const event = await prisma.event.update({
+      where: { id: eventId },
+      data: updateData,
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            color: true
+          }
+        },
+        attendees: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(event)
+  } catch (error) {
+    console.error("Error updating event:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -81,85 +175,35 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { fileId } = await params
+    const { eventId } = await params
 
-    // Check if file exists
-    const existingFile = await prisma.file.findUnique({
-      where: { id: fileId },
-      select: {
-        id: true,
-        uploadedById: true,
-        ticket: {
-          select: {
-            id: true,
-            createdById: true,
-            assigneeId: true
-          }
-        }
-      }
+    // Check if event exists
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: eventId }
     })
 
-    if (!existingFile) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 })
+    if (!existingEvent) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 })
     }
 
-    // Check permissions - only file uploader, ticket creator, assignee, or admins can delete
+    // Check permissions - only organizer or admins can delete
     const canDelete = 
       session.user.role === "ADMIN" ||
-      existingFile.uploadedById === session.user.id ||
-      existingFile.ticket?.createdById === session.user.id ||
-      existingFile.ticket?.assigneeId === session.user.id
+      session.user.role === "SUPERLEADER" ||
+      existingEvent.organizerId === session.user.id
 
     if (!canDelete) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    // Delete file
-    await prisma.file.delete({
-      where: { id: fileId }
+    // Delete event
+    await prisma.event.delete({
+      where: { id: eventId }
     })
 
-    return NextResponse.json({ message: "File deleted successfully" })
+    return NextResponse.json({ message: "Event deleted successfully" })
   } catch (error) {
-    console.error("Error deleting file:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
-  }
-}
-
-// Download file endpoint
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: RouteParams }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { fileId } = await params
-
-    const file = await prisma.file.findUnique({
-      where: { id: fileId }
-    })
-
-    if (!file) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 })
-    }
-
-    // Return file data for download
-    return new NextResponse(file.data, {
-      headers: {
-        'Content-Type': file.mimetype,
-        'Content-Disposition': `attachment; filename="${file.filename}"`
-      }
-    })
-  } catch (error) {
-    console.error("Error downloading file:", error)
+    console.error("Error deleting event:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
