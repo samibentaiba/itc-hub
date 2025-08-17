@@ -3,9 +3,11 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+type RouteParams = Promise<{ fileId: string }>
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { fileId: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,8 +16,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { fileId } = await params
+
     const file = await prisma.file.findUnique({
-      where: { id: params.fileId },
+      where: { id: fileId },
       include: {
         uploadedBy: {
           select: {
@@ -44,7 +48,7 @@ export async function GET(
     }
 
     // Return file data as blob
-    const response = new NextResponse(file.data)
+    const response = new NextResponse(Buffer.from(file.data))
     response.headers.set("Content-Type", file.mimetype)
     response.headers.set("Content-Disposition", `attachment; filename="${file.filename}"`)
     
@@ -60,7 +64,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { fileId: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -69,9 +73,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { fileId } = await params
+
     // Check if file exists
     const existingFile = await prisma.file.findUnique({
-      where: { id: params.fileId }
+      where: { id: fileId }
     })
 
     if (!existingFile) {
@@ -90,7 +96,7 @@ export async function DELETE(
 
     // Delete file
     await prisma.file.delete({
-      where: { id: params.fileId }
+      where: { id: fileId }
     })
 
     return NextResponse.json({ message: "File deleted successfully" })
@@ -101,4 +107,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}
