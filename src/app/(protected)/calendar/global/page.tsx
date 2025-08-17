@@ -3,6 +3,25 @@
 import GlobalCalendarClientPage from "./client";
 import { headers } from 'next/headers';
 
+interface ApiEvent {
+  id: string;
+  title: string;
+  description: string;
+  start: string;
+  date: Date;
+  time: string;
+  duration: number;
+  type: string;
+  location: string;
+  organizer: { id: string; name: string; email: string; avatar: string; };
+  department: { id: string; name: string; color: string; };
+  participants: { id: string; name: string; email: string; avatar: string; }[];
+  attendees: { id: string; name: string; email: string; avatar: string; }[];
+  isRecurring: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const headersList = await headers();
@@ -21,7 +40,7 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
 export default async function GlobalCalendarPage() {
-  let globalEvents: any[] = [];
+  let globalEvents: ApiEvent[] = [];
   
   try {
     // Fetch all events for global view
@@ -42,7 +61,7 @@ export default async function GlobalCalendarPage() {
   console.log('Fetched events for global calendar:', globalEvents.length);
 
   // Transform events to match the expected format
-  const transformedEvents = globalEvents.map((event: any) => ({
+  const transformedEvents = globalEvents.map((event: ApiEvent) => ({
     id: event.id || Math.random().toString(),
     title: event.title || 'Untitled Event',
     description: event.description || '',

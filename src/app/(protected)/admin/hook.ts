@@ -61,7 +61,7 @@ export const useAdminPage = (
 
   // --- State for Calendar ---
   const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(
+  const [upcomingEvents] = useState<UpcomingEvent[]>(
     initialUpcomingEvents
   );
   const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
@@ -349,14 +349,23 @@ export const useAdminPage = (
     entityType: "team" | "department",
     updateFn: (members: Member[]) => Member[]
   ) => {
-    const stateSetter = entityType === "team" ? setTeams : setDepartments;
-    stateSetter((prev: any) =>
-      prev.map((entity: Team | Department) =>
-        entity.id === entityId
-          ? { ...entity, members: updateFn(entity.members) }
-          : entity
-      )
-    );
+    if (entityType === "team") {
+      setTeams((prev) =>
+        prev.map((entity) =>
+          entity.id === entityId
+            ? { ...entity, members: updateFn(entity.members) }
+            : entity
+        )
+      );
+    } else {
+      setDepartments((prev) =>
+        prev.map((entity) =>
+          entity.id === entityId
+            ? { ...entity, members: updateFn(entity.members) }
+            : entity
+        )
+      );
+    }
   };
 
   const handleAddMember = (
@@ -488,7 +497,7 @@ export const useAdminPage = (
         toast({ title: "Event created successfully" });
       }
       return true; // Return true on success
-    } catch (error) {
+    } catch {
       toast({ title: "Error Creating/Updating Event", variant: "destructive" });
       return false; // Return false on error
     } finally {

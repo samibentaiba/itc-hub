@@ -147,7 +147,7 @@ export default function UsersClientPage({ initialUsers, initialStats }: UsersCli
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${getStatusColor(user.status)}`} />
-                          <Badge variant={getStatusVariant(user.status) as any}>{user.status}</Badge>
+                          <Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{user.projects}</TableCell>

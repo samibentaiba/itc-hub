@@ -52,7 +52,7 @@ export default function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading
           date: initialData.date,
           time: initialData.time,
           duration: String(initialData.duration),
-          type: initialData.type as any,
+          type: initialData.type as "meeting" | "review" | "planning" | "workshop",
           location: initialData.location,
         });
       } else {

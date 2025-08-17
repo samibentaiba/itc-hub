@@ -1,7 +1,24 @@
-// /calendar/page.tsx
-
 import CalendarClientPage from "./client";
 import { headers } from 'next/headers';
+
+interface ApiEvent {
+  id: string;
+  title: string;
+  description: string;
+  start: string;
+  date: Date;
+  time: string;
+  duration: number;
+  type: string;
+  location: string;
+  organizer: { id: string; name: string; email: string; avatar: string; };
+  department: { id: string; name: string; color: string; };
+  participants: { id: string; name: string; email: string; avatar: string; }[];
+  attendees: { id: string; name: string; email: string; avatar: string; }[];
+  isRecurring: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -21,7 +38,7 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
 export default async function CalendarPage() {
-  let events: any[] = [];
+  let events: ApiEvent[] = [];
   
   try {
     // Fetch all events first, then filter on frontend if needed
@@ -42,7 +59,7 @@ export default async function CalendarPage() {
   console.log('Fetched events for personal calendar:', events.length);
 
   // Transform events to match the expected format
-  const transformedEvents = events.map((event: any, index: number) => ({
+  const transformedEvents = events.map((event: ApiEvent, index: number) => ({
     id: parseInt(event.id.replace(/\D/g, '')) || index + 1, // Extract numbers from ID
     title: event.title || 'Untitled Event',
     description: event.description || '',
@@ -50,8 +67,8 @@ export default async function CalendarPage() {
     time: event.time || '09:00',
     duration: event.duration || 60,
     type: event.type || 'meeting',
-    attendees: event.participants?.map((p: any) => p.name || p.email || '') || 
-               event.attendees?.map((a: any) => a.name || a.email || '') || 
+    attendees: event.participants?.map((p) => p.name || p.email || '') || 
+               event.attendees?.map((a) => a.name || a.email || '') || 
                ['You'],
     location: event.location || 'TBD',
     color: getEventColor(event.type || 'meeting')
@@ -60,10 +77,10 @@ export default async function CalendarPage() {
   // Generate upcoming events (next 5 events)
   const now = new Date();
   const upcomingEvents = events
-    .filter((event: any) => new Date(event.date) >= now)
-    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .filter((event: ApiEvent) => new Date(event.date) >= now)
+    .sort((a: ApiEvent, b: ApiEvent) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 5)
-    .map((event: any, index: number) => ({
+    .map((event: ApiEvent, index: number) => ({
       id: parseInt(event.id.replace(/\D/g, '')) || index + 1,
       title: event.title || 'Untitled Event',
       date: new Date(event.date).toLocaleDateString(),

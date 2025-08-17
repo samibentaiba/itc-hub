@@ -16,7 +16,7 @@ export type EventFormData = z.infer<typeof eventFormSchema>;
 
 export type ModalState = {
     view: | "ADD_USER" | "EDIT_USER" | "DELETE_USER" | "VERIFY_USER" | "ADD_TEAM" | "EDIT_TEAM" | "DELETE_TEAM" | "MANAGE_MEMBERS" | "ADD_DEPARTMENT" | "EDIT_DEPARTMENT" | "DELETE_DEPARTMENT";
-    data?: any;
+    data?: { id: string; entityType?: "team" | "department" };
 } | null;
 
 export type LoadingAction = string | null;

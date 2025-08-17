@@ -1,6 +1,21 @@
 import UsersClientPage from "./client";
 import { headers } from 'next/headers';
 
+interface TransformedApiUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+  status: string; // This is the status from the DB, e.g., "verified"
+  createdAt: Date;
+  department: string; // This is the transformed department name
+  teamCount: number;
+  ticketsAssigned: number;
+  ticketsCreated: number;
+  completedTickets: number;
+}
+
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const headersList = await headers();
@@ -25,16 +40,16 @@ export default async function UsersPage() {
     throw new Error('Failed to fetch users');
   }
   const data = await response.json();
-  const users = data.users;
+  const users: TransformedApiUser[] = data.users;
 
   // Transform users to match the expected format
-  const transformedUsers = users.map((user: any) => ({
+  const transformedUsers = users.map((user: TransformedApiUser) => ({
     id: user.id || '',
     name: user.name || '',
     email: user.email || '',
     avatar: user.avatar || `/avatars/${user.name.toLowerCase().replace(' ', '')}.png`,
     role: user.role?.toLowerCase() || 'user',
-    department: user.departments?.[0]?.department?.name || 'Unassigned',
+    department: user.department || 'Unassigned',
     status: "Active" as const,
     lastActive: "Just now",
     projects: Math.floor(Math.random() * 10) + 1
@@ -42,9 +57,9 @@ export default async function UsersPage() {
 
   // Calculate real stats from the users data
   const totalUsers = users.length;
-  const activeUsers = users.filter((user: any) => user.status === 'verified').length;
-  const adminUsers = users.filter((user: any) => user.role === 'ADMIN').length;
-  const managerUsers = users.filter((user: any) => user.role === 'MANAGER').length;
+  const activeUsers = users.filter((user: TransformedApiUser) => user.status === 'verified').length;
+  const adminUsers = users.filter((user: TransformedApiUser) => user.role === 'ADMIN').length;
+  const managerUsers = users.filter((user: TransformedApiUser) => user.role === 'MANAGER').length;
   
   const stats = [
     {

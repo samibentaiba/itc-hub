@@ -30,7 +30,7 @@ export function useUsersPage(initialUsers: UserLocal[]) {
     }
   };
 
-  const getStatusVariant = (status: string) => {
+  const getStatusVariant = (status: string): "default" | "secondary" | "outline" => {
     switch (status) {
       case "Active": return "default";
       case "Away": return "secondary";

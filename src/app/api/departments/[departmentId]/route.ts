@@ -4,6 +4,12 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getAuthenticatedUser, canAccessDepartment, canManageDepartment } from "@/lib/auth-helpers"
 
+interface DepartmentUpdateInput {
+  name?: string;
+  description?: string;
+  status?: string;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ departmentId: string }> }
@@ -206,7 +212,7 @@ export async function PUT(
     const body = await request.json()
     const { name, description, status, memberIds } = body
 
-    const updateData: any = {}
+    const updateData: DepartmentUpdateInput = {}
 
     if (name) updateData.name = name
     if (description !== undefined) updateData.description = description
@@ -298,4 +304,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}  
