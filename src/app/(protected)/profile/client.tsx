@@ -1,6 +1,3 @@
-
-// ===== IMPROVED client.tsx (Key sections) =====
-// src/app/(protected)/profile/client.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -35,8 +32,8 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
   
   // State management - simplified from the hook pattern
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<UserProfile>(profileData.profile);
-  const [tempProfile, setTempProfile] = useState<UserProfile>(profileData.profile);
+  const [profile, setProfile] = useState<UserProfileLocal>(profileData.profile);
+  const [tempProfile, setTempProfile] = useState<UserProfileLocal>(profileData.profile);
 
   // Helper functions - following the user route pattern
   const getPriorityColor = (priority: string): "destructive" | "default" | "secondary" | "outline" => {
@@ -78,11 +75,11 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
     setTempProfile(profile);
   };
 
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
+  const handleInputChange = (field: keyof UserProfileLocal, value: string) => {
     setTempProfile(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSocialLinkChange = (platform: keyof UserProfile['socialLinks'], value: string) => {
+  const handleSocialLinkChange = (platform: keyof UserProfileLocal['socialLinks'], value: string) => {
     setTempProfile(prev => ({
       ...prev,
       socialLinks: { ...prev.socialLinks, [platform]: value },

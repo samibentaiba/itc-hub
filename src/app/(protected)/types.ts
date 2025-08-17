@@ -23,6 +23,36 @@ export interface Profile extends User {
   };
 }
 
+// Profile-specific types for the profile page
+export interface UserProfileLocal {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: 'admin' | 'manager' | 'user';
+  title: string;
+  department: string;
+  location: string;
+  phone: string;
+  bio: string;
+  socialLinks: {
+    github: string;
+    linkedin: string;
+    twitter: string;
+    website: string;
+  };
+}
+
+export interface ProfileDataLocal {
+  profile: UserProfileLocal;
+  stats: UserStatsLocal;
+  skills: UserSkillLocal[];
+  projects: UserProjectLocal[];
+  achievements: UserAchievementLocal[];
+  teams: UserTeamLocal[];
+  departments: UserDepartmentLocal[];
+}
+
 // User-related types for the users page
 export interface UserLocal {
   id: string;
