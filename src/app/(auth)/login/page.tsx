@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { AuthLogo } from "@/components/ui/logo";
 
 export default function LoginPage() {
@@ -19,7 +18,7 @@ export default function LoginPage() {
   const { status } = useSession();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { toast } = useToast();
+  
   
   if (status === "loading") {
     return (

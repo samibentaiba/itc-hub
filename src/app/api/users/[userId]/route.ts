@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
 export async function GET(
@@ -138,6 +139,17 @@ export async function GET(
   }
 }
 
+interface UpdateUserBody {
+  name?: string;
+  email?: string;
+  role?: "ADMIN" | "MANAGER" | "USER";
+  avatar?: string;
+  status?: "active" | "inactive" | "suspended";
+  password?: string;
+  departmentIds?: string[];
+  teamIds?: string[];
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
@@ -157,10 +169,10 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body: UpdateUserBody = await request.json()
     const { name, email, role, avatar, status, password, departmentIds, teamIds } = body
 
-    const updateData: any = {}
+    const updateData: Prisma.UserUpdateInput = {}
 
     if (name) updateData.name = name
     if (email) updateData.email = email

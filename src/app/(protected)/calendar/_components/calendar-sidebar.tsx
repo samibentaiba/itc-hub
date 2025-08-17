@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Filter, Users, Calendar } from "lucide-react";
+import { Filter, Users, Calendar } from "lucide-react";
 import type { CalendarLocalEvent, CalendarUpcomingEvent } from "../../types";
 import Link from "next/link";
 
@@ -13,11 +13,10 @@ interface CalendarSidebarProps {
   allEvents: CalendarLocalEvent[];
   filterType: string;
   onFilterChange: (type: string) => void;
-  onNewEventClick: () => void;
   onEventClick: (event: CalendarLocalEvent | null) => void;
 }
 
-export default function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
+export default function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onEventClick }: CalendarSidebarProps) {
   const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
 
   return (

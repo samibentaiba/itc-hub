@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
 export async function GET(request: NextRequest) {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: any = {}
+    const where: Prisma.UserWhereInput = {}
 
     if (search) {
       where.OR = [
@@ -138,6 +139,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
+interface CreateUserBody {
+  name: string;
+  email: string;
+  password?: string;
+  role?: "ADMIN" | "MANAGER" | "USER";
+  departmentIds?: string[];
+  teamIds?: string[];
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -146,7 +156,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body: CreateUserBody = await request.json()
     const { name, email, password, role, departmentIds, teamIds } = body
 
     if (!name || !email || !password) {

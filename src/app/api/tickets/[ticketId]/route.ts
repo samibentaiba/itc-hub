@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import { getAuthenticatedUser, canManageTicket } from "@/lib/auth-helpers"
 
 export async function GET(
@@ -172,6 +171,18 @@ export async function GET(
   }
 }
 
+interface UpdateTicketBody {
+  title?: string;
+  description?: string;
+  type?: "TASK" | "BUG" | "FEATURE";
+  status?: "OPEN" | "IN_PROGRESS" | "CLOSED";
+  priority?: "LOW" | "MEDIUM" | "HIGH";
+  dueDate?: string;
+  assigneeId?: string;
+  teamId?: string;
+  departmentId?: string;
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ ticketId: string }> }
@@ -189,7 +200,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden - You don't have permission to update this ticket" }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body: UpdateTicketBody = await request.json()
     const { title, description, type, status, priority, dueDate, assigneeId, teamId, departmentId } = body
 
     // Check if ticket exists
@@ -201,7 +212,7 @@ export async function PUT(
       return NextResponse.json({ error: "Ticket not found" }, { status: 404 })
     }
 
-    const updateData: any = {}
+    const updateData: Prisma.TicketUpdateInput = {}
 
     if (title) updateData.title = title
     if (description) updateData.description = description
@@ -209,7 +220,7 @@ export async function PUT(
     if (status) updateData.status = status
     if (priority) updateData.priority = priority
     if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null
-    if (assigneeId !== undefined) updateData.assigneeId = assigneeId
+    if (assigneeId !== undefined) update.assigneeId = assigneeId
     if (teamId !== undefined) updateData.teamId = teamId
     if (departmentId !== undefined) updateData.departmentId = departmentId
 

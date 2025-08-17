@@ -18,8 +18,8 @@ interface GlobalCalendarSidebarProps {
   onExport: () => void;
 }
 
-export default function GlobalCalendarSidebar({ upcomingEvents, allEvents, onEventClick}: GlobalCalendarSidebarProps) {
-  const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
+export default function GlobalCalendarSidebar({ upcomingEvents, onEventClick}: GlobalCalendarSidebarProps) {
+  
 
   return (
     <div className="space-y-6">

@@ -83,7 +83,7 @@ export const useCalendarPage = (
       });
       setIsLoading(false);
       return true;
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to create event. Please try again.",

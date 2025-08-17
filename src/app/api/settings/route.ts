@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -57,10 +57,10 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { profile, notifications, theme } = body
+    const { profile } = body
 
     // Update user settings (for now just profile data)
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id: session.user.id },
       data: {
         name: profile?.name || undefined,

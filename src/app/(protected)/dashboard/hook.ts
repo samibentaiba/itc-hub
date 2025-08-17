@@ -38,7 +38,7 @@ export const useDashboardPage = (
         title: `${cardType} Details`,
         description: `Navigating to ${cardType.toLowerCase()} overview.`,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to load details. Please try again.",
@@ -58,7 +58,7 @@ export const useDashboardPage = (
         router.push("/tickets");
       }
       // Other quick actions can be handled here...
-    } catch (error) {
+    } catch {
       toast({
         title: "Action Failed",
         description: "Failed to perform action. Please try again.",

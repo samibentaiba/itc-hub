@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function GET(
   request: NextRequest,
@@ -57,6 +58,12 @@ export async function GET(
   }
 }
 
+interface UpdateMessageBody {
+  content?: string;
+  type?: string;
+  reactions?: Prisma.JsonValue;
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { messageId: string } }
@@ -68,7 +75,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body: UpdateMessageBody = await request.json()
     const { content, type, reactions } = body
 
     // Check if message exists
@@ -85,7 +92,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const updateData: any = {}
+    const updateData: Prisma.MessageUpdateInput = {}
 
     if (content) updateData.content = content
     if (type) updateData.type = type

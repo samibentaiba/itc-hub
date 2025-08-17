@@ -15,21 +15,11 @@ export default function ProtectedLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Community stats data
-  const communityStats = {
-    activeMembers: { count: 127, change: "+12 this month", trend: "up" },
-    activeProjects: { count: 23, change: "+5 this week", trend: "up" },
-    completedTasks: { count: 1247, change: "+89 this week", trend: "up" },
-    successRate: { count: 94, change: "+2% from last month", trend: "up" },
-  };
-
-  const [showDialog, setShowDialog] = useState(false);
   const [countdown, setCountdown] = useState(3); // State for the 3-second countdown
 
   useEffect(() => {
     // Handle authenticated users
     if (status === "authenticated" && session?.user) {
-      setShowDialog(true);
       return; // Exit early
     }
 
@@ -49,14 +39,6 @@ export default function ProtectedLayout({
       return () => clearTimeout(timer);
     }
   }, [status, session, countdown, router]);
-
-  const handleStayHere = () => {
-    setShowDialog(false);
-  };
-
-  const handleGoToDashboard = () => {
-    router.push("/dashboard");
-  };
 
   if (status === "loading") {
     return (

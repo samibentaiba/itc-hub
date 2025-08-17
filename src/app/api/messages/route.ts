@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: any = {
+    const where: Prisma.MessageWhereInput = {
       ticketId: ticketId
     }
 
@@ -82,6 +83,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+interface CreateMessageBody {
+  ticketId: string;
+  content: string;
+  type?: string;
+  reactions?: Prisma.JsonValue;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -90,7 +98,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body: CreateMessageBody = await request.json()
     const { ticketId, content, type, reactions } = body
 
     if (!ticketId || !content) {

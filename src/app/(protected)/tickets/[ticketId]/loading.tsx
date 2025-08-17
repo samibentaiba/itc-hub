@@ -1,6 +1,5 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 
 // This component will be automatically displayed by Next.js 
 // while the ticket detail page fetches data.

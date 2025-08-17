@@ -41,7 +41,7 @@ export function useSettingsPage(initialSettings: UserSettingsLocal) {
         title: "Settings saved",
         description: "Your preferences have been updated successfully.",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Save Error",
         description: "Failed to save settings. Please try again.",

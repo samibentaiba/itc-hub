@@ -2,8 +2,8 @@
 "use client";
 
 import { useTeamDetailPage } from "./hook";
-import { useAuthorization, AuthorizedComponent } from "@/hooks/use-authorization";
-import type { TeamDetail, TeamTicket, TeamMember } from "./types";
+import { AuthorizedComponent } from "@/hooks/use-authorization";
+import type { TeamDetail, TeamTicket } from "./types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,11 +37,9 @@ import {
   Users,
   Plus,
   Mail,
-  Settings,
   MoreVertical,
   ChevronLeft,
   ChevronRight,
-  UserPlus,
   ArrowLeft,
   Calendar as CalendarIcon,
 } from "lucide-react";
@@ -72,7 +70,6 @@ export default function TeamDetailClientPage({
     tickets,
     showNewTicket,
     setShowNewTicket,
-    handleInviteMember,
     handleMemberAction,
     calendarView,
     currentDate,

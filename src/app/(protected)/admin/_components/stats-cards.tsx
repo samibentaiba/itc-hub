@@ -1,6 +1,6 @@
 // --- /admin/_components/stats-cards.tsx ---
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building2, Shield } from "lucide-react";
+import { Users, Building2 } from "lucide-react";
 import type { User, Team, Department } from "../types";
 
 interface StatsCardsProps {

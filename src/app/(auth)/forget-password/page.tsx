@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { AuthLogo } from "@/components/ui/logo"
@@ -19,7 +19,6 @@ export default function ForgotPasswordPage() {
     email: "",
   })
   const { toast } = useToast()
-  const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -54,7 +53,7 @@ export default function ForgotPasswordPage() {
         title: "Reset Email Sent",
         description: "Check your email for password reset instructions.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to send reset email. Please try again.",
@@ -73,7 +72,7 @@ export default function ForgotPasswordPage() {
         title: "Email Resent",
         description: "Password reset email has been sent again.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to resend email. Please try again.",

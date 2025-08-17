@@ -17,6 +17,7 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -73,7 +74,6 @@ export default function TicketDetailClientPage({
     handleEditMessage,
     handleSaveEdit,
     handleDeleteMessage,
-    handleTicketAction,
     formatTimestamp,
     getStatusColor,
     getPriorityColor,
@@ -111,7 +111,7 @@ export default function TicketDetailClientPage({
       <TicketHeader
         ticket={ticket}
         onVerify={handleVerifyTicket}
-        onAction={handleTicketAction}
+        
         getStatusColor={getStatusColor}
         getPriorityColor={getPriorityColor}
         formatStatus={formatStatus}
@@ -168,7 +168,6 @@ export default function TicketDetailClientPage({
 interface TicketHeaderProps {
   ticket: Ticket;
   onVerify: () => void;
-  onAction: (action: "edit" | "assign" | "due_date" | "delete") => void;
   getStatusColor: (
     status: Ticket["status"]
   ) => "destructive" | "default" | "secondary" | "outline";
@@ -182,7 +181,6 @@ interface TicketHeaderProps {
 const TicketHeader = ({
   ticket,
   onVerify,
-  onAction,
   getStatusColor,
   getPriorityColor,
   formatStatus,
@@ -396,9 +394,11 @@ const ChatMessage = ({
 const MessageContent = ({ msg }: { msg: Message }) => {
   if (msg.type === "image") {
     return (
-      <img
+      <Image
         src={msg.comment}
         alt="Shared content"
+        width={200}
+        height={200}
         className="max-w-sm rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
         onClick={() => window.open(msg.comment, "_blank")}
       />

@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation";
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { AuthLogo } from "@/components/ui/logo"
@@ -23,7 +24,6 @@ export default function ResetPasswordPage() {
     confirmPassword: "",
   })
   const { toast } = useToast()
-  const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
 
@@ -41,7 +41,7 @@ export default function ResetPasswordPage() {
         await new Promise((resolve) => setTimeout(resolve, 1000))
         // For demo purposes, assume token is valid
         setTokenValid(true)
-      } catch (error) {
+      } catch {
         setTokenValid(false)
       }
     }
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
         title: "Password Reset Successful",
         description: "Your password has been updated successfully.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Reset Failed",
         description: "Failed to reset password. Please try again.",

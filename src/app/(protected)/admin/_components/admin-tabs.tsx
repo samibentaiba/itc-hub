@@ -56,7 +56,6 @@ import type {
   Event,
   UpcomingEvent,
   PendingEvent,
-  Member,
 } from "../types";
 import CalendarView from "./calendar/calendar-view";
 import CalendarSidebar from "./calendar/calendar-sidebar";

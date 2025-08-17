@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { ProfileDataLocal, UserProfileLocal } from "../types";
+import type { ProfileDataLocal } from "../types";
 
 // The hook now accepts the initial data fetched by the server.
 export function useProfilePage(initialData: ProfileDataLocal) {

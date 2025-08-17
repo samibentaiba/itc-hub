@@ -40,7 +40,7 @@ export const useLandingPage = () => {
         title: `${cardType} Overview`,
         description: `Viewing ${cardType.toLowerCase()} statistics and details.`,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to load details. Please try again.",
@@ -79,7 +79,7 @@ export const useLandingPage = () => {
             description: `Performing ${action.toLowerCase()}...`,
           });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Action Failed",
         description: "Failed to perform action. Please try again.",

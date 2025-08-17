@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import { getAuthenticatedUser, canAccessTeam, canManageTeam } from "@/lib/auth-helpers"
 
 export async function GET(
@@ -187,6 +186,14 @@ export async function GET(
   }
 }
 
+interface UpdateTeamBody {
+  name?: string;
+  description?: string;
+  status?: string;
+  departmentId?: string;
+  memberIds?: string[];
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ teamId: string }> }
@@ -204,10 +211,10 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden - You don't have permission to manage this team" }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body: UpdateTeamBody = await request.json()
     const { name, description, status, departmentId, memberIds } = body
 
-    const updateData: any = {}
+    const updateData: Prisma.TeamUpdateInput = {}
 
     if (name) updateData.name = name
     if (description !== undefined) updateData.description = description

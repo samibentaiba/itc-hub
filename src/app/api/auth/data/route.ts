@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getAuthenticatedUser, getUser } from "@/lib/auth-helpers";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getAuthenticatedUser();
     if (!session?.user) {

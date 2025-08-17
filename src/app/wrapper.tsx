@@ -85,12 +85,28 @@ function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
+interface SearchResult {
+  id: string;
+  type: string;
+  title: string;
+  url: string;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+  link: string;
+}
+
 function WorkspaceHeader() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState([
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
       title: "New ticket assigned",
@@ -118,7 +134,7 @@ function WorkspaceHeader() {
   ]);
 
   // Mock search data
-  const searchData = [
+  const searchData: SearchResult[] = [
     {
       id: "t1",
       type: "ticket",
@@ -163,7 +179,7 @@ function WorkspaceHeader() {
     }
   };
 
-  const handleResultClick = (result: any) => {
+  const handleResultClick = (result: SearchResult) => {
     setShowSearchResults(false);
     setSearchQuery("");
     // Navigate to the result
@@ -190,7 +206,7 @@ function WorkspaceHeader() {
     setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     // Mark as read
     setNotifications(
       notifications.map((n) =>
@@ -735,7 +751,7 @@ function AppSidebar() {
 }
 
 import type { ReactNode } from "react";
-import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { createContext, useState, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import {
   Sidebar,
@@ -745,7 +761,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,

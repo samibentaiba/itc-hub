@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: any = {}
+    const where: Prisma.TicketWhereInput = {}
 
     if (search) {
       where.OR = [
@@ -205,7 +206,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body: { 
+      title: string; 
+      description: string; 
+      type?: "TASK" | "BUG" | "FEATURE";
+      status?: "OPEN" | "IN_PROGRESS" | "CLOSED";
+      priority?: "LOW" | "MEDIUM" | "HIGH";
+      dueDate?: string;
+      assigneeId?: string;
+      teamId?: string;
+      departmentId?: string;
+    } = await request.json()
     const { title, description, type, status, priority, dueDate, assigneeId, teamId, departmentId } = body
 
     if (!title || !description) {

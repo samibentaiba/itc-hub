@@ -5,7 +5,7 @@
  * It displays a list of teams associated with the department.
  */
 import Link from "next/link";
-import { Eye, Users, User } from "lucide-react";
+import { Eye, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,

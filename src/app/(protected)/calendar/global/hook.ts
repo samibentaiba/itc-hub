@@ -72,7 +72,7 @@ export const useGlobalCalendarPage = (initialGlobalEvents: GlobalEvent[]) => {
       setAllEvents(prev => [...prev, newEvent]);
       toast({ title: "Event created successfully!" });
       setShowNewEvent(false);
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to create event.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
@@ -92,7 +92,7 @@ export const useGlobalCalendarPage = (initialGlobalEvents: GlobalEvent[]) => {
       link.click();
       URL.revokeObjectURL(url);
       toast({ title: "Calendar exported" });
-    } catch (error) {
+    } catch {
       toast({ title: "Export Failed", variant: "destructive" });
     } finally {
       setLoadingAction(null);
@@ -104,7 +104,7 @@ export const useGlobalCalendarPage = (initialGlobalEvents: GlobalEvent[]) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast({ title: "Calendar refreshed" });
-    } catch (error) {
+    } catch {
       toast({ title: "Refresh Failed", variant: "destructive" });
     } finally {
       setLoadingAction(null);

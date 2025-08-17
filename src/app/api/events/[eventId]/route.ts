@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function GET(
   request: NextRequest,
@@ -42,6 +43,18 @@ export async function GET(
   }
 }
 
+interface UpdateEventBody {
+  title?: string;
+  description?: string;
+  date?: string;
+  time?: string;
+  duration?: number;
+  type?: string;
+  location?: string;
+  attendees?: { id: string }[];
+  isRecurring?: boolean;
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { eventId: string } }
@@ -53,7 +66,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body: UpdateEventBody = await request.json()
     const { title, description, date, time, duration, type, location, attendees, isRecurring } = body
 
     // Check if event exists
@@ -75,7 +88,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const updateData: any = {}
+    const updateData: Prisma.EventUpdateInput = {}
 
     if (title) updateData.title = title
     if (description) updateData.description = description
@@ -155,4 +168,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}
