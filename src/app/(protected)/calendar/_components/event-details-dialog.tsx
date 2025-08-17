@@ -4,10 +4,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Users, MapPin } from "lucide-react";
-import type { Event } from "../types";
+import type { CalendarLocalEvent } from "../../types";
 
 interface EventDetailsDialogProps {
-  event: Event | null;
+  event: CalendarLocalEvent | null;
   onClose: () => void;
 }
 
@@ -22,7 +22,7 @@ export default function EventDetailsDialog({ event, onClose }: EventDetailsDialo
               <div>
                   <DialogTitle className="text-2xl font-bold">{event.title}</DialogTitle>
                   <DialogDescription className="mt-1">
-                      <Badge variant="outline" className="capitalize">{event.type}</Badge>
+                      <Badge variant="outline" className="capitalize">{event.type.replace('-', ' ')}</Badge>
                   </DialogDescription>
               </div>
               <div className={`w-4 h-4 rounded-full mt-2 ${event.color}`}></div>
@@ -48,7 +48,7 @@ export default function EventDetailsDialog({ event, onClose }: EventDetailsDialo
               <h4 className="font-medium mb-2">Attendees</h4>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  <span>{event.attendees.join(', ')}</span>
+                  <span>{Array.isArray(event.attendees) ? event.attendees.join(', ') : event.attendees}</span>
               </div>
           </div>
         </div>

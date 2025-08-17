@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "10")
+    const limit = parseInt(searchParams.get("limit") || "50") // Increased default limit
     const search = searchParams.get("search") || ""
-    const type = searchParams.get("type") || ""
+    const typeFilter = searchParams.get("type") || ""
     const organizerId = searchParams.get("organizerId") || ""
     const startDate = searchParams.get("startDate") || ""
     const endDate = searchParams.get("endDate") || ""
@@ -31,8 +31,20 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    if (type) {
-      where.type = type
+    // Handle different type filters
+    if (typeFilter === "personal") {
+      // For personal calendar, show events organized by the current user
+      // or events they're attending
+      where.OR = [
+        { organizerId: session.user.id },
+        { attendees: { some: { id: session.user.id } } }
+      ]
+    } else if (typeFilter === "global") {
+      // For global calendar, show all events (company-wide view)
+      // No additional filtering needed - show all events
+    } else if (typeFilter && typeFilter !== "all") {
+      // For specific event types
+      where.type = typeFilter
     }
 
     if (organizerId) {
@@ -62,6 +74,21 @@ export async function GET(request: NextRequest) {
               email: true,
               avatar: true
             }
+          },
+          department: {
+            select: {
+              id: true,
+              name: true,
+              color: true
+            }
+          },
+          attendees: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true
+            }
           }
         },
         orderBy: {
@@ -71,8 +98,28 @@ export async function GET(request: NextRequest) {
       prisma.event.count({ where })
     ])
 
+    // Transform events for the frontend
+    const transformedEvents = events.map(event => ({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      start: event.date.toISOString(),
+      date: event.date,
+      time: event.time || "09:00",
+      duration: event.duration || 60,
+      type: event.type || "meeting",
+      location: event.location || "TBD",
+      organizer: event.organizer,
+      department: event.department,
+      participants: event.attendees,
+      attendees: event.attendees,
+      isRecurring: event.isRecurring || false,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt
+    }))
+
     return NextResponse.json({
-      events,
+      events: transformedEvents,
       pagination: {
         page,
         limit,
@@ -98,11 +145,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, date, time, duration, type, location, attendees, isRecurring } = body
+    const { title, description, date, time, duration, type, location, isRecurring, departmentId } = body
 
-    if (!title || !description || !date) {
+    if (!title || !date) {
       return NextResponse.json(
-        { error: "Title, description, and date are required" },
+        { error: "Title and date are required" },
         { status: 400 }
       )
     }
@@ -111,18 +158,33 @@ export async function POST(request: NextRequest) {
     const event = await prisma.event.create({
       data: {
         title,
-        description,
+        description: description || "",
         date: new Date(date),
-        time,
-        duration,
+        time: time || "09:00",
+        duration: duration || 60,
         type: type || "meeting",
-        location,
-        attendees,
+        location: location || "TBD",
         isRecurring: isRecurring || false,
-        organizerId: session.user.id
+        organizerId: session.user.id,
+        departmentId: departmentId || null
       },
       include: {
         organizer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            color: true
+          }
+        },
+        attendees: {
           select: {
             id: true,
             name: true,
@@ -141,4 +203,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}

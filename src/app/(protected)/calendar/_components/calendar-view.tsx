@@ -3,13 +3,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, MapPin } from "lucide-react";
-import type { Event } from "../types";
+import type { CalendarLocalEvent } from "../../types";
 
 interface CalendarViewProps {
   currentDate: Date;
   view: "month" | "week" | "day";
-  events: Event[];
-  setSelectedEvent: (event: Event | null) => void;
+  events: CalendarLocalEvent[];
+  setSelectedEvent: (event: CalendarLocalEvent | null) => void;
   handleDayClick: (date: Date) => void;
   getDaysInMonth: (date: Date) => number;
   getFirstDayOfMonth: (date: Date) => number;
@@ -79,18 +79,22 @@ export default function CalendarView({ currentDate, view, events, setSelectedEve
                     <span className={`text-lg font-bold ${formatDateString(day) === formatDateString(new Date()) ? 'text-primary' : ''}`}>{day.getDate()}</span>
                 </div>
             ))}
-            {Array.from({ length: 24 }, (_, i) => i + 8).map(hour => (
+            {Array.from({ length: 16 }, (_, i) => i + 8).map(hour => (
                 <div key={hour} className="contents">
                     <div className="h-16 border-r border-t border-border/50 p-2 text-xs text-muted-foreground text-center">{`${hour}:00`}</div>
                     {weekDays.map(day => {
-                        const dayEvents = getEventsForDate(formatDateString(day)).filter(e => parseInt(e.time.split(':')[0]) === hour);
+                        const dayEvents = getEventsForDate(formatDateString(day)).filter(e => {
+                          const eventHour = parseInt(e.time.split(':')[0]);
+                          return eventHour === hour;
+                        });
                         return (
-                            <div key={day.toISOString()} className="h-16 border-r border-t border-border/50 p-1 space-y-1 overflow-hidden">
-                                {dayEvents.map(event => (
+                            <div key={`${hour}-${day.toISOString()}`} className="h-16 border-r border-t border-border/50 p-1 space-y-1 overflow-hidden">
+                                {dayEvents.slice(0, 2).map(event => (
                                     <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${event.color}`} title={event.title} onClick={() => setSelectedEvent(event)}>
                                         {event.title}
                                     </div>
                                 ))}
+                                {dayEvents.length > 2 && <div className="text-xs text-muted-foreground text-center">...more</div>}
                             </div>
                         );
                     })}
@@ -126,10 +130,10 @@ export default function CalendarView({ currentDate, view, events, setSelectedEve
                     </div>
                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        {event.attendees.join(', ')}
+                        {Array.isArray(event.attendees) ? event.attendees.join(', ') : event.attendees}
                     </div>
                   </div>
-                  <Badge variant="outline" className="capitalize">{event.type}</Badge>
+                  <Badge variant="outline" className="capitalize">{event.type.replace('-', ' ')}</Badge>
                 </CardContent>
               </Card>
             ))

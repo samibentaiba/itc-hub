@@ -21,11 +21,11 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
 // This is a Server Component. 
 // It fetches data on the server and passes it to the client component.
 export default async function GlobalCalendarPage() {
-  let globalEvents = [];
+  let globalEvents: any[] = [];
   
   try {
-    // Fetch global calendar data directly from API
-    const response = await authenticatedFetch('/api/events?type=global');
+    // Fetch all events for global view
+    const response = await authenticatedFetch('/api/events?limit=100');
     
     if (!response.ok) {
       console.error('Failed to fetch global calendar data:', response.status);
@@ -39,20 +39,24 @@ export default async function GlobalCalendarPage() {
     // Continue with empty array
   }
 
+  console.log('Fetched events for global calendar:', globalEvents.length);
+
   // Transform events to match the expected format
   const transformedEvents = globalEvents.map((event: any) => ({
-    id: event.id,
-    title: event.title,
+    id: event.id || Math.random().toString(),
+    title: event.title || 'Untitled Event',
     description: event.description || '',
-    date: new Date(event.date || event.start),
-    time: event.time || (event.start ? event.start.split('T')[1]?.split(':').slice(0, 2).join(':') : '09:00'),
-    duration: '60 minutes',
+    date: new Date(event.date || event.start || new Date()),
+    time: event.time || '09:00',
+    duration: `${event.duration || 60} minutes`,
     type: event.type || 'meeting',
-    location: event.location || 'Conference Room',
-    organizer: event.organizer?.name || 'System Admin',
-    attendees: event.attendees?.length || event.participants?.length || 0,
+    location: event.location || 'TBD',
+    organizer: event.organizer?.name || 'Unknown Organizer',
+    attendees: event.participants?.length || event.attendees?.length || 0,
     isRecurring: event.isRecurring || false
   }));
+
+  console.log('Transformed global events:', transformedEvents.length);
 
   // Pass the server-fetched data as props to the client component.
   return <GlobalCalendarClientPage initialGlobalEvents={transformedEvents} />;
