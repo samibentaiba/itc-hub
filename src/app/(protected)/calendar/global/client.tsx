@@ -25,6 +25,7 @@ export default function GlobalCalendarClientPage({ initialGlobalEvents = [] }: G
     loadingAction,
     filterType,
     setView,
+    setShowNewEvent,
     setSelectedEvent,
     formatDate,
     navigate,

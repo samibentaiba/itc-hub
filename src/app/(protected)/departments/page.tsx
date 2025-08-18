@@ -1,5 +1,6 @@
 import DepartmentsClientPage from "./client";
 import { headers } from 'next/headers';
+import type { Department, Team } from "../types";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -33,30 +34,34 @@ export default async function DepartmentsPage() {
       title: "Total Departments",
       value: departments.length.toString(),
       description: "Active departments",
-      trend: "+2 this quarter"
+      trend: "+2 this quarter",
+      icon: "building"
     },
     {
       title: "Total Teams",
-      value: departments.reduce((sum, dept) => sum + (dept.teams?.length || 0), 0).toString(),
+      value: departments.reduce((sum: number, dept: Partial<Department>) => sum + (dept.teams?.length || 0), 0).toString(),
       description: "Across all departments",
-      trend: "+3 this month"
+      trend: "+3 this month",
+      icon: "users"
     },
     {
       title: "Total Members",
-      value: departments.reduce((sum, dept) => sum + (dept.memberCount || 0), 0).toString(),
+      value: departments.reduce((sum: number, dept: Partial<Department>) => sum + (dept.memberCount || 0), 0).toString(),
       description: "Active employees",
-      trend: "+12 this quarter"
+      trend: "+12 this quarter",
+      icon: "user"
     },
     {
       title: "Open Positions",
       value: "7",
       description: "Currently hiring",
-      trend: "+2 this week"
+      trend: "+2 this week",
+      icon: "briefcase"
     }
   ];
 
   // Transform departments to match the expected format
-  const transformedDepartments = departments.map(dept => ({
+  const transformedDepartments = departments.map((dept: Partial<Department>) => ({
     id: dept.id || '',
     name: dept.name || '',
     description: dept.description || '',
@@ -70,7 +75,7 @@ export default async function DepartmentsPage() {
     status: "active" as const,
     recentActivity: "Recent activity",
     color: "#3b82f6",
-    teams: dept.teams?.map(team => ({
+    teams: dept.teams?.map((team: Partial<Team>) => ({
       name: team.name || '',
       memberCount: team.memberCount || 0
     })) || []

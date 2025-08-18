@@ -73,7 +73,7 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
   /**
    * Handles both creating a new event and updating an existing one.
    */
-  const createOrUpdateEvent = async (formData: EventFormData & { id?: number }): Promise<boolean> => {
+  const createOrUpdateEvent = async (formData: EventFormData & { id?: number | string }): Promise<boolean> => {
     setIsCalendarLoading(true);
     const isEditMode = formData.id !== undefined;
 

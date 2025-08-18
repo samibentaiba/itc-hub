@@ -2,6 +2,7 @@
 
 import DashboardClientPage from "./client";
 import { headers } from 'next/headers';
+import type { Ticket } from "../types";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -32,6 +33,11 @@ export default async function DashboardPage() {
 
     // Transform the data to match what the client component expects
     const stats = {
+      totalTickets: {
+        count: dashboardData.stats.openTickets + dashboardData.stats.closedTickets,
+        change: `${dashboardData.stats.openTickets} open`,
+        trend: "stable" as const
+      },
       teams: { 
         count: 5, // You can derive this from your data or fetch separately
         change: "+1 this month", 
@@ -55,7 +61,7 @@ export default async function DashboardPage() {
     };
 
     // Transform tickets to match expected format
-    const tickets = dashboardData.recentTickets.map(ticket => ({
+    const tickets = dashboardData.recentTickets.map((ticket: Partial<Ticket>) => ({
       id: ticket.id || '',
       title: ticket.title || '',
       type: 'task',
@@ -82,6 +88,7 @@ export default async function DashboardPage() {
     return (
       <DashboardClientPage
         initialStats={{
+          totalTickets: { count: 0, change: "Unable to load", trend: "stable" },
           teams: { count: 0, change: "Unable to load", trend: "stable" },
           departments: { count: 0, change: "Unable to load", trend: "stable" },
           activeTickets: { count: 0, change: "Unable to load", trend: "stable" },

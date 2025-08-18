@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { ProfileDataLocal } from "../types";
+import type { ProfileDataLocal, UserProfileLocal } from "../types";
 
 // The hook now accepts the initial data fetched by the server.
 export function useProfilePage(initialData: ProfileDataLocal) {
@@ -11,9 +11,9 @@ export function useProfilePage(initialData: ProfileDataLocal) {
   // State for client-side interactions (e.g., editing mode)
   const [isEditing, setIsEditing] = useState(false);
   // The main profile data is now managed here, initialized by server props.
-  const [profileData, setProfileData] = useState<UserProfile>(initialData.profile);
+  const [profileData, setProfileData] = useState<UserProfileLocal>(initialData.profile);
   // Temporary state for form inputs while editing.
-  const [tempData, setTempData] = useState<UserProfile>(initialData.profile);
+  const [tempData, setTempData] = useState<UserProfileLocal>(initialData.profile);
 
   const handleEdit = () => {
     setTempData(profileData); // Sync temp data with current profile before editing
@@ -36,13 +36,13 @@ export function useProfilePage(initialData: ProfileDataLocal) {
   };
 
   // Generic handler for top-level profile fields
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
-    setTempData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof UserProfileLocal, value: string) => {
+    setTempData((prev: UserProfileLocal) => ({ ...prev, [field]: value }));
   };
 
   // Specific handler for nested social links
-  const handleSocialLinkChange = (platform: keyof UserProfile['socialLinks'], value: string) => {
-    setTempData((prev) => ({
+  const handleSocialLinkChange = (platform: keyof UserProfileLocal['socialLinks'], value: string) => {
+    setTempData((prev: UserProfileLocal) => ({
       ...prev,
       socialLinks: { ...prev.socialLinks, [platform]: value },
     }));

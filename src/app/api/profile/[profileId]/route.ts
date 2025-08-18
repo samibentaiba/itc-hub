@@ -6,8 +6,9 @@ import { Prisma } from "@prisma/client"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
+  const { profileId } = await params
   try {
     const session = await getServerSession(authOptions)
     
@@ -16,7 +17,7 @@ export async function GET(
     }
 
     const profile = await prisma.profile.findUnique({
-      where: { id: params.profileId },
+      where: { id: profileId },
       include: {
         user: {
           select: {
@@ -31,17 +32,6 @@ export async function GET(
         achievements: {
           orderBy: {
             id: "desc"
-          }
-        },
-        workingOn: {
-          select: {
-            id: true,
-            title: true,
-            status: true,
-            createdAt: true
-          },
-          orderBy: {
-            createdAt: "desc"
           }
         }
       }
@@ -69,8 +59,9 @@ interface UpdateProfileBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
+  const { profileId } = await params
   try {
     const session = await getServerSession(authOptions)
     
@@ -83,7 +74,7 @@ export async function PUT(
 
     // Check if profile exists
     const existingProfile = await prisma.profile.findUnique({
-      where: { id: params.profileId }
+      where: { id: profileId }
     })
 
     if (!existingProfile) {
@@ -104,7 +95,7 @@ export async function PUT(
     }
 
     const profile = await prisma.profile.update({
-      where: { id: params.profileId },
+      where: { id: profileId },
       data: updateData,
       include: {
         user: {
@@ -136,8 +127,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
+  const { profileId } = await params
   try {
     const session = await getServerSession(authOptions)
     
@@ -147,7 +139,7 @@ export async function DELETE(
 
     // Check if profile exists
     const existingProfile = await prisma.profile.findUnique({
-      where: { id: params.profileId }
+      where: { id: profileId }
     })
 
     if (!existingProfile) {
@@ -161,7 +153,7 @@ export async function DELETE(
 
     // Delete profile
     await prisma.profile.delete({
-      where: { id: params.profileId }
+      where: { id: profileId }
     })
 
     return NextResponse.json({ message: "Profile deleted successfully" })
@@ -172,4 +164,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}

@@ -104,7 +104,7 @@ export default function DashboardClientPage({
     </Card>
   );
 
-  const TicketCard = ({ ticket }: { ticket: Ticket }) => (
+  const TicketCard = ({ ticket }: { ticket: DashboardTicketLocal }) => (
     <Link href={`/tickets/${ticket.id}?from=/dashboard`} className="block">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors group gap-3 sm:gap-0">
         <div className="space-y-2 flex-1 w-full sm:w-auto">
