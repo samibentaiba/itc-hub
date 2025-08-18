@@ -36,7 +36,7 @@ import { requestEventSchema } from "../../types";
 interface RequestEventDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: EventFormData & { id?: number }) => Promise<boolean>;
+  onSubmit: (data: EventFormData & { id?: number | string }) => Promise<boolean>;
   isLoading: boolean;
   initialData?: Event | null; // Optional prop for editing
 }

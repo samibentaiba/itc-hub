@@ -65,6 +65,9 @@ export default function AdminClientPage({
     closeModal,
     handleActionConfirm,
     entityForDialog,
+    userForEdit,
+    teamForEdit,
+    departmentForEdit,
     isUserFormLoading,
     isTeamFormLoading,
     isDeptFormLoading,
@@ -181,7 +184,7 @@ export default function AdminClientPage({
         onClose={closeModal}
         onSubmit={(data) => handleSaveUser(data).then(closeModal)}
         isLoading={isUserFormLoading}
-        initialData={modal?.view === "EDIT_USER" ? modal.data : undefined}
+        initialData={userForEdit}
       />
 
       <TeamFormDialog
@@ -189,7 +192,7 @@ export default function AdminClientPage({
         onClose={closeModal}
         onSubmit={(data) => handleSaveTeam(data).then(closeModal)}
         isLoading={isTeamFormLoading}
-        initialData={modal?.view === "EDIT_TEAM" ? modal.data : undefined}
+        initialData={teamForEdit}
         departments={departments}
       />
 
@@ -200,7 +203,7 @@ export default function AdminClientPage({
         onClose={closeModal}
         onSubmit={(data) => handleSaveDepartment(data).then(closeModal)}
         isLoading={isDeptFormLoading}
-        initialData={modal?.view === "EDIT_DEPARTMENT" ? modal.data : undefined}
+        initialData={departmentForEdit}
       />
 
       <ManageMembersDialog
@@ -230,13 +233,13 @@ export default function AdminClientPage({
         }
         description={
           modal?.view === "DELETE_USER"
-            ? `This will permanently delete ${modal.data.name}.`
+            ? `This will permanently delete ${userForEdit?.name || "this user"}.`
             : modal?.view === "VERIFY_USER"
-            ? `This will mark ${modal.data.name} as verified.`
+            ? `This will mark ${userForEdit?.name || "this user"} as verified.`
             : modal?.view === "DELETE_TEAM"
-            ? `This will permanently delete the ${modal.data.name} team.`
+            ? `This will permanently delete the ${teamForEdit?.name || "this team"} team.`
             : modal?.view === "DELETE_DEPARTMENT"
-            ? `This will permanently delete the ${modal.data.name} department and all its teams.`
+            ? `This will permanently delete the ${departmentForEdit?.name || "this department"} department and all its teams.`
             : "This action cannot be undone."
         }
       />

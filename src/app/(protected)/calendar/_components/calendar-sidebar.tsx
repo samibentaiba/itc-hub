@@ -13,10 +13,11 @@ interface CalendarSidebarProps {
   allEvents: CalendarLocalEvent[];
   filterType: string;
   onFilterChange: (type: string) => void;
+  onNewEventClick: () => void;
   onEventClick: (event: CalendarLocalEvent | null) => void;
 }
 
-export default function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onEventClick }: CalendarSidebarProps) {
+export default function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
   const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
 
   return (
@@ -24,6 +25,10 @@ export default function CalendarSidebar({ upcomingEvents, allEvents, filterType,
       <Card>
         <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
         <CardContent className="space-y-2">
+          <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
+            <Calendar className="h-4 w-4 mr-2" />
+            New Event
+          </Button>
           <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
             <Link href="/calendar/global">
               <Calendar className="h-4 w-4 mr-2" />

@@ -81,7 +81,7 @@ export const useAdminPage = (
   const closeModal = () => setModal(null);
 
   const handleActionConfirm = () => {
-    if (!modal) return;
+    if (!modal || !modal.data) return;
 
     switch (modal.view) {
       case "DELETE_USER":
@@ -154,27 +154,43 @@ export const useAdminPage = (
   // --- Memoized Derived State ---
   const isUserFormLoading =
     (modal?.view === "ADD_USER" && loadingAction === "add-user") ||
-    (modal?.view === "EDIT_USER" && loadingAction === `edit-${modal.data.id}`);
+    (modal?.view === "EDIT_USER" && loadingAction === `edit-${modal.data?.id}`);
 
   const isTeamFormLoading =
     (modal?.view === "ADD_TEAM" && loadingAction === "add-team") ||
-    (modal?.view === "EDIT_TEAM" && loadingAction === `edit-${modal.data.id}`);
+    (modal?.view === "EDIT_TEAM" && loadingAction === `edit-${modal.data?.id}`);
 
   const isDeptFormLoading =
     (modal?.view === "ADD_DEPARTMENT" && loadingAction === "add-department") ||
     (modal?.view === "EDIT_DEPARTMENT" &&
-      loadingAction === `edit-${modal.data.id}`);
+      loadingAction === `edit-${modal.data?.id}`);
 
   const entityForDialog = useMemo(() => {
-    if (modal?.view !== "MANAGE_MEMBERS") return null;
+    if (modal?.view !== "MANAGE_MEMBERS" || !modal.data) return null;
 
     const entity =
       modal.data.entityType === "team"
-        ? teams.find((t) => t.id === modal.data.id)
-        : departments.find((d) => d.id === modal.data.id);
+        ? teams.find((t) => t.id === modal.data!.id)
+        : departments.find((d) => d.id === modal.data!.id);
 
     return entity ? { ...entity, entityType: modal.data.entityType } : null;
   }, [modal, teams, departments]);
+
+  // Computed values for edit forms
+  const userForEdit = useMemo(() => {
+    if (modal?.view !== "EDIT_USER" || !modal.data?.id) return null;
+    return users.find((u) => u.id === modal.data!.id) || null;
+  }, [modal, users]);
+
+  const teamForEdit = useMemo(() => {
+    if (modal?.view !== "EDIT_TEAM" || !modal.data?.id) return null;
+    return teams.find((t) => t.id === modal.data!.id) || null;
+  }, [modal, teams]);
+
+  const departmentForEdit = useMemo(() => {
+    if (modal?.view !== "EDIT_DEPARTMENT" || !modal.data?.id) return null;
+    return departments.find((d) => d.id === modal.data!.id) || null;
+  }, [modal, departments]);
 
   // --- USER HANDLERS ---
   const handleSaveUser = async (data: UserFormData & { id?: string }) => {
@@ -558,6 +574,9 @@ export const useAdminPage = (
     closeModal,
     handleActionConfirm,
     entityForDialog,
+    userForEdit,
+    teamForEdit,
+    departmentForEdit,
     isUserFormLoading,
     isTeamFormLoading,
     isDeptFormLoading,

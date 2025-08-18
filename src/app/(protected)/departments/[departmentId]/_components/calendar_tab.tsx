@@ -46,7 +46,7 @@ interface CalendarTabProps {
   getDaysInMonth: (date: Date) => number;
   getFirstDayOfMonth: (date: Date) => number;
   formatDateString: (date: Date) => string;
-  createEvent: (data: EventFormData & { id?: number }) => Promise<boolean>;
+  createEvent: (data: EventFormData & { id?: number | string }) => Promise<boolean>;
   handleEditEvent: (event: Event) => void;
   handleDeleteEvent: (event: Event) => void;
   setShowNewEventDialog: (show: boolean) => void;

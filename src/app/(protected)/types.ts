@@ -303,6 +303,48 @@ export interface GlobalCalendarData {
 
 // --- Page-specific Data Types ---
 
+// Dashboard - Missing types
+export interface DashboardTicketLocal {
+  id: string;
+  title: string;
+  type: string;
+  workspace: string;
+  workspaceType: string;
+  status: string;
+  dueDate: string;
+  messages: number;
+  priority: string;
+  assignedBy: string;
+}
+
+export interface WorkspaceStats {
+  totalTickets: {
+    count: number;
+    change: string;
+    trend: "up" | "down" | "stable";
+  };
+  teams: {
+    count: number;
+    change: string;
+    trend: "up" | "down" | "stable";
+  };
+  departments: {
+    count: number;
+    change: string;
+    trend: "up" | "down" | "stable";
+  };
+  activeTickets: {
+    count: number;
+    change: string;
+    trend: "up" | "down" | "stable";
+  };
+  completedThisWeek: {
+    count: number;
+    change: string;
+    trend: "up" | "down" | "stable";
+  };
+}
+
 // Dashboard
 export interface DashboardStats {
   openTickets: number;
@@ -324,6 +366,35 @@ export interface DashboardData {
   recentTickets: Partial<Ticket>[];
   upcomingEvents: Partial<CalendarEvent>[];
   recentActivity: Partial<RecentActivity>[];
+}
+
+// Departments Page - Missing types
+export interface DepartmentLocal {
+  id: string;
+  name: string;
+  description: string;
+  head: {
+    name: string;
+    avatar: string;
+    id: string;
+  };
+  teamCount: number;
+  memberCount: number;
+  status: "active" | "inactive";
+  recentActivity: string;
+  color: string;
+  teams: Array<{
+    name: string;
+    memberCount: number;
+  }>;
+}
+
+export interface DepartmentStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  icon: string;
+  trend: string;
 }
 
 // Departments Page
