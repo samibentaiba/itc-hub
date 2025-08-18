@@ -1,12 +1,12 @@
 "use client";
 
 // Imports for state and memoization are no longer needed.
-import type { TeamLocal, TeamStatLocal } from "../types";
+import type { TeamLocal, StatLocal } from "../types";
 
 // The hook is simplified to just manage the initial data and helper functions.
 export function useTeamsPage(
   initialTeams: TeamLocal[],
-  initialStats: TeamStatLocal[]
+  initialStats: StatLocal[]
 ) {
   // Helper function for department colors remains on the client
   const getDepartmentColor = (department: string) => {

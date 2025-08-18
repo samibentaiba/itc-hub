@@ -1,6 +1,22 @@
 import TeamsClientPage from "./client";
 import { headers } from 'next/headers';
 
+interface ApiMember {
+  id?: string;
+  name?: string;
+  avatar?: string;
+}
+
+interface ApiTeam {
+  id?: string;
+  name?: string;
+  description?: string;
+  department?: string;
+  memberCount?: number;
+  leader?: ApiMember;
+  members?: ApiMember[];
+}
+
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const headersList = await headers();
@@ -25,7 +41,7 @@ export default async function TeamsPage() {
     throw new Error('Failed to fetch teams');
   }
   const data = await response.json();
-  const teams = data.teams;
+  const teams: ApiTeam[] = data.teams;
 
   // Generate stats from the teams data
   const stats = [

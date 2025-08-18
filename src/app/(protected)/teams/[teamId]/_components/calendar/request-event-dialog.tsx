@@ -1,4 +1,5 @@
-// /admin/_components/event-form-dialog.tsx
+// Fix 1: Update the request-event-dialog.tsx to handle type casting
+// This file should replace: src/app/(protected)/teams/[teamId]/_components/request-event-dialog.tsx
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -10,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import type { Event, EventFormData } from "../../types";
+import type { Event, EventFormData, FormEventType } from "../../types";
 import { eventFormSchema } from "../../types";
 
 interface RequestEventDialogProps {
@@ -21,10 +22,6 @@ interface RequestEventDialogProps {
   initialData?: Event | null; // Optional prop for editing
 }
 
-/**
- * A unified dialog for both creating and editing calendar events.
- * It determines its mode based on the presence of `initialData`.
- */
 export default function RequestEventDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: RequestEventDialogProps) {
   const isEditMode = !!initialData;
 
@@ -41,18 +38,21 @@ export default function RequestEventDialog({ isOpen, onClose, onSubmit, isLoadin
     },
   });
 
-  // When the dialog opens, populate the form with initialData if editing,
-  // otherwise reset to default values for creating a new event.
   useEffect(() => {
     if (isOpen) {
       if (isEditMode && initialData) {
+        // Cast the type to ensure it matches the expected union type
+        const eventType = ["meeting", "review", "workshop", "planning"].includes(initialData.type) 
+          ? initialData.type as EventFormData['type']
+          : "meeting";
+
         form.reset({
           title: initialData.title,
           description: initialData.description,
           date: initialData.date,
           time: initialData.time,
           duration: String(initialData.duration),
-          type: initialData.type as EventFormData['type'],
+          type: eventType,
           location: initialData.location,
         });
       } else {

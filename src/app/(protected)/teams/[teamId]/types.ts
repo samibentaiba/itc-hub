@@ -1,6 +1,6 @@
-// src/app/(protected)/teams/[teamId]/types.ts
+// Fix 1: Update the Event interface in types.ts
+// Replace the content of: src/app/(protected)/teams/[teamId]/types.ts
 
-// Create validation schema
 import { z } from 'zod';
 
 export const eventFormSchema = z.object({
@@ -13,7 +13,7 @@ export const eventFormSchema = z.object({
   location: z.string().optional(),
 });
 
-// Event types for calendar
+// Update Event interface to use the same type union
 export interface Event {
   id: number;
   title: string;
@@ -21,7 +21,7 @@ export interface Event {
   date: string;
   time: string;
   duration: number;
-  type: string;
+  type: "meeting" | "review" | "planning" | "workshop"; // Changed from string to union type
   attendees: string[];
   location: string;
   color: string;

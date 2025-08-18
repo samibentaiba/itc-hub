@@ -250,7 +250,20 @@ export interface CalendarUpcomingEvent {
   attendees: number;
 }
 
-  type: "meeting" | "review" | "workshop" | "planning";
+export type FormEventType = "meeting" | "review" | "workshop" | "planning";
+
+export type FormEventType = "meeting" | "review" | "workshop" | "planning";
+
+export interface EventFormData {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: string;
+  type: FormEventType;
+  location: string;
+  isRecurring?: boolean;
+}
 
 // Global Calendar Types
 export interface GlobalEventLocal {
@@ -468,4 +481,34 @@ export interface MockData {
   ticketDetail: TicketDetails;
   users: UsersPageData;
   userDetail: UserDetailData;
+}
+
+
+
+export interface StatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+export interface TeamLocal {
+  id: string;
+  name: string;
+  description: string | null;
+  department: string;
+  memberCount: number;
+  activeProjects: number;
+  lead: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  members: {
+    id: string;
+    name: string;
+    avatar: string;
+  }[];
+  recentActivity: string;
+  status: string;
 }
