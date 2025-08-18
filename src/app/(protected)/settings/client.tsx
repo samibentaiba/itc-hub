@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Bell, Moon, Sun, Settings, Monitor } from "lucide-react";
 import { useSettingsPage } from "./hook";
-import type { UserSettingsLocal } from "../types";
+import type { SettingsData } from "../types";
 
 interface SettingsClientPageProps {
-  initialSettings: UserSettingsLocal;
+  initialSettings: SettingsData;
 }
 
 // This is the main client component for the settings page.
@@ -47,8 +47,8 @@ export default function SettingsClientPage({ initialSettings }: SettingsClientPa
               <Label htmlFor="displayName">Display Name</Label>
               <Input
                 id="displayName"
-                value={settings.displayName}
-                onChange={(e) => handleSettingsChange("displayName", e.target.value)}
+                value={settings.profile.name}
+                onChange={(e) => handleSettingsChange("profile", { ...settings.profile, name: e.target.value })}
                 disabled={isLoading}
               />
             </div>
@@ -57,8 +57,8 @@ export default function SettingsClientPage({ initialSettings }: SettingsClientPa
               <Input
                 id="email"
                 type="email"
-                value={settings.email}
-                onChange={(e) => handleSettingsChange("email", e.target.value)}
+                value={settings.profile.email}
+                onChange={(e) => handleSettingsChange("profile", { ...settings.profile, email: e.target.value })}
                 disabled={isLoading}
               />
             </div>
@@ -68,12 +68,12 @@ export default function SettingsClientPage({ initialSettings }: SettingsClientPa
                 <Label htmlFor="notifications">Email Notifications</Label>
               </div>
               <Button
-                variant={settings.notifications ? "default" : "outline"}
+                variant={settings.notifications.email ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleSettingsChange("notifications", !settings.notifications)}
+                onClick={() => handleSettingsChange("notifications", { ...settings.notifications, email: !settings.notifications.email })}
                 disabled={isLoading}
               >
-                {settings.notifications ? "On" : "Off"}
+                {settings.notifications.email ? "On" : "Off"}
               </Button>
             </div>
             <div className="space-y-2">

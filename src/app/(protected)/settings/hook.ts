@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
-import type { UserSettingsLocal } from "../types";
+import type { SettingsData } from "../types";
 
 // The hook now accepts initial data fetched by the server.
-export function useSettingsPage(initialSettings: UserSettingsLocal) {
+export function useSettingsPage(initialSettings: SettingsData) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { toast } = useToast();
   
@@ -25,7 +25,7 @@ export function useSettingsPage(initialSettings: UserSettingsLocal) {
   const isSystem = mounted && theme === "system";
 
   // This handler remains for client-side form updates.
-  const handleSettingsChange = (key: keyof UserSettingsLocal, value: string | boolean) => {
+  const handleSettingsChange = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 

@@ -52,7 +52,7 @@ export default function RequestEventDialog({ isOpen, onClose, onSubmit, isLoadin
           date: initialData.date,
           time: initialData.time,
           duration: String(initialData.duration),
-          type: initialData.type,
+          type: initialData.type as EventFormData['type'],
           location: initialData.location,
         });
       } else {

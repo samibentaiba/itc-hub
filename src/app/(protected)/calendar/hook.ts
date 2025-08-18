@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { CalendarLocalEvent, CalendarUpcomingEvent, EventFormData } from "../types";
+import type { CalendarLocalEvent, CalendarUpcomingEvent } from "../types";
+import type { EventFormData } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
 /**

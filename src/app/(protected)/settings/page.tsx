@@ -1,5 +1,6 @@
 import SettingsClientPage from "./client";
 import { headers } from 'next/headers';
+import type { SettingsData } from "../types";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -27,10 +28,10 @@ export default async function SettingsPage() {
   const settings = await response.json();
 
   // Transform to match expected format
-  const userSettings = {
-    displayName: settings.profile?.name || '',
-    email: settings.profile?.email || '',
-    notifications: settings.notifications.email
+  const userSettings: SettingsData = {
+    profile: settings.profile,
+    notifications: settings.notifications,
+    theme: settings.theme,
   };
 
   // Pass the server-fetched data as props to the client component.

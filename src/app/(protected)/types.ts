@@ -250,16 +250,7 @@ export interface CalendarUpcomingEvent {
   attendees: number;
 }
 
-export interface EventFormData {
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  duration: string;
-  type: string;
-  location: string;
-  isRecurring?: boolean;
-}
+  type: "meeting" | "review" | "workshop" | "planning";
 
 // Global Calendar Types
 export interface GlobalEventLocal {

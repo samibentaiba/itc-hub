@@ -1,2 +1,4 @@
 // Re-export types from the main types file
-export type { EventFormData } from "../types";
+import { GlobalEventFormDataLocal } from "../types";
+
+export type EventFormData = GlobalEventFormDataLocal;
