@@ -3,22 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bunx next dev --turbopack",
-    "build": "bunx next build",
-    "start": "bunx next start",
-    "lint": "bunx next lint",
-    "test": "bunx jest",
-    "test:watch": "bunx jest --watch",
-    "test:coverage": "bunx jest --coverage",
-    "db:generate": "bunx prisma generate",
-    "db:push": "bunx prisma db push",
-    "db:migrate": "bunx prisma migrate dev",
-    "db:reset": "bunx prisma migrate reset --force",
-    "db:seed": "bunx prisma db seed",
-    "db:studio": "bunx prisma studio"
+    "dev": "npx next dev --turbopack",
+    "build": "npx next build",
+    "start": "npx next start",
+    "lint": "npx next lint",
+    "test": "npx jest",
+    "test:watch": "npx jest --watch",
+    "test:coverage": "npx jest --coverage",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset --force",
+    "db:seed": "npx prisma db seed",
+    "db:studio": "npx prisma studio"
   },
   "prisma": {
-    "seed": "bunx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
