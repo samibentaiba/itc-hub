@@ -2,7 +2,7 @@
 "use client";
 
 // Removed client-api imports and will use direct fetch calls
- 
+
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -20,13 +20,6 @@ import type {
   DepartmentFormData,
   PendingEvent,
 } from "./types";
-import {
-  formatDate,
-  getDaysInMonth,
-  getFirstDayOfMonth,
-  formatDateString,
-} from "./utils";
-
 /**
  * A custom hook to manage all state and logic for the Admin Page.
  * This includes data state, loading states, and all action handlers.
@@ -605,4 +598,69 @@ export const useAdminPage = (
     getFirstDayOfMonth,
     formatDateString,
   };
+};
+
+
+
+// /calendar/utils.ts
+
+/**
+ * Formats a date object into a string based on the current calendar view.
+ * @param date - The date to format.
+ * @param view - The current calendar view ('day', 'week', or 'month').
+ * @returns A formatted date string.
+ */
+const formatDate = (date: Date, view: "month" | "week" | "day"): string => {
+  if (view === 'day') {
+    return date.toLocaleDateString("en-US", {
+      weekday: 'long',
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+  if (view === 'week') {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    return `${startOfWeek.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${endOfWeek.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+  }
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+};
+
+/**
+ * Gets the number of days in a given month.
+ * @param date - A date within the desired month.
+ * @returns The total number of days in that month.
+ */
+const getDaysInMonth = (date: Date): number => {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+};
+
+/**
+ * Gets the day of the week for the first day of a given month.
+ * (0 for Sunday, 1 for Monday, etc.)
+ * @param date - A date within the desired month.
+ * @returns The day of the week (0-6).
+ */
+const getFirstDayOfMonth = (date: Date): number => {
+  return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+};
+
+/**
+ * Formats a date object into a "YYYY-MM-DD" string, respecting the local timezone.
+ * This prevents the date from shifting unexpectedly due to UTC conversion.
+ * @param date - The date to format.
+ * @returns The formatted date string.
+ */
+const formatDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  // getMonth() is zero-based, so we add 1
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
