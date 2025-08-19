@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     });
 
     const hdrs = headers(); // ✅ sync call, no await
-    const origin = hdrs.get("origin") || (await getAppBaseUrl());
+    const origin = hdrs.get("origin") || (await getAppBaseUrl());// yawedi mani fahem walo wach raho sari hna :.(
     const resetUrl = `${origin.replace(/\/$/, "")}/reset-password?token=${rawToken}`;
 
     await sendPasswordResetEmail(email, resetUrl);
