@@ -68,8 +68,8 @@ model User {
   collaboratingOnTickets Ticket[]           @relation("TicketCollaborators")
   attendedEvents         Event[]            @relation("EventAttendees")
   // Relations to NextAuth models
-  accounts Account[]
-  sessions Session[]
+  accounts               Account[]
+  sessions               Session[]
 }
 
 model Department {
@@ -128,26 +128,26 @@ model TeamMember {
 }
 
 model Ticket {
-  id            String        @id @default(cuid())
+  id            String         @id @default(cuid())
   title         String
   description   String?
-  type          TicketType    @default(TASK)
-  status        TicketStatus  @default(OPEN)
+  type          TicketType     @default(TASK)
+  status        TicketStatus   @default(OPEN)
   priority      TicketPriority @default(MEDIUM)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   dueDate       DateTime?
   teamId        String?
   departmentId  String?
   assigneeId    String?
   createdById   String
-  team          Team?         @relation(fields: [teamId], references: [id])
-  department    Department?   @relation(fields: [departmentId], references: [id])
-  assignee      User?         @relation("AssignedTickets", fields: [assigneeId], references: [id])
-  createdBy     User          @relation("CreatedTickets", fields: [createdById], references: [id])
+  team          Team?          @relation(fields: [teamId], references: [id])
+  department    Department?    @relation(fields: [departmentId], references: [id])
+  assignee      User?          @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  createdBy     User           @relation("CreatedTickets", fields: [createdById], references: [id])
   messages      Message[]
   files         File[]
-  collaborators User[]        @relation("TicketCollaborators")
+  collaborators User[]         @relation("TicketCollaborators")
 }
 
 model Message {
@@ -165,7 +165,7 @@ model Message {
 }
 
 model Event {
-  id           String    @id @default(cuid())
+  id           String      @id @default(cuid())
   title        String
   description  String?
   date         DateTime
@@ -174,13 +174,13 @@ model Event {
   type         String?
   location     String?
   organizerId  String?
-  isRecurring  Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  organizer    User?     @relation("OrganizedEvents", fields: [organizerId], references: [id])
+  isRecurring  Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  organizer    User?       @relation("OrganizedEvents", fields: [organizerId], references: [id])
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])
-  attendees    User[]    @relation("EventAttendees")
+  attendees    User[]      @relation("EventAttendees")
 }
 
 model Notification {
@@ -262,4 +262,20 @@ enum NotificationType {
   REMINDER
   TEAM
   GENERAL
+}
+
+model AppSecret {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }

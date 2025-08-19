@@ -1,7 +1,3 @@
-import {
-  PrismaClient,
-  Role,
-} from "@prisma/client";
 import bcrypt from "bcryptjs";
 import usersData from "./mocks/user.mock";
 import departmentsData from "./mocks/department.mock";
@@ -12,6 +8,7 @@ import ticketsData from "./mocks/ticket.mock";
 import messagesData from "./mocks/message.mock";
 import eventsData from "./mocks/event.mock";
 import notificationsData from "./mocks/notification.mock";
+import { PrismaClient } from "@prisma/client";
 
 class Seeder {
   private prisma: PrismaClient;
@@ -30,6 +27,8 @@ class Seeder {
     await this.seedTeamMembers();
     await this.seedTickets();
     await this.seedMessages();
+    await this.seedAppSecrets();
+
     await this.seedEvents();
     await this.seedNotifications();
     console.log("✅ Database seeded successfully!");
@@ -48,6 +47,8 @@ class Seeder {
     await this.prisma.event.deleteMany();
     await this.prisma.notification.deleteMany();
     await this.prisma.achievement.deleteMany();
+    await this.prisma.passwordResetToken.deleteMany();
+    await this.prisma.appSecret.deleteMany();
     await this.prisma.profile.deleteMany();
     await this.prisma.team.deleteMany();
     await this.prisma.department.deleteMany();
@@ -127,6 +128,33 @@ class Seeder {
     );
     console.log("✅ Created notifications");
   }
+
+  private async seedAppSecrets() {
+    const secrets = [
+      { key: "EMAIL_HOST", value: "smtp.gmail.com" },
+      { key: "EMAIL_PORT", value: "587" },
+      { key: "EMAIL_SECURE", value: "false" },
+      { key: "EMAIL_USER", value: "your-account@gmail.com" },
+      { key: "EMAIL_PASSWORD", value: "your-app-password" },
+      { key: "EMAIL_FROM", value: "ITC Hub <noreply@itchub.com>" },
+      { key: "APP_BASE_URL", value: "http://localhost:3000" },
+    ];
+
+    await Promise.all(
+      secrets.map((s) =>
+        this.prisma.appSecret.upsert({
+          where: { key: s.key },
+          update: { value: s.value },
+          create: s,
+        })
+      )
+    );
+
+    console.log("✅ Created app secrets");
+  }
+
+
+
 
   public async disconnect() {
     await this.prisma.$disconnect();
