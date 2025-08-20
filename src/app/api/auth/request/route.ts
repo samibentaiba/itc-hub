@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail } from "@/lib/mailer";
 import crypto from "crypto";
-import { headers } from "next/headers"; // named import
 import { getAppBaseUrl } from "@/lib/secrets";
 
 const EXP_MINUTES = 30;
@@ -34,9 +33,9 @@ export async function POST(req: Request) {
       data: { token: tokenHash, email, expiresAt },
     });
 
-    const hdrs = headers(); // ✅ sync call, no await
-    const origin = hdrs.get("origin") || (await getAppBaseUrl());// yawedi mani fahem walo wach raho sari hna :.(
-    const resetUrl = `${origin.replace(/\/$/, "")}/reset-password?token=${rawToken}`;
+
+    const baseUrl = process.env.NEXTAUTH_URL || (await getAppBaseUrl());
+    const resetUrl = `${baseUrl.replace(/\/$/, "")}/reset-password?token=${rawToken}`;
 
     await sendPasswordResetEmail(email, resetUrl);
 
