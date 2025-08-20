@@ -86,15 +86,16 @@ export function useLogin() {
         });
         router.push("/dashboard");
       } else {
+        const errorMessage = result?.error || "Invalid email or password. Please try again.";
         setState(prev => ({
           ...prev,
           isLoading: false,
-          error: "Invalid email or password. Please try again."
+          error: errorMessage
         }));
 
         toast({
           title: "Sign In Failed",
-          description: "Invalid email or password. Please check your credentials and try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }

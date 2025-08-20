@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
+import { sendVerificationEmail } from "@/lib/mailer";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +31,38 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
+        // If user exists but email is not verified, resend verification email
+        if (!existingUser.emailVerified) {
+            const verificationToken = await prisma.emailVerificationToken.findFirst({
+                where: { email: email.toLowerCase() },
+            });
+
+            if (verificationToken) {
+                await prisma.emailVerificationToken.delete({
+                    where: { id: verificationToken.id },
+                });
+            }
+
+            const token = crypto.randomBytes(32).toString("hex");
+            const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+            await prisma.emailVerificationToken.create({
+                data: {
+                    email: email.toLowerCase(),
+                    token,
+                    expiresAt,
+                },
+            });
+
+            const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`;
+            await sendVerificationEmail(email.toLowerCase(), verificationUrl);
+
+            return NextResponse.json({
+                success: true,
+                message: "A new verification email has been sent. Please check your inbox.",
+            });
+        }
+
       return NextResponse.json(
         { success: false, message: "User with this email already exists" },
         { status: 400 }
@@ -45,9 +79,24 @@ export async function POST(request: NextRequest) {
         email: email.toLowerCase(),
         password: hashedPassword,
         role: Role.USER,
-        status: "pending", // User needs to verify email
       },
     });
+
+    // Generate verification token
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await prisma.emailVerificationToken.create({
+        data: {
+            email: user.email,
+            token,
+            expiresAt,
+        },
+    });
+
+    // Send verification email
+    const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`;
+    await sendVerificationEmail(user.email, verificationUrl);
 
     // Remove password from response
     const { password: _var, ...userWithoutPassword } = user;
