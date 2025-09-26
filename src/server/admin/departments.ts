@@ -23,6 +23,13 @@ export async function listDepartments() {
           name: true,
         },
       },
+      manager: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
     },
     orderBy: {
       name: "asc",

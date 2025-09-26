@@ -22,6 +22,13 @@ export async function listTeams() {
           name: true,
         },
       },
+      leader: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
     },
     orderBy: {
       name: "asc",

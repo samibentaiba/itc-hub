@@ -1014,18 +1014,13 @@ function AdminTabs({
               <TableHeader>
                 <TableRow>
                   <TableHead>Team</TableHead>
-                  <TableHead>Leader(s)</TableHead>
+                  <TableHead>Leader</TableHead>
                   <TableHead>Members</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {teams.map((team) => {
-                  const leaders = team.members
-                    .filter((m) => m.role === "leader")
-                    .map((m) => getUserNameById(m.userId))
-                    .filter(Boolean)
-                    .join(", ");
                   return (
                     <TableRow key={team.id}>
                       <TableCell>
@@ -1034,7 +1029,7 @@ function AdminTabs({
                           {team.description}
                         </div>
                       </TableCell>
-                      <TableCell>{leaders || "N/A"}</TableCell>
+                      <TableCell>{team.leader?.name || "N/A"}</TableCell>
                       <TableCell>{team.members.length}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -1105,7 +1100,7 @@ function AdminTabs({
               <TableHeader>
                 <TableRow>
                   <TableHead>Department</TableHead>
-                  <TableHead>Leader(s)</TableHead>
+                  <TableHead>Manager</TableHead>
                   <TableHead>Members</TableHead>
                   <TableHead>Teams</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -1113,11 +1108,6 @@ function AdminTabs({
               </TableHeader>
               <TableBody>
                 {departments.map((dept) => {
-                  const leaders = dept.members
-                    .filter((m) => m.role === "leader")
-                    .map((m) => getUserNameById(m.userId))
-                    .filter(Boolean)
-                    .join(", ");
                   return (
                     <TableRow key={dept.id}>
                       <TableCell>
@@ -1126,7 +1116,7 @@ function AdminTabs({
                           {dept.description}
                         </div>
                       </TableCell>
-                      <TableCell>{leaders || "N/A"}</TableCell>
+                      <TableCell>{dept.manager?.name || "N/A"}</TableCell>
                       <TableCell>{dept.members.length}</TableCell>
                       <TableCell>{dept.teams?.length}</TableCell>
                       <TableCell className="text-right">
@@ -1533,8 +1523,7 @@ export default function AdminClientPage({
       />
 
       <ActionConfirmationDialog
-        isOpen={[
-          "DELETE_USER",
+        isOpen={["DELETE_USER",
           "VERIFY_USER",
           "DELETE_TEAM",
           "DELETE_DEPARTMENT",

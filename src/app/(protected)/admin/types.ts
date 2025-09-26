@@ -35,6 +35,11 @@ export interface Team
   departmentId: string;
   status: "active" | "archived";
   createdDate: string;
+  leader?: {
+    id: string;
+    name: string;
+    avatar?: string | null;
+  } | null;
 }
 
 export interface Department
@@ -43,6 +48,11 @@ export interface Department
   teams: Pick<Team, "id" | "name">[];
   status: "active" | "archived";
   createdDate: string;
+  manager?: {
+    id: string;
+    name: string;
+    avatar?: string | null;
+  } | null;
 }
 
 export interface Event

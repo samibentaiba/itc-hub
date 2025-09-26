@@ -1,3 +1,8 @@
+/**
+ * Custom hook for managing the state and logic of the Admin Page.
+ * This hook encapsulates all the business logic, API calls, and state management
+ * required for the admin dashboard, separating concerns from the UI components.
+ */
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -86,9 +91,9 @@ export const useAdminPage = (
       case 'user':
         return { ...item, joinedDate: item.createdAt, avatar: item.avatar || `https://i.pravatar.cc/150?u=${item.id}` };
       case 'team':
-        return { ...item, createdDate: item.createdAt, status: 'active' };
+        return { ...item, createdDate: item.createdAt, status: 'active', leader: item.leader };
       case 'department':
-        return { ...item, createdDate: item.createdAt, status: 'active' };
+        return { ...item, createdDate: item.createdAt, status: 'active', manager: item.manager };
       case 'event':
         return {
           ...item,
