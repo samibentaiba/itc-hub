@@ -1,6 +1,6 @@
+// src/app/(auth)/login/client.tsx
 "use client";
 
-// src/app/(auth)/login/client.tsx
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

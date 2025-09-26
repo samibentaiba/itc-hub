@@ -1,3 +1,4 @@
+// src\app\api\teams\route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -142,104 +143,55 @@ interface CreateTeamBody {
   leaderId?: string;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user || !["ADMIN", "MANAGER"].includes(session.user.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const body = await req.json();
+    const { name, description, leaderId, memberIds, departmentId } = body;
+
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const body: CreateTeamBody = await request.json()
-    const { name, description, status, departmentId, memberIds, leaderId } = body
-
-    if (!name || !departmentId) {
-      return NextResponse.json(
-        { error: "Team name and department are required" },
-        { status: 400 }
-      )
+    if (!departmentId) {
+      return NextResponse.json({ error: "Department is required" }, { status: 400 });
     }
 
-    // Check if team already exists
-    const existingTeam = await prisma.team.findUnique({
-      where: { name }
-    })
-
-    if (existingTeam) {
-      return NextResponse.json(
-        { error: "Team with this name already exists" },
-        { status: 400 }
-      )
-    }
-
-    // Verify department exists
-    const department = await prisma.department.findUnique({
-      where: { id: departmentId }
-    })
-
-    if (!department) {
-      return NextResponse.json(
-        { error: "Department not found" },
-        { status: 400 }
-      )
-    }
-
-    // Create team with members
     const team = await prisma.team.create({
       data: {
         name,
         description,
-        status: status || "active",
-        departmentId,
-        leaderId,
-        ...(memberIds && memberIds.length > 0 && {
-          members: {
-            create: memberIds.map((userId: string) => ({
-              userId: userId,
-              role: "USER"
-            }))
-          }
-        })
+        leader: leaderId ? { connect: { id: leaderId } } : undefined,
+        department: { connect: { id: departmentId } }, // ✅ required field
+        members: {
+          create: [
+            ...(memberIds?.map((userId: string) => ({
+              role: "MEMBER" as const,
+              user: { connect: { id: userId } }
+            })) ?? []),
+            ...(leaderId
+              ? [
+                  {
+                    role: "MANAGER" as const,
+                    user: { connect: { id: leaderId } }
+                  }
+                ]
+              : [])
+          ]
+        }
       },
       include: {
-        department: {
-          select: {
-            id: true,
-            name: true,
-            description: true
-          }
-        },
-        leader: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            avatar: true
-          }
-        },
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                avatar: true
-              }
-            }
-          }
-        }
+        leader: true,
+        members: { include: { user: true } },
+        department: true
       }
-    })
+    });
 
-    return NextResponse.json(team, { status: 201 })
+    return NextResponse.json(team);
   } catch (error) {
-    console.error("Error creating team:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error("Error creating team:", error);
+    return NextResponse.json({ error: "Failed to create team" }, { status: 500 });
   }
-} 
+}
+
+
+

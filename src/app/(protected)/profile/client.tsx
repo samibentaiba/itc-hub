@@ -1,9 +1,32 @@
+// src\app\(protected)\profile\client.tsx
 "use client";
 
 import React, { useState } from "react";
-import { Camera, Edit, Save, X, Github, Linkedin, Twitter, Globe, MapPin, Mail, Phone, Award, Users, Star, Briefcase } from "lucide-react";
+import {
+  Camera,
+  Edit,
+  Save,
+  X,
+  Github,
+  Linkedin,
+  Twitter,
+  Globe,
+  MapPin,
+  Mail,
+  Phone,
+  Award,
+  Users,
+  Star,
+  Briefcase,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -20,38 +43,56 @@ interface ProfileClientPageProps {
 }
 
 // Icon mapping for achievements - must be on client side
-const achievementIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+const achievementIconMap: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   Innovation: Award,
   Leadership: Users,
   Technical: Star,
   Design: Award,
 };
 
-export default function ProfileClientPage({ profileData }: ProfileClientPageProps) {
+export default function ProfileClientPage({
+  profileData,
+}: ProfileClientPageProps) {
   const { toast } = useToast();
-  
+
   // State management - simplified from the hook pattern
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfileLocal>(profileData.profile);
-  const [tempProfile, setTempProfile] = useState<UserProfileLocal>(profileData.profile);
+  const [tempProfile, setTempProfile] = useState<UserProfileLocal>(
+    profileData.profile
+  );
 
   // Helper functions - following the user route pattern
-  const getPriorityColor = (priority: string): "destructive" | "default" | "secondary" | "outline" => {
+  const getPriorityColor = (
+    priority: string
+  ): "destructive" | "default" | "secondary" | "outline" => {
     switch (priority.toLowerCase()) {
-      case "high": return "destructive";
-      case "medium": return "default";
-      case "low": return "secondary";
-      default: return "default";
+      case "high":
+        return "destructive";
+      case "medium":
+        return "default";
+      case "low":
+        return "secondary";
+      default:
+        return "default";
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
-      case "innovation": return "bg-purple-500";
-      case "leadership": return "bg-blue-500";
-      case "technical": return "bg-green-500";
-      case "design": return "bg-pink-500";
-      default: return "bg-gray-500";
+      case "innovation":
+        return "bg-purple-500";
+      case "leadership":
+        return "bg-blue-500";
+      case "technical":
+        return "bg-green-500";
+      case "design":
+        return "bg-pink-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
@@ -76,11 +117,14 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
   };
 
   const handleInputChange = (field: keyof UserProfileLocal, value: string) => {
-    setTempProfile(prev => ({ ...prev, [field]: value }));
+    setTempProfile((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSocialLinkChange = (platform: keyof UserProfileLocal['socialLinks'], value: string) => {
-    setTempProfile(prev => ({
+  const handleSocialLinkChange = (
+    platform: keyof UserProfileLocal["socialLinks"],
+    value: string
+  ) => {
+    setTempProfile((prev) => ({
       ...prev,
       socialLinks: { ...prev.socialLinks, [platform]: value },
     }));
@@ -92,21 +136,26 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">My Profile</h1>
-          <p className="text-muted-foreground">Manage your personal information and preferences</p>
+          <p className="text-muted-foreground">
+            Manage your personal information and preferences
+          </p>
         </div>
         <div className="flex gap-2">
           {isEditing ? (
             <>
               <Button variant="outline" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-2" />Cancel
+                <X className="h-4 w-4 mr-2" />
+                Cancel
               </Button>
               <Button onClick={handleSave}>
-                <Save className="h-4 w-4 mr-2" />Save Changes
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
               </Button>
             </>
           ) : (
             <Button onClick={handleEdit}>
-              <Edit className="h-4 w-4 mr-2" />Edit Profile
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Profile
             </Button>
           )}
         </div>
@@ -122,13 +171,16 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                   <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
                     <AvatarImage src={profile.avatar} alt={profile.name} />
                     <AvatarFallback className="text-4xl">
-                      {profile.name.split(" ").map((n) => n[0]).join("")}
+                      {profile.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
-                    <Button 
-                      size="icon" 
-                      variant="secondary" 
+                    <Button
+                      size="icon"
+                      variant="secondary"
                       className="absolute bottom-0 right-0 rounded-full"
                     >
                       <Camera className="h-4 w-4" />
@@ -140,35 +192,45 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                   <div className="w-full space-y-4">
                     <div>
                       <Label htmlFor="name">Full Name</Label>
-                      <Input 
-                        id="name" 
-                        value={tempProfile.name} 
-                        onChange={(e) => handleInputChange("name", e.target.value)} 
+                      <Input
+                        id="name"
+                        value={tempProfile.name}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                       />
                     </div>
                     <div>
                       <Label htmlFor="title">Job Title</Label>
-                      <Input 
-                        id="title" 
-                        value={tempProfile.title} 
-                        onChange={(e) => handleInputChange("title", e.target.value)} 
+                      <Input
+                        id="title"
+                        value={tempProfile.title}
+                        onChange={(e) =>
+                          handleInputChange("title", e.target.value)
+                        }
                       />
                     </div>
                     <div>
                       <Label htmlFor="location">Location</Label>
-                      <Input 
-                        id="location" 
-                        value={tempProfile.location} 
-                        onChange={(e) => handleInputChange("location", e.target.value)} 
+                      <Input
+                        id="location"
+                        value={tempProfile.location}
+                        onChange={(e) =>
+                          handleInputChange("location", e.target.value)
+                        }
                       />
                     </div>
                   </div>
                 ) : (
                   <>
                     <h1 className="text-2xl font-bold mb-1">{profile.name}</h1>
-                    <p className="text-muted-foreground mb-2">{profile.title}</p>
-                    <Badge variant="secondary" className="mb-4">{profile.department}</Badge>
-                    
+                    <p className="text-muted-foreground mb-2">
+                      {profile.title}
+                    </p>
+                    <Badge variant="secondary" className="mb-4">
+                      {profile.department}
+                    </Badge>
+
                     <div className="w-full space-y-3 text-sm text-left">
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <MapPin className="h-4 w-4 flex-shrink-0" />
@@ -195,34 +257,42 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Github className="h-4 w-4" />
-                        <Input 
-                          placeholder="GitHub URL" 
-                          value={tempProfile.socialLinks.github || ""} 
-                          onChange={(e) => handleSocialLinkChange("github", e.target.value)} 
+                        <Input
+                          placeholder="GitHub URL"
+                          value={tempProfile.socialLinks.github || ""}
+                          onChange={(e) =>
+                            handleSocialLinkChange("github", e.target.value)
+                          }
                         />
                       </div>
                       <div className="flex items-center gap-2">
                         <Linkedin className="h-4 w-4" />
-                        <Input 
-                          placeholder="LinkedIn URL" 
-                          value={tempProfile.socialLinks.linkedin || ""} 
-                          onChange={(e) => handleSocialLinkChange("linkedin", e.target.value)} 
+                        <Input
+                          placeholder="LinkedIn URL"
+                          value={tempProfile.socialLinks.linkedin || ""}
+                          onChange={(e) =>
+                            handleSocialLinkChange("linkedin", e.target.value)
+                          }
                         />
                       </div>
                       <div className="flex items-center gap-2">
                         <Twitter className="h-4 w-4" />
-                        <Input 
-                          placeholder="Twitter URL" 
-                          value={tempProfile.socialLinks.twitter || ""} 
-                          onChange={(e) => handleSocialLinkChange("twitter", e.target.value)} 
+                        <Input
+                          placeholder="Twitter URL"
+                          value={tempProfile.socialLinks.twitter || ""}
+                          onChange={(e) =>
+                            handleSocialLinkChange("twitter", e.target.value)
+                          }
                         />
                       </div>
                       <div className="flex items-center gap-2">
                         <Globe className="h-4 w-4" />
-                        <Input 
-                          placeholder="Website URL" 
-                          value={tempProfile.socialLinks.website || ""} 
-                          onChange={(e) => handleSocialLinkChange("website", e.target.value)} 
+                        <Input
+                          placeholder="Website URL"
+                          value={tempProfile.socialLinks.website || ""}
+                          onChange={(e) =>
+                            handleSocialLinkChange("website", e.target.value)
+                          }
                         />
                       </div>
                     </div>
@@ -231,28 +301,44 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                   <div className="flex gap-2">
                     {profile.socialLinks.github && (
                       <Button variant="outline" size="icon" asChild>
-                        <a href={profile.socialLinks.github} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={profile.socialLinks.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Github className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
                     {profile.socialLinks.linkedin && (
                       <Button variant="outline" size="icon" asChild>
-                        <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={profile.socialLinks.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Linkedin className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
                     {profile.socialLinks.twitter && (
                       <Button variant="outline" size="icon" asChild>
-                        <a href={profile.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={profile.socialLinks.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Twitter className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
                     {profile.socialLinks.website && (
                       <Button variant="outline" size="icon" asChild>
-                        <a href={profile.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={profile.socialLinks.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Globe className="h-4 w-4" />
                         </a>
                       </Button>
@@ -270,20 +356,32 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Projects Completed</span>
-                <span className="font-semibold">{profileData.stats.projectsCompleted}</span>
+                <span className="text-muted-foreground">
+                  Projects Completed
+                </span>
+                <span className="font-semibold">
+                  {profileData.stats.projectsCompleted}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Teams Led</span>
-                <span className="font-semibold">{profileData.stats.teamsLed}</span>
+                <span className="font-semibold">
+                  {profileData.stats.teamsLed}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Mentorship Hours</span>
-                <span className="font-semibold">{profileData.stats.mentorshipHours}</span>
+                <span className="font-semibold">
+                  {profileData.stats.mentorshipHours}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Code Contributions</span>
-                <span className="font-semibold">{profileData.stats.contributions}</span>
+                <span className="text-muted-foreground">
+                  Code Contributions
+                </span>
+                <span className="font-semibold">
+                  {profileData.stats.contributions}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -309,16 +407,20 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                   {isEditing ? (
                     <div>
                       <Label htmlFor="bio">Bio</Label>
-                      <Textarea 
-                        id="bio" 
-                        value={tempProfile.bio} 
-                        onChange={(e) => handleInputChange("bio", e.target.value)} 
-                        rows={4} 
-                        className="mt-2" 
+                      <Textarea
+                        id="bio"
+                        value={tempProfile.bio}
+                        onChange={(e) =>
+                          handleInputChange("bio", e.target.value)
+                        }
+                        rows={4}
+                        className="mt-2"
                       />
                     </div>
                   ) : (
-                    <p className="text-muted-foreground leading-relaxed">{profile.bio}</p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {profile.bio}
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -333,7 +435,9 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
                     <div key={skill.name} className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
                         <span>{skill.name}</span>
-                        <span className="text-muted-foreground">{skill.level}%</span>
+                        <span className="text-muted-foreground">
+                          {skill.level}%
+                        </span>
                       </div>
                       <Progress value={skill.level} className="h-2" />
                     </div>
@@ -346,7 +450,9 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
               <Card>
                 <CardHeader>
                   <CardTitle>Current Projects</CardTitle>
-                  <CardDescription>Active projects and responsibilities</CardDescription>
+                  <CardDescription>
+                    Active projects and responsibilities
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {profileData.projects.map((project) => (
@@ -379,27 +485,46 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
               <Card>
                 <CardHeader>
                   <CardTitle>Achievements & Recognition</CardTitle>
-                  <CardDescription>Key awards and accomplishments</CardDescription>
+                  <CardDescription>
+                    Key awards and accomplishments
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {profileData.achievements.map((achievement) => {
-                    const Icon = achievementIconMap[achievement.category] || Star;
+                    const Icon =
+                      achievementIconMap[achievement.category] || Star;
                     return (
-                      <div key={achievement.id} className="flex gap-4 p-4 border rounded-lg">
-                        <div className={`flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg ${getCategoryColor(achievement.category)}`}>
+                      <div
+                        key={achievement.id}
+                        className="flex gap-4 p-4 border rounded-lg"
+                      >
+                        <div
+                          className={`flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg ${getCategoryColor(
+                            achievement.category
+                          )}`}
+                        >
                           <Icon className="h-5 w-5 text-white" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-1">
-                            <h4 className="font-semibold">{achievement.title}</h4>
-                            <Badge variant="outline">{achievement.category}</Badge>
+                            <h4 className="font-semibold">
+                              {achievement.title}
+                            </h4>
+                            <Badge variant="outline">
+                              {achievement.category}
+                            </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {achievement.description}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(achievement.date).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long' 
-                            })}
+                            {new Date(achievement.date).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                              }
+                            )}
                           </p>
                         </div>
                       </div>
@@ -413,23 +538,36 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
               <Card>
                 <CardHeader>
                   <CardTitle>Team Memberships</CardTitle>
-                  <CardDescription>Current teams and working groups</CardDescription>
+                  <CardDescription>
+                    Current teams and working groups
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {profileData.teams.map((team) => (
-                    <div key={team.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div
+                      key={team.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
                           <Users className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-medium">{team.name}</h4>
-                          <p className="text-sm text-muted-foreground">{team.members} members</p>
+                          <p className="text-sm text-muted-foreground">
+                            {team.members} members
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={team.isLead ? "default" : "secondary"}>{team.role}</Badge>
-                        {team.isLead && <Badge variant="outline" className="text-xs">Leader</Badge>}
+                        <Badge variant={team.isLead ? "default" : "secondary"}>
+                          {team.role}
+                        </Badge>
+                        {team.isLead && (
+                          <Badge variant="outline" className="text-xs">
+                            Leader
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -439,18 +577,25 @@ export default function ProfileClientPage({ profileData }: ProfileClientPageProp
               <Card>
                 <CardHeader>
                   <CardTitle>Department Memberships</CardTitle>
-                  <CardDescription>Official organizational departments</CardDescription>
+                  <CardDescription>
+                    Official organizational departments
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {profileData.departments.map((dept) => (
-                    <div key={dept.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div
+                      key={dept.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-secondary/50 rounded-lg">
                           <Briefcase className="h-4 w-4 text-secondary-foreground" />
                         </div>
                         <div>
                           <h4 className="font-medium">{dept.name}</h4>
-                          <p className="text-sm text-muted-foreground">Department</p>
+                          <p className="text-sm text-muted-foreground">
+                            Department
+                          </p>
                         </div>
                       </div>
                       <Badge variant="outline">{dept.role}</Badge>

@@ -11,12 +11,14 @@
             "id": "d13ad9925b1f696b",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "itc-hub-Pattern-design.excalidraw"
+                "file": "README.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "itc-hub-Pattern-design"
+              "icon": "lucide-file",
+              "title": "README"
             }
           }
         ]
@@ -158,6 +160,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -169,8 +172,11 @@
   },
   "active": "d13ad9925b1f696b",
   "lastOpenFiles": [
-    "itc-hub-Pattern-design.excalidraw",
     "AUTHENTICATION_SETUP.md",
+    "prisma/dev.db-journal",
+    "prisma/migrations/20250919181531_add_email_verified_to_user/migration.sql",
+    "prisma/migrations/20250919181531_add_email_verified_to_user",
+    "itc-hub-Pattern-design.excalidraw",
     "AUTHORIZATION_SYSTEM_GUIDE.md",
     "ITC-hub analyse.md",
     "Untitled.canvas",

@@ -63,56 +63,58 @@ export function useLogin() {
     return true;
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+  setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-    try {
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+  try {
+    const result = await signIn("credentials", {
+      email: formData.email,
+      password: formData.password,
+      redirect: false,
+    });
+
+    if (result?.ok) {
+      toast({
+        title: "Welcome back!",
+        description: "You have been signed in successfully.",
       });
-
-      if (result?.ok) {
-        toast({
-          title: "Welcome back!",
-          description: "You have been signed in successfully.",
-        });
-        router.push("/dashboard");
-      } else {
-        const errorMessage = result?.error || "Invalid email or password. Please try again.";
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: errorMessage
-        }));
-
-        toast({
-          title: "Sign In Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+      router.push("/dashboard");
+    } else {
+      // ✅ Preserve backend error (like email not verified)
+      const errorMessage = result?.error || "Invalid email or password. Please try again.";
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: "An unexpected error occurred. Please try again."
+        error: errorMessage
       }));
 
       toast({
-        title: "Sign In Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Sign In Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     }
-  }, [formData, router, toast]);
+  } catch (error) {
+    setState(prev => ({
+      ...prev,
+      isLoading: false,
+      error: "An unexpected error occurred. Please try again."
+    }));
+
+    toast({
+      title: "Sign In Error",
+      description: "An unexpected error occurred. Please try again.",
+      variant: "destructive",
+    });
+  }
+}, [formData, router, toast]);
+
 
   const togglePasswordVisibility = useCallback(() => {
     setState(prev => ({

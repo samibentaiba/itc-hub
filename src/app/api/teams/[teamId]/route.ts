@@ -1,3 +1,4 @@
+// src\app\api\teams\[teamId]\route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
@@ -219,7 +220,11 @@ export async function PUT(
     if (name) updateData.name = name
     if (description !== undefined) updateData.description = description
     if (status) updateData.status = status
-    if (departmentId) updateData.departmentId = departmentId
+    if (departmentId) {
+      updateData.department = {
+        connect: { id: departmentId }
+      }
+    }
 
     const team = await prisma.team.update({
       where: { id: teamId },
@@ -274,6 +279,7 @@ export async function PUT(
     )
   }
 }
+  
 
 export async function DELETE(
   request: NextRequest,

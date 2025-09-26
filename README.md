@@ -78,3 +78,6 @@ import { RoleBadge } from '@/components/common/RoleBadge';
 ```
 
 This ensures all business logic, UI, and options are consistent and maintainable across the app.
+
+
+fixing the types errors of API route and the Data Base Schema for Users route and Tickets 

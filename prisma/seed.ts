@@ -1,3 +1,4 @@
+// prisma\seed.ts
 import bcrypt from "bcryptjs";
 import usersData from "./mocks/user.mock";
 import departmentsData from "./mocks/department.mock";
@@ -59,13 +60,21 @@ class Seeder {
 
   private async seedUsers() {
     const hashedPassword = await bcrypt.hash("password123", 12);
+
     const usersToCreate = usersData.map((user) => ({
       ...user,
       password: hashedPassword,
+      emailVerified: new Date(), // ✅ every seeded user is marked verified
     }));
+
     await Promise.all(
-      usersToCreate.map((data) => this.prisma.user.create({ data }))
+      usersToCreate.map((data) =>
+        this.prisma.user.create({
+          data,
+        })
+      )
     );
+
     console.log("✅ Created users");
   }
 
@@ -122,9 +131,7 @@ class Seeder {
 
   private async seedNotifications() {
     await Promise.all(
-      notificationsData.map((data) =>
-        this.prisma.notification.create({ data })
-      )
+      notificationsData.map((data) => this.prisma.notification.create({ data }))
     );
     console.log("✅ Created notifications");
   }
@@ -152,9 +159,6 @@ class Seeder {
 
     console.log("✅ Created app secrets");
   }
-
-
-
 
   public async disconnect() {
     await this.prisma.$disconnect();

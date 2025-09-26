@@ -1,8 +1,9 @@
+// src\app\api\notifications\route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { Prisma, NotificationType } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,8 +29,8 @@ export async function GET(request: NextRequest) {
       where.unread = true
     }
 
-    if (type) {
-      where.type = type
+    if (type && Object.values(NotificationType).includes(type as NotificationType)) {
+      where.type = type as NotificationType
     }
 
     const [notifications, total] = await Promise.all([
@@ -61,6 +62,7 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
 
 interface CreateNotificationBody {
   userId: string;

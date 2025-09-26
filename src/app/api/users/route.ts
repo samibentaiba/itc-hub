@@ -1,8 +1,9 @@
+// src/app/api/users/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { Prisma, Role } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
 export async function GET(request: NextRequest) {
@@ -27,13 +28,13 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } }
+        { name: { contains: search } },
+        { email: { contains: search } },
       ]
     }
 
     if (role) {
-      where.role = role
+      where.role = role as Role
     }
 
     if (departmentId) {
@@ -87,38 +88,27 @@ export async function GET(request: NextRequest) {
               }
             }
           },
-          // Get ticket counts for stats
           assignedTickets: {
-            select: {
-              id: true,
-              status: true
-            }
+            select: { id: true, status: true }
           },
           createdTickets: {
-            select: {
-              id: true,
-              status: true
-            }
+            select: { id: true, status: true }
           }
         },
-        orderBy: {
-          createdAt: "desc"
-        }
+        orderBy: { createdAt: "desc" }
       }),
       prisma.user.count({ where })
     ])
 
-    // Transform users to include computed fields
     const transformedUsers = users.map(user => ({
       ...user,
-      department: user.departments[0]?.department?.name || 'Unassigned',
+      department: user.departments[0]?.department?.name || "Unassigned",
       teamCount: user.teams.length,
       ticketsAssigned: user.assignedTickets.length,
       ticketsCreated: user.createdTickets.length,
-      completedTickets: user.assignedTickets.filter(t => t.status === 'CLOSED').length,
-      // Remove the full ticket arrays to reduce payload size
+      completedTickets: user.assignedTickets.filter(t => t.status === "CLOSED").length,
       assignedTickets: undefined,
-      createdTickets: undefined
+      createdTickets: undefined,
     }))
 
     return NextResponse.json({
@@ -132,20 +122,17 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error fetching users:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 interface CreateUserBody {
-  name: string;
-  email: string;
-  password?: string;
-  role?: "ADMIN" | "MANAGER" | "USER";
-  departmentIds?: string[];
-  teamIds?: string[];
+  name: string
+  email: string
+  password?: string
+  role?: "ADMIN" | "MANAGER" | "USER"
+  departmentIds?: string[]
+  teamIds?: string[]
 }
 
 export async function POST(request: NextRequest) {
@@ -166,22 +153,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
-
+    const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
-      return NextResponse.json(
-        { error: "User with this email already exists" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "User with this email already exists" }, { status: 400 })
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create user with department and team memberships
     const user = await prisma.user.create({
       data: {
         name,
@@ -189,6 +167,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role: role || "USER",
         status: "verified",
+        emailVerified: null, 
         ...(departmentIds && departmentIds.length > 0 && {
           departments: {
             create: departmentIds.map((deptId: string) => ({
@@ -220,9 +199,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(user, { status: 201 })
   } catch (error) {
     console.error("Error creating user:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

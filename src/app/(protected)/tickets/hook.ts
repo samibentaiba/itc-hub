@@ -1,3 +1,4 @@
+// src\app\(protected)\tickets\hook.ts
 "use client"
 
 import { useState, useMemo } from "react"
@@ -26,7 +27,7 @@ export function useTicketsPage(initialTickets: TicketLocal[], initialStats: Tick
     })
   }, [searchTerm, statusFilter, priorityFilter, typeFilter, initialTickets]) // ADDED: typeFilter to dependency array
 
-  const getStatusColor = (status: Ticket['status']) => {
+  const getStatusColor = (status: TicketLocal['status']) => {
     switch (status) {
       // UPDATED: Cases to match new statuses
       case "new":
@@ -40,7 +41,7 @@ export function useTicketsPage(initialTickets: TicketLocal[], initialStats: Tick
     }
   }
 
-  const getPriorityColor = (priority: Ticket['priority']) => {
+  const getPriorityColor = (priority: TicketLocal['priority']) => {
     switch (priority) {
       case "urgent":
       case "high": return "destructive"

@@ -252,7 +252,7 @@ export interface CalendarUpcomingEvent {
 
 export type FormEventType = "meeting" | "review" | "workshop" | "planning";
 
-export type FormEventType = "meeting" | "review" | "workshop" | "planning";
+
 
 export interface EventFormData {
   title: string;
@@ -511,4 +511,30 @@ export interface TeamLocal {
   }[];
   recentActivity: string;
   status: string;
+}
+
+
+// Tickets Page Local Types
+export interface TicketLocal {
+  id: string;
+  title: string;
+  description: string;
+  status: "new" | "in-progress" | "resolved"; // ✅ matches your filters
+  priority: "low" | "medium" | "high" | "urgent";
+  type: "Task" | "Bug" | "Feature";
+  from: string;
+  assignee: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  dueDate: string;
+  comments: number;
+}
+
+export interface TicketStatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
 }
