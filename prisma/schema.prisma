@@ -74,8 +74,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-
 model Department {
   id          String             @id @default(cuid())
   name        String             @unique
@@ -175,7 +173,8 @@ model Event {
   date         DateTime
   time         String?
   duration     Int?
-  type         String?
+  type         EventType
+  status       EventStatus @default(CONFIRMED)
   location     String?
   organizerId  String?
   isRecurring  Boolean     @default(false)
@@ -240,6 +239,18 @@ enum Role {
 enum MembershipRole {
   MANAGER
   MEMBER
+}
+
+enum EventType {
+  MEETING
+  REVIEW
+  PLANNING
+  WORKSHOP
+}
+
+enum EventStatus {
+  PENDING
+  CONFIRMED
 }
 
 enum TicketType {

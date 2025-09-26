@@ -1,9 +1,6 @@
-// /admin/hook.ts
 "use client";
 
-// Removed client-api imports and will use direct fetch calls
-
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type {
   User,
@@ -20,16 +17,27 @@ import type {
   DepartmentFormData,
   PendingEvent,
 } from "./types";
-/**
- * A custom hook to manage all state and logic for the Admin Page.
- * This includes data state, loading states, and all action handlers.
- * @param initialUsers - Server-fetched initial users.
- * @param initialTeams - Server-fetched initial teams.
- * @param initialDepartments - Server-fetched initial departments.
- * @param initialEvents - Server-fetched initial events.
- * @param initialUpcomingEvents - Server-fetched initial upcoming events.
- * @param initialPendingEvents - Server-fetched initial pending events.
- */
+
+// Helper for API calls
+async function apiRequest(url: string, options: RequestInit = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "An unknown error occurred" }));
+    throw new Error(errorData.error || "Request failed");
+  }
+  if (response.status === 204) {
+    return null;
+  }
+  return response.json();
+}
+
+
 export const useAdminPage = (
   initialUsers: User[],
   initialTeams: Team[],
@@ -41,54 +49,56 @@ export const useAdminPage = (
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [teams, setTeams] = useState<Team[]>(initialTeams);
-  const [departments, setDepartments] =
-    useState<Department[]>(initialDepartments);
+  const [departments, setDepartments] = useState<Department[]>(initialDepartments);
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
-
-  // --- Modal State ---
   const [modal, setModal] = useState<ModalState | null>(null);
-
-  // --- State for Event Requests ---
-  const [pendingEvents, setPendingEvents] =
-    useState<PendingEvent[]>(initialPendingEvents);
-
-  // --- State for Calendar ---
+  const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>(initialPendingEvents);
   const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  const [upcomingEvents] = useState<UpcomingEvent[]>(
-    initialUpcomingEvents
-  );
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
   const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
-  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">(
-    "month"
-  );
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [showNewEventDialog, setShowNewEventDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isCalendarLoading, setIsCalendarLoading] = useState(false);
   const [calendarFilterType, setCalendarFilterType] = useState<string>("all");
 
-  // --- SIMULATED API DELAY ---
-  const simulateApi = (duration = 1000) =>
-    new Promise((res) => setTimeout(res, duration));
-
-  // --- Modal and Action Handlers ---
   const closeModal = () => setModal(null);
 
   const handleActionConfirm = () => {
     if (!modal || !modal.data) return;
+    const { view, data } = modal;
 
-    switch (modal.view) {
-      case "DELETE_USER":
-        handleDeleteUser(modal.data.id).then(closeModal);
-        break;
-      case "VERIFY_USER":
-        handleVerifyUser(modal.data.id).then(closeModal);
-        break;
-      case "DELETE_TEAM":
-        handleDeleteTeam(modal.data.id).then(closeModal);
-        break;
-      case "DELETE_DEPARTMENT":
-        handleDeleteDepartment(modal.data.id).then(closeModal);
-        break;
+    const actions: Record<string, (id: string) => Promise<any>> = {
+      DELETE_USER: handleDeleteUser,
+      VERIFY_USER: handleVerifyUser,
+      DELETE_TEAM: handleDeleteTeam,
+      DELETE_DEPARTMENT: handleDeleteDepartment,
+    };
+
+    if (actions[view]) {
+      actions[view](data.id).finally(closeModal);
+    }
+  };
+
+  // --- DATA TRANSFORMATION ---
+  const transformApiResponse = (item: any, type: 'user' | 'team' | 'department' | 'event') => {
+    switch (type) {
+      case 'user':
+        return { ...item, joinedDate: item.createdAt, avatar: item.avatar || `https://i.pravatar.cc/150?u=${item.id}` };
+      case 'team':
+        return { ...item, members: item.members || [], createdDate: item.createdAt, status: 'active' };
+      case 'department':
+        return { ...item, members: item.members || [], teams: item.teams || [], createdDate: item.createdAt, status: 'active' };
+      case 'event':
+        return {
+          ...item,
+          date: new Date(item.date).toISOString().split('T')[0],
+          type: item.type.toLowerCase(),
+          attendees: item.attendees?.map((a: any) => a.name) || [],
+          color: '#3b82f6',
+        };
+      default:
+        return item;
     }
   };
 
@@ -96,28 +106,14 @@ export const useAdminPage = (
   const handleAcceptEvent = async (eventToAccept: PendingEvent) => {
     setLoadingAction(`accept-${eventToAccept.id}`);
     try {
-      await simulateApi(700);
-
-      const localDate = new Date(`${eventToAccept.date}T00:00:00`);
-
-      const acceptedEvent: Event = {
-        ...eventToAccept,
-        date: formatDateString(localDate),
-      };
-
+      const acceptedEventData = await apiRequest(`/api/admin/events/requests/${eventToAccept.id}/approve`, { method: "POST" });
+      const acceptedEvent = transformApiResponse(acceptedEventData, 'event');
+      
       setAllEvents((prev) => [...prev, acceptedEvent]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToAccept.id));
-
-      toast({
-        title: "Event Approved",
-        description: `"${eventToAccept.title}" has been added to the calendar.`,
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Could not approve the event.",
-        variant: "destructive",
-      });
+      toast({ title: "Event Approved", description: `"${eventToAccept.title}" has been added to the calendar.` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Could not approve the event.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -126,100 +122,37 @@ export const useAdminPage = (
   const handleRejectEvent = async (eventToReject: PendingEvent) => {
     setLoadingAction(`reject-${eventToReject.id}`);
     try {
-      await simulateApi(700);
+      await apiRequest(`/api/admin/events/requests/${eventToReject.id}/reject`, { method: "POST" });
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToReject.id));
-      toast({
-        title: "Event Rejected",
-        description: `"${eventToReject.title}" has been rejected.`,
-        variant: "destructive",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Could not reject the event.",
-        variant: "destructive",
-      });
+      toast({ title: "Event Rejected", description: `"${eventToReject.title}" has been rejected.`, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Could not reject the event.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
   };
 
-  // --- Memoized Derived State ---
-  const isUserFormLoading =
-    (modal?.view === "ADD_USER" && loadingAction === "add-user") ||
-    (modal?.view === "EDIT_USER" && loadingAction === `edit-${modal.data?.id}`);
-
-  const isTeamFormLoading =
-    (modal?.view === "ADD_TEAM" && loadingAction === "add-team") ||
-    (modal?.view === "EDIT_TEAM" && loadingAction === `edit-${modal.data?.id}`);
-
-  const isDeptFormLoading =
-    (modal?.view === "ADD_DEPARTMENT" && loadingAction === "add-department") ||
-    (modal?.view === "EDIT_DEPARTMENT" &&
-      loadingAction === `edit-${modal.data?.id}`);
-
-  const entityForDialog = useMemo(() => {
-    if (modal?.view !== "MANAGE_MEMBERS" || !modal.data) return null;
-
-    const entity =
-      modal.data.entityType === "team"
-        ? teams.find((t) => t.id === modal.data!.id)
-        : departments.find((d) => d.id === modal.data!.id);
-
-    return entity ? { ...entity, entityType: modal.data.entityType } : null;
-  }, [modal, teams, departments]);
-
-  // Computed values for edit forms
-  const userForEdit = useMemo(() => {
-    if (modal?.view !== "EDIT_USER" || !modal.data?.id) return null;
-    return users.find((u) => u.id === modal.data!.id) || null;
-  }, [modal, users]);
-
-  const teamForEdit = useMemo(() => {
-    if (modal?.view !== "EDIT_TEAM" || !modal.data?.id) return null;
-    return teams.find((t) => t.id === modal.data!.id) || null;
-  }, [modal, teams]);
-
-  const departmentForEdit = useMemo(() => {
-    if (modal?.view !== "EDIT_DEPARTMENT" || !modal.data?.id) return null;
-    return departments.find((d) => d.id === modal.data!.id) || null;
-  }, [modal, departments]);
-
   // --- USER HANDLERS ---
   const handleSaveUser = async (data: UserFormData & { id?: string }) => {
-    const actionId = data.id ? `edit-${data.id}` : "add-user";
-    setLoadingAction(actionId);
+    const isEdit = !!data.id;
+    const url = isEdit ? `/api/admin/users/${data.id}` : "/api/admin/users";
+    const method = isEdit ? "PUT" : "POST";
+    setLoadingAction(isEdit ? `edit-${data.id}` : "add-user");
+
     try {
-      await simulateApi();
-      if (data.id) {
-        setUsers((prev) =>
-          prev.map((u) => (u.id === data.id ? { ...u, ...data } : u))
-        );
-        toast({
-          title: "User Updated",
-          description: `${data.name}'s details have been saved.`,
-        });
+      const savedUserData = await apiRequest(url, { method, body: JSON.stringify(data) });
+      const savedUser = transformApiResponse(savedUserData, 'user');
+
+      if (isEdit) {
+        setUsers((prev) => prev.map((u) => (u.id === savedUser.id ? savedUser : u)));
       } else {
-        const newUser: User = {
-          id: `u${Date.now()}`,
-          ...data,
-          status: "pending",
-          joinedDate: new Date().toISOString().split("T")[0],
-          avatar: `https://i.pravatar.cc/150?u=${Date.now()}`,
-          role: "user",
-        };
-        setUsers((prev) => [...prev, newUser]);
-        toast({
-          title: "User Added",
-          description: `${data.name} can now be managed.`,
-        });
+        setUsers((prev) => [savedUser, ...prev]);
       }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Could not save user details.",
-        variant: "destructive",
-      });
+      toast({ title: isEdit ? "User Updated" : "User Added" });
+      return true;
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Could not save user details.", variant: "destructive" });
+      return false;
     } finally {
       setLoadingAction(null);
     }
@@ -230,10 +163,10 @@ export const useAdminPage = (
     const originalUsers = users;
     setUsers((prev) => prev.filter((u) => u.id !== userId));
     try {
-      await simulateApi();
+      await apiRequest(`/api/admin/users/${userId}`, { method: "DELETE" });
       toast({ title: "User Deleted" });
-    } catch {
-      toast({ title: "Error Deleting User", variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Deleting User", description: error.message, variant: "destructive" });
       setUsers(originalUsers);
     } finally {
       setLoadingAction(null);
@@ -243,13 +176,12 @@ export const useAdminPage = (
   const handleVerifyUser = async (userId: string) => {
     setLoadingAction(`verify-${userId}`);
     try {
-      await simulateApi(500);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, status: "verified" } : u))
-      );
+      const updatedUserData = await apiRequest(`/api/admin/users/${userId}/verify`, { method: "POST" });
+      const updatedUser = transformApiResponse(updatedUserData, 'user');
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
-    } catch {
-      toast({ title: "Error Verifying User", variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Verifying User", description: error.message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -257,29 +189,25 @@ export const useAdminPage = (
 
   // --- TEAM HANDLERS ---
   const handleSaveTeam = async (data: TeamFormData & { id?: string }) => {
-    const actionId = data.id ? `edit-${data.id}` : "add-team";
-    setLoadingAction(actionId);
+    const isEdit = !!data.id;
+    const url = isEdit ? `/api/admin/teams/${data.id}` : "/api/admin/teams";
+    const method = isEdit ? "PUT" : "POST";
+    setLoadingAction(isEdit ? `edit-${data.id}` : "add-team");
+
     try {
-      await simulateApi();
-      if (data.id) {
-        setTeams((prev) =>
-          prev.map((t) => (t.id === data.id ? { ...t, ...data } : t))
-        );
-        toast({ title: "Team Updated" });
+      const savedTeamData = await apiRequest(url, { method, body: JSON.stringify(data) });
+      const savedTeam = transformApiResponse(savedTeamData, 'team');
+
+      if (isEdit) {
+        setTeams((prev) => prev.map((t) => (t.id === savedTeam.id ? { ...t, ...savedTeam } : t)));
       } else {
-        const newTeam: Team = {
-          id: `t${Date.now()}`,
-          ...data,
-          description: data.description || "",
-          members: [],
-          createdDate: new Date().toISOString().split("T")[0],
-          status: "active",
-        };
-        setTeams((prev) => [...prev, newTeam]);
-        toast({ title: "Team Created" });
+        setTeams((prev) => [savedTeam, ...prev]);
       }
-    } catch {
-      toast({ title: "Error Saving Team", variant: "destructive" });
+      toast({ title: isEdit ? "Team Updated" : "Team Created" });
+      return true;
+    } catch (error: any) {
+      toast({ title: "Error Saving Team", description: error.message, variant: "destructive" });
+      return false;
     } finally {
       setLoadingAction(null);
     }
@@ -290,10 +218,10 @@ export const useAdminPage = (
     const originalTeams = teams;
     setTeams((prev) => prev.filter((t) => t.id !== teamId));
     try {
-      await simulateApi();
+      await apiRequest(`/api/admin/teams/${teamId}`, { method: "DELETE" });
       toast({ title: "Team Deleted" });
-    } catch {
-      toast({ title: "Error Deleting Team", variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Deleting Team", description: error.message, variant: "destructive" });
       setTeams(originalTeams);
     } finally {
       setLoadingAction(null);
@@ -301,36 +229,26 @@ export const useAdminPage = (
   };
 
   // --- DEPARTMENT HANDLERS ---
-  const handleSaveDepartment = async (
-    data: DepartmentFormData & { id?: string }
-  ) => {
-    const actionId = data.id ? `edit-${data.id}` : "add-department";
-    setLoadingAction(actionId);
+  const handleSaveDepartment = async (data: DepartmentFormData & { id?: string }) => {
+    const isEdit = !!data.id;
+    const url = isEdit ? `/api/admin/departments/${data.id}` : "/api/admin/departments";
+    const method = isEdit ? "PUT" : "POST";
+    setLoadingAction(isEdit ? `edit-${data.id}` : "add-department");
+
     try {
-      await simulateApi();
-      if (data.id) {
-        setDepartments((prev) =>
-          prev.map((d) => (d.id === data.id ? { ...d, ...data } : d))
-        );
-        toast({ title: "Department Updated" });
+      const savedDeptData = await apiRequest(url, { method, body: JSON.stringify(data) });
+      const savedDept = transformApiResponse(savedDeptData, 'department');
+
+      if (isEdit) {
+        setDepartments((prev) => prev.map((d) => (d.id === savedDept.id ? { ...d, ...savedDept } : d)));
       } else {
-        const newDept: Department = {
-          id: `d${Date.now()}`,
-          name: data.name,
-          description: data.description || "",
-          members: [],
-          teams: [],
-          createdDate: new Date().toISOString().split("T")[0],
-          status: "active",
-          manager: undefined,
-          memberCount: 0,
-          ticketCount: 0,
-        };
-        setDepartments((prev) => [...prev, newDept]);
-        toast({ title: "Department Created" });
+        setDepartments((prev) => [savedDept, ...prev]);
       }
-    } catch {
-      toast({ title: "Error Saving Department", variant: "destructive" });
+      toast({ title: isEdit ? "Department Updated" : "Department Created" });
+      return true;
+    } catch (error: any) {
+      toast({ title: "Error Saving Department", description: error.message, variant: "destructive" });
+      return false;
     } finally {
       setLoadingAction(null);
     }
@@ -339,121 +257,103 @@ export const useAdminPage = (
   const handleDeleteDepartment = async (deptId: string) => {
     setLoadingAction(`delete-${deptId}`);
     const originalDepts = departments;
+    const originalTeams = teams;
     setDepartments((prev) => prev.filter((d) => d.id !== deptId));
+    setTeams((prev) => prev.filter((t) => t.departmentId !== deptId)); // Also remove teams from UI
     try {
-      await simulateApi();
-      setTeams((prev) => prev.filter((t) => t.departmentId !== deptId));
+      await apiRequest(`/api/admin/departments/${deptId}`, { method: "DELETE" });
       toast({ title: "Department Deleted" });
-    } catch {
-      toast({ title: "Error Deleting Department", variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Deleting Department", description: error.message, variant: "destructive" });
       setDepartments(originalDepts);
+      setTeams(originalTeams);
     } finally {
       setLoadingAction(null);
     }
   };
 
   // --- MEMBER MANAGEMENT ---
-  const updateEntityMembers = (
-    entityId: string,
-    entityType: "team" | "department",
-    updateFn: (members: Member[]) => Member[]
-  ) => {
-    if (entityType === "team") {
-      setTeams((prev) =>
-        prev.map((entity) =>
-          entity.id === entityId
-            ? { ...entity, members: updateFn(entity.members) }
-            : entity
-        )
-      );
-    } else {
-      setDepartments((prev) =>
-        prev.map((entity) =>
-          entity.id === entityId
-            ? { ...entity, members: updateFn(entity.members) }
-            : entity
-        )
-      );
+  const handleAddMember = async (entityId: string, entityType: "team" | "department", userId: string, role: Member["role"]) => {
+    const roleToSend = role.toUpperCase(); // LEADER or MEMBER
+    try {
+      await apiRequest(`/api/admin/${entityType}s/${entityId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId, role: roleToSend }),
+      });
+      // Refresh data to get updated member list
+      handleRefreshData();
+      toast({ title: "Member Added" });
+    } catch (error: any) {
+      toast({ title: "Error Adding Member", description: error.message, variant: "destructive" });
     }
   };
 
-  const handleAddMember = (
-    entityId: string,
-    entityType: "team" | "department",
-    userId: string,
-    role: Member["role"]
-  ) => {
-    updateEntityMembers(entityId, entityType, (members) => [
-      ...members,
-      { userId, role },
-    ]);
-    toast({ title: "Member Added" });
+  const handleRemoveMember = async (entityId: string, entityType: "team" | "department", userId: string) => {
+    try {
+      await apiRequest(`/api/admin/${entityType}s/${entityId}/members/${userId}`, { method: "DELETE" });
+      handleRefreshData();
+      toast({ title: "Member Removed" });
+    } catch (error: any) {
+      toast({ title: "Error Removing Member", description: error.message, variant: "destructive" });
+    }
   };
 
-  const handleRemoveMember = (
-    entityId: string,
-    entityType: "team" | "department",
-    userId: string
-  ) => {
-    updateEntityMembers(entityId, entityType, (members) =>
-      members.filter((m) => m.userId !== userId)
-    );
-    toast({ title: "Member Removed" });
+  const handleChangeMemberRole = async (entityId: string, entityType: "team" | "department", userId: string, newRole: Member["role"]) => {
+    const roleToSend = newRole.toUpperCase();
+    try {
+      await apiRequest(`/api/admin/${entityType}s/${entityId}/members/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({ role: roleToSend }),
+      });
+      handleRefreshData();
+      toast({ title: "Member Role Updated" });
+    } catch (error: any) {
+      toast({ title: "Error Updating Role", description: error.message, variant: "destructive" });
+    }
   };
 
-  const handleChangeMemberRole = (
-    entityId: string,
-    entityType: "team" | "department",
-    userId: string,
-    newRole: Member["role"]
-  ) => {
-    updateEntityMembers(entityId, entityType, (members) =>
-      members.map((m) => (m.userId === userId ? { ...m, role: newRole } : m))
-    );
-    toast({ title: "Member Role Updated" });
-  };
-
-  const handleRefreshData = async () => {
+  // --- DATA REFRESH ---
+  const handleRefreshData = useCallback(async () => {
     setLoadingAction("refresh");
     try {
-      await simulateApi(1500);
-      toast({
-        title: "Data Refreshed",
-        description: "Latest data has been loaded.",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Could not refresh data.",
-        variant: "destructive",
-      });
+      const [usersData, teamsData, deptsData, eventsData, pendingEventsData] = await Promise.all([
+        apiRequest('/api/admin/users'),
+        apiRequest('/api/admin/teams'),
+        apiRequest('/api/admin/departments'),
+        apiRequest('/api/admin/events'),
+        apiRequest('/api/admin/events/requests'),
+      ]);
+
+      setUsers(usersData.users.map((u: any) => transformApiResponse(u, 'user')));
+      setTeams(teamsData.teams.map((t: any) => transformApiResponse(t, 'team')));
+      setDepartments(deptsData.departments.map((d: any) => transformApiResponse(d, 'department')));
+      setAllEvents(eventsData.events.map((e: any) => transformApiResponse(e, 'event')));
+      setPendingEvents(pendingEventsData.events.map((e: any) => transformApiResponse(e, 'event')));
+
+      toast({ title: "Data Refreshed", description: "Latest data has been loaded." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Could not refresh data.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
-  };
+  }, [toast]);
 
   const handleExportData = async () => {
     setLoadingAction("export");
-    await simulateApi(1200);
-    toast({
-      title: "Export Started",
-      description: "Your data export will be available shortly.",
-    });
+    toast({ title: "Export Started", description: "Your data export will be available shortly." });
+    // This can be a call to a dedicated export API endpoint
+    await new Promise(res => setTimeout(res, 1200));
     setLoadingAction(null);
   };
 
-  // --- Handlers for Calendar ---
+  // --- CALENDAR HANDLERS ---
   const navigateCalendar = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
-      if (calendarView === "month")
-        newDate.setMonth(
-          direction === "prev" ? prev.getMonth() - 1 : prev.getMonth() + 1
-        );
-      if (calendarView === "week")
-        newDate.setDate(prev.getDate() + (direction === "prev" ? -7 : 7));
-      if (calendarView === "day")
-        newDate.setDate(prev.getDate() + (direction === "prev" ? -1 : 1));
+      const d = direction === "prev" ? -1 : 1;
+      if (calendarView === "month") newDate.setMonth(prev.getMonth() + d);
+      if (calendarView === "week") newDate.setDate(prev.getDate() + (d * 7));
+      if (calendarView === "day") newDate.setDate(prev.getDate() + d);
       return newDate;
     });
   };
@@ -463,52 +363,26 @@ export const useAdminPage = (
     setCalendarView("day");
   };
 
-  const createEvent = async (
-    data: EventFormData & { id?: string }
-  ): Promise<boolean> => {
+  const createEvent = async (data: EventFormData & { id?: string }): Promise<boolean> => {
+    const isEdit = !!data.id;
+    const url = isEdit ? `/api/admin/events/${data.id}` : "/api/admin/events";
+    const method = isEdit ? "PUT" : "POST";
     setIsCalendarLoading(true);
+
     try {
-      if (data.id) {
-        // Update event
-        const response = await fetch(`/api/events/${data.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
+      const savedEventData = await apiRequest(url, { method, body: JSON.stringify(data) });
+      const savedEvent = transformApiResponse(savedEventData, 'event');
 
-        if (!response.ok) {
-          throw new Error('Failed to update event');
-        }
-
-        const updatedEvent = await response.json();
-        setAllEvents((prev) =>
-          prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
-        );
-        toast({ title: "Event updated successfully" });
+      if (isEdit) {
+        setAllEvents((prev) => prev.map((e) => (e.id === savedEvent.id ? savedEvent : e)));
       } else {
-        // Create new event
-        const response = await fetch('/api/events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create event');
-        }
-
-        const newEvent = await response.json();
-        setAllEvents((prev) => [...prev, newEvent]);
-        toast({ title: "Event created successfully" });
+        setAllEvents((prev) => [...prev, savedEvent]);
       }
-      return true; // Return true on success
-    } catch {
-      toast({ title: "Error Creating/Updating Event", variant: "destructive" });
-      return false; // Return false on error
+      toast({ title: isEdit ? "Event Updated" : "Event Created" });
+      return true;
+    } catch (error: any) {
+      toast({ title: "Error Creating/Updating Event", description: error.message, variant: "destructive" });
+      return false;
     } finally {
       setIsCalendarLoading(false);
     }
@@ -521,146 +395,72 @@ export const useAdminPage = (
 
   const handleDeleteEvent = async (event: Event) => {
     setIsCalendarLoading(true);
+    const originalEvents = allEvents;
+    setAllEvents((prev) => prev.filter((e) => e.id !== event.id));
+    setSelectedEvent(null);
     try {
-      await simulateApi();
-      setAllEvents((prev) => prev.filter((e) => e.id !== event.id));
-      toast({
-        title: "Event Deleted",
-        description: `"${event.title}" has been removed.`,
-      });
-      setSelectedEvent(null);
-    } catch {
-      toast({ title: "Error Deleting Event", variant: "destructive" });
+      await apiRequest(`/api/admin/events/${event.id}`, { method: "DELETE" });
+      toast({ title: "Event Deleted", description: `"${event.title}" has been removed.` });
+    } catch (error: any) {
+      toast({ title: "Error Deleting Event", description: error.message, variant: "destructive" });
+      setAllEvents(originalEvents);
     } finally {
       setIsCalendarLoading(false);
     }
   };
+
+  // --- MEMOIZED DERIVED STATE ---
+  const isUserFormLoading = loadingAction === "add-user" || loadingAction?.startsWith("edit-");
+  const isTeamFormLoading = loadingAction === "add-team" || loadingAction?.startsWith("edit-");
+  const isDeptFormLoading = loadingAction === "add-department" || loadingAction?.startsWith("edit-");
+
+  const entityForDialog = useMemo(() => {
+    if (modal?.view !== "MANAGE_MEMBERS" || !modal.data) return null;
+    const entity = modal.data.entityType === "team"
+        ? teams.find((t) => t.id === modal.data!.id)
+        : departments.find((d) => d.id === modal.data!.id);
+    return entity ? { ...entity, entityType: modal.data.entityType } : null;
+  }, [modal, teams, departments]);
+
+  const userForEdit = useMemo(() => (modal?.view === "EDIT_USER" ? users.find((u) => u.id === modal.data!.id) : null), [modal, users]);
+  const teamForEdit = useMemo(() => (modal?.view === "EDIT_TEAM" ? teams.find((t) => t.id === modal.data!.id) : null), [modal, teams]);
+  const departmentForEdit = useMemo(() => (modal?.view === "EDIT_DEPARTMENT" ? departments.find((d) => d.id === modal.data!.id) : null), [modal, departments]);
 
   const filteredEvents = useMemo(() => {
     if (calendarFilterType === "all") return allEvents;
     return allEvents.filter((event) => event.type === calendarFilterType);
   }, [allEvents, calendarFilterType]);
 
-  return {
-    users,
-    teams,
-    departments,
-    loadingAction,
-    handleSaveUser,
-    handleDeleteUser,
-    handleVerifyUser,
-    handleSaveTeam,
-    handleDeleteTeam,
-    handleSaveDepartment,
-    handleDeleteDepartment,
-    handleAddMember,
-    handleRemoveMember,
-    handleChangeMemberRole,
-    handleRefreshData,
-    handleExportData,
-    pendingEvents,
-    handleAcceptEvent,
-    handleRejectEvent,
-    // Modal State & Handlers
-    modal,
-    setModal,
-    closeModal,
-    handleActionConfirm,
-    entityForDialog,
-    userForEdit,
-    teamForEdit,
-    departmentForEdit,
-    isUserFormLoading,
-    isTeamFormLoading,
-    isDeptFormLoading,
-    // Calendar State
-    calendarView,
-    currentDate,
-    filteredEvents,
-    upcomingEvents,
-    showNewEventDialog,
-    selectedEvent,
-    isCalendarLoading,
-    calendarFilterType,
-    // Calendar Handlers
-    setCalendarView,
-    navigateCalendar,
-    createEvent,
-    setSelectedEvent,
-    setShowNewEventDialog,
-    setCalendarFilterType,
-    handleDayClick,
-    handleEditEvent,
-    handleDeleteEvent,
-    // Utilities
-    formatCalendarDate: (date: Date) => formatDate(date, calendarView),
-    getDaysInMonth,
-    getFirstDayOfMonth,
-    formatDateString,
+  // --- UTILITIES ---
+  const formatDate = (date: Date, view: "month" | "week" | "day"): string => {
+    if (view === 'day') return date.toLocaleDateString("en-US", { weekday: 'long', month: "long", day: "numeric", year: "numeric" });
+    if (view === 'week') {
+      const start = new Date(date);
+      start.setDate(date.getDate() - date.getDay());
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+    }
+    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
-};
+  const getDaysInMonth = (date: Date): number => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getFirstDayOfMonth = (date: Date): number => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const formatDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-
-
-// /calendar/utils.ts
-
-/**
- * Formats a date object into a string based on the current calendar view.
- * @param date - The date to format.
- * @param view - The current calendar view ('day', 'week', or 'month').
- * @returns A formatted date string.
- */
-const formatDate = (date: Date, view: "month" | "week" | "day"): string => {
-  if (view === 'day') {
-    return date.toLocaleDateString("en-US", {
-      weekday: 'long',
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
-  if (view === 'week') {
-    const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay());
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    return `${startOfWeek.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${endOfWeek.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
-  }
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-};
-
-/**
- * Gets the number of days in a given month.
- * @param date - A date within the desired month.
- * @returns The total number of days in that month.
- */
-const getDaysInMonth = (date: Date): number => {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-};
-
-/**
- * Gets the day of the week for the first day of a given month.
- * (0 for Sunday, 1 for Monday, etc.)
- * @param date - A date within the desired month.
- * @returns The day of the week (0-6).
- */
-const getFirstDayOfMonth = (date: Date): number => {
-  return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-};
-
-/**
- * Formats a date object into a "YYYY-MM-DD" string, respecting the local timezone.
- * This prevents the date from shifting unexpectedly due to UTC conversion.
- * @param date - The date to format.
- * @returns The formatted date string.
- */
-const formatDateString = (date: Date): string => {
-  const year = date.getFullYear();
-  // getMonth() is zero-based, so we add 1
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return {
+    users, teams, departments, loadingAction, handleSaveUser, handleDeleteUser, handleVerifyUser, handleSaveTeam,
+    handleDeleteTeam, handleSaveDepartment, handleDeleteDepartment, handleAddMember, handleRemoveMember,
+    handleChangeMemberRole, handleRefreshData, handleExportData, pendingEvents, handleAcceptEvent, handleRejectEvent,
+    modal, setModal, closeModal, handleActionConfirm, entityForDialog, userForEdit, teamForEdit, departmentForEdit,
+    isUserFormLoading, isTeamFormLoading, isDeptFormLoading, calendarView, currentDate, filteredEvents, upcomingEvents,
+    showNewEventDialog, selectedEvent, isCalendarLoading, calendarFilterType, setCalendarView, navigateCalendar,
+    createEvent, setSelectedEvent, setShowNewEventDialog, setCalendarFilterType, handleDayClick, handleEditEvent,
+    handleDeleteEvent, formatCalendarDate: (date: Date) => formatDate(date, calendarView), getDaysInMonth,
+    getFirstDayOfMonth, formatDateString,
+  };
 };

@@ -29,68 +29,83 @@ export default async function AdminPage() {
   if(!isAdminUser) redirect('/')
     
   // Fetch data using direct API calls
-  const [usersResponse, teamsResponse, departmentsResponse, eventsResponse] = await Promise.all([
-    authenticatedFetch('/api/users'),
-    authenticatedFetch('/api/teams'),
-    authenticatedFetch('/api/departments'),
-    authenticatedFetch('/api/events?type=personal'),
+  const [usersResponse, teamsResponse, departmentsResponse, eventsResponse, pendingEventsResponse] = await Promise.all([
+    authenticatedFetch('/api/admin/users'),
+    authenticatedFetch('/api/admin/teams'),
+    authenticatedFetch('/api/admin/departments'),
+    authenticatedFetch('/api/admin/events'),
+    authenticatedFetch('/api/admin/events/requests'),
   ]);
 
   // Parse all responses
-  const [usersData, teamsData, departmentsData, eventsData] = await Promise.all([
+  const [usersData, teamsData, departmentsData, eventsData, pendingEventsData] = await Promise.all([
     usersResponse.ok ? usersResponse.json() : Promise.resolve({ users: [] }),
     teamsResponse.ok ? teamsResponse.json() : Promise.resolve({ teams: [] }),
     departmentsResponse.ok ? departmentsResponse.json() : Promise.resolve({ departments: [] }),
-    eventsResponse.ok ? eventsResponse.json() : Promise.resolve({ events: [] })
+    eventsResponse.ok ? eventsResponse.json() : Promise.resolve({ events: [] }),
+    pendingEventsResponse.ok ? pendingEventsResponse.json() : Promise.resolve({ events: [] }),
   ]);
 
   const users = usersData.users || [];
   const teams = teamsData.teams || [];
   const departments = departmentsData.departments || [];
   const events = eventsData.events || [];
+  const pendingEvents = pendingEventsData.events || [];
 
   // Transform data for admin interface
-  const initialUsers = users.map((user: Partial<User>) => ({
-    id: user.id || '',
-    name: user.name || '',
-    email: user.email || '',
-    status: "verified" as const,
-    joinedDate: new Date().toISOString(),
-    avatar: user.avatar || ''
+  // NOTE: This transformation logic is temporary. The UI will be updated to use the raw API response directly.
+  const initialUsers = users.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    status: user.status,
+    joinedDate: user.createdAt,
+    avatar: user.avatar || `https://i.pravatar.cc/150?u=${user.id}`,
+    role: user.role.toLowerCase(),
   }));
 
-  const initialTeams = teams.map((team: Partial<Team>) => ({
-    id: team.id || '',
-    name: team.name || '',
-    description: team.description || '',
-    members: [],
-    departmentId: 'dept-1',
-    createdDate: new Date().toISOString(),
-    status: "active" as const
+  const initialTeams = teams.map((team: any) => ({
+    id: team.id,
+    name: team.name,
+    description: team.description,
+    members: [], // This will be populated client-side or via a more detailed API call
+    departmentId: team.departmentId,
+    createdDate: team.createdAt,
+    status: "active",
   }));
 
-  const initialDepartments = departments.map((dept: Partial<Department>) => ({
-    id: dept.id || '',
-    name: dept.name || '',
-    description: dept.description || '',
-    members: [],
-    teams: [],
-    createdDate: new Date().toISOString(),
-    status: "active" as const
+  const initialDepartments = departments.map((dept: any) => ({
+    id: dept.id,
+    name: dept.name,
+    description: dept.description,
+    members: [], // This will be populated client-side or via a more detailed API call
+    teams: [], // This will be populated client-side or via a more detailed API call
+    createdDate: dept.createdAt,
+    status: "active",
   }));
 
-  const initialEvents = events.slice(0, 10).map((event: Partial<CalendarEvent>, index: number) => ({
-    id: index + 1,
+  const initialEvents = events.map((event: any) => ({
+    id: event.id,
     title: event.title,
     description: event.description,
-    date: event.start!.split('T')[0],
-    time: event.start!.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00',
-    duration: 60,
-    type: "meeting" as const,
-    attendees: event.participants?.map((p: Partial<User>) => p.name || '') || [],
-    location: event.location || 'Conference Room',
-    color: '#3b82f6'
+    date: new Date(event.date).toISOString().split('T')[0],
+    time: event.time || '00:00',
+    duration: event.duration,
+    type: event.type.toLowerCase(),
+    attendees: [], // This needs a proper relation in the API response
+    location: event.location || 'N/A',
+    color: '#3b82f6', // Example color
   }));
+  
+  const initialPendingEvents = pendingEvents.map((event: any) => ({
+    ...event,
+    date: new Date(event.date).toISOString().split('T')[0],
+    submittedBy: 'Unknown', // This data is not yet available from the API
+    submittedByType: 'user', // This data is not yet available from the API
+  }));
+
+  // TODO: Fetch upcoming events separately if logic differs from all events
+  const upcomingEvents = initialEvents.slice(0, 5).map((e:any) => ({ ...e, attendees: e.attendees.length }));
 
   return (
     <AdminClientPage
@@ -98,8 +113,8 @@ export default async function AdminPage() {
       initialTeams={initialTeams}
       initialDepartments={initialDepartments}
       initialEvents={initialEvents}
-      initialUpcomingEvents={initialEvents.slice(0, 5)}
-      initialPendingEvents={initialEvents.slice(0, 3)}
+      initialUpcomingEvents={upcomingEvents}
+      initialPendingEvents={initialPendingEvents}
     />
   );
 }

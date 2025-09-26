@@ -123,8 +123,13 @@ class Seeder {
   }
 
   private async seedEvents() {
+    const eventsToCreate = eventsData.map((event: any) => ({
+      ...event,
+      type: event.type.toUpperCase(),
+    }));
+
     await Promise.all(
-      eventsData.map((data) => this.prisma.event.create({ data }))
+      eventsToCreate.map((data) => this.prisma.event.create({ data }))
     );
     console.log("✅ Created events");
   }
