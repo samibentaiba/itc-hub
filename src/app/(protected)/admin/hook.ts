@@ -86,9 +86,9 @@ export const useAdminPage = (
       case 'user':
         return { ...item, joinedDate: item.createdAt, avatar: item.avatar || `https://i.pravatar.cc/150?u=${item.id}` };
       case 'team':
-        return { ...item, members: item.members || [], createdDate: item.createdAt, status: 'active' };
+        return { ...item, createdDate: item.createdAt, status: 'active' };
       case 'department':
-        return { ...item, members: item.members || [], teams: item.teams || [], createdDate: item.createdAt, status: 'active' };
+        return { ...item, createdDate: item.createdAt, status: 'active' };
       case 'event':
         return {
           ...item,

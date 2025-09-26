@@ -8,17 +8,19 @@ import { MembershipRole } from "@prisma/client";
  * Retrieves a list of all departments with their member and team counts.
  */
 export async function listDepartments() {
-  const departments = await prisma.department.findMany({
+  return await prisma.department.findMany({
     include: {
-      _count: {
-        select: { members: true, teams: true },
-      },
       members: {
-        where: { role: MembershipRole.LEADER },
         include: {
           user: {
-            select: { name: true },
+            select: { id: true, name: true, avatar: true },
           },
+        },
+      },
+      teams: {
+        select: {
+          id: true,
+          name: true,
         },
       },
     },
@@ -26,15 +28,6 @@ export async function listDepartments() {
       name: "asc",
     },
   });
-
-  return departments.map((dept) => ({
-    id: dept.id,
-    name: dept.name,
-    description: dept.description,
-    memberCount: dept._count.members,
-    teamCount: dept._count.teams,
-    leaders: dept.members.map((m) => m.user.name).join(", "),
-  }));
 }
 
 /**

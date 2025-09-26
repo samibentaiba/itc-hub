@@ -20,6 +20,14 @@ export async function listEvents(status?: EventStatus) {
   const whereClause = status ? { status } : {};
   const events = await prisma.event.findMany({
     where: whereClause,
+    include: {
+      organizer: {
+        select: { id: true, name: true, avatar: true },
+      },
+      attendees: {
+        select: { id: true, name: true, avatar: true },
+      },
+    },
     orderBy: {
       date: "asc",
     },
