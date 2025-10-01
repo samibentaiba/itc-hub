@@ -138,8 +138,8 @@ export default async function AdminPage() {
   const initialPendingEvents = pendingEvents.map((event: any) => ({
     ...event,
     date: new Date(event.date).toISOString().split("T")[0],
-    submittedBy: "Unknown", // This data is not yet available from the API
-    submittedByType: "user", // This data is not yet available from the API
+    submittedBy: event.organizer?.name || "Unknown",
+    submittedByType: "user",
   }));
 
   // TODO: Fetch upcoming events separately if logic differs from all events

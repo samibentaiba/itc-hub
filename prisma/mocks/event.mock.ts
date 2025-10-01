@@ -8,6 +8,7 @@ const events: Omit<
   | "attendees"
   | "department"
   | "organizer"
+  | "status"
 >[] = [
   // August 2025 Events
   {
@@ -189,6 +190,32 @@ const events: Omit<
     location: "Retro Room",
     organizerId: "USER-004",
     departmentId: "DEP-001",
+  },
+  {
+    id: "EVENT-014",
+    title: "New Feature Brainstorming",
+    description: "Brainstorming session for the next big feature.",
+    date: new Date("2025-09-01T10:00:00Z"),
+    time: "10:00",
+    duration: 90,
+    type: "workshop",
+    status: "PENDING",
+    location: "Innovation Hub",
+    organizerId: "USER-005",
+    departmentId: "DEP-001",
+  },
+  {
+    id: "EVENT-015",
+    title: "Marketing Campaign Kick-off",
+    description: "Kick-off meeting for the new marketing campaign.",
+    date: new Date("2025-09-02T14:00:00Z"),
+    time: "14:00",
+    duration: 60,
+    type: "meeting",
+    status: "PENDING",
+    location: "Marketing Floor",
+    organizerId: "USER-008",
+    departmentId: "DEP-004",
   }
 ];
 

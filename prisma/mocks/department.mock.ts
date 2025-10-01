@@ -35,5 +35,13 @@ const departments: Omit<
     color: "#8b5cf6",
     managerId: "USER-001",
   },
+  {
+    id: "DEP-004",
+    name: "Marketing",
+    description: "Responsible for all marketing and communication.",
+    status: "active",
+    color: "#ec4899",
+    managerId: "USER-008",
+  }
 ];
 export default departments;

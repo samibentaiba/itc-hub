@@ -179,7 +179,8 @@ export async function POST(request: NextRequest) {
         location: location || "TBD",
         isRecurring: isRecurring || false,
         organizerId: session.user.id,
-        departmentId: departmentId || null
+        departmentId: departmentId || null,
+        status: "PENDING"
       },
       include: {
         organizer: {

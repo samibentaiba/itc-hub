@@ -87,7 +87,7 @@ export default function LandingClientPage({ initialData }: LandingClientPageProp
       <header className="border-b sticky top-0 bg-background/95 backdrop-blur z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <HeaderLogo />
+            <HeaderLogo variant="auto"/>
           </Link>
           <div className="flex items-center space-x-3">
             <Button variant="ghost" asChild>
@@ -280,7 +280,7 @@ export default function LandingClientPage({ initialData }: LandingClientPageProp
                     <div className="grid md:grid-cols-3 gap-8">
                     <div className="space-y-4">
                         <Link href="/" className="flex items-center space-x-2">
-                            <FooterLogo />
+                            <FooterLogo variant="auto" />
                         </Link>
                         <p className="text-sm text-muted-foreground">Empowering the IT Community through collaboration, innovation, and shared knowledge.</p>
                     </div>

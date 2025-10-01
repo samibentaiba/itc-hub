@@ -256,7 +256,7 @@ export function SidebarLogo(props: Omit<LogoProps, "type" | "showSubtitle" | "si
 }
 
 export function HeaderLogo(props: Omit<LogoProps, "type" | "size">) {
-  return <Logo {...props} type="image" size="sm" />
+  return <Logo {...props} type="image"  size="sm" />
 }
 
 export function FooterLogo(props: Omit<LogoProps, "type" | "size">) {
