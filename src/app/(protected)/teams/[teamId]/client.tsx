@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NewTicketForm } from "@/components/new-ticket-form";
@@ -620,6 +621,15 @@ interface TeamDetailClientPageProps {
   initialTickets: TeamTicket[];
 }
 
+// Define the User type
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: "admin" | "manager" | "user";
+}
+
 export default function TeamDetailClientPage({
   initialTeam,
   initialTickets,
@@ -655,18 +665,17 @@ export default function TeamDetailClientPage({
     setSelectedEvent,
   } = useTeamDetailPage(initialTeam, initialTickets);
 
-  const formatLeaders = (leaders: User[]) => {
-    if (!leaders || leaders.length === 0) {
+  console.log(team.members);
+
+  const formatLeader = (leader: User | null) => {
+    if (!leader) {
       return null;
     }
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Users className="h-4 w-4" />
         <span>Led by:</span>
-        <span className="font-medium text-foreground">{leaders[0].name}</span>
-        {leaders.length > 1 && (
-          <span className="text-xs text-muted-foreground">+{leaders.length - 1} more</span>
-        )}
+        <span className="font-medium text-foreground">{leader.name}</span>
       </div>
     );
   };
@@ -685,6 +694,7 @@ export default function TeamDetailClientPage({
           <div>
             <h1 className="text-2xl font-bold">{team.name}</h1>
             <p className="text-muted-foreground">{team.description}</p>
+            {formatLeader(team.leader)}
           </div>
         </div>
         <AuthorizedComponent teamId={team.id} action="manage">
@@ -864,88 +874,102 @@ export default function TeamDetailClientPage({
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {team.members &&
-                  team.members.map((member) => {
-                    if (!member || !member.name) {
-                      return null;
-                    }
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Joined Date</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {team.members &&
+                    team.members.map((member) => {
+                      if (!member || !member.name) {
+                        return null;
+                      }
 
-                    return (
-                      <div
-                        key={member.id}
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage
-                                src={member.avatar || ""}
-                                alt={member.name}
+                      return (
+                        <TableRow key={member.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-9 w-9">
+                                <AvatarImage
+                                  src={member.avatar || ""}
+                                  alt={member.name}
+                                />
+                                <AvatarFallback>
+                                  {member.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">{member.name}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {member.email || "No email"}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                member.role === "leader" ? "default" : "secondary"
+                              }
+                            >
+                              {member.role || "member"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`h-2 w-2 rounded-full ${member.status === "online"
+                                    ? "bg-green-500"
+                                    : member.status === "away"
+                                      ? "bg-yellow-500"
+                                      : "bg-gray-500"
+                                  }`}
                               />
-                              <AvatarFallback>
-                                {member.name.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div
-                              className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background ${member.status === "online"
-                                  ? "bg-green-500"
-                                  : member.status === "away"
-                                    ? "bg-yellow-500"
-                                    : "bg-gray-500"
-                                }`}
-                            />
-                          </div>
-                          <div>
-                            <div className="font-medium">{member.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {member.email || "No email"}
+                              {member.status}
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              Joined{" "}
-                              {member.joinedDate
-                                ? new Date(
-                                  member.joinedDate
-                                ).toLocaleDateString()
-                                : "Unknown"}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={
-                              member.role === "leader" ? "default" : "secondary"
-                            }
-                          >
-                            {member.role || "member"}
-                          </Badge>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleMemberAction("Message", member)
-                                }
-                              >
-                                <Mail className="mr-2 h-4 w-4" />
-                                Send Message
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    );
-                  })}
-                {(!team.members || team.members.length === 0) && (
-                  <p className="text-muted-foreground text-center py-8">
-                    No members found for this team.
-                  </p>
-                )}
-              </div>
+                          </TableCell>
+                          <TableCell>
+                            {member.joinedDate
+                              ? new Date(
+                                member.joinedDate
+                              ).toLocaleDateString()
+                              : "Unknown"}
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleMemberAction("Message", member)
+                                  }
+                                >
+                                  <Mail className="mr-2 h-4 w-4" />
+                                  Send Message
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+              {(!team.members || team.members.length === 0) && (
+                <p className="text-muted-foreground text-center py-8">
+                  No members found for this team.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
