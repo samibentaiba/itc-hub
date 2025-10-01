@@ -80,10 +80,11 @@ export default async function TeamsPage() {
     memberCount: team.memberCount || 0,
     activeProjects: 3, // Default value
     lead: {
-      name: team.leader?.name || 'Unknown',
-      avatar: team.leader?.avatar || '',
-      id: team.leader?.id || ''
+      name: team.leaders && team.leaders.length > 0 ? team.leaders[0].name : 'Unknown',
+      avatar: team.leaders && team.leaders.length > 0 ? team.leaders[0].avatar : '',
+      id: team.leaders && team.leaders.length > 0 ? team.leaders[0].id : ''
     },
+    leaders: team.leaders,
     members: team.members?.map(member => ({
       name: member.name || '',
       avatar: member.avatar || '',

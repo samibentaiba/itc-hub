@@ -49,8 +49,8 @@ model User {
   notifications          Notification[]
   files                  File[]
   profile                Profile?
-  managedDepartments     Department[]       @relation("DepartmentManager")
-  ledTeams               Team[]             @relation("TeamLeader")
+  managingDepartments    Department[]       @relation("DepartmentManagers")
+  leadingTeams           Team[]             @relation("TeamLeaders")
   collaboratingOnTickets Ticket[]           @relation("TicketCollaborators")
   attendedEvents         Event[]            @relation("EventAttendees")
   // Relations to NextAuth models
@@ -86,8 +86,7 @@ model Department {
   teams       Team[]
   tickets     Ticket[]
   events      Event[]
-  manager     User?              @relation("DepartmentManager", fields: [managerId], references: [id])
-  managerId   String?            @unique
+  managers    User[]             @relation("DepartmentManagers")
 }
 
 model DepartmentMember {
@@ -113,8 +112,7 @@ model Team {
   members      TeamMember[]
   tickets      Ticket[]
   department   Department   @relation(fields: [departmentId], references: [id])
-  leader       User?        @relation("TeamLeader", fields: [leaderId], references: [id])
-  leaderId     String?
+  leaders      User[]       @relation("TeamLeaders")
 }
 
 model TeamMember {

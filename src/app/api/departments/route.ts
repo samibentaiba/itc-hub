@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         include: {
-          manager: {
+          managers: {
             select: {
               id: true,
               name: true,
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
           },
           teams: {
             include: {
-              leader: {
+              leaders: {
                 select: {
                   id: true,
                   name: true,
@@ -108,27 +108,27 @@ export async function GET(request: NextRequest) {
     const transformedDepartments = departments.map(dept => ({
       id: dept.id,
       name: dept.name,
-      manager: dept.manager ? {
-        id: dept.manager.id,
-        name: dept.manager.name,
-        email: dept.manager.email,
-        avatar: dept.manager.avatar,
-        role: dept.manager.role.toLowerCase() === 'admin' ? 'admin' : 
-              dept.manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-      } : null,
+      managers: dept.managers.map(manager => ({
+        id: manager.id,
+        name: manager.name,
+        email: manager.email,
+        avatar: manager.avatar,
+        role: manager.role.toLowerCase() === 'admin' ? 'admin' : 
+              manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
       memberCount: dept.members.length,
       ticketCount: dept.tickets.length,
       teams: dept.teams.map(team => ({
         id: team.id,
         name: team.name,
-        leader: team.leader ? {
-          id: team.leader.id,
-          name: team.leader.name,
-          email: team.leader.email,
-          avatar: team.leader.avatar,
-          role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
-                team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-        } : null,
+        leaders: team.leaders.map(leader => ({
+          id: leader.id,
+          name: leader.name,
+          email: leader.email,
+          avatar: leader.avatar,
+          role: leader.role.toLowerCase() === 'admin' ? 'admin' : 
+                leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        })),
         memberCount: team.members.length,
         members: team.members.map(member => ({
           id: member.user.id,
@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description, status, memberIds, managerId } = body
+    const { name, description, status, memberIds, managerIds } = body
 
     if (!name) {
       return NextResponse.json(
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
         name,
         description,
         status: status || "active",
-        managerId,
+        managers: { connect: managerIds.map((id: string) => ({ id })) },
         ...(memberIds && memberIds.length > 0 && {
           members: {
             create: memberIds.map((userId: string) => ({
@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
         })
       },
       include: {
-        manager: {
+        managers: {
           select: {
             id: true,
             name: true,

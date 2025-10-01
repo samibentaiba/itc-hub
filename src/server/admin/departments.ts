@@ -23,7 +23,7 @@ export async function listDepartments() {
           name: true,
         },
       },
-      manager: {
+      managers: {
         select: {
           id: true,
           name: true,

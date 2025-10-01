@@ -655,6 +655,22 @@ export default function TeamDetailClientPage({
     setSelectedEvent,
   } = useTeamDetailPage(initialTeam, initialTickets);
 
+  const formatLeaders = (leaders: User[]) => {
+    if (!leaders || leaders.length === 0) {
+      return null;
+    }
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Users className="h-4 w-4" />
+        <span>Led by:</span>
+        <span className="font-medium text-foreground">{leaders[0].name}</span>
+        {leaders.length > 1 && (
+          <span className="text-xs text-muted-foreground">+{leaders.length - 1} more</span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}

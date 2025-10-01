@@ -22,7 +22,7 @@ export async function listTeams() {
           name: true,
         },
       },
-      leader: {
+      leaders: {
         select: {
           id: true,
           name: true,

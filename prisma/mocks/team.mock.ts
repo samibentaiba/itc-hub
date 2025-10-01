@@ -1,16 +1,15 @@
 import { Team } from "@prisma/client";
 
-const teams: Omit<
-  Team,
-  "createdAt" | "updatedAt" | "department" | "leader" | "members" | "tickets"
->[] = [
+const teams: any[] = [
   {
     id: "TEAM-001",
     name: "Frontend",
     description: "Develops and maintains the user interface.",
     status: "active",
     departmentId: "DEP-001",
-    leaderId: "USER-002",
+    leaders: {
+      connect: [{ id: "USER-002" }, { id: "USER-003" }],
+    },
   },
   {
     id: "TEAM-002",
@@ -18,7 +17,9 @@ const teams: Omit<
     description: "Manages the server-side logic and database.",
     status: "active",
     departmentId: "DEP-001",
-    leaderId: "USER-004",
+    leaders: {
+      connect: [{ id: "USER-004" }],
+    },
   },
   {
     id: "TEAM-003",
@@ -26,7 +27,9 @@ const teams: Omit<
     description: "First line of response for customer issues.",
     status: "active",
     departmentId: "DEP-002",
-    leaderId: "USER-006",
+    leaders: {
+      connect: [{ id: "USER-006" }],
+    },
   },
   {
     id: "TEAM-004",
@@ -34,7 +37,9 @@ const teams: Omit<
     description: "Handles escalated and technical support cases.",
     status: "active",
     departmentId: "DEP-002",
-    leaderId: "USER-006",
+    leaders: {
+      connect: [{ id: "USER-006" }],
+    },
   },
   {
     id: "TEAM-005",
@@ -42,7 +47,9 @@ const teams: Omit<
     description: "Company leadership.",
     status: "active",
     departmentId: "DEP-003",
-    leaderId: "USER-001",
+    leaders: {
+      connect: [{ id: "USER-001" }],
+    },
   },
 ];
 export default teams;

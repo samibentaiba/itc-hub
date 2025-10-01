@@ -86,7 +86,7 @@ const DepartmentCard = ({ department }: { department: DepartmentLocal }) => (
       </div>
     </CardHeader>
     <CardContent className="space-y-4">
-      <DepartmentHead head={department.head} />
+      <DepartmentHead managers={department.managers} />
       <TeamsSection teams={department.teams} teamCount={department.teamCount} />
       <DepartmentStats memberCount={department.memberCount} status={department.status} />
       <RecentActivity activity={department.recentActivity} />
@@ -94,12 +94,28 @@ const DepartmentCard = ({ department }: { department: DepartmentLocal }) => (
   </Card>
 );
 
-const DepartmentHead = ({ head }: { head: DepartmentLocal['head'] }) => (
-  <div className="flex items-center gap-2">
-    <Avatar className="h-8 w-8"><AvatarImage src={head.avatar} alt={head.name} /><AvatarFallback className="text-xs">{head.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback></Avatar>
-    <div><Link href={`/users/${head.id}`} className="text-sm font-medium hover:underline">{head.name}</Link><p className="text-xs text-muted-foreground">Department Head</p></div>
-  </div>
-);
+const DepartmentHead = ({ managers }: { managers: DepartmentLocal['managers'] }) => {
+  if (!managers || managers.length === 0) {
+    return (
+      <div className="flex items-center gap-2">
+        <Avatar className="h-8 w-8"><AvatarFallback className="text-xs">?</AvatarFallback></Avatar>
+        <div><p className="text-sm font-medium">Unknown Department Head</p><p className="text-xs text-muted-foreground">No manager assigned</p></div>
+      </div>
+    );
+  }
+
+  const firstManager = managers[0];
+
+  return (
+    <div className="flex items-center gap-2">
+      <Avatar className="h-8 w-8"><AvatarImage src={firstManager.avatar} alt={firstManager.name} /><AvatarFallback className="text-xs">{firstManager.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback></Avatar>
+      <div><Link href={`/users/${firstManager.id}`} className="text-sm font-medium hover:underline">{firstManager.name}</Link><p className="text-xs text-muted-foreground">Department Head</p></div>
+      {managers.length > 1 && (
+        <div className="text-xs text-muted-foreground">+{managers.length - 1} more</div>
+      )}
+    </div>
+  );
+};
 
 const TeamsSection = ({ teams, teamCount }: { teams: DepartmentLocal['teams']; teamCount: number }) => (
   <div className="space-y-2">

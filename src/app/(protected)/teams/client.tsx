@@ -25,6 +25,38 @@ const iconMap = {
   "Avg Team Size": Clock,
 };
 
+const DepartmentsGrid = ({ departments }: { departments: DepartmentLocal[] }) => (
+  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {departments.map((department) => (
+      <DepartmentCard key={department.id} department={department} />
+    ))}
+  </div>
+);
+
+const TeamLeaders = ({ leaders }: { leaders: TeamLocal['leaders'] }) => {
+  if (!leaders || leaders.length === 0) {
+    return (
+      <div className="flex items-center gap-2">
+        <Avatar className="h-8 w-8"><AvatarFallback className="text-xs">?</AvatarFallback></Avatar>
+        <div><p className="text-sm font-medium">Unknown Team Leader</p><p className="text-xs text-muted-foreground">No leader assigned</p></div>
+      </div>
+    );
+  }
+
+  const firstLeader = leaders[0];
+
+  return (
+    <div className="flex items-center gap-2">
+      <Avatar className="h-8 w-8"><AvatarImage src={firstLeader.avatar} alt={firstLeader.name} /><AvatarFallback className="text-xs">{firstLeader.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback></Avatar>
+      <div><Link href={`/users/${firstLeader.id}`} className="text-sm font-medium hover:underline">{firstLeader.name}</Link><p className="text-xs text-muted-foreground">Team Lead</p></div>
+      {leaders.length > 1 && (
+        <div className="text-xs text-muted-foreground">+{leaders.length - 1} more</div>
+      )}
+    </div>
+  );
+};
+
+
 export default function TeamsClientPage({ initialTeams, initialStats }: TeamsClientPageProps) {
   const { stats, teams, getDepartmentColor } = useTeamsPage(initialTeams, initialStats);
 
@@ -83,20 +115,7 @@ export default function TeamsClientPage({ initialTeams, initialStats }: TeamsCli
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={team.lead.avatar} alt={team.lead.name} />
-                  <AvatarFallback className="text-xs">
-                    {team.lead.name.split(" ").map((n) => n[0]).join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <Link href={`/users/${team.lead.id}`} className="text-sm font-medium hover:underline">
-                    {team.lead.name}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">Team Lead</p>
-                </div>
-              </div>
+              <TeamLeaders leaders={team.leaders} />
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

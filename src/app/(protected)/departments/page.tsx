@@ -66,10 +66,11 @@ export default async function DepartmentsPage() {
     name: dept.name || '',
     description: dept.description || '',
     head: {
-      name: dept.manager?.name || 'Unknown',
-      avatar: dept.manager?.avatar || '',
-      id: dept.manager?.id || ''
+      name: dept.managers && dept.managers.length > 0 ? dept.managers[0].name : 'Unknown',
+      avatar: dept.managers && dept.managers.length > 0 ? dept.managers[0].avatar : '',
+      id: dept.managers && dept.managers.length > 0 ? dept.managers[0].id : ''
     },
+    managers: dept.managers,
     teamCount: dept.teams?.length || 0,
     memberCount: dept.memberCount || 0,
     status: "active" as const,

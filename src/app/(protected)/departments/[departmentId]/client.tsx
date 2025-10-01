@@ -38,6 +38,22 @@ function DepartmentHeader({ department, showNewTicket, onOpenChange }: Departmen
     ...department.teams.map(team => ({ id: team.id, name: team.name, type: 'team' as const }))
   ];
 
+  const formatManagers = (managers: User[]) => {
+    if (!managers || managers.length === 0) {
+      return null;
+    }
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Users className="h-4 w-4" />
+        <span>Managed by:</span>
+        <span className="font-medium text-foreground">{managers[0].name}</span>
+        {managers.length > 1 && (
+          <span className="text-xs text-muted-foreground">+{managers.length - 1} more</span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -147,6 +163,26 @@ interface TeamsTabProps {
 }
 
 function TeamsTab({ teams }: TeamsTabProps) {
+  const formatLeaders = (leaders: User[]) => {
+    if (!leaders || leaders.length === 0) {
+      return null;
+    }
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <Avatar className="h-6 w-6">
+          <AvatarImage src={leaders[0].avatar} alt={leaders[0].name} />
+          <AvatarFallback className="text-xs">
+            {leaders[0].name.split(' ').map(n => n[0]).join('')}
+          </AvatarFallback>
+        </Avatar>
+        <span className="text-muted-foreground">
+          Led by <span className="font-medium text-foreground">{leaders[0].name}</span>
+          {leaders.length > 1 && ` +${leaders.length - 1} more`}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -175,19 +211,7 @@ function TeamsTab({ teams }: TeamsTabProps) {
                       </div>
                       <Badge variant="default" className="shrink-0">Active</Badge>
                     </div>
-                    {team.leader && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={team.leader.avatar} alt={team.leader.name} />
-                          <AvatarFallback className="text-xs">
-                            {team.leader.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-muted-foreground">
-                          Led by <span className="font-medium text-foreground">{team.leader.name}</span>
-                        </span>
-                      </div>
-                    )}
+                                        {formatLeaders(team.leaders)}
                     {team.description && (
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {team.description}

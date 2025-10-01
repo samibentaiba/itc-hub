@@ -1,23 +1,15 @@
 import { Department } from "@prisma/client";
 
-const departments: Omit<
-  Department,
-  | "createdAt"
-  | "updatedAt"
-  | "events"
-  | "manager"
-  | "members"
-  | "teams"
-  | "tickets"
->[] = [
+const departments: any[] = [
   {
     id: "DEP-001",
     name: "Engineering",
-    description:
-      "Responsible for all software development and product engineering.",
+    description: "Responsible for all software development and product engineering.",
     status: "active",
     color: "#3b82f6",
-    managerId: "USER-002",
+    managers: {
+      connect: [{ id: "USER-002" }, { id: "USER-004" }],
+    },
   },
   {
     id: "DEP-002",
@@ -25,7 +17,9 @@ const departments: Omit<
     description: "Dedicated to providing world-class customer support.",
     status: "active",
     color: "#10b981",
-    managerId: "USER-006",
+    managers: {
+      connect: [{ id: "USER-006" }],
+    },
   },
   {
     id: "DEP-003",
@@ -33,7 +27,9 @@ const departments: Omit<
     description: "High-level company leadership.",
     status: "active",
     color: "#8b5cf6",
-    managerId: "USER-001",
+    managers: {
+      connect: [{ id: "USER-001" }],
+    },
   },
   {
     id: "DEP-004",
@@ -41,7 +37,9 @@ const departments: Omit<
     description: "Responsible for all marketing and communication.",
     status: "active",
     color: "#ec4899",
-    managerId: "USER-008",
+    managers: {
+      connect: [{ id: "USER-008" }],
+    },
   }
 ];
 export default departments;

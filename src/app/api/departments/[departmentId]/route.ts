@@ -28,7 +28,7 @@ export async function GET(
     const department = await prisma.department.findUnique({
       where: { id: departmentId },
       include: {
-        manager: {
+        managers: {
           select: {
             id: true,
             name: true,
@@ -53,7 +53,7 @@ export async function GET(
         },
         teams: {
           include: {
-            leader: {
+            leaders: {
               select: {
                 id: true,
                 name: true,
@@ -113,27 +113,27 @@ export async function GET(
     const transformedDepartment = {
       id: department.id,
       name: department.name,
-      manager: department.manager ? {
-        id: department.manager.id,
-        name: department.manager.name,
-        email: department.manager.email,
-        avatar: department.manager.avatar,
-        role: department.manager.role.toLowerCase() === 'admin' ? 'admin' : 
-              department.manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-      } : null,
+      managers: department.managers.map(manager => ({
+        id: manager.id,
+        name: manager.name,
+        email: manager.email,
+        avatar: manager.avatar,
+        role: manager.role.toLowerCase() === 'admin' ? 'admin' : 
+              manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
       memberCount: department.members.length,
       ticketCount: department.tickets.length,
       teams: department.teams.map(team => ({
         id: team.id,
         name: team.name,
-        leader: team.leader ? {
-          id: team.leader.id,
-          name: team.leader.name,
-          email: team.leader.email,
-          avatar: team.leader.avatar,
-          role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
-                team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-        } : null,
+        leaders: team.leaders.map(leader => ({
+          id: leader.id,
+          name: leader.name,
+          email: leader.email,
+          avatar: leader.avatar,
+          role: leader.role.toLowerCase() === 'admin' ? 'admin' : 
+                leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+        })),
         memberCount: team.members.length,
         members: team.members.map(member => ({
           id: member.user.id,

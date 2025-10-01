@@ -880,6 +880,16 @@ function AdminTabs({
   const getUserNameById = (userId: string) =>
     users.find((u) => u.id === userId)?.name;
 
+  const formatLeaders = (leaders: User[]) => {
+    if (!leaders || leaders.length === 0) {
+      return "N/A";
+    }
+    if (leaders.length === 1) {
+      return leaders[0].name;
+    }
+    return `${leaders[0].name} +${leaders.length - 1}`;
+  };
+
   return (
     <Tabs defaultValue="users" className="space-y-4">
       <TabsList className="grid w-full grid-cols-5">
@@ -1029,7 +1039,7 @@ function AdminTabs({
                           {team.description}
                         </div>
                       </TableCell>
-                      <TableCell>{team.leader?.name || "N/A"}</TableCell>
+                      <TableCell>{formatLeaders(team.leaders)}</TableCell>
                       <TableCell>{team.members.length}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -1116,7 +1126,7 @@ function AdminTabs({
                           {dept.description}
                         </div>
                       </TableCell>
-                      <TableCell>{dept.manager?.name || "N/A"}</TableCell>
+                      <TableCell>{formatLeaders(dept.managers)}</TableCell>
                       <TableCell>{dept.members.length}</TableCell>
                       <TableCell>{dept.teams?.length}</TableCell>
                       <TableCell className="text-right">

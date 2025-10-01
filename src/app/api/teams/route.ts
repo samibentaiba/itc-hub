@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
               description: true
             }
           },
-          leader: {
+          leaders: {
             select: {
               id: true,
               name: true,
@@ -95,14 +95,14 @@ export async function GET(request: NextRequest) {
     const transformedTeams = teams.map(team => ({
       id: team.id,
       name: team.name,
-      leader: team.leader ? {
-        id: team.leader.id,
-        name: team.leader.name,
-        email: team.leader.email,
-        avatar: team.leader.avatar,
-        role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
-              team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-      } : null,
+      leaders: team.leaders.map(leader => ({
+        id: leader.id,
+        name: leader.name,
+        email: leader.email,
+        avatar: leader.avatar,
+        role: leader.role.toLowerCase() === 'admin' ? 'admin' : 
+              leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
       department: team.department?.name || "",
       memberCount: team.members.length,
       members: team.members.map(member => ({
@@ -146,7 +146,7 @@ interface CreateTeamBody {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, description, leaderId, memberIds, departmentId } = body;
+    const { name, description, leaderIds, memberIds, departmentId } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -160,7 +160,7 @@ export async function POST(req: Request) {
       data: {
         name,
         description,
-        leader: leaderId ? { connect: { id: leaderId } } : undefined,
+        leaders: { connect: leaderIds.map((id: string) => ({ id })) },
         department: { connect: { id: departmentId } }, // ✅ required field
         members: {
           create: [
@@ -168,19 +168,19 @@ export async function POST(req: Request) {
               role: "MEMBER" as const,
               user: { connect: { id: userId } }
             })) ?? []),
-            ...(leaderId
-              ? [
+            ...(leaderIds
+              ? leaderIds.map((leaderId: string) => (
                   {
                     role: "MANAGER" as const,
                     user: { connect: { id: leaderId } }
                   }
-                ]
+                ))
               : [])
           ]
         }
       },
       include: {
-        leader: true,
+        leaders: true,
         members: { include: { user: true } },
         department: true
       }

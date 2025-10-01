@@ -31,7 +31,7 @@ export async function GET(
             description: true
           }
         },
-        leader: {
+        leaders: {
           select: {
             id: true,
             name: true,
@@ -100,14 +100,14 @@ export async function GET(
         name: team.department.name,
         description: team.department.description || ""
       } : null,
-      leader: team.leader ? {
-        id: team.leader.id,
-        name: team.leader.name,
-        email: team.leader.email,
-        avatar: team.leader.avatar || "",
-        role: team.leader.role.toLowerCase() === 'admin' ? 'admin' : 
-              team.leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-      } : null,
+      leaders: team.leaders.map(leader => ({
+        id: leader.id,
+        name: leader.name,
+        email: leader.email,
+        avatar: leader.avatar || "",
+        role: leader.role.toLowerCase() === 'admin' ? 'admin' : 
+              leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
+      })),
       members: team.members.map(member => ({
         id: member.user.id,
         name: member.user.name,
