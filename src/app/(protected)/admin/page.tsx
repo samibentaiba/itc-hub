@@ -90,6 +90,7 @@ export default async function AdminPage() {
     id: team.id,
     name: team.name,
     description: team.description || "",
+    leader: team.leader,
     members:
       team.members?.map((m: any) => ({
         id: m.user.id,
@@ -106,6 +107,7 @@ export default async function AdminPage() {
     id: dept.id,
     name: dept.name,
     description: dept.description || "",
+    manager: dept.manager,
     members:
       dept.members?.map((m: any) => ({
         id: m.user.id,
