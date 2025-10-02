@@ -5,31 +5,112 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
-  Shield, Download, RefreshCw, UserPlus, Plus, MoreVertical, Edit, Trash2,
-  CheckCircle, Mail, Users2, Calendar, ChevronLeft, ChevronRight, Check, X,
-  Filter, Users, Clock, MapPin, Loader2, Building2
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Shield,
+  Download,
+  RefreshCw,
+  UserPlus,
+  Plus,
+  MoreVertical,
+  Edit,
+  Trash2,
+  CheckCircle,
+  Mail,
+  Users2,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  X,
+  Filter,
+  Users,
+  Clock,
+  MapPin,
+  Loader2,
+  Building2,
 } from "lucide-react";
 
 // Import hook and types
 import { useAdminPage } from "./hook";
 import type {
-  User, Team, Department, Event, UpcomingEvent, PendingEvent,
-  EventFormData, UserFormData, TeamFormData, DepartmentFormData, Member
+  User,
+  Team,
+  Department,
+  Event,
+  UpcomingEvent,
+  PendingEvent,
+  EventFormData,
+  UserFormData,
+  TeamFormData,
+  DepartmentFormData,
+  Member,
 } from "./types";
-import { eventFormSchema, userFormSchema, teamFormSchema, departmentFormSchema } from "./types";
+import {
+  eventFormSchema,
+  userFormSchema,
+  teamFormSchema,
+  departmentFormSchema,
+} from "./types";
 
 // ===== STATS CARDS COMPONENT =====
 interface StatsCardsProps {
@@ -48,7 +129,9 @@ function StatsCards({ users, teams, departments }: StatsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-red-500">{users.length}</div>
-          <p className="text-xs text-muted-foreground">{users.filter((u) => u.status === "pending").length} pending</p>
+          <p className="text-xs text-muted-foreground">
+            {users.filter((u) => u.status === "pending").length} pending
+          </p>
         </CardContent>
       </Card>
       <Card>
@@ -57,7 +140,9 @@ function StatsCards({ users, teams, departments }: StatsCardsProps) {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-500">{teams.filter((t) => t.status === "active").length}</div>
+          <div className="text-2xl font-bold text-red-500">
+            {teams.filter((t) => t.status === "active").length}
+          </div>
           <p className="text-xs text-muted-foreground">{teams.length} total</p>
         </CardContent>
       </Card>
@@ -67,7 +152,9 @@ function StatsCards({ users, teams, departments }: StatsCardsProps) {
           <Building2 className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-500">{departments.length}</div>
+          <div className="text-2xl font-bold text-red-500">
+            {departments.length}
+          </div>
           <p className="text-xs text-muted-foreground">All active</p>
         </CardContent>
       </Card>
@@ -87,8 +174,16 @@ interface CalendarViewProps {
   formatDateString: (date: Date) => string;
 }
 
-function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayClick, getDaysInMonth, getFirstDayOfMonth, formatDateString }: CalendarViewProps) {
-
+function CalendarView({
+  currentDate,
+  view,
+  events,
+  setSelectedEvent,
+  handleDayClick,
+  getDaysInMonth,
+  getFirstDayOfMonth,
+  formatDateString,
+}: CalendarViewProps) {
   const getEventsForDate = (date: string) => {
     return events.filter((event) => event.date === date);
   };
@@ -99,24 +194,57 @@ function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayCl
     const days = [];
 
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-24 border-t border-r border-border/50"></div>);
+      days.push(
+        <div
+          key={`empty-${i}`}
+          className="h-24 border-t border-r border-border/50"
+        ></div>
+      );
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day
+      );
       const dateString = formatDateString(date);
       const dayEvents = getEventsForDate(dateString);
       const isToday = dateString === formatDateString(new Date());
 
       days.push(
-        <div key={day} className={`h-24 border-t border-r border-border/50 p-1.5 space-y-1 overflow-hidden cursor-pointer hover:bg-accent/50 ${isToday ? "bg-primary/10" : ""}`} onClick={() => handleDayClick(date)}>
-          <div className={`text-xs font-medium ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>{day}</div>
+        <div
+          key={day}
+          className={`h-24 border-t border-r border-border/50 p-1.5 space-y-1 overflow-hidden cursor-pointer hover:bg-accent/50 ${
+            isToday ? "bg-primary/10" : ""
+          }`}
+          onClick={() => handleDayClick(date)}
+        >
+          <div
+            className={`text-xs font-medium ${
+              isToday ? "text-primary font-bold" : "text-muted-foreground"
+            }`}
+          >
+            {day}
+          </div>
           {dayEvents.slice(0, 2).map((event) => (
-            <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate ${event.color}`} title={event.title} onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}>
+            <div
+              key={event.id}
+              className={`text-white text-[10px] p-1 rounded truncate ${event.color}`}
+              title={event.title}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedEvent(event);
+              }}
+            >
               {event.title}
             </div>
           ))}
-          {dayEvents.length > 2 && <div className="text-xs text-muted-foreground">+{dayEvents.length - 2} more</div>}
+          {dayEvents.length > 2 && (
+            <div className="text-xs text-muted-foreground">
+              +{dayEvents.length - 2} more
+            </div>
+          )}
         </div>
       );
     }
@@ -124,7 +252,12 @@ function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayCl
     return (
       <div className="grid grid-cols-7 border-l border-b border-border/50">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day} className="h-10 border-t border-r border-border/50 bg-muted/50 flex items-center justify-center font-medium text-sm">{day}</div>
+          <div
+            key={day}
+            className="h-10 border-t border-r border-border/50 bg-muted/50 flex items-center justify-center font-medium text-sm"
+          >
+            {day}
+          </div>
         ))}
         {days}
       </div>
@@ -144,21 +277,43 @@ function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayCl
     return (
       <div className="grid grid-cols-8 border-t border-l border-b border-border/50">
         <div className="h-10 border-r border-border/50 bg-muted/50"></div>
-        {weekDays.map(day => (
-          <div key={day.toISOString()} className="h-14 border-r border-border/50 bg-muted/50 flex flex-col items-center justify-center font-medium text-sm cursor-pointer" onClick={() => handleDayClick(day)}>
-            <span>{day.toLocaleDateString('en-US', { weekday: 'short' })}</span>
-            <span className={`text-lg font-bold ${formatDateString(day) === formatDateString(new Date()) ? 'text-primary' : ''}`}>{day.getDate()}</span>
+        {weekDays.map((day) => (
+          <div
+            key={day.toISOString()}
+            className="h-14 border-r border-border/50 bg-muted/50 flex flex-col items-center justify-center font-medium text-sm cursor-pointer"
+            onClick={() => handleDayClick(day)}
+          >
+            <span>{day.toLocaleDateString("en-US", { weekday: "short" })}</span>
+            <span
+              className={`text-lg font-bold ${
+                formatDateString(day) === formatDateString(new Date())
+                  ? "text-primary"
+                  : ""
+              }`}
+            >
+              {day.getDate()}
+            </span>
           </div>
         ))}
-        {Array.from({ length: 24 }, (_, i) => i + 8).map(hour => (
+        {Array.from({ length: 24 }, (_, i) => i + 8).map((hour) => (
           <div key={hour} className="contents">
             <div className="h-16 border-r border-t border-border/50 p-2 text-xs text-muted-foreground text-center">{`${hour}:00`}</div>
-            {weekDays.map(day => {
-              const dayEvents = getEventsForDate(formatDateString(day)).filter(e => parseInt(e.time.split(':')[0]) === hour);
+            {weekDays.map((day) => {
+              const dayEvents = getEventsForDate(formatDateString(day)).filter(
+                (e) => parseInt(e.time.split(":")[0]) === hour
+              );
               return (
-                <div key={day.toISOString()} className="h-16 border-r border-t border-border/50 p-1 space-y-1 overflow-hidden">
-                  {dayEvents.map(event => (
-                    <div key={event.id} className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${event.color}`} title={event.title} onClick={() => setSelectedEvent(event)}>
+                <div
+                  key={day.toISOString()}
+                  className="h-16 border-r border-t border-border/50 p-1 space-y-1 overflow-hidden"
+                >
+                  {dayEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${event.color}`}
+                      title={event.title}
+                      onClick={() => setSelectedEvent(event)}
+                    >
                       {event.title}
                     </div>
                   ))}
@@ -174,33 +329,57 @@ function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayCl
   const renderDayView = () => {
     const dayToRender = currentDate;
     const dateString = formatDateString(dayToRender);
-    const dayEvents = getEventsForDate(dateString).sort((a, b) => a.time.localeCompare(b.time));
+    const dayEvents = getEventsForDate(dateString).sort((a, b) =>
+      a.time.localeCompare(b.time)
+    );
 
     return (
       <div className="space-y-4">
         <div className="text-center">
-          <h3 className="text-xl font-semibold">{dayToRender.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h3>
+          <h3 className="text-xl font-semibold">
+            {dayToRender.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </h3>
         </div>
         <div className="space-y-3">
           {dayEvents.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">No events scheduled for this day.</div>
+            <div className="text-center py-10 text-muted-foreground">
+              No events scheduled for this day.
+            </div>
           ) : (
             dayEvents.map((event) => (
-              <Card key={event.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => setSelectedEvent(event)}>
+              <Card
+                key={event.id}
+                className="hover:bg-accent/50 transition-colors cursor-pointer"
+                onClick={() => setSelectedEvent(event)}
+              >
                 <CardContent className="p-4 flex items-start gap-4">
-                  <div className={`w-1.5 h-16 rounded-full ${event.color}`}></div>
+                  <div
+                    className={`w-1.5 h-16 rounded-full ${event.color}`}
+                  ></div>
                   <div className="flex-1 space-y-1">
                     <h4 className="font-semibold">{event.title}</h4>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{event.time} ({event.duration} min)</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{event.location}</span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        {event.time} ({event.duration} min)
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4" />
+                        {event.location}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <Users className="h-4 w-4" />
-                      {event.attendees.join(', ')}
+                      {event.attendees.join(", ")}
                     </div>
                   </div>
-                  <Badge variant="outline" className="capitalize">{event.type}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {event.type}
+                  </Badge>
                 </CardContent>
               </Card>
             ))
@@ -211,10 +390,14 @@ function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayCl
   };
 
   switch (view) {
-    case "month": return renderMonthView();
-    case "week": return renderWeekView();
-    case "day": return renderDayView();
-    default: return renderMonthView();
+    case "month":
+      return renderMonthView();
+    case "week":
+      return renderWeekView();
+    case "day":
+      return renderDayView();
+    default:
+      return renderMonthView();
   }
 }
 
@@ -228,15 +411,31 @@ interface CalendarSidebarProps {
   onEventClick: (event: Event | null) => void;
 }
 
-function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
-  const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
+function CalendarSidebar({
+  upcomingEvents,
+  allEvents,
+  filterType,
+  onFilterChange,
+  onNewEventClick,
+  onEventClick,
+}: CalendarSidebarProps) {
+  const eventTypes = [
+    "all",
+    ...Array.from(new Set(allEvents.map((e) => e.type))),
+  ];
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
+          <Button
+            variant="outline"
+            className="w-full justify-start bg-transparent"
+            onClick={onNewEventClick}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Create Event
           </Button>
@@ -246,8 +445,10 @@ function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange
               <SelectValue placeholder="Filter Events" />
             </SelectTrigger>
             <SelectContent>
-              {eventTypes.map(type => (
-                <SelectItem key={type} value={type} className="capitalize">{type}</SelectItem>
+              {eventTypes.map((type) => (
+                <SelectItem key={type} value={type} className="capitalize">
+                  {type}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -261,7 +462,13 @@ function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange
         </CardHeader>
         <CardContent className="space-y-4">
           {upcomingEvents.map((event) => (
-            <div key={event.id} className="border rounded-lg p-3 hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onEventClick(allEvents.find(e => e.id === event.id) || null)}>
+            <div
+              key={event.id}
+              className="border rounded-lg p-3 hover:bg-accent/50 transition-colors cursor-pointer"
+              onClick={() =>
+                onEventClick(allEvents.find((e) => e.id === event.id) || null)
+              }
+            >
               <h4 className="font-medium">{event.title}</h4>
               <p className="text-sm text-muted-foreground">{event.date}</p>
               <div className="flex items-center justify-between mt-2">
@@ -288,7 +495,13 @@ interface UserFormDialogProps {
   initialData?: User | null;
 }
 
-function UserFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: UserFormDialogProps) {
+function UserFormDialog({
+  isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  initialData,
+}: UserFormDialogProps) {
   const isEditMode = !!initialData;
 
   const form = useForm<UserFormData>({
@@ -298,7 +511,11 @@ function UserFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: U
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(isEditMode ? { name: initialData.name, email: initialData.email } : { name: "", email: "" });
+      form.reset(
+        isEditMode
+          ? { name: initialData.name, email: initialData.email }
+          : { name: "", email: "" }
+      );
     }
   }, [isOpen, initialData, form, isEditMode]);
 
@@ -312,11 +529,16 @@ function UserFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: U
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit User" : "Add New User"}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? `Update the details for ${initialData.name}.` : "Create a new user account."}
+            {isEditMode
+              ? `Update the details for ${initialData.name}.`
+              : "Create a new user account."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 pt-4">
+          <form
+            onSubmit={form.handleSubmit(handleFormSubmit)}
+            className="space-y-4 pt-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -337,14 +559,25 @@ function UserFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: U
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="e.g. sami@itc.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="e.g. sami@itc.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditMode ? "Save Changes" : "Add User"}
@@ -367,7 +600,14 @@ interface TeamFormDialogProps {
   departments: Department[];
 }
 
-function TeamFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData, departments }: TeamFormDialogProps) {
+function TeamFormDialog({
+  isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  initialData,
+  departments,
+}: TeamFormDialogProps) {
   const isEditMode = !!initialData;
 
   const form = useForm<TeamFormData>({
@@ -377,7 +617,15 @@ function TeamFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData, dep
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(isEditMode ? { name: initialData.name, description: initialData.description, departmentId: initialData.departmentId } : { name: "", description: "", departmentId: "" });
+      form.reset(
+        isEditMode
+          ? {
+              name: initialData.name,
+              description: initialData.description,
+              departmentId: initialData.departmentId,
+            }
+          : { name: "", description: "", departmentId: "" }
+      );
     }
   }, [isOpen, initialData, form, isEditMode]);
 
@@ -389,33 +637,85 @@ function TeamFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData, dep
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Team" : "Create New Team"}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Team" : "Create New Team"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditMode ? `Update details for the ${initialData.name} team.` : "Set up a new team within a department."}
+            {isEditMode
+              ? `Update details for the ${initialData.name} team.`
+              : "Set up a new team within a department."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 pt-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Team Name</FormLabel><FormControl><Input placeholder="e.g. Frontend Avengers" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the team's purpose." {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="departmentId" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Select a department" /></SelectTrigger></FormControl>
-                  <SelectContent>
-                    {departments.map(dept => <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
+          <form
+            onSubmit={form.handleSubmit(handleFormSubmit)}
+            className="space-y-4 pt-4"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Team Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Frontend Avengers" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="A short description of the team's purpose."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="departmentId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Department</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a department" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditMode ? "Save Changes" : "Create Team"}
@@ -437,7 +737,13 @@ interface DepartmentFormDialogProps {
   initialData?: Department | null;
 }
 
-function DepartmentFormDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: DepartmentFormDialogProps) {
+function DepartmentFormDialog({
+  isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  initialData,
+}: DepartmentFormDialogProps) {
   const isEditMode = !!initialData;
 
   const form = useForm<DepartmentFormData>({
@@ -447,7 +753,11 @@ function DepartmentFormDialog({ isOpen, onClose, onSubmit, isLoading, initialDat
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(isEditMode ? { name: initialData.name, description: initialData.description } : { name: "", description: "" });
+      form.reset(
+        isEditMode
+          ? { name: initialData.name, description: initialData.description }
+          : { name: "", description: "" }
+      );
     }
   }, [isOpen, initialData, form, isEditMode]);
 
@@ -459,21 +769,58 @@ function DepartmentFormDialog({ isOpen, onClose, onSubmit, isLoading, initialDat
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Department" : "Create New Department"}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Department" : "Create New Department"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditMode ? `Update details for the ${initialData.name} department.` : "Set up a new department."}
+            {isEditMode
+              ? `Update details for the ${initialData.name} department.`
+              : "Set up a new department."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 pt-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Department Name</FormLabel><FormControl><Input placeholder="e.g. Engineering" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="What is the purpose of this department?" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+          <form
+            onSubmit={form.handleSubmit(handleFormSubmit)}
+            className="space-y-4 pt-4"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Department Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Engineering" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="What is the purpose of this department?"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditMode ? "Save Changes" : "Create Department"}
@@ -497,7 +844,12 @@ interface ActionConfirmationDialogProps {
 }
 
 function ActionConfirmationDialog({
-  isOpen, onClose, onConfirm, isLoading, title, description
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading,
+  title,
+  description,
 }: ActionConfirmationDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
@@ -507,7 +859,9 @@ function ActionConfirmationDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose} disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose} disabled={isLoading}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} asChild>
             <Button disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -521,31 +875,58 @@ function ActionConfirmationDialog({
 }
 
 // ===== MANAGE MEMBERS DIALOG COMPONENT =====
-type ManagingEntity = (({ entityType: 'team' } & Team) | ({ entityType: 'department' } & Department)) | null;
+type ManagingEntity =
+  | (
+      | ({ entityType: "team" } & Team)
+      | ({ entityType: "department" } & Department)
+    )
+  | null;
 
 interface ManageMembersDialogProps {
   isOpen: boolean;
   onClose: () => void;
   entity: ManagingEntity;
   allUsers: User[];
-  onAddMember: (entityId: string, entityType: 'team' | 'department', userId: string, role: 'leader' | 'member') => void;
-  onRemoveMember: (entityId: string, entityType: 'team' | 'department', userId: string) => void;
-  onChangeMemberRole: (entityId: string, entityType: 'team' | 'department', userId: string, newRole: 'leader' | 'member') => void;
+  onAddMember: (
+    entityId: string,
+    entityType: "team" | "department",
+    userId: string,
+    role: "leader" | "member"
+  ) => void;
+  onRemoveMember: (
+    entityId: string,
+    entityType: "team" | "department",
+    userId: string
+  ) => void;
+  onChangeMemberRole: (
+    entityId: string,
+    entityType: "team" | "department",
+    userId: string,
+    newRole: "leader" | "member"
+  ) => void;
 }
 
 function ManageMembersDialog({
-  isOpen, onClose, entity, allUsers, onAddMember, onRemoveMember, onChangeMemberRole
+  isOpen,
+  onClose,
+  entity,
+  allUsers,
+  onAddMember,
+  onRemoveMember,
+  onChangeMemberRole,
 }: ManageMembersDialogProps) {
   const [selectedUser, setSelectedUser] = useState("");
-  const [selectedRole, setSelectedRole] = useState<'leader' | 'member'>("member");
+  const [selectedRole, setSelectedRole] = useState<"leader" | "member">(
+    "member"
+  );
 
   if (!entity) return null;
 
   const entityMembers = entity.members;
-  const memberUserIds = new Set(entityMembers.map(m => m.userId));
-  const potentialNewMembers = allUsers.filter(u => !memberUserIds.has(u.id));
+  const memberUserIds = new Set(entityMembers.map((m) => m.userId));
+  const potentialNewMembers = allUsers.filter((u) => !memberUserIds.has(u.id));
 
-  const getUserById = (userId: string) => allUsers.find(u => u.id === userId);
+  const getUserById = (userId: string) => allUsers.find((u) => u.id === userId);
 
   const handleAddClick = () => {
     if (selectedUser && selectedRole) {
@@ -559,7 +940,9 @@ function ManageMembersDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Manage Members for {entity.name}</DialogTitle>
-          <DialogDescription>Add, remove, and assign roles to members.</DialogDescription>
+          <DialogDescription>
+            Add, remove, and assign roles to members.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-4">
           {/* Add New Member Form */}
@@ -567,25 +950,48 @@ function ManageMembersDialog({
             <div className="flex-grow space-y-2">
               <label className="text-sm font-medium">Add New Member</label>
               <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger><SelectValue placeholder="Select a user to add" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a user to add" />
+                </SelectTrigger>
                 <SelectContent>
-                  {potentialNewMembers.length > 0 ? potentialNewMembers.map(user => (
-                    <SelectItem key={user.id} value={user.id}>{user.name} ({user.email})</SelectItem>
-                  )) : <p className="p-4 text-sm text-muted-foreground">No users available to add.</p>}
+                  {potentialNewMembers.length > 0 ? (
+                    potentialNewMembers.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.name} ({user.email})
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <p className="p-4 text-sm text-muted-foreground">
+                      No users available to add.
+                    </p>
+                  )}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Role</label>
-              <Select value={selectedRole} onValueChange={(r: 'leader' | 'member') => setSelectedRole(r)}>
-                <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
+              <Select
+                value={selectedRole}
+                onValueChange={(r: "leader" | "member" | "manager") =>
+                  setSelectedRole(r)
+                }
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
+                  {entity.entityType == "team" ? (
+                    <SelectItem value="leader">Leader</SelectItem>
+                  ) : (
+                    <SelectItem value="manager">Manager</SelectItem>
+                  )}
                   <SelectItem value="member">Member</SelectItem>
-                  <SelectItem value="leader">Leader</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={handleAddClick} disabled={!selectedUser}><UserPlus className="h-4 w-4" /></Button>
+            <Button onClick={handleAddClick} disabled={!selectedUser}>
+              <UserPlus className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Current Members Table */}
@@ -599,29 +1005,73 @@ function ManageMembersDialog({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {entityMembers.length > 0 ? entityMembers.map((member: { userId: string, role: 'leader' | 'member' }) => {
-                  const user = getUserById(member.userId);
-                  return user ? (
-                    <TableRow key={member.userId}>
-                      <TableCell>{user.name}</TableCell>
-                      <TableCell>
-                        <Select value={member.role} onValueChange={(newRole: 'leader' | 'member') => onChangeMemberRole(entity.id, entity.entityType, member.userId, newRole)}>
-                          <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="member">Member</SelectItem>
-                            <SelectItem value="leader">Leader</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => onRemoveMember(entity.id, entity.entityType, member.userId)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ) : null;
-                }) : (
-                  <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground py-4">No members yet.</TableCell></TableRow>
+                {entityMembers.length > 0 ? (
+                  entityMembers.map(
+                    (member: {
+                      userId: string;
+                      role: "leader" | "member" | "manager";
+                    }) => {
+                      const user = getUserById(member.userId);
+                      return user ? (
+                        <TableRow key={member.userId}>
+                          <TableCell>{user.name}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={member.role}
+                              onValueChange={(
+                                newRole: "leader" | "member" | "manager"
+                              ) =>
+                                onChangeMemberRole(
+                                  entity.id,
+                                  entity.entityType,
+                                  member.userId,
+                                  newRole
+                                )
+                              }
+                            >
+                              <SelectTrigger className="w-32 h-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {entity.entityType == "team" ? (
+                                  <SelectItem value="leader">Leader</SelectItem>
+                                ) : (
+                                  <SelectItem value="manager">
+                                    Manager
+                                  </SelectItem>
+                                )}
+                                <SelectItem value="member">Member</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                onRemoveMember(
+                                  entity.id,
+                                  entity.entityType,
+                                  member.userId
+                                )
+                              }
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ) : null;
+                    }
+                  )
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={3}
+                      className="text-center text-muted-foreground py-4"
+                    >
+                      No members yet.
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
@@ -641,7 +1091,13 @@ interface CreateEventDialogProps {
   initialData?: Event | null;
 }
 
-function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading, initialData }: CreateEventDialogProps) {
+function CreateEventDialog({
+  isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  initialData,
+}: CreateEventDialogProps) {
   const isEditMode = !!initialData;
 
   const form = useForm<EventFormData>({
@@ -666,7 +1122,11 @@ function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading, initialData }
           date: initialData.date,
           time: initialData.time,
           duration: String(initialData.duration),
-          type: initialData.type as "meeting" | "review" | "planning" | "workshop",
+          type: initialData.type as
+            | "meeting"
+            | "review"
+            | "planning"
+            | "workshop",
           location: initialData.location,
         });
       } else {
@@ -694,20 +1154,29 @@ function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading, initialData }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Event" : "Create New Event"}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Event" : "Create New Event"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update the details for this event." : "Add a new event to the calendar."}
+            {isEditMode
+              ? "Update the details for this event."
+              : "Add a new event to the calendar."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 pt-4">
+          <form
+            onSubmit={form.handleSubmit(handleFormSubmit)}
+            className="space-y-4 pt-4"
+          >
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Event Title</FormLabel>
-                  <FormControl><Input placeholder="e.g., Q4 Planning" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="e.g., Q4 Planning" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -718,18 +1187,90 @@ function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading, initialData }
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
-                  <FormControl><Textarea placeholder="A brief description of the event..." {...field} /></FormControl>
+                  <FormControl>
+                    <Textarea
+                      placeholder="A brief description of the event..."
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="date" render={({ field }) => (<FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="time" render={({ field }) => (<FormItem><FormLabel>Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="duration" render={({ field }) => (<FormItem><FormLabel>Duration</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="30">30 min</SelectItem><SelectItem value="60">1 hour</SelectItem><SelectItem value="90">1.5 hours</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="meeting">Meeting</SelectItem><SelectItem value="review">Review</SelectItem><SelectItem value="planning">Planning</SelectItem><SelectItem value="workshop">Workshop</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="30">30 min</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                        <SelectItem value="90">1.5 hours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="meeting">Meeting</SelectItem>
+                        <SelectItem value="review">Review</SelectItem>
+                        <SelectItem value="planning">Planning</SelectItem>
+                        <SelectItem value="workshop">Workshop</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <FormField
               control={form.control}
@@ -737,13 +1278,22 @@ function CreateEventDialog({ isOpen, onClose, onSubmit, isLoading, initialData }
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location (Optional)</FormLabel>
-                  <FormControl><Input placeholder="e.g., Conference Room A" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="e.g., Conference Room A" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditMode ? "Save Changes" : "Create Event"}
@@ -764,7 +1314,12 @@ interface EventDetailsDialogProps {
   onDelete: (event: Event) => void;
 }
 
-function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDialogProps) {
+function EventDetailsDialog({
+  event,
+  onClose,
+  onEdit,
+  onDelete,
+}: EventDetailsDialogProps) {
   if (!event) return null;
 
   return (
@@ -773,9 +1328,13 @@ function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDi
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-2xl font-bold">{event.title}</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                {event.title}
+              </DialogTitle>
               <DialogDescription className="mt-1">
-                <Badge variant="outline" className="capitalize">{event.type}</Badge>
+                <Badge variant="outline" className="capitalize">
+                  {event.type}
+                </Badge>
               </DialogDescription>
             </div>
             <div className={`w-4 h-4 rounded-full mt-2 ${event.color}`}></div>
@@ -786,11 +1345,23 @@ function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDi
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>{new Date(`${event.date}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span>
+                {new Date(`${event.date}T00:00:00`).toLocaleDateString(
+                  "en-US",
+                  {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }
+                )}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>{event.time} ({event.duration} min)</span>
+              <span>
+                {event.time} ({event.duration} min)
+              </span>
             </div>
             <div className="flex items-center gap-2 col-span-full">
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -801,7 +1372,7 @@ function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDi
             <h4 className="font-medium mb-2">Attendees</h4>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              <span>{event.attendees.join(', ')}</span>
+              <span>{event.attendees.join(", ")}</span>
             </div>
           </div>
         </div>
@@ -811,7 +1382,9 @@ function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDi
             Delete
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Close</Button>
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
             <Button onClick={() => onEdit(event)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
@@ -1443,8 +2016,9 @@ export default function AdminClientPage({
               disabled={loadingAction === "refresh"}
             >
               <RefreshCw
-                className={`mr-2 h-4 w-4 ${loadingAction === "refresh" ? "animate-spin" : ""
-                  }`}
+                className={`mr-2 h-4 w-4 ${
+                  loadingAction === "refresh" ? "animate-spin" : ""
+                }`}
               />
               Refresh
             </Button>
@@ -1455,8 +2029,9 @@ export default function AdminClientPage({
               disabled={loadingAction === "export"}
             >
               <Download
-                className={`mr-2 h-4 w-4 ${loadingAction === "export" ? "animate-spin" : ""
-                  }`}
+                className={`mr-2 h-4 w-4 ${
+                  loadingAction === "export" ? "animate-spin" : ""
+                }`}
               />
               Export
             </Button>
@@ -1525,7 +2100,12 @@ export default function AdminClientPage({
       <ManageMembersDialog
         isOpen={modal?.view === "MANAGE_MEMBERS"}
         onClose={closeModal}
-        entity={entityForDialog as (Team & { entityType: 'team' }) | (Department & { entityType: 'department' }) | null}
+        entity={
+          entityForDialog as
+            | (Team & { entityType: "team" })
+            | (Department & { entityType: "department" })
+            | null
+        }
         allUsers={users}
         onAddMember={handleAddMember}
         onRemoveMember={handleRemoveMember}
@@ -1533,7 +2113,8 @@ export default function AdminClientPage({
       />
 
       <ActionConfirmationDialog
-        isOpen={["DELETE_USER",
+        isOpen={[
+          "DELETE_USER",
           "VERIFY_USER",
           "DELETE_TEAM",
           "DELETE_DEPARTMENT",
@@ -1548,14 +2129,20 @@ export default function AdminClientPage({
         }
         description={
           modal?.view === "DELETE_USER"
-            ? `This will permanently delete ${userForEdit?.name || "this user"}.`
+            ? `This will permanently delete ${
+                userForEdit?.name || "this user"
+              }.`
             : modal?.view === "VERIFY_USER"
-              ? `This will mark ${userForEdit?.name || "this user"} as verified.`
-              : modal?.view === "DELETE_TEAM"
-                ? `This will permanently delete the ${teamForEdit?.name || "this team"} team.`
-                : modal?.view === "DELETE_DEPARTMENT"
-                  ? `This will permanently delete the ${departmentForEdit?.name || "this department"} department and all its teams.`
-                  : "This action cannot be undone."
+            ? `This will mark ${userForEdit?.name || "this user"} as verified.`
+            : modal?.view === "DELETE_TEAM"
+            ? `This will permanently delete the ${
+                teamForEdit?.name || "this team"
+              } team.`
+            : modal?.view === "DELETE_DEPARTMENT"
+            ? `This will permanently delete the ${
+                departmentForEdit?.name || "this department"
+              } department and all its teams.`
+            : "This action cannot be undone."
         }
       />
 
@@ -1563,8 +2150,8 @@ export default function AdminClientPage({
       <CreateEventDialog
         isOpen={showNewEventDialog}
         onClose={() => {
-          setSelectedEvent(null)
-          setShowNewEventDialog(false)
+          setSelectedEvent(null);
+          setShowNewEventDialog(false);
         }}
         onSubmit={async (data) => {
           const success = await createEvent(data);

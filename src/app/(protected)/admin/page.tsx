@@ -4,12 +4,6 @@ import { redirect } from "next/navigation";
 import AdminClientPage from "./client";
 import { headers } from "next/headers";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
-import type {
-  User,
-  Team,
-  Department,
-  CalendarEvent,
-} from "@/app/(protected)/types";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(
@@ -93,9 +87,13 @@ export default async function AdminPage() {
     leaders: team.leaders,
     members:
       team.members?.map((m: any) => ({
-        id: m.user.id,
-        name: m.user.name,
-        role: m.role,
+        userId: m.user.id,
+        role: m.role.toLowerCase(),
+        user: {
+          id: m.user.id,
+          name: m.user.name,
+          avatar: m.user.avatar || null
+        },
       })) || [],
     departmentId: team.departmentId || "",
     createdDate: team.createdAt,
@@ -110,9 +108,13 @@ export default async function AdminPage() {
     managers: dept.managers,
     members:
       dept.members?.map((m: any) => ({
-        id: m.user.id,
-        name: m.user.name,
-        role: m.role,
+        userId: m.user.id,
+        role: m.role.toLowerCase(),
+        user: {
+          id: m.user.id,
+          name: m.user.name,
+          avatar: m.user.avatar || null,
+        },
       })) || [],
     teams:
       dept.teams?.map((t: any) => ({
