@@ -38,117 +38,56 @@ export async function GET(request: NextRequest) {
         where,
         skip,
         take: limit,
-        include: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          status: true,
           managers: {
             select: {
               id: true,
               name: true,
-              email: true,
-              role: true,
-              avatar: true
-            }
-          },
-          members: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  role: true,
-                  avatar: true
-                }
-              }
-            }
+              avatar: true,
+            },
           },
           teams: {
-            include: {
-              leaders: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  role: true,
-                  avatar: true
-                }
-              },
-              members: {
-                include: {
-                  user: {
-                    select: {
-                      id: true,
-                      name: true,
-                      email: true,
-                      role: true,
-                      avatar: true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          tickets: {
             select: {
               id: true,
-              title: true,
-              status: true,
-              priority: true,
-              createdAt: true
-            }
-          }
+              name: true,
+              _count: {
+                select: {
+                  members: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              members: true,
+            },
+          },
         },
         orderBy: {
-          createdAt: "desc"
-        }
+          createdAt: "desc",
+        },
       }),
-      prisma.department.count({ where })
-    ])
+      prisma.department.count({ where }),
+    ]);
 
-    // Transform departments to match frontend expectations
-    const transformedDepartments = departments.map(dept => ({
+    const transformedDepartments = departments.map((dept) => ({
       id: dept.id,
       name: dept.name,
-      managers: dept.managers.map(manager => ({
-        id: manager.id,
-        name: manager.name,
-        email: manager.email,
-        avatar: manager.avatar,
-        role: manager.role.toLowerCase() === 'admin' ? 'admin' : 
-              manager.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-      })),
-      memberCount: dept.members.length,
-      ticketCount: dept.tickets.length,
-      teams: dept.teams.map(team => ({
-        id: team.id,
+      description: dept.description,
+      managers: dept.managers,
+      teamCount: dept.teams.length,
+      memberCount: dept._count.members,
+      status: dept.status,
+      recentActivity: "No recent activity",
+      teams: dept.teams.map((team) => ({
         name: team.name,
-        leaders: team.leaders.map(leader => ({
-          id: leader.id,
-          name: leader.name,
-          email: leader.email,
-          avatar: leader.avatar,
-          role: leader.role.toLowerCase() === 'admin' ? 'admin' : 
-                leader.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-        })),
-        memberCount: team.members.length,
-        members: team.members.map(member => ({
-          id: member.user.id,
-          name: member.user.name,
-          email: member.user.email,
-          avatar: member.user.avatar,
-          role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
-                member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-        }))
+        memberCount: team._count.members,
       })),
-      members: dept.members.map(member => ({
-        id: member.user.id,
-        name: member.user.name,
-        email: member.user.email,
-        avatar: member.user.avatar,
-        role: member.user.role.toLowerCase() === 'admin' ? 'admin' : 
-              member.user.role.toLowerCase() === 'manager' ? 'manager' : 'user'
-      })),
-      description: dept.description || ""
-    }))
+    }));
 
     return NextResponse.json({
       departments: transformedDepartments,

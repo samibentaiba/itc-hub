@@ -7,6 +7,7 @@ import { useDepartmentsPage } from "./hook";
 import type { DepartmentLocal, DepartmentStatLocal } from "../types";
 // Import icons directly into the client component
 import { Building2, Users, Briefcase, TrendingUp } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DepartmentsClientPageProps {
   initialDepartments: DepartmentLocal[];
@@ -108,10 +109,23 @@ const DepartmentHead = ({ managers }: { managers: DepartmentLocal['managers'] })
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="h-8 w-8"><AvatarImage src={firstManager.avatar} alt={firstManager.name} /><AvatarFallback className="text-xs">{firstManager.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback></Avatar>
+      <Avatar className="h-8 w-8"><AvatarImage src={firstManager.avatar} alt={firstManager.name} /><AvatarFallback className="text-xs">{firstManager.name.split(" ").map((n: any) => n[0]).join("")}</AvatarFallback></Avatar>
       <div><Link href={`/users/${firstManager.id}`} className="text-sm font-medium hover:underline">{firstManager.name}</Link><p className="text-xs text-muted-foreground">Department Head</p></div>
       {managers.length > 1 && (
-        <div className="text-xs text-muted-foreground">+{managers.length - 1} more</div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="text-xs text-muted-foreground">+{managers.length - 1} more</div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <ul>
+                {managers.slice(1).map((manager: any) => (
+                  <li key={manager.id}>{manager.name}</li>
+                ))}
+              </ul>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
   );

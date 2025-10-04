@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import { NewTicketForm } from "@/components/new-ticket-form";
-import type { Department, Event, UpcomingEvent, EventFormData, Ticket, Team, Member } from "./types";
+import type { Department, Event, UpcomingEvent, EventFormData, Ticket, Team, Member, User } from "./types";
 import { requestEventSchema } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString, formatUpcomingEventDate } from "./utils";
 
@@ -172,7 +172,7 @@ function TeamsTab({ teams }: TeamsTabProps) {
         <Avatar className="h-6 w-6">
           <AvatarImage src={leaders[0].avatar} alt={leaders[0].name} />
           <AvatarFallback className="text-xs">
-            {leaders[0].name.split(' ').map(n => n[0]).join('')}
+            {leaders[0].name.split(' ').map((n: any) => n[0]).join('')}
           </AvatarFallback>
         </Avatar>
         <span className="text-muted-foreground">

@@ -29,7 +29,17 @@ export async function GET(
       return NextResponse.json({ error: "Department not found" }, { status: 404 });
     }
 
-    return NextResponse.json(department);
+    const transformedDepartment = {
+      ...department,
+      members: department.members.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        avatar: member.user.avatar,
+        role: member.role,
+      })),
+    };
+
+    return NextResponse.json(transformedDepartment);
   } catch (error) {
     console.error(`Error fetching department ${params.departmentId}:`, error);
     return NextResponse.json(

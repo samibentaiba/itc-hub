@@ -42,12 +42,12 @@ export interface UpcomingEvent {
 
 export interface EventFormData {
   title: string;
-  description: string;
+  description?: string;
   date: string;
   time: string;
   duration: string;
   type: any;
-  location: string;
+  location?: string;
 }
 
 export interface Ticket {

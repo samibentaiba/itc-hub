@@ -382,6 +382,11 @@ export interface DepartmentLocal {
     avatar: string;
     id: string;
   };
+  managers: {
+    id: string;
+    name: string;
+    avatar: string;
+  }[];
   teamCount: number;
   memberCount: number;
   status: "active" | "inactive";

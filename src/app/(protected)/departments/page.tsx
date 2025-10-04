@@ -60,32 +60,10 @@ export default async function DepartmentsPage() {
     }
   ];
 
-  // Transform departments to match the expected format
-  const transformedDepartments = departments.map((dept: Partial<Department>) => ({
-    id: dept.id || '',
-    name: dept.name || '',
-    description: dept.description || '',
-    head: {
-      name: dept.managers && dept.managers.length > 0 ? dept.managers[0].name : 'Unknown',
-      avatar: dept.managers && dept.managers.length > 0 ? dept.managers[0].avatar : '',
-      id: dept.managers && dept.managers.length > 0 ? dept.managers[0].id : ''
-    },
-    managers: dept.managers,
-    teamCount: dept.teams?.length || 0,
-    memberCount: dept.memberCount || 0,
-    status: "active" as const,
-    recentActivity: "Recent activity",
-    color: "#3b82f6",
-    teams: dept.teams?.map((team: Partial<Team>) => ({
-      name: team.name || '',
-      memberCount: team.memberCount || 0
-    })) || []
-  }));
-
   // Pass the fetched data as props to the Client Component.
   return (
     <DepartmentsClientPage 
-      initialDepartments={transformedDepartments} 
+      initialDepartments={departments} 
       initialStats={stats} 
     />
   );
