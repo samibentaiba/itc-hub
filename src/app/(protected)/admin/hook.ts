@@ -62,7 +62,6 @@ export const useAdminPage = (
 
   const upcomingEvents = useMemo(() => {
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
 
     return allEvents
       .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
@@ -72,7 +71,7 @@ export const useAdminPage = (
       .map((event): UpcomingEvent => ({
         id: event.id,
         title: event.title,
-        date: new Date(`${event.date}T${event.time}`).toLocaleDateString(),
+        date: new Date(`${event.date}T${event.time}`).toLocaleString(),
         type: event.type,
         attendees: event.attendees.length,
       }));

@@ -25,7 +25,22 @@ export const useCalendarPage = (
   const [filterType, setFilterType] = useState<string>("all");
   const { toast } = useToast();
 
-  const upcomingEvents = initialUpcomingEvents;
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+
+    return allEvents
+      .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
+      .filter(event => event.dateTime >= now)
+      .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+      .slice(0, 5)
+      .map((event): CalendarUpcomingEvent => ({
+        id: event.id,
+        title: event.title,
+        date: new Date(`${event.date}T${event.time}`).toLocaleString(),
+        type: event.type,
+        attendees: event.attendees.length,
+      }));
+  }, [allEvents]);
 
   const filteredEvents = useMemo(() => {
     if (filterType === "all") {

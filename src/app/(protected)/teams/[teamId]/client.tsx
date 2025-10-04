@@ -454,8 +454,29 @@ function useTeamDetailPage(
   const [showNewTicket, setShowNewTicket] = useState(false);
 
   // New calendar state
-  const [allEvents, setAllEvents] = useState<Event[]>(initialTeam.events || []);
-  const [upcomingEvents] = useState<UpcomingEvent[]>(initialTeam.upcomingEvents || []);
+  const [allEvents, setAllEvents] = useState<Event[]>(() =>
+    (initialTeam.events || []).map((event: any) => ({
+      ...event,
+      date: new Date(event.date).toISOString().split('T')[0],
+      attendees: event.attendees.map((attendee: any) => attendee.name),
+    }))
+  );
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+
+    return allEvents
+      .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
+      .filter(event => event.dateTime >= now)
+      .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+      .slice(0, 5)
+      .map((event): UpcomingEvent => ({
+        id: event.id,
+        title: event.title,
+        date: new Date(`${event.date}T${event.time}`).toLocaleString(),
+        type: event.type,
+        attendees: event.attendees.length,
+      }));
+  }, [allEvents]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [filterType, setFilterType] = useState<string>("all");
