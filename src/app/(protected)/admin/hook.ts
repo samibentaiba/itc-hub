@@ -457,15 +457,78 @@ export const useAdminPage = (
     return `${year}-${month}-${day}`;
   };
 
+  const pageActions = { handleRefreshData, handleExportData, loadingAction };
+  const modalData = {
+    modal,
+    setModal,
+    closeModal,
+    handleActionConfirm,
+    entityForDialog,
+    userForEdit,
+    teamForEdit,
+    departmentForEdit,
+  };
+
+  const userData = {
+    users,
+    handleSaveUser,
+    isUserFormLoading,
+  };
+  const teamData = {
+    teams,
+    handleSaveTeam,
+    isTeamFormLoading,
+  };
+  const departmentData = {
+    departments,
+    handleSaveDepartment,
+    isDeptFormLoading,
+  };
+  const memberData = {
+    handleAddMember,
+    handleRemoveMember,
+    handleChangeMemberRole,
+  };
+  const eventRequestData = { pendingEvents, handleAcceptEvent, handleRejectEvent };
+
+  const calendarData = {
+    view: calendarView,
+    currentDate,
+    events: filteredEvents,
+    upcomingEvents,
+    showNewEventDialog,
+    selectedEvent,
+    isLoading: isCalendarLoading,
+    filterType: calendarFilterType,
+    actions: {
+      setView: setCalendarView,
+      navigate: navigateCalendar,
+      createEvent,
+      setSelectedEvent,
+      setShowNewEventDialog,
+      setFilterType: setCalendarFilterType,
+      handleDayClick,
+      handleEditEvent,
+      handleDeleteEvent,
+    },
+    utils: {
+      formatDate: (date: Date) => formatDate(date, calendarView),
+      getDaysInMonth,
+      getFirstDayOfMonth,
+      formatDateString,
+    },
+  };
+
   return {
-    users, teams, departments, loadingAction, handleSaveUser, handleDeleteUser, handleVerifyUser, handleSaveTeam,
-    handleDeleteTeam, handleSaveDepartment, handleDeleteDepartment, handleAddMember, handleRemoveMember,
-    handleChangeMemberRole, handleRefreshData, handleExportData, pendingEvents, handleAcceptEvent, handleRejectEvent,
-    modal, setModal, closeModal, handleActionConfirm, entityForDialog, userForEdit, teamForEdit, departmentForEdit,
-    isUserFormLoading, isTeamFormLoading, isDeptFormLoading, calendarView, currentDate, filteredEvents, upcomingEvents,
-    showNewEventDialog, selectedEvent, isCalendarLoading, calendarFilterType, setCalendarView, navigateCalendar,
-    createEvent, setSelectedEvent, setShowNewEventDialog, setCalendarFilterType, handleDayClick, handleEditEvent,
-    handleDeleteEvent, formatCalendarDate: (date: Date) => formatDate(date, calendarView), getDaysInMonth,
-    getFirstDayOfMonth, formatDateString,
+    pageActions,
+    modalData,
+    userData,
+    teamData,
+    departmentData,
+    memberData,
+    eventRequestData,
+    calendarData,
+    allUsers: users, // For member management dialog
+    allDepartments: departments, // for team form
   };
 };

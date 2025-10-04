@@ -89,7 +89,7 @@ export async function addTeamMember(
 export async function removeTeamMember(teamId: string, userId: string) {
   return await prisma.teamMember.delete({
     where: {
-      teamId_userId: {
+      userId_teamId: {
         teamId,
         userId,
       },
@@ -107,7 +107,7 @@ export async function updateTeamMemberRole(
 ) {
   return await prisma.teamMember.update({
     where: {
-      teamId_userId: {
+      userId_teamId: {
         teamId,
         userId,
       },

@@ -104,7 +104,7 @@ export async function addDepartmentMember(
 export async function removeDepartmentMember(departmentId: string, userId: string) {
   return await prisma.departmentMember.delete({
     where: {
-      departmentId_userId: {
+      userId_departmentId: {
         departmentId,
         userId,
       },
@@ -122,7 +122,7 @@ export async function updateDepartmentMemberRole(
 ) {
   return await prisma.departmentMember.update({
     where: {
-      departmentId_userId: {
+      userId_departmentId: {
         departmentId,
         userId,
       },

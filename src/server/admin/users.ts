@@ -32,7 +32,11 @@ export async function createUser(data: z.infer<typeof userFormSchema>) {
     data: {
       name: validatedData.name,
       email: validatedData.email,
-      // Note: Password is not set. An invitation flow would be needed.
+      // FIXME: This is not a secure way to handle passwords.
+      // In a real application, you should send an invitation email
+      // with a link to set the password.
+      password: "password-placeholder",
+      emailVerified: new Date(),
     },
   });
 

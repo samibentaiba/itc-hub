@@ -9,8 +9,9 @@ import { EventStatus, EventType } from "@prisma/client";
  * @param data The event form data.
  * @returns A full DateTime object for the event's start.
  */
-function combineDateTime(date: string, time: string): Date {
-  return new Date(`${date}T${time}`);
+function combineDateTime(date: string, time: string | undefined): Date {
+  const timeString = time || "00:00:00";
+  return new Date(`${date}T${timeString}`);
 }
 
 /**
