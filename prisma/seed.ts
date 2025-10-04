@@ -126,10 +126,15 @@ class Seeder {
     const eventsToCreate = eventsData.map((event: any) => ({
       ...event,
       type: event.type.toUpperCase(),
+      department: { connect: { id: event.departmentId } },
+      organizer: { connect: { id: event.organizerId } },
     }));
 
     await Promise.all(
-      eventsToCreate.map((data) => this.prisma.event.create({ data }))
+      eventsToCreate.map((data) => {
+        const { departmentId, organizerId, ...rest } = data;
+        return this.prisma.event.create({ data: rest });
+      })
     );
     console.log("✅ Created events");
   }

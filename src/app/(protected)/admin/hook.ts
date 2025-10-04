@@ -59,7 +59,25 @@ export const useAdminPage = (
   const [modal, setModal] = useState<ModalState | null>(null);
   const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>(initialPendingEvents);
   const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
+
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    return allEvents
+      .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
+      .filter(event => event.dateTime >= now)
+      .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+      .slice(0, 5)
+      .map((event): UpcomingEvent => ({
+        id: event.id,
+        title: event.title,
+        date: new Date(`${event.date}T${event.time}`).toLocaleDateString(),
+        type: event.type,
+        attendees: event.attendees.length,
+      }));
+  }, [allEvents]);
+
   const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [showNewEventDialog, setShowNewEventDialog] = useState(false);
@@ -100,7 +118,7 @@ export const useAdminPage = (
           date: new Date(item.date).toISOString().split('T')[0],
           type: item.type.toLowerCase(),
           attendees: item.attendees?.map((a: any) => a.name) || [],
-          color: '#3b82f6',
+          color: item.color || '#3b82f6',
         };
       default:
         return item;

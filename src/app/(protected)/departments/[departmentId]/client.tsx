@@ -355,7 +355,7 @@ interface CalendarViewProps {
 
 function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayClick, getDaysInMonth, getFirstDayOfMonth, formatDateString }: CalendarViewProps) {
   const getEventsForDate = (date: string) => {
-    return events.filter((event) => event.date === date);
+    return events.filter((event) => event.date.split("T")[0] === date);
   };
 
   const renderMonthView = () => {
@@ -936,7 +936,7 @@ function useDepartmentView({ tickets, initialEvents }: UseDepartmentViewArgs) {
       .map((event): UpcomingEvent => ({
         id: event.id,
         title: event.title,
-        date: formatUpcomingEventDate(event.date, event.time),
+        date: new Date(`${event.date}T${event.time}`).toLocaleDateString(),
         type: event.type,
         attendees: event.attendees.length,
       }));
