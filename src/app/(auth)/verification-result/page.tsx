@@ -1,4 +1,4 @@
-// src/app/verification-result/page.tsx
+// src/app/(auth)/verification-result/page.tsx
 "use client";
 
 import { useSearchParams } from "next/navigation";

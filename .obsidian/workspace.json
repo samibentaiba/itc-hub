@@ -11,14 +11,12 @@
             "id": "d13ad9925b1f696b",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "excalidraw",
               "state": {
-                "file": "README.md",
-                "mode": "source",
-                "source": false
+                "file": "itc-hub-Pattern-design.excalidraw"
               },
-              "icon": "lucide-file",
-              "title": "README"
+              "icon": "excalidraw-icon",
+              "title": "itc-hub-Pattern-design"
             }
           }
         ]
@@ -78,7 +76,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "a2dc234e3f61445d",
@@ -172,6 +171,9 @@
   },
   "active": "d13ad9925b1f696b",
   "lastOpenFiles": [
+    "src/app/(auth)/verification-result/page.tsx",
+    "src/app/(auth)/verification-result",
+    "README.md",
     "AUTHENTICATION_SETUP.md",
     "prisma/dev.db-journal",
     "prisma/migrations/20250919181531_add_email_verified_to_user/migration.sql",
