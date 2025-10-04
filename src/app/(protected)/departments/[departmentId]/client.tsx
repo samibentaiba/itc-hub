@@ -322,19 +322,25 @@ function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange
           <CardDescription>Your next scheduled events.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {upcomingEvents.map((event) => (
-            <div key={event.id} className="border rounded-lg p-3 hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onEventClick(allEvents.find(e => e.id === event.id) || null)}>
-              <h4 className="font-medium">{event.title}</h4>
-              <p className="text-sm text-muted-foreground">{event.date}</p>
-              <div className="flex items-center justify-between mt-2">
-                <Badge variant="secondary">{event.type}</Badge>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {event.attendees}
-                </span>
+          {upcomingEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No upcoming events
+            </p>
+          ) : (
+            upcomingEvents.map((event) => (
+              <div key={event.id} className="border rounded-lg p-3 hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onEventClick(allEvents.find(e => e.id === event.id) || null)}>
+                <h4 className="font-medium">{event.title}</h4>
+                <p className="text-sm text-muted-foreground">{event.date}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <Badge variant="secondary">{event.type}</Badge>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    {event.attendees}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </CardContent>
       </Card>
     </div>
@@ -911,8 +917,14 @@ function useDepartmentView({ tickets, initialEvents }: UseDepartmentViewArgs) {
 
   // State Management
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+  const [allEvents, setAllEvents] = useState<Event[]>(() =>
+    initialEvents.map((event: any) => ({
+      ...event,
+      date: new Date(event.date).toISOString().split('T')[0],
+      attendees: event.attendees.map((attendee: any) => attendee.name),
+    }))
+  );
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [filterType, setFilterType] = useState<string>("all");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

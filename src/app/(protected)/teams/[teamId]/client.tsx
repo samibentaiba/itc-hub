@@ -456,7 +456,7 @@ function useTeamDetailPage(
   // New calendar state
   const [allEvents, setAllEvents] = useState<Event[]>(initialTeam.events || []);
   const [upcomingEvents] = useState<UpcomingEvent[]>(initialTeam.upcomingEvents || []);
-  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [filterType, setFilterType] = useState<string>("all");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

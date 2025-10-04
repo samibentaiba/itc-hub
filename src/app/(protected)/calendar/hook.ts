@@ -17,7 +17,7 @@ export const useCalendarPage = (
   initialUpcomingEvents: CalendarUpcomingEvent[]
 ) => {
   const [allEvents, setAllEvents] = useState<CalendarLocalEvent[]>(initialEvents);
-  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<"month" | "week" | "day">("month");
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarLocalEvent | null>(null);

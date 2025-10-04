@@ -78,7 +78,7 @@ export const useAdminPage = (
       }));
   }, [allEvents]);
 
-  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [showNewEventDialog, setShowNewEventDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
