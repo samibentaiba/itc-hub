@@ -509,6 +509,11 @@ export interface TeamLocal {
     name: string;
     avatar: string;
   };
+  leaders: {
+    id: string;
+    name: string;
+    avatar: string;
+  }[];
   members: {
     id: string;
     name: string;

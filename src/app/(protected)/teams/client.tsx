@@ -25,14 +25,6 @@ const iconMap = {
   "Avg Team Size": Clock,
 };
 
-const DepartmentsGrid = ({ departments }: { departments: DepartmentLocal[] }) => (
-  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-    {departments.map((department) => (
-      <DepartmentCard key={department.id} department={department} />
-    ))}
-  </div>
-);
-
 const TeamLeaders = ({ leaders }: { leaders: TeamLocal['leaders'] }) => {
   if (!leaders || leaders.length === 0) {
     return (
@@ -47,7 +39,7 @@ const TeamLeaders = ({ leaders }: { leaders: TeamLocal['leaders'] }) => {
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="h-8 w-8"><AvatarImage src={firstLeader.avatar} alt={firstLeader.name} /><AvatarFallback className="text-xs">{firstLeader.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback></Avatar>
+      <Avatar className="h-8 w-8"><AvatarImage src={firstLeader.avatar} alt={firstLeader.name} /><AvatarFallback className="text-xs">{firstLeader.name.split(" ").map((n: string) => n[0]).join("")}</AvatarFallback></Avatar>
       <div><Link href={`/users/${firstLeader.id}`} className="text-sm font-medium hover:underline">{firstLeader.name}</Link><p className="text-xs text-muted-foreground">Team Lead</p></div>
       {leaders.length > 1 && (
         <div className="text-xs text-muted-foreground">+{leaders.length - 1} more</div>
@@ -127,7 +119,7 @@ export default function TeamsClientPage({ initialTeams, initialStats }: TeamsCli
                     <Avatar key={member.id} className="h-6 w-6 border-2 border-background">
                       <AvatarImage src={member.avatar} alt={member.name} />
                       <AvatarFallback className="text-xs">
-                        {member.name.split(" ").map((n) => n[0]).join("")}
+                        {member.name.split(" ").map((n: string) => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
                   ))}

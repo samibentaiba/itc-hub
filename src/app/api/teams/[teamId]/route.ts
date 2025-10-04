@@ -6,7 +6,7 @@ import { getAuthenticatedUser, canAccessTeam, canManageTeam } from "@/lib/auth-h
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ teamId: string }> }
+  { params }: { params: { teamId: string } }
 ) {
   try {
     const { teamId } = await params;
@@ -25,11 +25,14 @@ export async function GET(
       where: { id: teamId },
       include: {
         department: {
-          select: {
-            id: true,
-            name: true,
-            description: true
-          }
+          include: {
+            events: {
+              include: {
+                attendees: true,
+                organizer: true,
+              },
+            },
+          },
         },
         leaders: {
           select: {
@@ -132,49 +135,11 @@ export async function GET(
         createdAt: ticket.createdAt.toISOString(),
         updatedAt: ticket.updatedAt.toISOString()
       })),
-      // Mock calendar data for now
-      events: [
-        {
-          id: 1,
-          title: "Team Standup",
-          description: "Daily team standup meeting",
-          date: "2025-08-16",
-          time: "09:00",
-          duration: 30,
-          type: "meeting",
-          attendees: ["Team Members"],
-          location: "Conference Room A",
-          color: "bg-blue-500"
-        },
-        {
-          id: 2,
-          title: "Sprint Review",
-          description: "Review completed sprint work",
-          date: "2025-08-18",
-          time: "14:00",
-          duration: 60,
-          type: "review",
-          attendees: ["Team Members", "Stakeholders"],
-          location: "Main Conference Room",
-          color: "bg-green-500"
-        }
-      ],
-      upcomingEvents: [
-        {
-          id: 1,
-          title: "Team Standup",
-          date: "Tomorrow, 9:00 AM",
-          type: "meeting",
-          attendees: 5
-        },
-        {
-          id: 2,
-          title: "Sprint Review",
-          date: "Aug 18, 2:00 PM",
-          type: "review",
-          attendees: 8
-        }
-      ]
+      events: team.department.events.map(event => ({
+        ...event,
+        date: new Date(event.date).toISOString().split('T')[0],
+        attendees: event.attendees.map((attendee: any) => attendee.name),
+      })),
     }
 
     return NextResponse.json(transformedTeam)

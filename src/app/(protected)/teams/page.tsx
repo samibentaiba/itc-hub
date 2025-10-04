@@ -13,7 +13,7 @@ interface ApiTeam {
   description?: string;
   department?: string;
   memberCount?: number;
-  leader?: ApiMember;
+  leaders?: ApiMember[];
   members?: ApiMember[];
 }
 
@@ -80,11 +80,15 @@ export default async function TeamsPage() {
     memberCount: team.memberCount || 0,
     activeProjects: 3, // Default value
     lead: {
-      name: team.leaders && team.leaders.length > 0 ? team.leaders[0].name : 'Unknown',
-      avatar: team.leaders && team.leaders.length > 0 ? team.leaders[0].avatar : '',
-      id: team.leaders && team.leaders.length > 0 ? team.leaders[0].id : ''
+      name: team.leaders?.[0]?.name || 'Unknown',
+      avatar: team.leaders?.[0]?.avatar || '',
+      id: team.leaders?.[0]?.id || ''
     },
-    leaders: team.leaders,
+    leaders: team.leaders?.map(l => ({
+      id: l.id || '',
+      name: l.name || 'Unknown',
+      avatar: l.avatar || ''
+    })) || [],
     members: team.members?.map(member => ({
       name: member.name || '',
       avatar: member.avatar || '',
