@@ -11,10 +11,9 @@ interface UseCalendarArgs {
 
 export function useCalendar({ initialEvents, toast }: UseCalendarArgs) {
   const [allEvents, setAllEvents] = useState<Event[]>(() =>
-    initialEvents.map((event: any) => ({
+    initialEvents.map((event: Event) => ({
       ...event,
       date: new Date(event.date).toISOString().split('T')[0],
-      attendees: event.attendees.map((attendee: any) => attendee.name),
     }))
   );
   const [currentDate, setCurrentDate] = useState(new Date());

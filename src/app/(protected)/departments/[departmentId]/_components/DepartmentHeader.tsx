@@ -43,6 +43,7 @@ export function DepartmentHeader({ department, showNewTicket, onOpenChange }: De
           {department.name}
         </h1>
         <p className="text-muted-foreground">{department.description}</p>
+        {formatManagers(department.managers)}
       </div>
       <AuthorizedComponent departmentId={department.id} action="manage">
         <Dialog open={showNewTicket} onOpenChange={onOpenChange}>

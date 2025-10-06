@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import type { Event, UpcomingEvent } from "./CalendarTab";
+import type { Event, UpcomingEvent } from "../types";
 
 interface CalendarSidebarProps {
   upcomingEvents: UpcomingEvent[];

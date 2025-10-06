@@ -17,6 +17,7 @@ export interface Department {
   members: Member[];
   tickets: Ticket[];
   events: Event[];
+  managers: User[];
 }
 
 export interface Event {

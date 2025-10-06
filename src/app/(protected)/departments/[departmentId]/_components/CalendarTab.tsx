@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
@@ -8,85 +9,7 @@ import { CalendarView } from "./CalendarView";
 import { CalendarSidebar } from "./CalendarSidebar";
 import { RequestEventDialog } from "./RequestEventDialog";
 import { EventDetailsDialog } from "./EventDetailsDialog";
-
-// ===================================
-// API Data Structure for Calendar
-// ===================================
-
-/**
- * The API endpoint for fetching the events of a department should look like:
- * GET /api/departments/{departmentId}/events
- *
- * The response should be an array of Event objects.
- *
- * The API endpoints for creating, updating, and deleting events are handled in the `useCalendar` hook.
- * POST /api/departments/{departmentId}/events
- * PUT /api/departments/{departmentId}/events/{eventId}
- * DELETE /api/departments/{departmentId}/events/{eventId}
- */
-
-export interface Event {
-  id: any;
-  title: string;
-  description: string;
-  date: string; // "YYYY-MM-DD"
-  time: string; // "HH:MM"
-  duration: number; // in minutes
-  type: "meeting" | "review" | "planning" | "workshop";
-  attendees: string[];
-  location: string;
-  color: string;
-}
-
-export interface UpcomingEvent {
-  id: any;
-  title: string;
-  date: string;
-  type: string;
-  attendees: number;
-}
-
-export interface EventFormData {
-  title: string;
-  description?: string;
-  date: string;
-  time: string;
-  duration: string;
-  type: "meeting" | "review" | "planning" | "workshop";
-  location?: string;
-}
-
-// Example of what the API should return for GET /api/departments/{departmentId}/events:
-const mockEventsData: Event[] = [
-  {
-    id: 1,
-    title: "Q4 Planning Session",
-    description: "Finalize the roadmap for the last quarter of the year.",
-    date: "2025-10-15",
-    time: "10:00",
-    duration: 120,
-    type: "planning",
-    attendees: ["Alice Johnson", "Bob Williams", "Charlie Brown"],
-    location: "Conference Room A",
-    color: "bg-blue-500",
-  },
-  {
-    id: 2,
-    title: "Frontend Tech-Talk",
-    description: "A session on the latest trends in frontend development.",
-    date: "2025-10-20",
-    time: "14:00",
-    duration: 60,
-    type: "workshop",
-    attendees: ["Alice Johnson", "Frontend Team"],
-    location: "Virtual",
-    color: "bg-green-500",
-  },
-];
-
-// ===================================
-// Component Implementation
-// ===================================
+import type { Event, EventFormData, UpcomingEvent } from "../types";
 
 interface CalendarTabProps {
   calendarView: "month" | "week" | "day";

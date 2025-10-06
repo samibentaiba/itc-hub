@@ -62,7 +62,7 @@ export function TeamsTab({ teams }: TeamsTabProps) {
                       </div>
                       <Badge variant="default" className="shrink-0">Active</Badge>
                     </div>
-                                        {formatLeaders(team.leaders)}
+                    {formatLeaders(team.leaders)}
                     {team.description && (
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {team.description}
