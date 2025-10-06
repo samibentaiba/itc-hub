@@ -18,6 +18,10 @@ export interface Department {
   tickets: Ticket[];
   events: Event[];
   managers: User[];
+  status: string;
+  color: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Event {
