@@ -169,8 +169,9 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "d13ad9925b1f696b",
+  "active": "3bfe9dfad20bea0a",
   "lastOpenFiles": [
+    "itc-hub-Pattern-design.excalidraw",
     "src/app/(auth)/verification-result/page.tsx",
     "src/app/(auth)/verification-result",
     "README.md",
@@ -178,7 +179,6 @@
     "prisma/dev.db-journal",
     "prisma/migrations/20250919181531_add_email_verified_to_user/migration.sql",
     "prisma/migrations/20250919181531_add_email_verified_to_user",
-    "itc-hub-Pattern-design.excalidraw",
     "AUTHORIZATION_SYSTEM_GUIDE.md",
     "ITC-hub analyse.md",
     "Untitled.canvas",
