@@ -1,78 +1,48 @@
-// src/app/(protected)/departments/[departmentId]/hook.ts
 
-/**
- * hook.ts
- *
- * This file contains the custom hook `useDepartmentView` which encapsulates
- * all client-side state and logic for the department view page. It manages
- * both the legacy ticket-based calendar and the new advanced event calendar.
- */
 "use client";
+import { useState, useMemo, useCallback } from "react";
+import type { Event, EventFormData, UpcomingEvent } from "../types";
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "../utils";
 
-import { useState, useMemo } from "react";
-import { useToast } from "@/hooks/use-toast";
-import type { Ticket, Event, UpcomingEvent, EventFormData,  } from "./types";
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString,formatUpcomingEventDate  } from "./utils";
-
-// Defines the props that the hook will receive
-interface UseDepartmentViewArgs {
-  tickets: Ticket[];
+interface UseCalendarArgs {
   initialEvents: Event[];
+  toast: (options: { title: string; description?: string; variant?: "default" | "destructive" }) => void;
 }
 
-export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewArgs) => {
-  const { toast } = useToast();
-
-  // --- State Management ---
-
-  // State for the old, simple calendar feature (based on tickets)
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  
-  // State for the new, advanced calendar feature (based on events)
-  const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
-  
-  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+export function useCalendar({ initialEvents, toast }: UseCalendarArgs) {
+  const [allEvents, setAllEvents] = useState<Event[]>(() =>
+    initialEvents.map((event: any) => ({
+      ...event,
+      date: new Date(event.date).toISOString().split('T')[0],
+      attendees: event.attendees.map((attendee: any) => attendee.name),
+    }))
+  );
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [filterType, setFilterType] = useState<string>("all");
-  
-  // State for handling dialogs and selected data
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showNewEventDialog, setShowNewEventDialog] = useState(false);
-  
-  // Loading state for asynchronous actions
   const [isCalendarLoading, setIsCalendarLoading] = useState(false);
-  
-  // Legacy state for the simple "New Initiative" button
-  const [showNewTicket, setShowNewTicket] = useState(false);
 
-
-  // --- API Simulation ---
   const simulateApi = (duration = 700) => new Promise((res) => setTimeout(res, duration));
 
-
-  // --- Event CRUD Handlers (for New Calendar) ---
-    // For new calendar: Generates the list of upcoming events
   const upcomingEvents = useMemo(() => {
     const now = new Date();
-    // Set time to 0 to compare dates only
-    now.setHours(0, 0, 0, 0); 
-    
+
     return allEvents
       .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
       .filter(event => event.dateTime >= now)
       .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
-      .slice(0, 5) // Get the next 5 events
+      .slice(0, 5)
       .map((event): UpcomingEvent => ({
         id: event.id,
         title: event.title,
-        date: formatUpcomingEventDate(event.date, event.time),
+        date: new Date(`${event.date}T${event.time}`).toLocaleString(),
         type: event.type,
         attendees: event.attendees.length,
       }));
   }, [allEvents]);
-  /**
-   * Handles both creating a new event and updating an existing one.
-   */
+
   const createOrUpdateEvent = async (formData: EventFormData & { id?: number | string }): Promise<boolean> => {
     setIsCalendarLoading(true);
     const isEditMode = formData.id !== undefined;
@@ -89,7 +59,7 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
           time: formData.time,
           duration: parseInt(formData.duration),
           type: formData.type,
-          attendees: ["You", "Engineering Team"], // Placeholder
+          attendees: ["You", "Engineering Team"],
           location: formData.location || "Virtual",
           color: "bg-blue-500",
         };
@@ -111,7 +81,7 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
         setAllEvents(prev => [...prev, newEvent].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
         toast({ title: "Event Created", description: `"${formData.title}" has been added.` });
       }
-      
+
       setSelectedEvent(null);
       return true;
     } catch {
@@ -122,9 +92,6 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
     }
   };
 
-  /**
-   * Handles the deletion of an event.
-   */
   const handleDeleteEvent = async (event: Event) => {
     setIsCalendarLoading(true);
     try {
@@ -139,14 +106,11 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
     }
   };
 
-
-  // --- UI Interaction Handlers (for New Calendar) ---
-
   const handleEditEvent = (event: Event) => {
     setSelectedEvent(event);
     setShowNewEventDialog(true);
   };
-  
+
   const onNewEventClick = () => {
     setSelectedEvent(null);
     setShowNewEventDialog(true);
@@ -168,76 +132,14 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
     setCalendarView("day");
   };
 
-
-  // --- Handlers for Old Calendar ---
-
-  const goToPreviousDay = () => {
-    if (date) {
-      const newDate = new Date(date);
-      newDate.setDate(newDate.getDate() - 1);
-      setDate(newDate);
-    }
-  };
-
-  const goToNextDay = () => {
-    if (date) {
-      const newDate = new Date(date);
-      newDate.setDate(newDate.getDate() + 1);
-      setDate(newDate);
-    }
-  };
-
-
-  // --- Memoized Derived State ---
-
-  // For new calendar: Filters events based on the selected type
   const events = useMemo(() => {
     if (filterType === "all") return allEvents;
     return allEvents.filter((event) => event.type === filterType);
   }, [allEvents, filterType]);
 
-  // For old calendar: Filters tickets for the selected date
-  // Fixed: Use createdAt or dueDate instead of calendarDate which doesn't exist
-  const selectedDateTickets = useMemo(() => {
-    if (!date) return [];
-    
-    return tickets.filter(ticket => {
-      // Use dueDate if available, otherwise use createdAt
-      const ticketDate = ticket.dueDate ? new Date(ticket.dueDate) : new Date(ticket.createdAt);
-      return ticketDate.toDateString() === date.toDateString();
-    });
-  }, [tickets, date]);
-
-  // For old calendar: Creates a map of tickets by date
-  // Fixed: Use createdAt or dueDate instead of calendarDate which doesn't exist
-  const calendarEvents = useMemo(() => {
-    return tickets.reduce((acc, ticket) => {
-      // Use dueDate if available, otherwise use createdAt
-      const ticketDate = ticket.dueDate ? new Date(ticket.dueDate) : new Date(ticket.createdAt);
-      const dateKey = ticketDate.toDateString();
-      
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(ticket);
-      return acc;
-    }, {} as Record<string, Ticket[]>);
-  }, [tickets]);
-
-
-  // --- Return Value ---
   return {
-    // Old Calendar State & Handlers
-    date,
-    setDate,
-    selectedDateTickets,
-    calendarEvents,
-    goToPreviousDay,
-    goToNextDay,
-    
-    // New Calendar State & Handlers
-    calendarView,
     currentDate,
+    calendarView,
     events,
     upcomingEvents,
     filterType,
@@ -255,14 +157,9 @@ export const useDepartmentView = ({ tickets, initialEvents }: UseDepartmentViewA
     handleEditEvent,
     handleDeleteEvent,
     setSelectedEvent,
-    // Legacy State
-    showNewTicket,
-    setShowNewTicket,
-
-    // Utils
     formatDate: (d: Date) => formatDate(d, calendarView),
     getDaysInMonth,
     getFirstDayOfMonth,
     formatDateString,
   };
-};
+}
