@@ -12,6 +12,7 @@ const customJestConfig: Config = {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
+  testMatch: ["<rootDir>/src/app/(protected)/admin/__tests__/**/*.test.tsx"],
   
   // This line is crucial for fixing the 'export' token error
   transformIgnorePatterns: [

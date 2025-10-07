@@ -76,8 +76,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "a2dc234e3f61445d",
@@ -169,26 +168,44 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "3bfe9dfad20bea0a",
+  "active": "d13ad9925b1f696b",
   "lastOpenFiles": [
-    "itc-hub-Pattern-design.excalidraw",
-    "src/app/(auth)/verification-result/page.tsx",
-    "src/app/(auth)/verification-result",
+    "node_modules/pretty-format/build/plugins/lib/markup.js",
+    "node_modules/pretty-format/build/plugins/lib/markup.d.ts",
+    "node_modules/pretty-format/build/plugins/lib/escapeHTML.js",
+    "node_modules/pretty-format/build/plugins/lib/escapeHTML.d.ts",
+    "node_modules/pretty-format/build/plugins/lib",
+    "node_modules/pretty-format/build/plugins/ReactTestComponent.js",
+    "node_modules/pretty-format/build/plugins/ReactTestComponent.d.ts",
+    "node_modules/pretty-format/build/plugins/ReactElement.js",
+    "node_modules/pretty-format/build/plugins/ReactElement.d.ts",
+    "node_modules/pretty-format/build/plugins/Immutable.js",
+    "node_modules/pretty-format/build/plugins/Immutable.d.ts",
+    "node_modules/pretty-format/node_modules/ansi-styles/readme.md",
+    "node_modules/pretty-format/README.md",
+    "node_modules/@types/aria-query/README.md",
+    "node_modules/@tanstack/react-query/build/codemods/src/v5/keep-previous-data/README.md",
+    "node_modules/@tanstack/react-query/README.md",
+    "node_modules/@testing-library/dom/README.md",
+    "node_modules/react-is/README.md",
+    "node_modules/lz-string/README.md",
+    "node_modules/dom-accessibility-api/README.md",
+    "node_modules/dom-accessibility-api/LICENSE.md",
+    "node_modules/@testing-library/react-hooks/README.md",
+    "node_modules/@testing-library/react-hooks/LICENSE.md",
+    "node_modules/@testing-library/react-hooks/CHANGELOG.md",
+    "node_modules/react-error-boundary/README.md",
+    "node_modules/react-error-boundary/CHANGELOG.md",
+    "Excalidraw/Drawing 2025-10-07 17.42.40.excalidraw.md",
     "README.md",
     "AUTHENTICATION_SETUP.md",
-    "prisma/dev.db-journal",
-    "prisma/migrations/20250919181531_add_email_verified_to_user/migration.sql",
-    "prisma/migrations/20250919181531_add_email_verified_to_user",
     "AUTHORIZATION_SYSTEM_GUIDE.md",
     "ITC-hub analyse.md",
     "Untitled.canvas",
     "Excalidraw/Drawing 2025-08-05 13.30.48.excalidraw.md",
-    "Excalidraw",
-    "Untitled",
     "Untitled.md",
     "ITC-hub analyse arabic version.md",
     "API_DOCUMENTATION.md",
-    "Untitled 1.md",
-    "Welcome.md"
+    "Untitled 1.md"
   ]
 }

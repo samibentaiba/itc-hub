@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { redirect } from "next/navigation";
 import AdminPage from "../page";
 import AdminClientPage from "../client";
@@ -32,8 +32,13 @@ describe("AdminPage", () => {
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ events: [{ id: 1, title: "Meeting" }] }) })
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ events: [{ id: 1, title: "Pending" }] }) });
 
-    await AdminPage();
     render(await AdminPage());
+
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/users"));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/teams"));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/departments"));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/events"));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/events/pending"));
 
     expect(AdminClientPage).toHaveBeenCalledWith(
       expect.objectContaining({
