@@ -24,7 +24,7 @@ import type {
 } from "./types";
 
 // Helper for API calls
-async function apiRequest(url: string, options: RequestInit = {}) {
+export async function apiRequest(url: string, options: RequestInit = {}) {
   const response = await fetch(url, {
     ...options,
     headers: {
@@ -489,6 +489,8 @@ export const useAdminPage = (
   const userData = {
     users,
     handleSaveUser,
+    handleDeleteUser,
+    handleVerifyUser,
     isUserFormLoading,
   };
   const teamData = {
