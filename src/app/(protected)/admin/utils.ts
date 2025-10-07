@@ -43,3 +43,15 @@ export const transformApiResponse = (item: any, type: 'user' | 'team' | 'departm
       return item;
   }
 };
+
+import type { User } from "../types";
+
+// Ensure the 'export' keyword is here
+export const getStatusBadgeVariant = (status: string) => (status === "verified" ? "default" : "secondary");
+
+// And also here
+export const formatLeaders = (leaders: User[]) => {
+  if (!leaders || leaders.length === 0) return "N/A";
+  if (leaders.length === 1) return leaders[0].name;
+  return `${leaders[0].name} +${leaders.length - 1}`;
+};
