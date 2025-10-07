@@ -39,11 +39,22 @@ jest.mock("next/server", () => ({
       return Promise.resolve(JSON.parse(this.body || "{}"));
     }
   },
-  NextResponse: {
-    json: (data: any, init: { status?: number } = {}) => ({
-      json: () => Promise.resolve(data),
-      status: init.status || 200,
-    }),
+  NextResponse: class MockNextResponse {
+    status: number;
+    _body: any;
+
+    constructor(body: any, init: { status?: number } = {}) {
+      this.status = init.status || 200;
+      this._body = body;
+    }
+
+    json() {
+      return Promise.resolve(this._body);
+    }
+
+    static json(data: any, init: { status?: number } = {}) {
+      return new MockNextResponse(data, init);
+    }
   },
 }));
 

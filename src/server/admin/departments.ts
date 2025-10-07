@@ -62,17 +62,22 @@ export async function updateDepartment(
 }
 
 /**
- * Deletes a department and all of its associated teams.
+ * Deletes a department and all of its associated teams and members.
  */
 export async function deleteDepartment(departmentId: string) {
-  // Prisma transactions ensure both operations succeed or neither do.
+  // Prisma transactions ensure all operations succeed or none do.
   return await prisma.$transaction(async (tx) => {
-    // First, delete all teams within the department
+    // First, delete all members within the department
+    await tx.departmentMember.deleteMany({
+      where: { departmentId: departmentId },
+    });
+
+    // Then, delete all teams within the department
     await tx.team.deleteMany({
       where: { departmentId: departmentId },
     });
 
-    // Then, delete the department itself
+    // Finally, delete the department itself
     await tx.department.delete({
       where: { id: departmentId },
     });

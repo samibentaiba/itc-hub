@@ -58,11 +58,21 @@ export async function updateTeam(teamId: string, data: z.infer<typeof teamFormSc
 }
 
 /**
- * Deletes a team.
+ * Deletes a team and all of its associated members.
  */
 export async function deleteTeam(teamId: string) {
-  return await prisma.team.delete({
-    where: { id: teamId },
+  return await prisma.$transaction(async (tx) => {
+    // First, delete all members within the team
+    await tx.teamMember.deleteMany({
+      where: { teamId: teamId },
+    });
+
+    // Then, delete the team itself
+    await tx.team.delete({
+      where: { id: teamId },
+    });
+
+    return { success: true };
   });
 }
 

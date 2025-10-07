@@ -76,8 +76,48 @@ export async function updateUser(
  * @param userId - The ID of the user to delete.
  */
 export async function deleteUser(userId: string) {
-  await prisma.user.delete({
-    where: { id: userId },
+  await prisma.$transaction(async (prisma) => {
+    // Remove user from all teams
+    await prisma.teamMember.deleteMany({
+      where: { userId: userId },
+    });
+
+    // Remove user from all departments
+    await prisma.departmentMember.deleteMany({
+      where: { userId: userId },
+    });
+
+    // Find all teams where the user is a leader
+    const teamsToUpdate = await prisma.team.findMany({
+      where: { leaders: { some: { id: userId } } },
+      select: { id: true },
+    });
+
+    // Disconnect the user from each team
+    for (const team of teamsToUpdate) {
+      await prisma.team.update({
+        where: { id: team.id },
+        data: { leaders: { disconnect: { id: userId } } },
+      });
+    }
+
+    // Find all departments where the user is a manager
+    const departmentsToUpdate = await prisma.department.findMany({
+      where: { managers: { some: { id: userId } } },
+      select: { id: true },
+    });
+
+    // Disconnect the user from each department
+    for (const department of departmentsToUpdate) {
+      await prisma.department.update({
+        where: { id: department.id },
+        data: { managers: { disconnect: { id: userId } } },
+      });
+    }
+
+    await prisma.user.delete({
+      where: { id: userId },
+    });
   });
   return { success: true };
 }
