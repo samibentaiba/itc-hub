@@ -28,15 +28,22 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
   const hookProps = useDepartmentView({
     tickets: departmentData.tickets,
     initialEvents: departmentData.events,
+    departmentId: departmentData.id,
   });
 
   return (
     <div className="space-y-6">
-      {/* The header component displays the department's name, description, and managers. */}
+      {/* The header component displays the department\'s name, description, and managers. */}
       <DepartmentHeader
         department={departmentData}
         showNewTicket={hookProps.showNewTicket}
         onOpenChange={hookProps.setShowNewTicket}
+        showEditDepartment={hookProps.showEditDepartment}
+        onEditOpenChange={hookProps.setShowEditDepartment}
+        showDeleteAlert={hookProps.showDeleteAlert}
+        onDeleteOpenChange={hookProps.setShowDeleteAlert}
+        onUpdate={hookProps.handleUpdateDepartment}
+        onDelete={hookProps.handleDeleteDepartment}
       />
 
       <Tabs defaultValue="tickets" className="space-y-4">
