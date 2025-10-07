@@ -6,7 +6,7 @@ import { getAuthenticatedUser } from "@/lib/auth-helpers";
 
 export async function GET(req: NextRequest) {
   const user = await getAuthenticatedUser();
-  if (!user || !isAdmin(user.user.id)) {
+  if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const user = await getAuthenticatedUser();
-  if (!user || !isAdmin(user.user.id)) {
+  if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
