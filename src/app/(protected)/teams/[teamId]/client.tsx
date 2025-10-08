@@ -3,7 +3,7 @@
 
 import type { TeamDetail, TeamTicket } from "./types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTeamDetailPage } from "./hook";
+import { useTeamView } from "./_hooks/useTeamView";
 import { EventDetailsDialog } from "./_components/EventDetailsDialog";
 import { RequestEventDialog } from "./_components/RequestEventDialog";
 
@@ -12,7 +12,7 @@ interface TeamDetailClientPageProps {
   initialTeam: TeamDetail;
   initialTickets: TeamTicket[];
 }
-import { TeamHeader } from "./_sections/TeamHeader";
+import { TeamHeader } from "./_components/TeamHeader";
 import { TicketsTab } from "./_sections/TicketsTab";
 import { CalendarTab } from "./_sections/CalendarTab";
 import { MembersTab } from "./_sections/MembersTab";
@@ -21,21 +21,31 @@ export default function TeamDetailClientPage({
   initialTeam,
   initialTickets,
 }: TeamDetailClientPageProps) {
-  const page = useTeamDetailPage(initialTeam, initialTickets);
   const {
-    showNewEventDialog,
-    setShowNewEventDialog,
-    createEvent,
-    selectedEvent,
-    handleEditEvent,
-    handleDeleteEvent,
-    isCalendarLoading,
-    setSelectedEvent,
-  } = page;
+    showEditTeam,
+    setShowEditTeam,
+    showDeleteAlert,
+    setShowDeleteAlert,
+    handleUpdateTeam,
+    handleDeleteTeam,
+    ...calendarProps
+  } = useTeamView({
+    tickets: initialTickets,
+    initialEvents: initialTeam.events,
+    teamId: initialTeam.id,
+  });
 
   return (
     <div className="space-y-6">
-      <TeamHeader {...page} />
+      <TeamHeader 
+        team={initialTeam}
+        showEditTeam={showEditTeam}
+        onEditOpenChange={setShowEditTeam}
+        showDeleteAlert={showDeleteAlert}
+        onDeleteOpenChange={setShowDeleteAlert}
+        onUpdate={handleUpdateTeam}
+        onDelete={handleDeleteTeam}
+      />
       <Tabs defaultValue="tickets" className="space-y-4">
         <TabsList>
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
@@ -44,36 +54,17 @@ export default function TeamDetailClientPage({
         </TabsList>
 
         <TabsContent value="tickets">
-          <TicketsTab {...page} />
+          <TicketsTab team={initialTeam} tickets={initialTickets} />
         </TabsContent>
 
         <TabsContent value="calendar">
-          <CalendarTab {...page} />
+          <CalendarTab {...calendarProps} />
         </TabsContent>
 
         <TabsContent value="members">
-          <MembersTab
-            {...page}
-            handleMemberAction={(member, action) =>
-              page.handleMemberAction(action, member)
-            }
-          />
+          <MembersTab team={initialTeam} handleMemberAction={() => {}} />
         </TabsContent>
       </Tabs>
-
-      <RequestEventDialog
-        isOpen={showNewEventDialog}
-        onClose={() => setShowNewEventDialog(false)}
-        onSubmit={createEvent}
-        isLoading={isCalendarLoading}
-        initialData={selectedEvent}
-      />
-      <EventDetailsDialog
-        event={selectedEvent}
-        onClose={() => setSelectedEvent(null)}
-        onEdit={handleEditEvent}
-        onDelete={handleDeleteEvent}
-      />
     </div>
   );
 }

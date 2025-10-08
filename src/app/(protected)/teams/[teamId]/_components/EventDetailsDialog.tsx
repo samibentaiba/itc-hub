@@ -1,49 +1,11 @@
-// src/app/(protected)/teams/[teamId]/client.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/hooks/use-toast";
-import { AuthorizedComponent } from "@/hooks/use-authorization";
-import type { TeamDetail, TeamTicket, TeamMember, Event, UpcomingEvent, EventFormData } from "../types";
-import { eventFormSchema } from "../types";
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "../utils";
-
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { NewTicketForm } from "@/components/new-ticket-form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, MapPin, Users, Edit, Trash2 } from "lucide-react";
+import type { Event } from "../types";
 
-import {
-  Clock,
-  MessageSquare,
-  Users,
-  Plus,
-  Mail,
-  MoreVertical,
-  ChevronLeft,
-  ChevronRight,
-  ArrowLeft,
-  Calendar as CalendarIcon,
-  Filter,
-  MapPin,
-  Edit,
-  Trash2,
-  Loader2,
-} from "lucide-react";
-
-// Event Details Dialog Component
 interface EventDetailsDialogProps {
   event: Event | null;
   onClose: () => void;
@@ -72,7 +34,7 @@ export function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDe
           <p className="text-muted-foreground">{event.description}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="h-4 w-4 text-muted-foreground" />
               <span>{new Date(`${event.date}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
             <div className="flex items-center gap-2">
