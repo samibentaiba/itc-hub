@@ -16,9 +16,30 @@ export function useTeamDetailPage(
   const [showNewTicket, setShowNewTicket] = useState(false);
 
   // New calendar state
-  const [allEvents, setAllEvents] = useState<Event[]>(initialTeam.events || []);
-  const [upcomingEvents] = useState<UpcomingEvent[]>(initialTeam.upcomingEvents || []);
-  const [currentDate, setCurrentDate] = useState(new Date("2025-08-01"));
+  const [allEvents, setAllEvents] = useState<Event[]>(() =>
+    (initialTeam.events || []).map((event: any) => ({
+      ...event,
+      date: new Date(event.date).toISOString().split('T')[0],
+      attendees: event.attendees.map((attendee: any) => attendee.name),
+    }))
+  );
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+
+    return allEvents
+      .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
+      .filter(event => event.dateTime >= now)
+      .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+      .slice(0, 5)
+      .map((event): UpcomingEvent => ({
+        id: event.id,
+        title: event.title,
+        date: new Date(`${event.date}T${event.time}`).toLocaleString(),
+        type: event.type,
+        attendees: event.attendees.length,
+      }));
+  }, [allEvents]);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [filterType, setFilterType] = useState<string>("all");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -34,7 +55,7 @@ export function useTeamDetailPage(
     }, {} as Record<string, TeamTicket[]>);
 
     const selectedTickets = date ? events[date.toDateString()] || [] : [];
-    
+
     return { selectedDateTickets: selectedTickets, calendarEvents: events };
   }, [date, initialTickets]);
 
@@ -42,13 +63,6 @@ export function useTeamDetailPage(
     toast({
       title: `${action} ${member.name}`,
       description: `Action "${action}" performed on ${member.name}`,
-    });
-  };
-
-  const handleInviteMember = () => {
-    toast({
-      title: "Invitation sent",
-      description: "Team invitation has been sent successfully.",
     });
   };
 
@@ -70,7 +84,7 @@ export function useTeamDetailPage(
           time: formData.time,
           duration: parseInt(formData.duration),
           type: formData.type,
-          attendees: ["You", "Team"], 
+          attendees: ["You", "Team"],
           location: formData.location || "Virtual",
           color: "bg-blue-500",
         };
@@ -92,7 +106,7 @@ export function useTeamDetailPage(
         setAllEvents(prev => [...prev, newEvent].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
         toast({ title: "Event Created", description: `"${formData.title}" has been added.` });
       }
-      
+
       setSelectedEvent(null);
       return true;
     } catch {
@@ -116,12 +130,12 @@ export function useTeamDetailPage(
       setIsCalendarLoading(false);
     }
   };
-  
+
   const handleEditEvent = (event: Event) => {
     setSelectedEvent(event);
     setShowNewEventDialog(true);
   };
-  
+
   const onNewEventClick = () => {
     setSelectedEvent(null);
     setShowNewEventDialog(true);
@@ -158,7 +172,6 @@ export function useTeamDetailPage(
     selectedDateTickets,
     calendarEvents,
     handleMemberAction,
-    handleInviteMember,
     calendarView,
     currentDate,
     events,

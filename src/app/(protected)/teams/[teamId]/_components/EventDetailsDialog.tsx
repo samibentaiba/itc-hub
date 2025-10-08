@@ -1,0 +1,111 @@
+// src/app/(protected)/teams/[teamId]/client.tsx
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
+import { AuthorizedComponent } from "@/hooks/use-authorization";
+import type { TeamDetail, TeamTicket, TeamMember, Event, UpcomingEvent, EventFormData } from "../types";
+import { eventFormSchema } from "../types";
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "../utils";
+
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NewTicketForm } from "@/components/new-ticket-form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+import {
+  Clock,
+  MessageSquare,
+  Users,
+  Plus,
+  Mail,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Filter,
+  MapPin,
+  Edit,
+  Trash2,
+  Loader2,
+} from "lucide-react";
+
+// Event Details Dialog Component
+interface EventDetailsDialogProps {
+  event: Event | null;
+  onClose: () => void;
+  onEdit: (event: Event) => void;
+  onDelete: (event: Event) => void;
+}
+
+export function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDialogProps) {
+  if (!event) return null;
+
+  return (
+    <Dialog open={!!event} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <DialogTitle className="text-2xl font-bold">{event.title}</DialogTitle>
+              <DialogDescription className="mt-1">
+                <Badge variant="outline" className="capitalize">{event.type}</Badge>
+              </DialogDescription>
+            </div>
+            <div className={`w-4 h-4 rounded-full mt-2 ${event.color}`}></div>
+          </div>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <p className="text-muted-foreground">{event.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+              <span>{new Date(`${event.date}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>{event.time} ({event.duration} min)</span>
+            </div>
+            <div className="flex items-center gap-2 col-span-full">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span>{event.location}</span>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Attendees</h4>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{event.attendees.join(', ')}</span>
+            </div>
+          </div>
+        </div>
+        <DialogFooter className="sm:justify-between gap-2">
+          <Button variant="destructive" onClick={() => onDelete(event)}>
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>Close</Button>
+            <Button onClick={() => onEdit(event)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
