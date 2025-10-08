@@ -1,5 +1,4 @@
-// Fix 1: Update the Event interface in types.ts
-// Replace the content of: src/app/(protected)/teams/[teamId]/types.ts
+// src/app/(protected)/teams/[teamId]/types.ts
 
 import { z } from 'zod';
 
@@ -21,7 +20,7 @@ export interface Event {
   date: string;
   time: string;
   duration: number;
-  type: "meeting" | "review" | "planning" | "workshop"; // Changed from string to union type
+  type: "meeting" | "review" | "planning" | "workshop";
   attendees: string[];
   location: string;
   color: string;
@@ -93,4 +92,38 @@ export interface TeamDetail {
   tickets: TeamTicket[];
   events: Event[];
   upcomingEvents: UpcomingEvent[];
+}
+
+// ADD MISSING TYPES FOR TEAMS LIST PAGE
+export interface StatLocal {
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+}
+
+export interface TeamLocal {
+  id: string;
+  name: string;
+  description: string | null;
+  department: string;
+  memberCount: number;
+  activeProjects: number;
+  lead: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  leaders: {
+    id: string;
+    name: string;
+    avatar: string;
+  }[];
+  members: {
+    id: string;
+    name: string;
+    avatar: string;
+  }[];
+  recentActivity: string;
+  status: string;
 }

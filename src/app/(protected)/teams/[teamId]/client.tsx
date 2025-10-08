@@ -1,7 +1,7 @@
 // client.tsx
 "use client";
 
-import { useTeamsPage } from "./hook";
+import { useTeamsPage } from "./_hooks/useTeamPage";
 import type { TeamLocal, StatLocal } from "./types";
 import { TeamsHeader } from "./_components/TeamHeader";
 import { StatsGrid } from "./_components/StatsGrid";

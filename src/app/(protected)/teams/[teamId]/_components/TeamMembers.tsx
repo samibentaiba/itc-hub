@@ -1,4 +1,3 @@
-
 // _components/TeamMembers.tsx
 "use client";
 
@@ -25,7 +24,7 @@ export function TeamMembers({ members, memberCount }: TeamMembersProps) {
         <span className="text-xs text-muted-foreground">{memberCount} total</span>
       </div>
       <div className="flex -space-x-2">
-        {members.slice(0, 4).map((member) => {
+        {members.slice(0, 4).map((member: TeamLocal['members'][0]) => {
           const initials = member.name
             .split(" ")
             .map((n: string) => n[0])
