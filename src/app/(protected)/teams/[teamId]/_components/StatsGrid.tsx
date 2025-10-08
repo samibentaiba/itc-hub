@@ -4,7 +4,7 @@
 
 import { Users, TrendingUp, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { StatLocal } from "../../types";
+import type { StatLocal } from "./../types";
 
 // Mapping from stat title to Icon component
 const iconMap = {
