@@ -3,40 +3,9 @@
 
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { TeamDetail, TeamTicket, TeamMember, Event, UpcomingEvent, EventFormData, TeamLocal, StatLocal } from "./types";
+import type { TeamDetail, TeamTicket, TeamMember, Event, UpcomingEvent, EventFormData } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
 
-// Hook for teams list page
-export function useTeamsPage(
-  initialTeams: TeamLocal[],
-  initialStats: StatLocal[]
-) {
-  const stats = useMemo(() => initialStats, [initialStats]);
-  const teams = useMemo(() => initialTeams, [initialTeams]);
-
-  const getDepartmentColor = (department: string): string => {
-    const colors: Record<string, string> = {
-      Engineering: "bg-blue-500",
-      Design: "bg-purple-500",
-      Marketing: "bg-green-500",
-      Sales: "bg-yellow-500",
-      HR: "bg-pink-500",
-      Finance: "bg-indigo-500",
-      Operations: "bg-orange-500",
-      Support: "bg-teal-500",
-    };
-
-    return colors[department] || "bg-gray-500";
-  };
-
-  return {
-    stats,
-    teams,
-    getDepartmentColor,
-  };
-}
-
-// Hook for team detail page
 export function useTeamDetailPage(
   initialTeam: TeamDetail,
   initialTickets: TeamTicket[]
