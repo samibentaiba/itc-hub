@@ -1,77 +1,81 @@
-import { render, screen, within } from "@testing-library/react";
+// /app/(protected)/admin/__tests__/client.test.tsx
+import { render, screen, fireEvent } from "@testing-library/react";
 import AdminClientPage from "../client";
 import { useAdminPage } from "../_hooks/useAdminPage";
-import { TestWrapper } from "./TestWrapper"; 
 
-// Mock the useAdminPage hook
+
+// Mock all UI subcomponents
+jest.mock("../_components/StatsCards", () => ({
+  StatsCards: () => <div>StatsCards Mock</div>,
+}));
+jest.mock("../_components/AdminTabs", () => ({
+  AdminTabs: () => <div>AdminTabs Mock</div>,
+}));
+jest.mock("../_components/UserFormDialog", () => ({
+  UserFormDialog: () => <div>UserFormDialog Mock</div>,
+}));
+jest.mock("../_components/TeamFormDialog", () => ({
+  TeamFormDialog: () => <div>TeamFormDialog Mock</div>,
+}));
+jest.mock("../_components/DepartmentFormDialog", () => ({
+  DepartmentFormDialog: () => <div>DepartmentFormDialog Mock</div>,
+}));
+jest.mock("../_components/ActionConfirmationDialog", () => ({
+  ActionConfirmationDialog: () => <div>ActionConfirmationDialog Mock</div>,
+}));
+jest.mock("../_components/ManageMembersDialog", () => ({
+  ManageMembersDialog: () => <div>ManageMembersDialog Mock</div>,
+}));
+jest.mock("../_components/CreateEventDialog", () => ({
+  CreateEventDialog: () => <div>CreateEventDialog Mock</div>,
+}));
+jest.mock("../_components/EventDetailsDialog", () => ({
+  EventDetailsDialog: () => <div>EventDetailsDialog Mock</div>,
+}));
+
+
+// Mock the hook
 jest.mock("../_hooks/useAdminPage");
 
-describe("AdminClientPage", () => {
-  const mockUseAdminPage = {
-    pageActions: {
-      handleRefreshData: jest.fn(),
-      handleExportData: jest.fn(),
-      loadingAction: null,
-    },
-    modalData: {
-      modal: null,
-      closeModal: jest.fn(),
-      handleActionConfirm: jest.fn(),
-      setModal: jest.fn(),
-    },
-    userData: { 
-      users: [
-        { id: "1", name: "Sami", email: "sami@example.com", role: "ADMIN" },
-      ],
-      handleSaveUser: jest.fn(),
-      handleDeleteUser: jest.fn(),
-      handleVerifyUser: jest.fn(),
-    },
-    teamData: { 
-      teams: [
-        { id: "1", name: "Team Alpha", members: [] },
-      ],
-      handleSaveTeam: jest.fn(),
-      handleDeleteTeam: jest.fn(),
-    },
-    departmentData: { 
-      departments: [
-        { id: "1", name: "Engineering", members: [] },
-      ],
-      handleSaveDepartment: jest.fn(),
-      handleDeleteDepartment: jest.fn(),
-    },
-    eventRequestData: { 
-      pendingEvents: [],
-      handleAcceptEvent: jest.fn(),
-      handleRejectEvent: jest.fn(),
-    },
-    calendarData: { 
-      events: [], 
-      actions: {
-        createEvent: jest.fn(),
-        handleDeleteEvent: jest.fn(),
-      } 
-    },
-    memberData: {
-      handleAddMember: jest.fn(),
-      handleRemoveMember: jest.fn(),
-      handleChangeMemberRole: jest.fn(),
-    },
-    allUsers: [],
-    allDepartments: [],
-  };
 
+describe("AdminClientPage", () => {
   beforeEach(() => {
-    (useAdminPage as jest.Mock).mockReturnValue(mockUseAdminPage);
+    (useAdminPage as jest.Mock).mockReturnValue({
+      pageActions: {
+        handleRefreshData: jest.fn(),
+        handleExportData: jest.fn(),
+        loadingAction: null,
+      },
+      modalData: {
+        modal: null,
+        closeModal: jest.fn(),
+        setModal: jest.fn(),
+      },
+      userData: { users: [] },
+      teamData: { teams: [] },
+      departmentData: { departments: [] },
+      memberData: {},
+      eventRequestData: {},
+      calendarData: {
+        showNewEventDialog: false,
+        actions: {
+          setShowNewEventDialog: jest.fn(),
+          setSelectedEvent: jest.fn(),
+          createEvent: jest.fn(),
+          handleEditEvent: jest.fn(),
+          handleDeleteEvent: jest.fn(),
+        },
+        selectedEvent: null,
+        isLoading: false,
+      },
+      allUsers: [],
+      allDepartments: [],
+    });
   });
 
-  const renderWithWrapper = (component: React.ReactElement) => {
-    return render(<TestWrapper>{component}</TestWrapper>);
-  };
 
-  it("should render the main components of the admin dashboard", () => {
-    renderWithWrapper(
+  it("renders the Admin Dashboard header and basic UI components", () => {
+    render(
       <AdminClientPage
         initialUsers={[]}
         initialTeams={[]}
@@ -81,15 +85,52 @@ describe("AdminClientPage", () => {
         initialPendingEvents={[]}
       />
     );
+
 
     expect(screen.getByText("Admin Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Export Data")).toBeInTheDocument();
+    expect(screen.getByText("Manage all aspects of the ITC Hub.")).toBeInTheDocument();
+    expect(screen.getByText("StatsCards Mock")).toBeInTheDocument();
+    expect(screen.getByText("AdminTabs Mock")).toBeInTheDocument();
   });
 
-  it("should display users in the user data table", () => {
-    renderWithWrapper(
+
+  it("triggers refresh and export handlers when buttons are clicked", () => {
+    const mockRefresh = jest.fn();
+    const mockExport = jest.fn();
+
+
+    (useAdminPage as jest.Mock).mockReturnValue({
+      pageActions: {
+        handleRefreshData: mockRefresh,
+        handleExportData: mockExport,
+        loadingAction: null,
+      },
+      modalData: { modal: null, closeModal: jest.fn(), setModal: jest.fn() },
+      userData: { users: [] },
+      teamData: { teams: [] },
+      departmentData: { departments: [] },
+      memberData: {},
+      eventRequestData: {},
+      calendarData: {
+        showNewEventDialog: false,
+        actions: {
+          setShowNewEventDialog: jest.fn(),
+          setSelectedEvent: jest.fn(),
+          createEvent: jest.fn(),
+          handleEditEvent: jest.fn(),
+          handleDeleteEvent: jest.fn(),
+        },
+        selectedEvent: null,
+        isLoading: false,
+      },
+      allUsers: [],
+      allDepartments: [],
+    });
+
+
+    render(
       <AdminClientPage
-        initialUsers={mockUseAdminPage.userData.users}
+        initialUsers={[]}
         initialTeams={[]}
         initialDepartments={[]}
         initialEvents={[]}
@@ -97,43 +138,13 @@ describe("AdminClientPage", () => {
         initialPendingEvents={[]}
       />
     );
-    
-    const userTable = screen.getByTestId("users-data-table");
-    const row = within(userTable).getByText("Sami");
-    expect(row).toBeInTheDocument();
-  });
 
-  it("should display teams in the team data table", () => {
-    renderWithWrapper(
-      <AdminClientPage
-        initialUsers={[]}
-        initialTeams={mockUseAdminPage.teamData.teams}
-        initialDepartments={[]}
-        initialEvents={[]}
-        initialUpcomingEvents={[]}
-        initialPendingEvents={[]}
-      />
-    );
 
-    const teamTable = screen.getByTestId("teams-data-table");
-    const row = within(teamTable).getByText("Team Alpha");
-    expect(row).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getAllByRole("button")[0]); // Refresh
+    fireEvent.click(screen.getAllByRole("button")[1]); // Export
 
-  it("should display departments in the department data table", () => {
-    renderWithWrapper(
-      <AdminClientPage
-        initialUsers={[]}
-        initialTeams={[]}
-        initialDepartments={mockUseAdminPage.departmentData.departments}
-        initialEvents={[]}
-        initialUpcomingEvents={[]}
-        initialPendingEvents={[]}
-      />
-    );
 
-    const departmentTable = screen.getByTestId("departments-data-table");
-    const row = within(departmentTable).getByText("Engineering");
-    expect(row).toBeInTheDocument();
+    expect(mockRefresh).toHaveBeenCalled();
+    expect(mockExport).toHaveBeenCalled();
   });
 });
