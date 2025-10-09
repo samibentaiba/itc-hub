@@ -12,6 +12,16 @@ export const eventFormSchema = z.object({
   location: z.string().optional(),
 });
 
+export const requestEventSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
+  duration: z.string().min(1, "Duration is required"),
+  type: z.enum(["meeting", "review", "planning", "workshop"]),
+  location: z.string().optional(),
+});
+
 // Update Event interface to use the same type union
 export interface Event {
   id: number;

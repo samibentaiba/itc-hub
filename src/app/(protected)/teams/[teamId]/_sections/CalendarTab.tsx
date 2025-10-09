@@ -18,6 +18,7 @@ import { TabsContent } from "@/components/ui/tabs";
 
 interface CalendarTabProps {
   currentDate: Date;
+  teamId:string;
   calendarView: "month" | "week" | "day";
   onSetCalendarView: (view: "month" | "week" | "day") => void;
   onNavigateCalendar: (direction: "prev" | "next") => void;
@@ -37,6 +38,7 @@ export function CalendarTab({
   currentDate,
   calendarView,
   onSetCalendarView,
+  teamId,
   onNavigateCalendar,
   events,
   upcomingEvents,
@@ -89,6 +91,7 @@ export function CalendarTab({
           </CardHeader>
           <CardContent>
             <CalendarView
+            teamId={teamId}
               currentDate={currentDate}
               view={calendarView}
               events={events}
@@ -102,6 +105,7 @@ export function CalendarTab({
         </Card>
       </div>
       <CalendarSidebar
+      teamId={teamId}
         upcomingEvents={upcomingEvents}
         allEvents={events}
         filterType={filterType}

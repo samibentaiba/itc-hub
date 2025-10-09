@@ -1,10 +1,12 @@
-// src/app/(protected)/teams/[teamId]/page.tsx
 import Link from "next/link";
 import TeamDetailClientPage from "./client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { headers } from 'next/headers';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { NotAccessible } from "@/app/(protected)/_components/NotAccessible";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -28,10 +30,16 @@ interface PageProps {
 }
 
 export default async function TeamDetailPage(props: PageProps) {
+  const session = await getServerSession(authOptions);
   const { teamId } = await props.params;
 
   // Fetch team data directly from API
   const response = await authenticatedFetch(`/api/teams/${teamId}`);
+  
+  if (response.status === 401 || response.status === 403) {
+    return <NotAccessible />;
+  }
+
   let team = null;
   
   if (response.ok) {
@@ -63,6 +71,13 @@ export default async function TeamDetailPage(props: PageProps) {
         </Card>
       </div>
     );
+  }
+
+  const isMember = team.members.some((member: any) => member.id === session?.user?.id);
+  const isAdmin = session?.user?.role === 'ADMIN';
+
+  if (!isMember && !isAdmin) {
+    return <NotAccessible />;
   }
 
   return (

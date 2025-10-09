@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTeamView } from "./_hooks/useTeamView";
 import { EventDetailsDialog } from "./_components/EventDetailsDialog";
 import { RequestEventDialog } from "./_components/RequestEventDialog";
-
+import { AuthorizedComponent } from "@/hooks/use-authorization";
 // Main Team Detail Client Component
 interface TeamDetailClientPageProps {
   initialTeam: TeamDetail;
@@ -21,14 +21,24 @@ export default function TeamDetailClientPage({
   initialTeam,
   initialTickets,
 }: TeamDetailClientPageProps) {
-  const {
-    showEditTeam,
-    setShowEditTeam,
-    showDeleteAlert,
-    setShowDeleteAlert,
-    handleUpdateTeam,
-    handleDeleteTeam,
-    ...calendarProps
+  const { 
+    showNewTicket, 
+    setShowNewTicket, 
+    showEditTeam, 
+    setShowEditTeam, 
+    showDeleteAlert, 
+    setShowDeleteAlert, 
+    handleUpdateTeam, 
+    handleDeleteTeam, 
+    showNewEventDialog,
+    setShowNewEventDialog,
+    createEvent,
+    selectedEvent,
+    handleEditEvent,
+    handleDeleteEvent,
+    isCalendarLoading,
+    setSelectedEvent,
+    ...calendarProps 
   } = useTeamView({
     tickets: initialTickets,
     initialEvents: initialTeam.events,
@@ -45,6 +55,8 @@ export default function TeamDetailClientPage({
         onDeleteOpenChange={setShowDeleteAlert}
         onUpdate={handleUpdateTeam}
         onDelete={handleDeleteTeam}
+        showNewTicket={showNewTicket}
+        onOpenChange={setShowNewTicket}
       />
       <Tabs defaultValue="tickets" className="space-y-4">
         <TabsList>
@@ -58,13 +70,31 @@ export default function TeamDetailClientPage({
         </TabsContent>
 
         <TabsContent value="calendar">
-          <CalendarTab {...calendarProps} />
+          <CalendarTab {...calendarProps} teamId={initialTeam.id}/>
         </TabsContent>
 
         <TabsContent value="members">
           <MembersTab team={initialTeam} handleMemberAction={() => {}} />
         </TabsContent>
       </Tabs>
+
+      <RequestEventDialog
+        isOpen={showNewEventDialog}
+        onClose={() => setShowNewEventDialog(false)}
+        onSubmit={createEvent}
+        isLoading={isCalendarLoading}
+        initialData={selectedEvent}
+      />
+      <AuthorizedComponent teamId={initialTeam.id} action="manage">
+
+      <EventDetailsDialog
+      
+      event={selectedEvent}
+      onClose={() => setSelectedEvent(null)}
+      onEdit={handleEditEvent}
+      onDelete={handleDeleteEvent}
+      />
+      </AuthorizedComponent>
     </div>
   );
 }

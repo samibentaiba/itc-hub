@@ -1,6 +1,4 @@
-"use client";
-
-import { Users, Pencil, Trash2 } from "lucide-react";
+import { Users, Pencil, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -16,14 +14,7 @@ import {
 import { AuthorizedComponent } from "@/hooks/use-authorization";
 import { EditTeamDialog } from "./EditTeamDialog";
 import type { TeamDetail as Team } from "../types";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: "admin" | "manager" | "user";
-}
+import { NewTicketForm } from "@/components/new-ticket-form";
 
 interface TeamHeaderProps {
   team: Team;
@@ -33,19 +24,23 @@ interface TeamHeaderProps {
   onDeleteOpenChange: (open: boolean) => void;
   onUpdate: (data: any) => Promise<void>;
   onDelete: () => Promise<void>;
+  showNewTicket: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function TeamHeader({ 
-  team, 
-  showEditTeam, 
-  onEditOpenChange, 
-  showDeleteAlert, 
-  onDeleteOpenChange, 
-  onUpdate, 
-  onDelete 
+export function TeamHeader({
+  team,
+  showEditTeam,
+  onEditOpenChange,
+  showDeleteAlert,
+  onDeleteOpenChange,
+  onUpdate,
+  onDelete,
+  showNewTicket,
+  onOpenChange
 }: TeamHeaderProps) {
 
-  const formatLeader = (leader: User | null) => {
+  const formatLeader = (leader: any | null) => {
     if (!leader) {
       return null;
     }
@@ -68,8 +63,31 @@ export function TeamHeader({
         <p className="text-muted-foreground">{team.description}</p>
         {formatLeader(team.leader)}
       </div>
-      <AuthorizedComponent requiresAdmin={true}>
+      <AuthorizedComponent teamId={team.id} action="manage">
         <div className="flex gap-2">
+          <Dialog open={showNewTicket} onOpenChange={onOpenChange}>
+            <DialogTrigger asChild>
+              <Button className="bg-red-800 text-white hover:bg-red-700">
+                <Plus className="mr-2 h-4 w-4" />
+                New Initiative
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Team Initiative</DialogTitle>
+                <DialogDescription>
+                  Create a new long-term initiative for {team.name}
+                </DialogDescription>
+              </DialogHeader>
+              <NewTicketForm
+                contextType="team"
+                contextId={team.id}
+                availableWorkspaces={[{ id: team.id, name: team.name, type: 'team' as const }]}
+                availableUsers={team.members}
+              />
+            </DialogContent>
+          </Dialog>
+
           <Button variant="outline" onClick={() => onEditOpenChange(true)}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit
@@ -82,11 +100,11 @@ export function TeamHeader({
         </div>
       </AuthorizedComponent>
 
-      <EditTeamDialog 
-        team={team} 
-        open={showEditTeam} 
-        onOpenChange={onEditOpenChange} 
-        onUpdate={onUpdate} 
+      <EditTeamDialog
+        team={team}
+        open={showEditTeam}
+        onOpenChange={onEditOpenChange}
+        onUpdate={onUpdate}
       />
 
       <AlertDialog open={showDeleteAlert} onOpenChange={onDeleteOpenChange}>

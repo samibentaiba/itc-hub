@@ -1,20 +1,26 @@
-
 "use client";
 
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CalendarView } from "./CalendarView";
 import { CalendarSidebar } from "./CalendarSidebar";
 import { RequestEventDialog } from "./RequestEventDialog";
 import { EventDetailsDialog } from "./EventDetailsDialog";
 import type { Event, EventFormData, UpcomingEvent } from "../types";
-
+import { AuthorizedComponent } from "@/hooks/use-authorization";
 interface CalendarTabProps {
   calendarView: "month" | "week" | "day";
   currentDate: Date;
   events: Event[];
+  departmentId: string;
   upcomingEvents: UpcomingEvent[];
   filterType: string;
   selectedEvent: Event | null;
@@ -30,7 +36,9 @@ interface CalendarTabProps {
   getDaysInMonth: (date: Date) => number;
   getFirstDayOfMonth: (date: Date) => number;
   formatDateString: (date: Date) => string;
-  createEvent: (data: EventFormData & { id?: number | string }) => Promise<boolean>;
+  createEvent: (
+    data: EventFormData & { id?: number | string }
+  ) => Promise<boolean>;
   handleEditEvent: (event: Event) => void;
   handleDeleteEvent: (event: Event) => void;
   setShowNewEventDialog: (show: boolean) => void;
@@ -41,6 +49,7 @@ export function CalendarTab({
   calendarView,
   currentDate,
   events,
+  departmentId,
   upcomingEvents,
   filterType,
   selectedEvent,
@@ -76,7 +85,9 @@ export function CalendarTab({
                 <div className="flex items-center gap-2">
                   <Select
                     value={calendarView}
-                    onValueChange={(v) => onSetCalendarView(v as "month" | "week" | "day")}
+                    onValueChange={(v) =>
+                      onSetCalendarView(v as "month" | "week" | "day")
+                    }
                   >
                     <SelectTrigger className="w-[120px]">
                       <SelectValue />
@@ -123,20 +134,23 @@ export function CalendarTab({
           upcomingEvents={upcomingEvents}
           allEvents={events}
           filterType={filterType}
+          departmentId={departmentId}
           onFilterChange={onFilterChange}
           onNewEventClick={onNewEventClick}
           onEventClick={onSetSelectedEvent}
         />
       </div>
-
-      <RequestEventDialog
-        isOpen={showNewEventDialog}
-        onClose={() => setShowNewEventDialog(false)}
-        onSubmit={createEvent}
-        isLoading={isCalendarLoading}
-        initialData={selectedEvent}
-      />
+      <AuthorizedComponent departmentId={departmentId} action="manage">
+        <RequestEventDialog
+          isOpen={showNewEventDialog}
+          onClose={() => setShowNewEventDialog(false)}
+          onSubmit={createEvent}
+          isLoading={isCalendarLoading}
+          initialData={selectedEvent}
+        />
+      </AuthorizedComponent>
       <EventDetailsDialog
+      departmentId={departmentId}
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
         onEdit={handleEditEvent}

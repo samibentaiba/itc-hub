@@ -5,15 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Users, Edit, Trash2 } from "lucide-react";
 import type { Event } from "../types";
-
+import { AuthorizedComponent } from "@/hooks/use-authorization";
 interface EventDetailsDialogProps {
   event: Event | null;
+  departmentId: string;
   onClose: () => void;
   onEdit: (event: Event) => void;
   onDelete: (event: Event) => void;
 }
 
-export function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDetailsDialogProps) {
+export function EventDetailsDialog({ event, onClose,departmentId, onEdit, onDelete }: EventDetailsDialogProps) {
   if (!event) return null;
 
   return (
@@ -54,6 +55,8 @@ export function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDe
             </div>
           </div>
         </div>
+        <AuthorizedComponent departmentId={departmentId} action="manage">
+
         <DialogFooter className="sm:justify-between gap-2">
           <Button variant="destructive" onClick={() => onDelete(event)}>
             <Trash2 className="h-4 w-4 mr-2" />
@@ -67,6 +70,7 @@ export function EventDetailsDialog({ event, onClose, onEdit, onDelete }: EventDe
             </Button>
           </div>
         </DialogFooter>
+        </AuthorizedComponent>
       </DialogContent>
     </Dialog>
   );

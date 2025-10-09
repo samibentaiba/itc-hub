@@ -15,6 +15,7 @@ interface UseTeamViewArgs {
 export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs) {
   const { toast } = useToast();
   const router = useRouter();
+  const [showNewTicket, setShowNewTicket] = useState(false);
   const [showEditTeam, setShowEditTeam] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
@@ -56,9 +57,9 @@ export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs)
     }
   };
 
-
-
   return {
+    showNewTicket,
+    setShowNewTicket,
     showEditTeam,
     setShowEditTeam,
     showDeleteAlert,

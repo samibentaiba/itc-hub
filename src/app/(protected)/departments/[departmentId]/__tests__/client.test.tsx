@@ -4,6 +4,12 @@ import { SessionProvider } from 'next-auth/react';
 import { DepartmentView } from '../client';
 import { Department } from '../types';
 
+jest.mock('@/hooks/use-authorization', () => ({
+  __esModule: true,
+  ...jest.requireActual('@/hooks/use-authorization'),
+  AuthorizedComponent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 const mockDepartment: Department = {
   id: '1',
   name: 'Test Department',

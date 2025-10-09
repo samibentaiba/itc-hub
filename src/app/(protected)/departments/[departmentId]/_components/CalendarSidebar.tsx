@@ -6,17 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import type { Event, UpcomingEvent } from "../types";
-
+import { AuthorizedComponent } from "@/hooks/use-authorization";
 interface CalendarSidebarProps {
   upcomingEvents: UpcomingEvent[];
   allEvents: Event[];
+  departmentId: string;
   filterType: string;
   onFilterChange: (type: string) => void;
   onNewEventClick: () => void;
   onEventClick: (event: Event | null) => void;
 }
 
-export function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
+export function CalendarSidebar({ upcomingEvents, allEvents, filterType,departmentId, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
   const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
 
   return (
@@ -24,10 +25,12 @@ export function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilte
       <Card>
         <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
+      <AuthorizedComponent departmentId={departmentId} action="manage">
+            <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
             <Plus className="h-4 w-4 mr-2" />
             Create Event
           </Button>
+        </AuthorizedComponent>
           <Select value={filterType} onValueChange={onFilterChange}>
             <SelectTrigger className="w-full justify-start bg-transparent">
               <Filter className="h-4 w-4 mr-2" />

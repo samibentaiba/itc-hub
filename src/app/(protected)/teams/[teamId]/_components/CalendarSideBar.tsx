@@ -46,6 +46,7 @@ import {
 // Calendar Sidebar Component
 interface CalendarSidebarProps {
   upcomingEvents: UpcomingEvent[];
+  teamId: string;
   allEvents: Event[];
   filterType: string;
   onFilterChange: (type: string) => void;
@@ -53,7 +54,7 @@ interface CalendarSidebarProps {
   onEventClick: (event: Event | null) => void;
 }
 
-export function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
+export function CalendarSidebar({ upcomingEvents, allEvents,teamId, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
   const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
 
   return (
@@ -61,10 +62,13 @@ export function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilte
       <Card>
         <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
         <CardContent className="space-y-2">
+          <AuthorizedComponent teamId={teamId} action="manage">
+
           <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
             <Plus className="h-4 w-4 mr-2" />
             Create Event
           </Button>
+          </AuthorizedComponent>
           <Select value={filterType} onValueChange={onFilterChange}>
             <SelectTrigger className="w-full justify-start bg-transparent">
               <Filter className="h-4 w-4 mr-2" />

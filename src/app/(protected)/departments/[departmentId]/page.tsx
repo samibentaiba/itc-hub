@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DepartmentView } from "./client"; // Import the new client component
 import { headers } from 'next/headers';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { NotAccessible } from "@/app/(protected)/_components/NotAccessible";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -34,10 +37,16 @@ interface PageProps {
  * @param {PageProps} props - The page props, including URL parameters.
  */
 export default async function DepartmentDetailPage(props: PageProps) {
+  const session = await getServerSession(authOptions);
   // Fetch data on the server. This will suspend rendering until the data is ready.
   const { departmentId } = await props.params;
   
   const response = await authenticatedFetch(`/api/departments/${departmentId}`);
+
+  if (response.status === 401 || response.status === 403) {
+    return <NotAccessible />;
+  }
+
   let department = null;
   
   if (response.ok) {
@@ -70,6 +79,13 @@ export default async function DepartmentDetailPage(props: PageProps) {
         </Card>
       </div>
     );
+  }
+
+  const isMember = department.members.some((member: any) => member.id === session?.user?.id);
+  const isAdmin = session?.user?.role === 'ADMIN';
+
+  if (!isMember && !isAdmin) {
+    return <NotAccessible />;
   }
 
   // Render the page with the fetched data

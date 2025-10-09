@@ -8,6 +8,7 @@ import { MembersTab } from "./_components/MembersTab";
 import { CalendarTab } from "./_components/CalendarTab";
 import { useDepartmentView } from "./_hooks/useDepartmentView";
 import type { Department } from "./types";
+import { AuthorizedComponent } from "@/hooks/use-authorization";
 
 // The main data structure for the department page.
 // The API should return an object with this shape.
@@ -50,7 +51,9 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
         <TabsList>
           <TabsTrigger value="tickets">Long-term Tickets</TabsTrigger>
           <TabsTrigger value="calendar">Department Calendar</TabsTrigger>
-          <TabsTrigger value="teams">Supervised Teams</TabsTrigger>
+          <AuthorizedComponent departmentId={departmentData.id} action="manage">
+            <TabsTrigger value="teams">Supervised Teams</TabsTrigger>
+          </AuthorizedComponent>
           <TabsTrigger value="members">Members</TabsTrigger>
         </TabsList>
 
@@ -62,13 +65,15 @@ export function DepartmentView({ departmentData }: DepartmentViewProps) {
         {/* The CalendarTab component displays the department's calendar and events. */}
         {/* It receives all the props from the useDepartmentView hook. */}
         <TabsContent value="calendar">
-          <CalendarTab {...hookProps} />
+          <CalendarTab {...hookProps}  departmentId={departmentData.id} />
         </TabsContent>
 
         {/* The TeamsTab component displays a list of teams in the department. */}
-        <TabsContent value="teams">
-          <TeamsTab teams={departmentData.teams} />
-        </TabsContent>
+        <AuthorizedComponent departmentId={departmentData.id} action="manage">
+          <TabsContent value="teams">
+            <TeamsTab teams={departmentData.teams} />
+          </TabsContent>
+        </AuthorizedComponent>
 
         {/* The MembersTab component displays a list of members in the department. */}
         <TabsContent value="members">

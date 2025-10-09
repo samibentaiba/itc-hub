@@ -47,6 +47,7 @@ import {
 interface CalendarViewProps {
   currentDate: Date;
   view: "month" | "week" | "day";
+  teamId: string;
   events: Event[];
   setSelectedEvent: (event: Event | null) => void;
   handleDayClick: (date: Date) => void;
@@ -55,7 +56,7 @@ interface CalendarViewProps {
   formatDateString: (date: Date) => string;
 }
 
-export function CalendarView({ currentDate, view, events, setSelectedEvent, handleDayClick, getDaysInMonth, getFirstDayOfMonth, formatDateString }: CalendarViewProps) {
+export function CalendarView({ currentDate, view, events,teamId, setSelectedEvent, handleDayClick, getDaysInMonth, getFirstDayOfMonth, formatDateString }: CalendarViewProps) {
 
   const getEventsForDate = (date: string) => {
     return events.filter((event) => event.date === date);
