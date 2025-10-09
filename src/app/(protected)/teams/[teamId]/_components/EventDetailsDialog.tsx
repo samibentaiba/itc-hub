@@ -55,22 +55,22 @@ export function EventDetailsDialog({ event, onClose,teamId, onEdit, onDelete }: 
             </div>
           </div>
         </div>
+        <AuthorizedComponent teamId={teamId} action="manage">
         <DialogFooter className="sm:justify-between gap-2">
-          <AuthorizedComponent teamId={teamId} action="manage">
-
-          <Button variant="destructive" onClick={() => onDelete(event)}>
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Close</Button>
-            <Button onClick={() => onEdit(event)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          </div>
-          </AuthorizedComponent>
+          <Button variant="outline" onClick={onClose}>Close</Button>
+          
+            <div className="flex gap-2">
+              <Button variant="destructive" onClick={() => onDelete(event)}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+              <Button onClick={() => onEdit(event)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            </div>
         </DialogFooter>
+          </AuthorizedComponent>
       </DialogContent>
     </Dialog>
   );

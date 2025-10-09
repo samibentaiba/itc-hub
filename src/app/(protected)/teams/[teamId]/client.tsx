@@ -85,16 +85,15 @@ export default function TeamDetailClientPage({
         isLoading={isCalendarLoading}
         initialData={selectedEvent}
       />
-      <AuthorizedComponent teamId={initialTeam.id} action="manage">
 
       <EventDetailsDialog
-      
-      event={selectedEvent}
-      onClose={() => setSelectedEvent(null)}
-      onEdit={handleEditEvent}
-      onDelete={handleDeleteEvent}
+        teamId={initialTeam.id}
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
       />
-      </AuthorizedComponent>
+
     </div>
   );
 }
