@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Message, Ticket } from "./types";
+import type { Message, Ticket, Reaction } from "./types";
 
 export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Message[]) => {
   const { toast } = useToast();
@@ -18,8 +18,8 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     if (message.trim() && ticket) {
       const newMessage: Message = {
         id: `m${messages.length + 1}`,
-        sender: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
-        content: message,
+        user: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
+        comment: message,
         type: "text",
         timestamp: new Date().toISOString(),
         reactions: [],
@@ -35,7 +35,7 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     setMessages(
       messages.map((msg) => {
         if (msg.id === messageId) {
-          const reactionIndex = msg.reactions.findIndex((r) => r.emoji === emoji);
+          const reactionIndex = msg.reactions.findIndex((r: Reaction) => r.emoji === emoji);
           const currentUser = "u1"; // Mock current user
 
           if (reactionIndex > -1) {
@@ -45,7 +45,7 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
             if (userIndex > -1) {
               const updatedUsers = reaction.users.filter((u) => u !== currentUser);
               if (updatedUsers.length === 0) {
-                return { ...msg, reactions: msg.reactions.filter((r) => r.emoji !== emoji) };
+                return { ...msg, reactions: msg.reactions.filter((r: Reaction) => r.emoji !== emoji) };
               } else {
                 const updatedReactions = [...msg.reactions];
                 updatedReactions[reactionIndex] = { ...reaction, users: updatedUsers, count: updatedUsers.length };
@@ -71,8 +71,8 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     if (file && ticket) {
       const newMessage: Message = {
         id: `m${messages.length + 1}`,
-        sender: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
-        content: file.type.startsWith("image/") ? URL.createObjectURL(file) : `📎 ${file.name}`,
+        user: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
+        comment: file.type.startsWith("image/") ? URL.createObjectURL(file) : `📎 ${file.name}`,
         type: file.type.startsWith("image/") ? "image" : "file",
         timestamp: new Date().toISOString(),
         reactions: [],
@@ -88,8 +88,8 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
       setTicket({ ...ticket, status: "resolved" });
       const newMessage: Message = {
         id: `m${messages.length + 1}`,
-        sender: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
-        content: "✅ Ticket has been marked as resolved!",
+        user: { id: "u1", name: "Sami", avatar: "/placeholder.svg?height=32&width=32", role: "leader" },
+        comment: "✅ Ticket has been marked as resolved!",
         type: "system",
         timestamp: new Date().toISOString(),
         reactions: [],
@@ -104,13 +104,13 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
     const messageToEdit = messages.find((m) => m.id === messageId);
     if (messageToEdit) {
       setEditingMessage(messageId);
-      setEditContent(messageToEdit.content);
+      setEditContent(messageToEdit.comment);
     }
   };
 
   const handleSaveEdit = (messageId: string) => {
     setMessages(
-      messages.map((msg) => (msg.id === messageId ? { ...msg, content: editContent, edited: true } : msg))
+      messages.map((msg) => (msg.id === messageId ? { ...msg, comment: editContent, edited: true } : msg))
     );
     setEditingMessage(null);
     setEditContent("");
@@ -138,7 +138,7 @@ export const useTicketDetailPage = (initialTicket: Ticket, initialMessages: Mess
   const getStatusColor = (status: Ticket['status']) => {
     switch (status) {
       case "new": return "destructive";
-      case "in-progress": return "default";
+      case "in_progress": return "default";
       case "resolved": return "secondary";
       default: return "outline";
     }

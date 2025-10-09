@@ -145,8 +145,8 @@ export interface UserDetailLocal {
 }
 
 // Ticket Types
-export type TicketStatus = "open" | "in_progress" | "closed";
-export type TicketPriority = "low" | "medium" | "high";
+export type TicketStatus = "open" | "in_progress" | "closed" | "new" | "resolved";
+export type TicketPriority = "low" | "medium" | "high" | "urgent";
 
 export interface Ticket {
   id: string;
@@ -160,6 +160,8 @@ export interface Ticket {
   team?: Partial<Team>;
   createdAt: string;
   updatedAt: string;
+  type: string;
+  dueDate: string;
 }
 
 export interface TicketComment {
@@ -172,6 +174,34 @@ export interface TicketComment {
 export interface TicketDetails extends Ticket {
     comments: TicketComment[];
     attachments: File[];
+}
+
+// ADDED: Missing ticket-related types for local components
+export interface ReactionLocal {
+  emoji: string;
+  users: string[];
+  count: number;
+}
+
+export interface SenderLocal {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+}
+
+export interface MessageLocal {
+  id: string;
+  user: SenderLocal;
+  comment: string;
+  type: "text" | "image" | "file" | "system";
+  timestamp: string;
+  reactions: ReactionLocal[];
+  edited: boolean;
+}
+
+export interface TicketDetailLocal extends Ticket {
+  messages: MessageLocal[];
 }
 
 // Department & Team Types
