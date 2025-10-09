@@ -1,10 +1,7 @@
 "use client";
 
 import type React from "react";
-import {  Send,
-  ImageIcon,
-  LinkIcon,
-} from "lucide-react";
+import { Send, ImageIcon, LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 

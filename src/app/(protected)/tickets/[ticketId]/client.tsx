@@ -2,10 +2,7 @@
 
 import type React from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
- 
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,7 +26,7 @@ import { MessageInput } from "./_components/MassageInput";
 export default function TicketDetailClientPage({
   initialTicket,
   initialMessages,
-  fromPath, // Receive the prop here
+  fromPath,
 }: TicketDetailClientPageProps) {
   const {
     ticket,

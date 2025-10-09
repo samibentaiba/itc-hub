@@ -1,13 +1,7 @@
 "use client";
 
 import type React from "react";
-import {
-  MoreVertical,
-  Paperclip,
-  Smile,
-  Edit,
-  Trash2,
-} from "lucide-react";
+import { MoreVertical, Paperclip, Smile, Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
@@ -28,7 +22,6 @@ import {
 import type { Message, Reaction } from "../types";
 
 // --- ChatMessage and MessageInput components (unchanged) ---
-
 
 const MessageContent = ({ msg }: { msg: Message }) => {
   if (msg.type === "image") {
@@ -104,7 +97,6 @@ interface ChatMessageProps {
   formatTimestamp: (timestamp: string) => string;
   emojis: string[];
 }
-
 
 export const ChatMessage = ({
   msg,
