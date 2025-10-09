@@ -72,7 +72,7 @@ export function DepartmentHeader({
         <p className="text-muted-foreground">{department.description}</p>
         {formatManagers(department.managers)}
       </div>
-      <AuthorizedComponent requiresAdmin={true}>
+      <AuthorizedComponent departmentId={department.id} action="manage" requiresManager={true} requiresAdmin={true}>
         <div className="flex gap-2">
           <Dialog open={showNewTicket} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>

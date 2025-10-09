@@ -122,49 +122,34 @@ export function AuthorizedComponent({
     const checkPermissions = async () => {
       if (auth.isLoading) return;
       
-      // Check admin requirement
-      if (requiresAdmin && !auth.isAdmin) {
-        setHasPermission(false);
-        return;
+      let hasAccess = false;
+      if (requiresAdmin && auth.isAdmin) {
+        hasAccess = true;
       }
 
-      // Check manager requirement  
-      if (requiresManager && !auth.isManager && !auth.isAdmin) {
-        setHasPermission(false);
-        return;
-      }
-
-      // Check entity-specific permissions
-      if (teamId) {
-        const canAccess = action === 'manage' 
-          ? await auth.canManageTeam(teamId)
-          : await auth.canAccessTeam(teamId);
-        setHasPermission(canAccess);
-        return;
+      if (requiresManager && auth.isManager) {
+        hasAccess = true;
       }
 
       if (departmentId) {
-        const canAccess = action === 'manage'
-          ? await auth.canManageDepartment(departmentId)
-          : await auth.canAccessDepartment(departmentId);
-        setHasPermission(canAccess);
-        return;
+        const canManage = await auth.canManageDepartment(departmentId);
+        if (requiresManager && canManage) {
+          hasAccess = true;
+        }
       }
 
-      if (ticketId) {
-        const canAccess = action === 'manage'
-          ? await auth.canManageTicket(ticketId)
-          : true; // Anyone can access/view tickets for now
-        setHasPermission(canAccess);
-        return;
+      if (teamId) {
+        const canManage = await auth.canManageTeam(teamId);
+        if (requiresManager && canManage) {
+          hasAccess = true;
+        }
       }
 
-      // Default case - if no specific requirements, allow
-      setHasPermission(true);
+      setHasPermission(hasAccess);
     };
 
     checkPermissions();
-  }, [auth, requiresAdmin, requiresManager, teamId, departmentId, ticketId, action]);
+  }, [auth, requiresAdmin, requiresManager, teamId, departmentId, action]);
 
   if (auth.isLoading || hasPermission === null) {
     return <>{fallback}</>;

@@ -63,7 +63,7 @@ export function TeamHeader({
         <p className="text-muted-foreground">{team.description}</p>
         {formatLeader(team.leader)}
       </div>
-      <AuthorizedComponent teamId={team.id} action="manage">
+      <AuthorizedComponent teamId={team.id} action="manage" requiresManager={true} requiresAdmin={true}>
         <div className="flex gap-2">
           <Dialog open={showNewTicket} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>

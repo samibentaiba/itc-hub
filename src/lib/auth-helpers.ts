@@ -49,16 +49,6 @@ export async function isTeamManager(
   userId: string,
   teamId: string
 ): Promise<boolean> {
-  // Check if user is the team leader
-  const team = await prisma.team.findUnique({
-    where: { id: teamId },
-    select: { leaderId: true },
-  });
-
-  if (team?.leaderId === userId) {
-    return true;
-  }
-
   // Check if user is a manager in the team membership
   const membership = await prisma.teamMember.findUnique({
     where: {
@@ -77,16 +67,6 @@ export async function isDepartmentManager(
   userId: string,
   departmentId: string
 ): Promise<boolean> {
-  // Check if user is the department manager
-  const department = await prisma.department.findUnique({
-    where: { id: departmentId },
-    select: { managerId: true },
-  });
-
-  if (department?.managerId === userId) {
-    return true;
-  }
-
   // Check if user is a manager in the department membership
   const membership = await prisma.departmentMember.findUnique({
     where: {

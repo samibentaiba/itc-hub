@@ -62,7 +62,7 @@ export function CalendarSidebar({ upcomingEvents, allEvents,teamId, filterType, 
       <Card>
         <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          <AuthorizedComponent teamId={teamId} action="manage">
+          <AuthorizedComponent teamId={teamId} action="manage"  requiresManager={true} >
 
           <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
             <Plus className="h-4 w-4 mr-2" />

@@ -55,7 +55,7 @@ export function EventDetailsDialog({ event, onClose,departmentId, onEdit, onDele
             </div>
           </div>
         </div>
-        <AuthorizedComponent departmentId={departmentId} action="manage">
+        <AuthorizedComponent departmentId={departmentId} action="manage" requiresManager={true} >
 
         <DialogFooter className="sm:justify-between gap-2">
           <Button variant="destructive" onClick={() => onDelete(event)}>

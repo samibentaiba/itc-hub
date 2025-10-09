@@ -55,7 +55,7 @@ export function EventDetailsDialog({ event, onClose,teamId, onEdit, onDelete }: 
             </div>
           </div>
         </div>
-        <AuthorizedComponent teamId={teamId} action="manage">
+        <AuthorizedComponent teamId={teamId} action="manage"requiresManager={true} >
         <DialogFooter className="sm:justify-between gap-2">
           <Button variant="outline" onClick={onClose}>Close</Button>
           

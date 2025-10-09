@@ -140,7 +140,7 @@ export function CalendarTab({
           onEventClick={onSetSelectedEvent}
         />
       </div>
-      <AuthorizedComponent departmentId={departmentId} action="manage">
+      <AuthorizedComponent departmentId={departmentId} action="manage" requiresManager={true} >
         <RequestEventDialog
           isOpen={showNewEventDialog}
           onClose={() => setShowNewEventDialog(false)}
