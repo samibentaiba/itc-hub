@@ -22,12 +22,12 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: Prisma.TeamWhereInput = {}
+    let where: Prisma.TeamWhereInput = {}
 
     if (search) {
       where.OR = [
         { name: { contains: search } },
-        { description: { contains: search } }
+        { description: { contains: search } },
       ]
     }
 
@@ -37,6 +37,18 @@ export async function GET(request: NextRequest) {
 
     if (departmentId) {
       where.departmentId = departmentId
+    }
+
+    if (session.user.role !== "ADMIN") {
+      const userAccessCondition: Prisma.TeamWhereInput = {
+        OR: [
+          { members: { some: { userId: session.user.id } } },
+          { leaders: { some: { id: session.user.id } } },
+        ],
+      }
+      where = {
+        AND: [where, userAccessCondition],
+      }
     }
 
     const [teams, total] = await Promise.all([

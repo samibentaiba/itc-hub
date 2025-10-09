@@ -20,17 +20,29 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: Prisma.DepartmentWhereInput = {}
+    let where: Prisma.DepartmentWhereInput = {}
 
     if (search) {
       where.OR = [
         { name: { contains: search } },
-        { description: { contains: search } }
+        { description: { contains: search } },
       ]
     }
 
     if (status) {
       where.status = status
+    }
+
+    if (session.user.role !== "ADMIN") {
+      const userAccessCondition: Prisma.DepartmentWhereInput = {
+        OR: [
+          { members: { some: { userId: session.user.id } } },
+          { managers: { some: { id: session.user.id } } },
+        ],
+      }
+      where = {
+        AND: [where, userAccessCondition],
+      }
     }
 
     const [departments, total] = await Promise.all([
