@@ -1,80 +1,64 @@
-import Link from "next/link";
-import TicketDetailClientPage from "./client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { headers } from 'next/headers';
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import TicketClient from "./TicketClient";
 
-// Helper function for authenticated server-side fetch requests
-async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const headersList = await headers();
-  const cookie = headersList.get('cookie');
-  
-  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(cookie && { Cookie: cookie }),
-      ...options.headers,
-    },
-  });
-}
+type TicketPageProps = {
+  params: {
+    ticketId: string;
+  };
+};
 
-// This is a Server Component.
-// It fetches data on the server and passes it to the client component.
-export default async function TicketDetailPage(props: {
-  params: Promise<{ ticketId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const { ticketId } = await props.params;
-
-  // Get the 'from' query parameter to create the throwback link, or default to '/tickets'
-  const searchParams = await props.searchParams;
-  const fromPath =
-    typeof searchParams.from === "string" ? searchParams.from : "/tickets";
-
-  // Fetch data for the specific ticket directly
-  const response = await authenticatedFetch(`/api/tickets/${ticketId}`);
-  let ticket = null;
-  
-  if (response.ok) {
-    ticket = await response.json();
-  } else if (response.status !== 404) {
-    throw new Error('Failed to fetch ticket');
+export default async function TicketPage({ params }: TicketPageProps) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    notFound();
   }
 
-  // Handle the case where the ticket doesn't exist
+  const ticket = await prisma.ticket.findUnique({
+    where: { id: params.ticketId },
+    include: {
+      createdBy: true,
+      department: {
+        include: {
+          members: true,
+        },
+      },
+      team: {
+        include: {
+          members: true,
+        },
+      },
+      messages: {
+        include: {
+          sender: true,
+        },
+        orderBy: {
+          timestamp: "asc",
+        },
+      },
+      files: true,
+    },
+  });
+
   if (!ticket) {
+    notFound();
+  }
+
+  const isMember =
+    ticket.department?.members.some((m) => m.userId === session.user.id) ||
+    ticket.team?.members.some((m) => m.userId === session.user.id);
+
+  if (!isMember && ticket.createdById !== session.user.id) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          {/* Use the fromPath for the back button's href */}
-          <Link href={fromPath}>
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back
-            </Button>
-          </Link>
-        </div>
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold">Ticket not found</h3>
-              <p className="text-muted-foreground">
-                The ticket you&apos;re looking for doesn&apos;t exist.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">
+          You are not authorized to view this ticket.
+        </p>
       </div>
     );
   }
 
-  // Pass the server-fetched data and the fromPath as props to the client component.
-  return (
-    <TicketDetailClientPage
-      initialTicket={ticket}
-      initialMessages={ticket.comments || []} // Use comments from ticket data
-      fromPath={fromPath} // Pass the path to the client component
-    />
-  );
+  return <TicketClient ticket={ticket} user={session.user} />;
 }

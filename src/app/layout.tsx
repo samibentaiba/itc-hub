@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
-import { Roboto } from "next/font/google"
-import { Wrapper } from "@/app/wrapper"
+import { Roboto } from "next/font/google";
+import {Wrapper} from "./wrapper";
 
 const roboto = Roboto({ subsets: ["latin"] })
 

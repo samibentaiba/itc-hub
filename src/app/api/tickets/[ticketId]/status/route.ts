@@ -1,10 +1,10 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { TicketStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET(
+export async function PUT(
   req: NextRequest,
   { params }: { params: { ticketId: string } }
 ) {
@@ -14,8 +14,29 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { status } = await req.json();
+    if (!status || !Object.values(TicketStatus).includes(status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+
     const ticket = await prisma.ticket.findUnique({
       where: { id: params.ticketId },
+    });
+
+    if (!ticket) {
+      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
+    }
+
+    if (ticket.createdById !== session.user.id) {
+      return NextResponse.json(
+        { error: "Only the ticket creator can change the status" },
+        { status: 403 }
+      );
+    }
+
+    const updatedTicket = await prisma.ticket.update({
+      where: { id: params.ticketId },
+      data: { status },
       include: {
         createdBy: true,
         department: {
@@ -40,24 +61,9 @@ export async function GET(
       },
     });
 
-    if (!ticket) {
-      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
-    }
-
-    const isMember =
-      ticket.department?.members.some((m) => m.userId === session.user.id) ||
-      ticket.team?.members.some((m) => m.userId === session.user.id);
-
-    if (!isMember && ticket.createdById !== session.user.id) {
-      return NextResponse.json(
-        { error: "You are not authorized to view this ticket" },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json(ticket, { status: 200 });
+    return NextResponse.json(updatedTicket, { status: 200 });
   } catch (error) {
-    console.error("Error getting ticket:", error);
+    console.error("Error updating ticket status:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

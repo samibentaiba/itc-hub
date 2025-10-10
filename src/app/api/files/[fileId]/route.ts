@@ -1,110 +1,66 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-
-type RouteParams = Promise<{ fileId: string }>
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: RouteParams }
+  req: NextRequest,
+  { params }: { params: { fileId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { fileId } = await params
 
     const file = await prisma.file.findUnique({
-      where: { id: fileId },
+      where: { id: params.fileId },
       include: {
-        uploadedBy: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        },
         ticket: {
-          select: {
-            id: true,
-            title: true
-          }
+          include: {
+            department: { include: { members: true } },
+            team: { include: { members: true } },
+          },
         },
-        message: {
-          select: {
-            id: true,
-            content: true
-          }
-        }
-      }
-    })
+      },
+    });
 
-    if (!file) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 })
+    if (!file || !file.ticket) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    // Return file data as blob
-    const response = new NextResponse(Buffer.from(file.data))
-    response.headers.set("Content-Type", file.mimetype)
-    response.headers.set("Content-Disposition", `attachment; filename="${file.filename}"`)
-    
-    return response
+    const isMember =
+      file.ticket.department?.members.some((m) => m.userId === session.user.id) ||
+      file.ticket.team?.members.some((m) => m.userId === session.user.id);
+
+    if (!isMember && file.ticket.createdById !== session.user.id) {
+      return NextResponse.json(
+        { error: "You are not authorized to view this file" },
+        { status: 403 }
+      );
+    }
+
+    if (!file.url) {
+        return NextResponse.json({ error: "File has no URL" }, { status: 404 });
+    }
+
+    const filePath = join(process.cwd(), 'public', file.url);
+    const fileBuffer = readFileSync(filePath);
+
+    return new NextResponse(fileBuffer, {
+      headers: {
+        "Content-Type": file.mimetype,
+        "Content-Disposition": `attachment; filename="${file.filename}"`,
+      },
+    });
+
   } catch (error) {
-    console.error("Error fetching file:", error)
+    console.error("Error getting file:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal Server Error" },
       { status: 500 }
-    )
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: RouteParams }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { fileId } = await params
-
-    // Check if file exists
-    const existingFile = await prisma.file.findUnique({
-      where: { id: fileId }
-    })
-
-    if (!existingFile) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 })
-    }
-
-    // Check permissions - only uploader or admins can delete
-    const canDelete = 
-      session.user.role === "ADMIN" ||
-      session.user.role === "SUPERLEADER" ||
-      existingFile.uploadedById === session.user.id
-
-    if (!canDelete) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
-    // Delete file
-    await prisma.file.delete({
-      where: { id: fileId }
-    })
-
-    return NextResponse.json({ message: "File deleted successfully" })
-  } catch (error) {
-    console.error("Error deleting file:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    );
   }
 }

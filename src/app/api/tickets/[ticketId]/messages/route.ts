@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET(
+export async function POST(
   req: NextRequest,
   { params }: { params: { ticketId: string } }
 ) {
@@ -14,29 +14,16 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { content } = await req.json();
+    if (!content) {
+      return NextResponse.json({ error: "Message content is required" }, { status: 400 });
+    }
+
     const ticket = await prisma.ticket.findUnique({
       where: { id: params.ticketId },
       include: {
-        createdBy: true,
-        department: {
-          include: {
-            members: true,
-          },
-        },
-        team: {
-          include: {
-            members: true,
-          },
-        },
-        messages: {
-          include: {
-            sender: true,
-          },
-          orderBy: {
-            timestamp: "asc",
-          },
-        },
-        files: true,
+        department: { include: { members: true } },
+        team: { include: { members: true } },
       },
     });
 
@@ -50,14 +37,26 @@ export async function GET(
 
     if (!isMember && ticket.createdById !== session.user.id) {
       return NextResponse.json(
-        { error: "You are not authorized to view this ticket" },
+        { error: "You are not authorized to comment on this ticket" },
         { status: 403 }
       );
     }
 
-    return NextResponse.json(ticket, { status: 200 });
+    const message = await prisma.message.create({
+      data: {
+        content,
+        ticketId: params.ticketId,
+        senderId: session.user.id,
+        type: "TEXT",
+      },
+      include: {
+        sender: true,
+      },
+    });
+
+    return NextResponse.json(message, { status: 201 });
   } catch (error) {
-    console.error("Error getting ticket:", error);
+    console.error("Error adding message:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
