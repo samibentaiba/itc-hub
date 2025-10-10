@@ -36,36 +36,49 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const where: Prisma.TicketWhereInput = {};
+    const filterWhere: Prisma.TicketWhereInput = {};
 
     if (search) {
-   where.OR = [
-    { title: { contains: search.toLowerCase() } },
-    { description: { contains: search.toLowerCase() } },
-  ];
+      filterWhere.OR = [
+        { title: { contains: search.toLowerCase() } },
+        { description: { contains: search.toLowerCase() } },
+      ];
     }
 
     if (status) {
-      where.status = status;
+      filterWhere.status = status;
     }
     if (type) {
-      where.type = type;
+      filterWhere.type = type;
     }
     if (priority) {
-      where.priority = priority;
+      filterWhere.priority = priority;
     }
     if (assigneeId) {
-      where.assigneeId = assigneeId;
+      filterWhere.assigneeId = assigneeId;
     }
     if (createdById) {
-      where.createdById = createdById;
+      filterWhere.createdById = createdById;
     }
     if (teamId) {
-      where.teamId = teamId;
+      filterWhere.teamId = teamId;
     }
     if (departmentId) {
-      where.departmentId = departmentId;
+      filterWhere.departmentId = departmentId;
     }
+
+    const authWhere: Prisma.TicketWhereInput = {};
+    if (session.user.role !== 'ADMIN') {
+      authWhere.OR = [
+        { createdById: session.user.id },
+        { department: { members: { some: { userId: session.user.id } } } },
+        { team: { members: { some: { userId: session.user.id } } } },
+      ];
+    }
+
+    const where: Prisma.TicketWhereInput = {
+      AND: [filterWhere, authWhere],
+    };
 
     const [tickets, total] = await Promise.all([
       prisma.ticket.findMany({
