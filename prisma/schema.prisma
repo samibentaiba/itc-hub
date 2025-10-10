@@ -111,6 +111,7 @@ model Team {
   updatedAt    DateTime     @updatedAt
   members      TeamMember[]
   tickets      Ticket[]
+  events       Event[]
   department   Department   @relation(fields: [departmentId], references: [id])
   leaders      User[]       @relation("TeamLeaders")
 }
@@ -182,6 +183,8 @@ model Event {
   organizer    User?       @relation("OrganizedEvents", fields: [organizerId], references: [id])
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])
+  teamId       String?
+  team         Team?       @relation(fields: [teamId], references: [id])
   attendees    User[]      @relation("EventAttendees")
 }
 

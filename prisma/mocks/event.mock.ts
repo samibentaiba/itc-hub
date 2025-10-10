@@ -8,6 +8,7 @@ const events: Omit<
   | "attendees"
   | "department"
   | "organizer"
+  | "team"
 >[] = [
   // October 2025 Events
   {
@@ -22,6 +23,7 @@ const events: Omit<
     location: "Conference Room A",
     organizerId: "USER-001",
     departmentId: "DEP-003",
+    teamId: null,
     color: "bg-blue-500",
   },
   {
@@ -35,7 +37,8 @@ const events: Omit<
     type: "MEETING",
     location: "Virtual",
     organizerId: "USER-002",
-    departmentId: "DEP-001",
+    departmentId: null,
+    teamId: "TEAM-001",
     color: "bg-green-500",
   },
   {
@@ -50,6 +53,7 @@ const events: Omit<
     location: "Main Hall",
     organizerId: "USER-002",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-red-500",
   },
   {
@@ -64,6 +68,7 @@ const events: Omit<
     location: "Dev Room 1",
     organizerId: "USER-003",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-yellow-500",
   },
   {
@@ -78,6 +83,7 @@ const events: Omit<
     location: "Training Room B",
     organizerId: "USER-006",
     departmentId: "DEP-002",
+    teamId: null,
     color: "bg-purple-500",
   },
   {
@@ -92,6 +98,7 @@ const events: Omit<
     location: "Agile Room",
     organizerId: "USER-004",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-indigo-500",
   },
   {
@@ -106,6 +113,7 @@ const events: Omit<
     location: "Design Studio",
     organizerId: "USER-002",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-pink-500",
   },
   {
@@ -120,6 +128,7 @@ const events: Omit<
     location: "Secure Conference Room",
     organizerId: "USER-001",
     departmentId: "DEP-003",
+    teamId: null,
     color: "bg-gray-500",
   },
   {
@@ -134,6 +143,7 @@ const events: Omit<
     location: "Customer Success Room",
     organizerId: "USER-007",
     departmentId: "DEP-002",
+    teamId: null,
     color: "bg-teal-500",
   },
   {
@@ -148,6 +158,7 @@ const events: Omit<
     location: "Tech Talk Room",
     organizerId: "USER-005",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-orange-500",
   },
   {
@@ -162,6 +173,7 @@ const events: Omit<
     location: "Main Auditorium",
     organizerId: "USER-001",
     departmentId: "DEP-003",
+    teamId: null,
     color: "bg-cyan-500",
   },
   {
@@ -176,6 +188,7 @@ const events: Omit<
     location: "Outdoor Area",
     organizerId: "USER-002",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-lime-500",
   },
   {
@@ -190,6 +203,7 @@ const events: Omit<
     location: "Project Management Office",
     organizerId: "USER-001",
     departmentId: "DEP-003",
+    teamId: null,
     color: "bg-amber-500",
   },
   {
@@ -204,6 +218,7 @@ const events: Omit<
     location: "Learning Center",
     organizerId: "USER-003",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-fuchsia-500",
   },
   {
@@ -218,6 +233,7 @@ const events: Omit<
     location: "Retro Room",
     organizerId: "USER-004",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-rose-500",
   },
   {
@@ -232,6 +248,7 @@ const events: Omit<
     location: "Innovation Hub",
     organizerId: "USER-005",
     departmentId: "DEP-001",
+    teamId: null,
     color: "bg-sky-500",
   },
   {
@@ -246,6 +263,7 @@ const events: Omit<
     location: "Marketing Floor",
     organizerId: "USER-008",
     departmentId: "DEP-004",
+    teamId: null,
     color: "bg-emerald-500",
   }
 ];

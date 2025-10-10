@@ -43,9 +43,11 @@ export async function GET(request: NextRequest) {
       });
 
       const departmentIds = new Set<string>();
+      const teamIds = new Set<string>();
 
       user?.departments.forEach(dm => departmentIds.add(dm.departmentId));
       user?.teams.forEach(tm => {
+        teamIds.add(tm.teamId);
         if (tm.team.departmentId) {
           departmentIds.add(tm.team.departmentId);
         }
@@ -55,6 +57,7 @@ export async function GET(request: NextRequest) {
         { organizerId: session.user.id },
         { attendees: { some: { id: session.user.id } } },
         { departmentId: { in: Array.from(departmentIds) } },
+        { teamId: { in: Array.from(teamIds) } },
       ];
     } else if (typeFilter === "global") {
       // For global calendar, show all events (company-wide view)
@@ -97,6 +100,12 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               color: true
+            }
+          },
+          team: {
+            select: {
+              id: true,
+              name: true
             }
           },
           attendees: {
@@ -163,6 +172,7 @@ interface CreateEventBody {
   location?: string;
   isRecurring?: boolean;
   departmentId?: string;
+  teamId?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -174,7 +184,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: CreateEventBody = await request.json()
-    const { title, description, date, time, duration, type, location, isRecurring, departmentId } = body
+    const { title, description, date, time, duration, type, location, isRecurring, departmentId, teamId } = body
 
     if (!title || !date) {
       return NextResponse.json(
