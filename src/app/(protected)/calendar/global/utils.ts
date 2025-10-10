@@ -1,57 +1,42 @@
 // /calendar/global/utils.ts
 
-import { format } from "date-fns";
-
-/**
- * Formats a date object into a string based on the current calendar view.
- * @param date - The date to format.
- * @param view - The current view ('month', 'week', or 'day').
- * @returns A formatted date string.
- */
-export const formatDate = (date: Date, view: "month" | "week" | "day"): string => {
-  if (view === 'day') {
-    return new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }).format(date);
+export const formatDate = (
+  date: Date,
+  view: "day" | "week" | "month"
+): string => {
+  if (view === "day") {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   }
-  if (view === 'week') {
-    const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay());
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
+  if (view === "week") {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    return `${startOfWeek.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })} - ${endOfWeek.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })}`;
   }
-  return format(date, "MMMM yyyy");
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 };
 
-/**
- * Helper functions for calendar grid generation.
- */
-export const getDaysInMonth = (date: Date): number => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-export const getFirstDayOfMonth = (date: Date): number => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-export const formatDateString = (date: Date): string => format(date, "yyyy-MM-dd");
-
-/**
- * Returns a Tailwind CSS background color class based on the event type.
- * @param type - The event type string.
- * @returns A color class string.
- */
-export const getEventTypeColor = (type: string) => {
-  const colors: { [key: string]: string } = {
-    meeting: "bg-blue-500",
-    event: "bg-green-500",
-    deadline: "bg-red-500",
-    networking: "bg-purple-500",
-    workshop: "bg-orange-500",
-  };
-  return colors[type] || "bg-gray-500";
+export const getDaysInMonth = (date: Date): number => {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 };
 
-/**
- * Returns a Badge component variant based on the event type.
- * @param type - The event type string.
- * @returns A badge variant string.
- */
-export const getEventTypeBadgeVariant = (type: string): "default" | "secondary" | "destructive" | "outline" => {
-  if (type === "deadline") return "destructive";
-  if (type === "meeting") return "default";
-  return "secondary";
+export const getFirstDayOfMonth = (date: Date): number => {
+  return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+};
+
+export const formatDateString = (date: Date): string => {
+  return date.toISOString().split("T")[0];
 };

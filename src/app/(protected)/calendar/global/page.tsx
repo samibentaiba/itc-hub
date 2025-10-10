@@ -1,82 +1,117 @@
 // src/app/(protected)/calendar/global/page.tsx
 
+import { headers } from "next/headers";
+import { Event } from "@prisma/client";
 import GlobalCalendarClientPage from "./client";
-import { headers } from 'next/headers';
-
-interface ApiEvent {
-  id: string;
-  title: string;
-  description: string;
-  start: string;
-  date: Date;
-  time: string;
-  duration: number;
-  type: string;
-  location: string;
-  organizer: { id: string; name: string; email: string; avatar: string; };
-  department: { id: string; name: string; color: string; };
-  participants: { id: string; name: string; email: string; avatar: string; }[];
-  attendees: { id: string; name: string; email: string; avatar: string; }[];
-  isRecurring: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 // Helper function for authenticated server-side fetch requests
-async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+async function authenticatedFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
   const headersList = await headers();
-  const cookie = headersList.get('cookie');
-  
-  return fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${url}`, {
+  const cookie = headersList.get("cookie");
+
+  return fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}${url}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(cookie && { Cookie: cookie }),
       ...options.headers,
     },
   });
 }
 
-// This is a Server Component. 
+// This is a Server Component.
 // It fetches data on the server and passes it to the client component.
 export default async function GlobalCalendarPage() {
-  let globalEvents: ApiEvent[] = [];
-  
+  let globalEvents: Event[] = [];
+  let departments: any[] = [];
+  let teams: any[] = [];
+
   try {
     // Fetch all events for global view
-    const response = await authenticatedFetch('/api/events?limit=100');
-    
+    const response = await authenticatedFetch("/api/events?all=true");
+
     if (!response.ok) {
-      console.error('Failed to fetch global calendar data:', response.status);
+      console.error("Failed to fetch global calendar data:", response.status);
       // Continue with empty array instead of throwing
     } else {
       const data = await response.json();
       globalEvents = data.events || [];
     }
+
+    // Fetch departments and teams for the "Add Event" form
+    const deptsResponse = await authenticatedFetch("/api/departments");
+    if (deptsResponse.ok) {
+      departments = (await deptsResponse.json()).departments || [];
+    }
+
+    const teamsResponse = await authenticatedFetch("/api/teams");
+    if (teamsResponse.ok) {
+      teams = (await teamsResponse.json()).teams || [];
+    }
   } catch (error) {
-    console.error('Error fetching global calendar data:', error);
+    console.error("Error fetching global calendar data:", error);
     // Continue with empty array
   }
 
-  console.log('Fetched events for global calendar:', globalEvents.length);
-
   // Transform events to match the expected format
-  const transformedEvents = globalEvents.map((event: ApiEvent) => ({
-    id: event.id || Math.random().toString(),
-    title: event.title || 'Untitled Event',
-    description: event.description || '',
-    date: new Date(event.date || event.start || new Date()),
-    time: event.time || '09:00',
-    duration: `${event.duration || 60} minutes`,
-    type: event.type || 'meeting',
-    location: event.location || 'TBD',
-    organizer: event.organizer?.name || 'Unknown Organizer',
-    attendees: event.participants?.length || event.attendees?.length || 0,
-    isRecurring: event.isRecurring || false
+  const transformedEvents: Event[] = globalEvents.map((event: Event) => ({
+    ...event,
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    date: new Date(event.date),
+    time: event.time,
+    duration: event.duration,
+    type: event.type,
+    status: event.status,
+    location: event.location,
+    color: getEventColor(event.type),
+    organizerId: event.organizerId,
+    isRecurring: event.isRecurring,
+    createdAt: new Date(event.createdAt),
+    updatedAt: new Date(event.updatedAt),
+    departmentId: event.departmentId,
+    teamId: event.teamId,
   }));
 
-  console.log('Transformed global events:', transformedEvents.length);
+  const now = new Date();
+  const upcomingEvents = transformedEvents
+    .filter((event) => new Date(event.date) >= now)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 5)
+    .map((event) => ({
+      id: event.id,
+      title: event.title,
+      date: new Date(event.date).toLocaleDateString(),
+      type: event.type as string,
+    }));
 
   // Pass the server-fetched data as props to the client component.
-  return <GlobalCalendarClientPage initialGlobalEvents={transformedEvents} />;
+  return (
+    <GlobalCalendarClientPage
+      initialEvents={transformedEvents}
+      initialUpcomingEvents={upcomingEvents}
+      availableWorkspaces={[
+        ...departments.map((d) => ({
+          id: d.id,
+          name: d.name,
+          type: "department",
+        })),
+        ...teams.map((t) => ({ id: t.id, name: t.name, type: "team" })),
+      ]}
+    />
+  );
+}
+
+function getEventColor(type: string) {
+  const colorMap: { [key: string]: string } = {
+    MEETING: "bg-blue-500",
+    REVIEW: "bg-green-500",
+    PLANNING: "bg-purple-500",
+    WORKSHOP: "bg-orange-500",
+  };
+  return colorMap[type] || "bg-gray-500";
 }
