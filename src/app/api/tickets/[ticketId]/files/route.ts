@@ -51,17 +51,10 @@ export async function POST(
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
-
-    const path = join(uploadsDir, file.name)
-    await writeFile(path, buffer)
-
     const dbFile = await prisma.file.create({
         data: {
             filename: file.name,
             mimetype: file.type,
-            url: `/uploads/${file.name}`,
             ticketId: params.ticketId,
             uploadedById: session.user.id,
             data: buffer,

@@ -206,7 +206,7 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
               <ul className="space-y-2">
                 {ticket.files.map((file) => (
                   <li key={file.id} className="flex items-center justify-between">
-                    <a href={file.url || ''} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    <a href={`/api/files/${file.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                       {file.filename}
                     </a>
                     <span className="text-sm text-muted-foreground">{file.mimetype}</span>

@@ -1,9 +1,8 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 export async function GET(
   req: NextRequest,
@@ -35,21 +34,11 @@ export async function GET(
       file.ticket.department?.members.some((m) => m.userId === session.user.id) ||
       file.ticket.team?.members.some((m) => m.userId === session.user.id);
 
-    if (!isMember && file.ticket.createdById !== session.user.id) {
-      return NextResponse.json(
-        { error: "You are not authorized to view this file" },
-        { status: 403 }
-      );
+    if (!isMember && file.ticket.createdById !== session.user.id && session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    if (!file.url) {
-        return NextResponse.json({ error: "File has no URL" }, { status: 404 });
-    }
-
-    const filePath = join(process.cwd(), 'public', file.url);
-    const fileBuffer = readFileSync(filePath);
-
-    return new NextResponse(fileBuffer, {
+    return new Response(file.data, {
       headers: {
         "Content-Type": file.mimetype,
         "Content-Disposition": `attachment; filename="${file.filename}"`,
@@ -57,7 +46,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error("Error getting file:", error);
+    console.error("Error retrieving file:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
