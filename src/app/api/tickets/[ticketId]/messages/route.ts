@@ -16,33 +16,28 @@ export async function POST(
 
     const formData = await req.formData();
     const content = formData.get("content") as string;
-    const file = formData.get("file") as File | null;
+    const files = formData.getAll("files") as File[];
 
-    if (!content && !file) {
+    if (!content && files.length === 0) {
       return NextResponse.json(
         { error: "Message content or file is required" },
         { status: 400 }
       );
     }
 
-    let fileData: {
-      filename: string;
-      mimetype: string;
-      data: Buffer;
-      uploadedById: string;
-      ticketId: string;
-    } | undefined;
-
-    if (file) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      fileData = {
-        filename: file.name,
-        mimetype: file.type,
-        data: buffer,
-        uploadedById: session.user.id,
-        ticketId: params.ticketId,
-      };
+    const filesData = [];
+    if (files.length > 0) {
+      for (const file of files) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        filesData.push({
+          filename: file.name,
+          mimetype: file.type,
+          data: buffer,
+          uploadedById: session.user.id,
+          ticketId: params.ticketId,
+        });
+      }
     }
 
     const message = await prisma.message.create({
@@ -50,8 +45,8 @@ export async function POST(
         content: content || "",
         ticketId: params.ticketId,
         senderId: session.user.id,
-        type: file ? "FILE" : "TEXT",
-        files: fileData ? { create: fileData } : undefined,
+        type: files.length > 0 ? "FILE" : "TEXT",
+        files: { create: filesData },
       },
       include: {
         sender: true,

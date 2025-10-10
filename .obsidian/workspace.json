@@ -170,6 +170,7 @@
   },
   "active": "d13ad9925b1f696b",
   "lastOpenFiles": [
+    "itc-hub-Pattern-design.excalidraw",
     "node_modules/pretty-format/build/plugins/lib/markup.js",
     "node_modules/pretty-format/build/plugins/lib/markup.d.ts",
     "node_modules/pretty-format/build/plugins/lib/escapeHTML.js",
@@ -180,7 +181,6 @@
     "node_modules/pretty-format/build/plugins/ReactElement.js",
     "node_modules/pretty-format/build/plugins/ReactElement.d.ts",
     "node_modules/pretty-format/build/plugins/Immutable.js",
-    "node_modules/pretty-format/build/plugins/Immutable.d.ts",
     "node_modules/pretty-format/node_modules/ansi-styles/readme.md",
     "node_modules/pretty-format/README.md",
     "node_modules/@types/aria-query/README.md",

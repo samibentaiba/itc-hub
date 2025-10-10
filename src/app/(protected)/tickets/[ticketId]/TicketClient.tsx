@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Paperclip } from 'lucide-react';
+import { Paperclip, X } from 'lucide-react';
 import { Session } from 'next-auth';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -25,7 +25,8 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
   const router = useRouter();
   const [ticket, setTicket] = useState<FullTicket>(initialTicket);
   const [newMessage, setNewMessage] = useState('');
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleStatusChange = async (status: TicketStatus) => {
@@ -37,20 +38,20 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
     if (response.ok) {
       const updatedTicket = await response.json();
       setTicket(updatedTicket);
-      router.refresh();
+      // router.refresh(); // Consider removing for smoother UX
     } else {
       // Handle error
     }
   };
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === '' && !file) return;
+    if (newMessage.trim() === '' && files.length === 0) return;
 
     const formData = new FormData();
     formData.append('content', newMessage);
-    if (file) {
-      formData.append('file', file);
-    }
+    files.forEach(file => {
+      formData.append('files', file);
+    });
 
     const response = await fetch(`/api/tickets/${ticket.id}/messages`, {
       method: 'POST',
@@ -68,7 +69,7 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
         };
       });
       setNewMessage('');
-      setFile(null);
+      setFiles([]);
       if(fileInputRef.current) fileInputRef.current.value = "";
     } else {
       // Handle error
@@ -77,7 +78,33 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
+      setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeFile = (fileName: string) => {
+    setFiles(files.filter(file => file.name !== fileName));
+  }
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      setFiles(prevFiles => [...prevFiles, ...Array.from(e.dataTransfer.files)]);
     }
   };
 
@@ -140,7 +167,7 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
                       </div>
                       {message.content && <p>{message.content}</p>}
                       {message.files && message.files.length > 0 && (
-                        <div className="mt-2">
+                        <div className="mt-2 space-y-2">
                           {message.files.map((file: PrismaFile) => (
                             <div key={file.id}>
                               {file.mimetype.startsWith('image/') ? (
@@ -158,16 +185,32 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
                   </div>
                 ))}
               </div>
-              <div className="mt-6">
+              <div 
+                className={`mt-6 border-2 border-dashed rounded-lg p-4 relative ${isDragging ? 'border-primary bg-primary/10' : 'border-border/50'}`}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                {isDragging && <div className="pointer-events-none absolute inset-0 flex items-center justify-center"><div className="text-center text-primary font-semibold">Drop files here</div></div>}
                 <Textarea placeholder="Type your message here..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} />
+                <div className="mt-2 space-y-2">
+                  {files.map(file => (
+                    <div key={file.name} className="flex items-center justify-between bg-muted p-2 rounded-md text-sm">
+                      <span className="truncate max-w-xs">{file.name}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFile(file.name)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
                 <div className="flex justify-between items-center mt-2">
                   <div>
                     <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                       <Paperclip className="h-4 w-4 mr-2" />
-                      Attach File
+                      Attach Files
                     </Button>
-                    <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                    {file && <span className="ml-2 text-sm">{file.name}</span>}
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" multiple />
                   </div>
                   <Button onClick={handleSendMessage}>Send</Button>
                 </div>
