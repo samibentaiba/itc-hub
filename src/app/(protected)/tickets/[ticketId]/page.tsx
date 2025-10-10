@@ -125,9 +125,9 @@ export default async function TicketDetailPage(props: {
         <Card>
           <CardContent className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h3 className="text-lg font-semibold">Ticket not found</h3>
+              <h3 className="text-lg font-semibold">Ticket found with no access</h3>
               <p className="text-muted-foreground">
-                The ticket you&apos;re looking for doesn&apos;t exist.
+                You do not have sufficient permissions to access this page
               </p>
             </div>
           </CardContent>
