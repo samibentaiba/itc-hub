@@ -33,12 +33,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type FileWithoutData = {
+  id: string;
+  filename: string;
+  mimetype: string;
+  url: string | null;
+  uploadedAt: Date;
+};
+
 type FullTicket = Ticket & {
   createdBy: User;
-  department: (Department & { members: { userId: string }[] }) | null;
-  team: (Team & { members: { userId: string }[] }) | null;
-  messages: (Message & { sender: User; files: PrismaFile[] })[];
-  files: PrismaFile[];
+  department: (Department & { members: { userId: string }[], managers: {id: string}[] }) | null;
+  team: (Team & { members: { userId: string }[], leaders: {id: string}[] }) | null;
+  messages: (Message & { sender: User; files: FileWithoutData[] })[];
+  files: FileWithoutData[];
 };
 
 export default function TicketClient({
@@ -218,7 +226,7 @@ export default function TicketClient({
                       {message.content && <p>{message.content}</p>}
                       {message.files && message.files.length > 0 && (
                         <div className="mt-2 space-y-2">
-                          {message.files.map((file: PrismaFile) => (
+                          {message.files.map((file: FileWithoutData) => (
                             <div key={file.id}>
                               {file.mimetype.startsWith("image/") ? (
                                 <img
@@ -342,7 +350,7 @@ export default function TicketClient({
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {ticket.files.map((file) => (
+                {ticket.files.map((file: FileWithoutData) => (
                   <li
                     key={file.id}
                     className="flex items-center justify-between"

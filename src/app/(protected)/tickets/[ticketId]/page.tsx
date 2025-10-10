@@ -24,26 +24,58 @@ export default async function TicketDetailPage(props: {
       createdBy: true,
       department: {
         include: {
-          members: true,
-          managers: true,
+          members: {
+            select: {
+              userId: true,
+            },
+          },
+          managers: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
       team: {
         include: {
-          members: true,
-          leaders: true,
+          members: {
+            select: {
+              userId: true,
+            },
+          },
+          leaders: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
       messages: {
         include: {
           sender: true,
-          files: true,
+          files: {
+            select: {
+              id: true,
+              filename: true,
+              mimetype: true,
+              url: true,
+              uploadedAt: true,
+            },
+          },
         },
         orderBy: {
           timestamp: "asc",
         },
       },
-      files: true,
+      files: {
+        select: {
+          id: true,
+          filename: true,
+          mimetype: true,
+          url: true,
+          uploadedAt: true,
+        },
+      },
     },
   });
   const fromPath =
