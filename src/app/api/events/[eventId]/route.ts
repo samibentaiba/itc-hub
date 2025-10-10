@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { EventType, Prisma } from "@prisma/client"
 
 type RouteParams = Promise<{ eventId: string }>
 
@@ -115,7 +115,7 @@ export async function PUT(
     if (date) updateData.date = new Date(date)
     if (time !== undefined) updateData.time = time
     if (duration !== undefined) updateData.duration = duration
-    if (type) updateData.type = type
+    if (type) updateData.type = type as EventType
     if (location !== undefined) updateData.location = location
     if (attendees !== undefined) {
       updateData.attendees = {

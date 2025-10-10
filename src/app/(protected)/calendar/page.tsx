@@ -42,7 +42,7 @@ export default async function CalendarPage() {
   
   try {
     // Fetch all events first, then filter on frontend if needed
-    const response = await authenticatedFetch('/api/events?limit=100');
+    const response = await authenticatedFetch('/api/events?type=personal&limit=100');
     
     if (!response.ok) {
       console.error('Failed to fetch calendar data:', response.status);
@@ -59,8 +59,8 @@ export default async function CalendarPage() {
   console.log('Fetched events for personal calendar:', events.length);
 
   // Transform events to match the expected format
-  const transformedEvents = events.map((event: ApiEvent, index: number) => ({
-    id: parseInt(event.id.replace(/\D/g, '')) || index + 1, // Extract numbers from ID
+  const transformedEvents = events.map((event: ApiEvent) => ({
+    id: event.id,
     title: event.title || 'Untitled Event',
     description: event.description || '',
     date: event.date ? new Date(event.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -80,8 +80,8 @@ export default async function CalendarPage() {
     .filter((event: ApiEvent) => new Date(event.date) >= now)
     .sort((a: ApiEvent, b: ApiEvent) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 5)
-    .map((event: ApiEvent, index: number) => ({
-      id: parseInt(event.id.replace(/\D/g, '')) || index + 1,
+    .map((event: ApiEvent) => ({
+      id: event.id,
       title: event.title || 'Untitled Event',
       date: new Date(event.date).toLocaleDateString(),
       type: event.type || 'meeting',

@@ -40,10 +40,6 @@ function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange
       <Card>
         <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-start bg-transparent" onClick={onNewEventClick}>
-            <Calendar className="h-4 w-4 mr-2" />
-            New Event
-          </Button>
           <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
             <Link href="/calendar/global">
               <Calendar className="h-4 w-4 mr-2" />
@@ -281,10 +277,6 @@ function CreateEventDialog({ isOpen, onClose, createEvent, isLoading }: CreateEv
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Event</DialogTitle>
-          <DialogDescription>Add a new event to your calendar.</DialogDescription>
-        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
             <Label htmlFor="title">Event Title</Label>

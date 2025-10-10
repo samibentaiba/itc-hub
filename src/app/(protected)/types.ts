@@ -260,7 +260,7 @@ export interface CalendarEvent {
 
 // MISSING TYPES - Adding these to fix the TypeScript errors
 export interface CalendarLocalEvent {
-  id: number;
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -273,7 +273,7 @@ export interface CalendarLocalEvent {
 }
 
 export interface CalendarUpcomingEvent {
-  id: number;
+  id: string;
   title: string;
   date: string;
   type: string;

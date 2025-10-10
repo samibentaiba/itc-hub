@@ -78,7 +78,7 @@ export const useCalendarPage = (
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const newEvent: CalendarLocalEvent = {
-        id: allEvents.length + 1,
+        id: Date.now().toString(),
         title: formData.title,
         description: formData.description,
         date: formData.date,
