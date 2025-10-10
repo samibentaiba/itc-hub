@@ -1,4 +1,10 @@
 "use client";
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -39,10 +45,12 @@ export default function TicketClient({
   ticket: initialTicket,
   user,
   canEditStatus,
+  fromPath
 }: {
   ticket: FullTicket;
   user: Session["user"];
   canEditStatus: boolean;
+  fromPath: string; // The new prop for the throwback link
 }) {
   const router = useRouter();
   const [ticket, setTicket] = useState<FullTicket>(initialTicket);
@@ -134,7 +142,15 @@ export default function TicketClient({
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 gap-4 space-y-6">
+              <div className="flex items-center gap-4">
+                {/* Use the fromPath for the back button's href */}
+                <Link href={fromPath}>
+                  <Button variant="outline" size="sm">
+                    <ArrowLeft className="h-4 w-4 mr-2" /> Back
+                  </Button>
+                </Link>
+              </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Card>

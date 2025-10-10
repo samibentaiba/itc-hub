@@ -3,19 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import TicketClient from "./client";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
-type TicketPageProps = {
-  params: {
-    ticketId: string;
-  };
-};
-
-export default async function TicketPage({ params }: TicketPageProps) {
+export default async function TicketDetailPage(props: {
+  params: Promise<{ ticketId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session) {
     notFound();
   }
-
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const ticket = await prisma.ticket.findUnique({
     where: { id: params.ticketId },
     include: {
@@ -44,9 +46,31 @@ export default async function TicketPage({ params }: TicketPageProps) {
       files: true,
     },
   });
-
+  const fromPath =
+    typeof searchParams.from === "string" ? searchParams.from : "/tickets";
   if (!ticket) {
-    notFound();
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          {/* Use the fromPath for the back button's href */}
+          <Link href={fromPath}>
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" /> Back
+            </Button>
+          </Link>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold">Ticket not found</h3>
+              <p className="text-muted-foreground">
+                The ticket you&apos;re looking for doesn&apos;t exist.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const isMember =
@@ -57,10 +81,25 @@ export default async function TicketPage({ params }: TicketPageProps) {
 
   if (!isAdmin && !isMember && ticket.createdById !== session.user.id) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-red-500">
-          You are not authorized to view this ticket.
-        </p>
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          {/* Use the fromPath for the back button's href */}
+          <Link href={fromPath}>
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" /> Back
+            </Button>
+          </Link>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold">Ticket not found</h3>
+              <p className="text-muted-foreground">
+                The ticket you&apos;re looking for doesn&apos;t exist.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -82,6 +121,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
       ticket={ticket}
       user={session.user}
       canEditStatus={canEditStatus}
+      fromPath={fromPath} // Pass the path to the client component
     />
   );
 }
