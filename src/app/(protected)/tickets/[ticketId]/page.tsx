@@ -35,6 +35,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
       messages: {
         include: {
           sender: true,
+          files: true,
         },
         orderBy: {
           timestamp: "asc",

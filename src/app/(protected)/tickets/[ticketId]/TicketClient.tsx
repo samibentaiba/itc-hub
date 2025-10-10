@@ -44,19 +44,32 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
   };
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === '') return;
+    if (newMessage.trim() === '' && !file) return;
+
+    const formData = new FormData();
+    formData.append('content', newMessage);
+    if (file) {
+      formData.append('file', file);
+    }
+
     const response = await fetch(`/api/tickets/${ticket.id}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newMessage }),
+      body: formData,
     });
+
     if (response.ok) {
       const newMessageFromApi = await response.json();
-      setTicket(prevTicket => ({
-        ...prevTicket!,
-        messages: [...prevTicket!.messages, newMessageFromApi],
-      }));
+      setTicket(prevTicket => {
+        const newFiles = newMessageFromApi.files || [];
+        return {
+          ...prevTicket!,
+          messages: [...prevTicket!.messages, newMessageFromApi],
+          files: [...prevTicket!.files, ...newFiles],
+        };
+      });
       setNewMessage('');
+      setFile(null);
+      if(fileInputRef.current) fileInputRef.current.value = "";
     } else {
       // Handle error
     }
@@ -65,29 +78,6 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
-    }
-  };
-
-  const handleFileUpload = async () => {
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch(`/api/tickets/${ticket.id}/files`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (response.ok) {
-      const { file: newFileFromApi } = await response.json();
-      setTicket(prevTicket => ({
-        ...prevTicket!,
-        files: [...prevTicket!.files, newFileFromApi],
-      }));
-      setFile(null);
-      if(fileInputRef.current) fileInputRef.current.value = "";
-    } else {
-      // Handle error
     }
   };
 
@@ -148,7 +138,22 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
                           {new Date(message.timestamp).toLocaleString()}
                         </span>
                       </div>
-                      <p>{message.content}</p>
+                      {message.content && <p>{message.content}</p>}
+                      {message.files && message.files.length > 0 && (
+                        <div className="mt-2">
+                          {message.files.map((file: PrismaFile) => (
+                            <div key={file.id}>
+                              {file.mimetype.startsWith('image/') ? (
+                                <img src={`/api/files/${file.id}`} alt={file.filename} className="max-w-xs rounded-md" />
+                              ) : (
+                                <a href={`/api/files/${file.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                  {file.filename}
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -164,8 +169,7 @@ export default function TicketClient({ ticket: initialTicket, user, canEditStatu
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                     {file && <span className="ml-2 text-sm">{file.name}</span>}
                   </div>
-                  <Button onClick={handleSendMessage}>Send Message</Button>
-                  {file && <Button onClick={handleFileUpload}>Upload File</Button>}
+                  <Button onClick={handleSendMessage}>Send</Button>
                 </div>
               </div>
             </CardContent>

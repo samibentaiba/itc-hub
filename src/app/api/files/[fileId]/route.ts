@@ -41,7 +41,6 @@ export async function GET(
     return new Response(file.data, {
       headers: {
         "Content-Type": file.mimetype,
-        "Content-Disposition": `attachment; filename="${file.filename}"`,
       },
     });
 

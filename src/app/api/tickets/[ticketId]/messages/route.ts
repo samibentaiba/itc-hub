@@ -14,43 +14,48 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { content } = await req.json();
-    if (!content) {
-      return NextResponse.json({ error: "Message content is required" }, { status: 400 });
-    }
+    const formData = await req.formData();
+    const content = formData.get("content") as string;
+    const file = formData.get("file") as File | null;
 
-    const ticket = await prisma.ticket.findUnique({
-      where: { id: params.ticketId },
-      include: {
-        department: { include: { members: true } },
-        team: { include: { members: true } },
-      },
-    });
-
-    if (!ticket) {
-      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
-    }
-
-    const isMember =
-      ticket.department?.members.some((m) => m.userId === session.user.id) ||
-      ticket.team?.members.some((m) => m.userId === session.user.id);
-
-    if (!isMember && ticket.createdById !== session.user.id) {
+    if (!content && !file) {
       return NextResponse.json(
-        { error: "You are not authorized to comment on this ticket" },
-        { status: 403 }
+        { error: "Message content or file is required" },
+        { status: 400 }
       );
+    }
+
+    let fileData: {
+      filename: string;
+      mimetype: string;
+      data: Buffer;
+      uploadedById: string;
+      ticketId: string;
+    } | undefined;
+
+    if (file) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      fileData = {
+        filename: file.name,
+        mimetype: file.type,
+        data: buffer,
+        uploadedById: session.user.id,
+        ticketId: params.ticketId,
+      };
     }
 
     const message = await prisma.message.create({
       data: {
-        content,
+        content: content || "",
         ticketId: params.ticketId,
         senderId: session.user.id,
-        type: "TEXT",
+        type: file ? "FILE" : "TEXT",
+        files: fileData ? { create: fileData } : undefined,
       },
       include: {
         sender: true,
+        files: true,
       },
     });
 
