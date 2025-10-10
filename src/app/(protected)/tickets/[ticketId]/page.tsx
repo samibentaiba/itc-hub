@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import TicketClient from "./TicketClient";
+import TicketClient from "./client";
 
 type TicketPageProps = {
   params: {
@@ -66,7 +66,9 @@ export default async function TicketPage({ params }: TicketPageProps) {
   }
 
   const isDepartmentManager = ticket.department
-    ? ticket.department.managers.some((manager) => manager.id === session.user.id)
+    ? ticket.department.managers.some(
+        (manager) => manager.id === session.user.id
+      )
     : false;
 
   const isTeamLeader = ticket.team
@@ -75,5 +77,11 @@ export default async function TicketPage({ params }: TicketPageProps) {
 
   const canEditStatus = isAdmin || isDepartmentManager || isTeamLeader;
 
-  return <TicketClient ticket={ticket} user={session.user} canEditStatus={canEditStatus} />;
+  return (
+    <TicketClient
+      ticket={ticket}
+      user={session.user}
+      canEditStatus={canEditStatus}
+    />
+  );
 }
