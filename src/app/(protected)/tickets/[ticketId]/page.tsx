@@ -23,11 +23,13 @@ export default async function TicketPage({ params }: TicketPageProps) {
       department: {
         include: {
           members: true,
+          managers: true,
         },
       },
       team: {
         include: {
           members: true,
+          leaders: true,
         },
       },
       messages: {
@@ -50,7 +52,9 @@ export default async function TicketPage({ params }: TicketPageProps) {
     ticket.department?.members.some((m) => m.userId === session.user.id) ||
     ticket.team?.members.some((m) => m.userId === session.user.id);
 
-  if (!isMember && ticket.createdById !== session.user.id) {
+  const isAdmin = session.user.role === "ADMIN";
+
+  if (!isAdmin && !isMember && ticket.createdById !== session.user.id) {
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-red-500">
@@ -60,5 +64,15 @@ export default async function TicketPage({ params }: TicketPageProps) {
     );
   }
 
-  return <TicketClient ticket={ticket} user={session.user} />;
+  const isDepartmentManager = ticket.department
+    ? ticket.department.managers.some((manager) => manager.id === session.user.id)
+    : false;
+
+  const isTeamLeader = ticket.team
+    ? ticket.team.leaders.some((leader) => leader.id === session.user.id)
+    : false;
+
+  const canEditStatus = isAdmin || isDepartmentManager || isTeamLeader;
+
+  return <TicketClient ticket={ticket} user={session.user} canEditStatus={canEditStatus} />;
 }

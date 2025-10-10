@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Paperclip } from 'lucide-react';
 import { Session } from 'next-auth';
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 type FullTicket = Ticket & {
   createdBy: User;
   department: (Department & { members: { userId: string }[] }) | null;
@@ -19,7 +21,7 @@ type FullTicket = Ticket & {
   files: PrismaFile[];
 };
 
-export default function TicketClient({ ticket: initialTicket, user }: { ticket: FullTicket; user: Session['user'] }) {
+export default function TicketClient({ ticket: initialTicket, user, canEditStatus }: { ticket: FullTicket; user: Session['user']; canEditStatus: boolean }) {
   const router = useRouter();
   const [ticket, setTicket] = useState<FullTicket>(initialTicket);
   const [newMessage, setNewMessage] = useState('');
@@ -28,7 +30,7 @@ export default function TicketClient({ ticket: initialTicket, user }: { ticket: 
 
   const handleStatusChange = async (status: TicketStatus) => {
     const response = await fetch(`/api/tickets/${ticket.id}/status`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
@@ -49,8 +51,12 @@ export default function TicketClient({ ticket: initialTicket, user }: { ticket: 
       body: JSON.stringify({ content: newMessage }),
     });
     if (response.ok) {
+      const newMessageFromApi = await response.json();
+      setTicket(prevTicket => ({
+        ...prevTicket!,
+        messages: [...prevTicket!.messages, newMessageFromApi],
+      }));
       setNewMessage('');
-      router.refresh();
     } else {
       // Handle error
     }
@@ -73,15 +79,17 @@ export default function TicketClient({ ticket: initialTicket, user }: { ticket: 
     });
 
     if (response.ok) {
+      const { file: newFileFromApi } = await response.json();
+      setTicket(prevTicket => ({
+        ...prevTicket!,
+        files: [...prevTicket!.files, newFileFromApi],
+      }));
       setFile(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
-      router.refresh();
     } else {
       // Handle error
     }
   };
-
-  const isCreator = ticket.createdById === user?.id;
 
   return (
     <div className="container mx-auto p-4">
@@ -100,18 +108,19 @@ export default function TicketClient({ ticket: initialTicket, user }: { ticket: 
                     <Badge variant="outline">{ticket.status}</Badge>
                   </div>
                 </div>
-                {isCreator && (
-                  <div className="flex space-x-2">
-                    <Button size="sm" disabled={ticket.status === 'OPEN'} onClick={() => handleStatusChange(TicketStatus.OPEN)}>
-                      Mark as Open
-                    </Button>
-                    <Button size="sm" disabled={ticket.status === 'IN_PROGRESS'} onClick={() => handleStatusChange(TicketStatus.IN_PROGRESS)}>
-                      Mark as In Progress
-                    </Button>
-                    <Button size="sm" disabled={ticket.status === 'CLOSED'} onClick={() => handleStatusChange(TicketStatus.CLOSED)}>
-                      Mark as Closed
-                    </Button>
-                  </div>
+                {canEditStatus && (
+                  <Select onValueChange={(value) => handleStatusChange(value as TicketStatus)} defaultValue={ticket.status}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Change status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(TicketStatus).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
             </CardHeader>
