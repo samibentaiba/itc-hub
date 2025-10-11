@@ -48,7 +48,7 @@ export async function fetchLandingPageData(): Promise<LandingPageData> {
       id: e.id,
       title: e.title,
       type: e.type,
-      location: e.location,
+      location: e.location ?? "TBD",
       status: "open",
       dueDate: e.date.toISOString(),
       registered: 0,
