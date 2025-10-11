@@ -19,7 +19,7 @@ export function AdminTabs({
   calendarData,
   onSetModal,
   loadingAction,
-}: AdminTabsProps) {
+}: any) {
   return (
     <Tabs defaultValue="users" className="space-y-4">
       <TabsList className="grid w-full grid-cols-5">

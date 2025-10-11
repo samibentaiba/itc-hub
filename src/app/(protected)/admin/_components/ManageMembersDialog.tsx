@@ -29,19 +29,17 @@ export function ManageMembersDialog({ isOpen, onClose, entity, allUsers, memberA
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedRole, setSelectedRole] = useState<"manager" | "member">("member");
 
-  const memberUserIds = useMemo(() => new Set(entity ? entity.members.map((m) => m.userId) : []), [entity]);
-  const potentialNewMembers = useMemo(() => allUsers.filter((u) => !memberUserIds.has(u.id)), [allUsers, memberUserIds]);
-  const getUserById = (userId: string) => allUsers.find((u) => u.id === userId);
-
-  if (!entity) {
-    return null;
-  }
+  if (!entity) return null;
 
   const isTeam = entity.entityType === 'team';
   const roles = [
     { value: 'manager', label: isTeam ? 'Leader' : 'Manager' },
     { value: 'member', label: 'Member' },
   ];
+
+  const memberUserIds = useMemo(() => new Set(entity.members.map((m) => m.userId)), [entity.members]);
+  const potentialNewMembers = useMemo(() => allUsers.filter((u) => !memberUserIds.has(u.id)), [allUsers, memberUserIds]);
+  const getUserById = (userId: string) => allUsers.find((u) => u.id === userId);
 
   const handleAddClick = () => {
     if (selectedUser) {

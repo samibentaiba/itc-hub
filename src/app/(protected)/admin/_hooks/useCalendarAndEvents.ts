@@ -6,11 +6,11 @@ import { apiRequest } from "./useApiHelper";
 import type { Event, UpcomingEvent, PendingEvent, EventFormData } from "../types";
 
 // Helper to transform event data from the API
-const transformEvent = (item: Event): Event => ({
+const transformEvent = (item: any): Event => ({
   ...item,
   date: new Date(item.date).toISOString().split('T')[0],
   type: item.type.toLowerCase(),
-  attendees: item.attendees || [],
+  attendees: item.attendees?.map((a: any) => a.name) || [],
   color: item.color || '#3b82f6',
 });
 
@@ -58,8 +58,8 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
       setAllEvents((prev) => [...prev, transformEvent(acceptedEventData)]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== event.id));
       toast({ title: "Event Approved", description: `"${event.title}" is now on the calendar.` });
-    } catch (error: unknown) {
-      toast({ title: "Error Approving Event", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Approving Event", description: error.message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -71,8 +71,8 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
       await apiRequest(`/api/admin/events/requests/${event.id}/reject`, { method: "POST" });
       setPendingEvents((prev) => prev.filter((e) => e.id !== event.id));
       toast({ title: "Event Rejected" });
-    } catch (error: unknown) {
-      toast({ title: "Error Rejecting Event", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Rejecting Event", description: error.message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -91,8 +91,8 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
       setAllEvents(prev => isEdit ? prev.map(e => e.id === savedEvent.id ? savedEvent : e) : [...prev, savedEvent]);
       toast({ title: `Event ${isEdit ? "Updated" : "Created"}` });
       return true;
-    } catch (error: unknown) {
-      toast({ title: "Error Saving Event", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Saving Event", description: error.message, variant: "destructive" });
       return false;
     } finally {
       setIsCalendarLoading(false);
@@ -106,9 +106,9 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
     try {
       await apiRequest(`/api/admin/events/${event.id}`, { method: "DELETE" });
       toast({ title: "Event Deleted" });
-    } catch (error: unknown) {
+    } catch (error: any) {
       setAllEvents(prev => [...prev, event]); // Rollback
-      toast({ title: "Error Deleting Event", description: (error as Error).message, variant: "destructive" });
+      toast({ title: "Error Deleting Event", description: error.message, variant: "destructive" });
     } finally {
       setIsCalendarLoading(false);
     }

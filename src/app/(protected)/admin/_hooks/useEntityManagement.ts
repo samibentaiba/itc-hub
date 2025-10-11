@@ -6,7 +6,7 @@ import { apiRequest } from "./useApiHelper";
 import type { User, Team, Department, UserFormData, TeamFormData, DepartmentFormData } from "../types";
 
 // A helper function to transform API responses into the shape the frontend expects.
-const transformApiResponse = <T extends { createdAt: string; id: string; avatar?: string }>(item: T, type: 'user' | 'team' | 'department') => {
+const transformApiResponse = (item: any, type: 'user' | 'team' | 'department') => {
   switch (type) {
     case 'user':
       return { ...item, joinedDate: item.createdAt, avatar: item.avatar || `https://i.pravatar.cc/150?u=${item.id}` };
@@ -52,16 +52,16 @@ export const useEntityManagement = (
         department: setDepartments,
       };
 
-      stateUpdater[entityType]((prev: any) => 
+      stateUpdater[entityType]((prev: any[]) => 
         isEdit 
-          ? prev.map((item: any) => (item.id === savedItem.id ? { ...item, ...savedItem } : item))
+          ? prev.map((item) => (item.id === savedItem.id ? { ...item, ...savedItem } : item))
           : [savedItem, ...prev]
       );
       
       toast({ title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${isEdit ? "Updated" : "Created"}` });
       return true;
-    } catch (error: unknown) {
-      toast({ title: `Error Saving ${entityType}`, description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: `Error Saving ${entityType}`, description: error.message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -84,7 +84,7 @@ export const useEntityManagement = (
     };
 
     // Optimistically update UI
-    stateUpdater[entityType]((prev: any) => prev.filter((item: any) => item.id !== id));
+    stateUpdater[entityType]((prev: any[]) => prev.filter((item) => item.id !== id));
     if (entityType === 'department') {
       setTeams((prev) => prev.filter((t) => t.departmentId !== id));
     }
@@ -92,10 +92,10 @@ export const useEntityManagement = (
     try {
       await apiRequest(`/api/admin/${entityType}s/${id}`, { method: "DELETE" });
       toast({ title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Deleted` });
-    } catch (error: unknown) {
-      toast({ title: `Error Deleting ${entityType}`, description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: `Error Deleting ${entityType}`, description: error.message, variant: "destructive" });
       // Rollback on error
-      stateUpdater[entityType](originalState[entityType]);
+      stateUpdater[entityType](originalState[entityType] as any);
       if (entityType === 'department') {
         setTeams(originalState.team);
       }
@@ -112,8 +112,8 @@ export const useEntityManagement = (
       const updatedUser = transformApiResponse(updatedUserData, 'user');
       setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
-    } catch (error: unknown) {
-      toast({ title: "Error Verifying User", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Verifying User", description: error.message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }

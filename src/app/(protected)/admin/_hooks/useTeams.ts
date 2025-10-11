@@ -31,8 +31,8 @@ export const useTeams = (initialTeams: Team[]) => {
       }
       toast({ title: isEdit ? "Team Updated" : "Team Created" });
       return true;
-    } catch (error: unknown) {
-      toast({ title: "Error Saving Team", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Saving Team", description: error.message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -46,8 +46,8 @@ export const useTeams = (initialTeams: Team[]) => {
     try {
       await apiRequest(`/api/admin/teams/${teamId}`, { method: "DELETE" });
       toast({ title: "Team Deleted" });
-    } catch (error: unknown) {
-      toast({ title: "Error Deleting Team", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Deleting Team", description: error.message, variant: "destructive" });
       setTeams(originalTeams);
     } finally {
       setLoadingAction(null);

@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { RequestsTable } from "./RequestsTable";
 
-export function RequestTab({ eventRequestData, loadingAction }: RequestTabProps) {
+export function RequestTab({ eventRequestData, loadingAction }: any) {
   return (
     <Card>
       <CardHeader>

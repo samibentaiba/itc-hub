@@ -77,19 +77,19 @@ export const useAdminPage = (
         apiRequest('/api/admin/events/requests'),
       ]);
 
-      setUsers(usersData.users.map((u: User) => transformApiResponse(u, 'user')));
-      setTeams(teamsData.teams.map((t: Team) => transformApiResponse(t, 'team')));
-      setDepartments(deptsData.departments.map((d: Department) => transformApiResponse(d, 'department')));
-      calendarData.setAllEvents(eventsData.events.map((e: Event) => transformApiResponse(e, 'event')));
-      setPendingEvents(pendingEventsData.events.map((e: PendingEvent) => transformApiResponse(e, 'event')));
+      setUsers(usersData.users.map((u: any) => transformApiResponse(u, 'user')));
+      setTeams(teamsData.teams.map((t: any) => transformApiResponse(t, 'team')));
+      setDepartments(deptsData.departments.map((d: any) => transformApiResponse(d, 'department')));
+      calendarData.setAllEvents(eventsData.events.map((e: any) => transformApiResponse(e, 'event')));
+      setPendingEvents(pendingEventsData.events.map((e: any) => transformApiResponse(e, 'event')));
 
       toast({ title: "Data Refreshed", description: "Latest data has been loaded." });
-    } catch (error: unknown) {
-      toast({ title: "Error", description: (error as Error).message || "Could not refresh data.", variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Could not refresh data.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
-  }, [toast, setUsers, setTeams, setDepartments, calendarData, setPendingEvents]);
+  }, [toast, setUsers, setTeams, setDepartments, calendarData.setAllEvents, setPendingEvents]);
 
   const {
     handleAddMember,
@@ -103,7 +103,7 @@ export const useAdminPage = (
     if (!modal || !modal.data) return;
     const { view, data } = modal;
 
-    const actions: Record<string, (id: string) => Promise<unknown>> = {
+    const actions: Record<string, (id: string) => Promise<any>> = {
       DELETE_USER: handleDeleteUser,
       VERIFY_USER: handleVerifyUser,
       DELETE_TEAM: handleDeleteTeam,

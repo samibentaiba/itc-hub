@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Edit, Mail, Trash2, CheckCircle } from "lucide-react";
 import { getStatusBadgeVariant } from "../utils";
 
-export function UsersTable({ users, onSetModal }: UsersTableProps) {
+export function UsersTable({ users, onSetModal }: any) {
   return (
     <Table>
       <TableHeader>
@@ -17,7 +17,7 @@ export function UsersTable({ users, onSetModal }: UsersTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users.map((user: User) => (
+        {users.map((user: any) => (
           <TableRow key={user.id}>
             <TableCell>
               <div className="flex items-center gap-3">

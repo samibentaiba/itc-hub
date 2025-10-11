@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { TeamsTable } from "./TeamsTable";
 
-export function TeamTab({ teamData, onSetModal }: TeamTabProps) {
+export function TeamTab({ teamData, onSetModal }: any) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

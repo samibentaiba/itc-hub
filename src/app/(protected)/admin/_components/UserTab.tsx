@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { UsersTable } from "./UsersTable";
 
-export function UserTab({ userData, onSetModal }: UserTabProps) {
+export function UserTab({ userData, onSetModal }: any) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DepartmentsTable } from "./DepartmentsTable";
 
-export function DepartmentTab({ departmentData, onSetModal }: DepartmentTabProps) {
+export function DepartmentTab({ departmentData, onSetModal }: any) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

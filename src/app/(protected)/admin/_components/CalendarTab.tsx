@@ -4,7 +4,7 @@ import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { CalendarView } from "./CalendarView";
 import { CalendarSidebar } from "./CalendarSidebar";
 
-export function CalendarTab({ calendarData }: { calendarData: CalendarData }) {
+export function CalendarTab({ calendarData }: any) {
   return (
     <div className="grid gap-6 lg:grid-cols-4">
       <div className="lg:col-span-3">

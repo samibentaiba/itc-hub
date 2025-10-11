@@ -42,8 +42,8 @@ export const useAdminPage = (
       await apiRequest(url, { method, body });
       await handleRefreshData(); // Refresh all data to ensure consistency
       toast({ title: `Member ${action === 'add' ? 'Added' : action === 'update' ? 'Updated' : 'Removed'}` });
-    } catch (error: unknown) {
-      toast({ title: `Error ${action}ing Member`, description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: `Error ${action}ing Member`, description: error.message, variant: "destructive" });
     }
   };
 
@@ -59,15 +59,15 @@ export const useAdminPage = (
         apiRequest('/api/admin/events/requests'),
       ]);
 
-      entityData.setUsers(usersData.users.map((u: User) => entityData.transformApiResponse(u, 'user')));
-      entityData.setTeams(teamsData.teams.map((t: Team) => entityData.transformApiResponse(t, 'team')));
-      entityData.setDepartments(deptsData.departments.map((d: Department) => entityData.transformApiResponse(d, 'department')));
-      eventData.setAllEvents(eventsData.events.map((e: Event) => eventData.transformEvent(e)));
-      eventData.setPendingEvents(pendingEventsData.events.map((e: PendingEvent) => eventData.transformEvent(e)));
+      entityData.setUsers(usersData.users.map((u: any) => entityData.transformApiResponse(u, 'user')));
+      entityData.setTeams(teamsData.teams.map((t: any) => entityData.transformApiResponse(t, 'team')));
+      entityData.setDepartments(deptsData.departments.map((d: any) => entityData.transformApiResponse(d, 'department')));
+      eventData.setAllEvents(eventsData.events.map((e: any) => eventData.transformEvent(e)));
+      eventData.setPendingEvents(pendingEventsData.events.map((e: any) => eventData.transformEvent(e)));
 
       toast({ title: "Data Refreshed" });
-    } catch (error: unknown) {
-      toast({ title: "Error Refreshing Data", description: (error as Error).message, variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error Refreshing Data", description: error.message, variant: "destructive" });
     } finally {
       setPageLoadingAction(null);
     }
@@ -78,7 +78,7 @@ export const useAdminPage = (
     if (!modal || !modal.data) return;
     const { view, data } = modal;
 
-    const actions: Record<string, (id: string) => Promise<unknown>> = {
+    const actions: Record<string, (id: string) => Promise<any>> = {
       DELETE_USER: entityData.handleDeleteUser,
       VERIFY_USER: entityData.handleVerifyUser,
       DELETE_TEAM: entityData.handleDeleteTeam,

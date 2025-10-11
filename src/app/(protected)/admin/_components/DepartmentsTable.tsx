@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Users2, Edit, Trash2 } from "lucide-react";
 import { formatLeaders } from "../utils";
 
-export function DepartmentsTable({ departments, onSetModal }: DepartmentsTableProps) {
+export function DepartmentsTable({ departments, onSetModal }: any) {
   return (
     <Table>
       <TableHeader><TableRow><TableHead>Department</TableHead><TableHead>Manager</TableHead><TableHead>Members</TableHead><TableHead>Teams</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
       <TableBody>
-        {departments.map((dept: Department) => (
+        {departments.map((dept: any) => (
           <TableRow key={dept.id}>
             <TableCell>
               <div className="font-medium">{dept.name}</div>
