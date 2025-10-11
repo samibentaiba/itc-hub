@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -31,19 +30,23 @@ export async function GET(
     }
 
     const isMember =
-      file.ticket.department?.members.some((m) => m.userId === session.user.id) ||
-      file.ticket.team?.members.some((m) => m.userId === session.user.id);
+      file.ticket.department?.members.some(
+        (m) => m.userId === session.user.id
+      ) || file.ticket.team?.members.some((m) => m.userId === session.user.id);
 
-    if (!isMember && file.ticket.createdById !== session.user.id && session.user.role !== 'ADMIN') {
+    if (
+      !isMember &&
+      file.ticket.createdById !== session.user.id &&
+      session.user.role !== "ADMIN"
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return new Response(file.data, {
+    return new Response(file.data as unknown as BodyInit, {
       headers: {
         "Content-Type": file.mimetype,
       },
     });
-
   } catch (error) {
     console.error("Error retrieving file:", error);
     return NextResponse.json(

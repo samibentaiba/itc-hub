@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
 
     if (password.length < 6) {
       return NextResponse.json(
-        { success: false, message: "Password must be at least 6 characters long" },
+        {
+          success: false,
+          message: "Password must be at least 6 characters long",
+        },
         { status: 400 }
       );
     }
@@ -31,37 +34,40 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-        // If user exists but email is not verified, resend verification email
-        if (!existingUser.emailVerified) {
-            const verificationToken = await prisma.emailVerificationToken.findFirst({
-                where: { email: email.toLowerCase() },
-            });
+      // If user exists but email is not verified, resend verification email
+      if (!existingUser.emailVerified) {
+        const verificationToken = await prisma.emailVerificationToken.findFirst(
+          {
+            where: { email: email.toLowerCase() },
+          }
+        );
 
-            if (verificationToken) {
-                await prisma.emailVerificationToken.delete({
-                    where: { id: verificationToken.id },
-                });
-            }
-
-            const token = crypto.randomBytes(32).toString("hex");
-            const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-            await prisma.emailVerificationToken.create({
-                data: {
-                    email: email.toLowerCase(),
-                    token,
-                    expiresAt,
-                },
-            });
-
-            const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`;
-            await sendVerificationEmail(email.toLowerCase(), verificationUrl);
-
-            return NextResponse.json({
-                success: true,
-                message: "A new verification email has been sent. Please check your inbox.",
-            });
+        if (verificationToken) {
+          await prisma.emailVerificationToken.delete({
+            where: { id: verificationToken.id },
+          });
         }
+
+        const token = crypto.randomBytes(32).toString("hex");
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await prisma.emailVerificationToken.create({
+          data: {
+            email: email.toLowerCase(),
+            token,
+            expiresAt,
+          },
+        });
+
+        const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`;
+        await sendVerificationEmail(email.toLowerCase(), verificationUrl);
+
+        return NextResponse.json({
+          success: true,
+          message:
+            "A new verification email has been sent. Please check your inbox.",
+        });
+      }
 
       return NextResponse.json(
         { success: false, message: "User with this email already exists" },
@@ -79,6 +85,7 @@ export async function POST(request: NextRequest) {
         email: email.toLowerCase(),
         password: hashedPassword,
         role: Role.USER,
+        emailVerified: null,
       },
     });
 
@@ -87,11 +94,11 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     await prisma.emailVerificationToken.create({
-        data: {
-            email: user.email,
-            token,
-            expiresAt,
-        },
+      data: {
+        email: user.email,
+        token,
+        expiresAt,
+      },
     });
 
     // Send verification email
@@ -103,10 +110,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Account created successfully. Please check your email to verify your account.",
+      message:
+        "Account created successfully. Please check your email to verify your account.",
       user: userWithoutPassword,
     });
-
   } catch (error) {
     console.error("Registration error:", error);
 
