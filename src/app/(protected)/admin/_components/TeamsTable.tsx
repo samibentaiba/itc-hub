@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Users2, Edit, Trash2 } from "lucide-react";
 import { formatLeaders } from "../utils";
 
-export function TeamsTable({ teams, onSetModal }: any) {
+export function TeamsTable({ teams, onSetModal }: TeamsTableProps) {
   return (
     <Table>
       <TableHeader><TableRow><TableHead>Team</TableHead><TableHead>Leader</TableHead><TableHead>Members</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
       <TableBody>
-        {teams.map((team: any) => (
+        {teams.map((team: Team) => (
           <TableRow key={team.id}>
             <TableCell>
               <div className="font-medium">{team.name}</div>

@@ -125,4 +125,4 @@ export type ModalState =
 export type LoadingAction = string | null;
 // Add this to src/app/(protected)/admin/types.ts
 
-export type ManagingEntity = ({ entityType: "team" } & Team) | ({ entityType: "department" } & Department) | null;
+export type UserData = ReturnType<typeof import('./_hooks/useUsers').useUsers>;

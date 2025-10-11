@@ -57,7 +57,7 @@ export function useRegister(): UseRegisterReturn {
     }
   }, [state.error]);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setState(prev => ({
         ...prev,
@@ -100,7 +100,7 @@ export function useRegister(): UseRegisterReturn {
     }
 
     return true;
-  };
+  }, [formData]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,7 +162,7 @@ export function useRegister(): UseRegisterReturn {
         variant: "destructive",
       });
     }
-  }, [formData, router, toast]);
+  }, [formData, router, toast, validateForm]);
 
   const togglePasswordVisibility = useCallback((field: 'password' | 'confirmPassword') => {
     setState(prev => ({

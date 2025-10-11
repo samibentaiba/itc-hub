@@ -90,7 +90,7 @@ export const useAdminPage = (
     if (!modal || !modal.data) return;
     const { view, data } = modal;
 
-    const actions: Record<string, (id: string) => Promise<any>> = {
+    const actions: Record<string, (id: string) => Promise<unknown>> = {
       DELETE_USER: handleDeleteUser,
       VERIFY_USER: handleVerifyUser,
       DELETE_TEAM: handleDeleteTeam,
@@ -134,8 +134,8 @@ export const useAdminPage = (
       setAllEvents((prev) => [...prev, acceptedEvent]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToAccept.id));
       toast({ title: "Event Approved", description: `"${eventToAccept.title}" has been added to the calendar.` });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not approve the event.", variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: (error as Error).message || "Could not approve the event.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -147,8 +147,8 @@ export const useAdminPage = (
       await apiRequest(`/api/admin/events/requests/${eventToReject.id}/reject`, { method: "POST" });
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToReject.id));
       toast({ title: "Event Rejected", description: `"${eventToReject.title}" has been rejected.`, variant: "destructive" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not reject the event.", variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: (error as Error).message || "Could not reject the event.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -172,8 +172,8 @@ export const useAdminPage = (
       }
       toast({ title: isEdit ? "User Updated" : "User Added" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not save user details.", variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: (error as Error).message || "Could not save user details.", variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -187,8 +187,8 @@ export const useAdminPage = (
     try {
       await apiRequest(`/api/admin/users/${userId}`, { method: "DELETE" });
       toast({ title: "User Deleted" });
-    } catch (error: any) {
-      toast({ title: "Error Deleting User", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Deleting User", description: (error as Error).message, variant: "destructive" });
       setUsers(originalUsers);
     } finally {
       setLoadingAction(null);
@@ -202,8 +202,8 @@ export const useAdminPage = (
       const updatedUser = transformApiResponse(updatedUserData, 'user');
       setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
-    } catch (error: any) {
-      toast({ title: "Error Verifying User", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Verifying User", description: (error as Error).message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -227,8 +227,8 @@ export const useAdminPage = (
       }
       toast({ title: isEdit ? "Team Updated" : "Team Created" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error Saving Team", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Saving Team", description: (error as Error).message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -242,8 +242,8 @@ export const useAdminPage = (
     try {
       await apiRequest(`/api/admin/teams/${teamId}`, { method: "DELETE" });
       toast({ title: "Team Deleted" });
-    } catch (error: any) {
-      toast({ title: "Error Deleting Team", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Deleting Team", description: (error as Error).message, variant: "destructive" });
       setTeams(originalTeams);
     } finally {
       setLoadingAction(null);
@@ -268,8 +268,8 @@ export const useAdminPage = (
       }
       toast({ title: isEdit ? "Department Updated" : "Department Created" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error Saving Department", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Saving Department", description: (error as Error).message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -285,8 +285,8 @@ export const useAdminPage = (
     try {
       await apiRequest(`/api/admin/departments/${deptId}`, { method: "DELETE" });
       toast({ title: "Department Deleted" });
-    } catch (error: any) {
-      toast({ title: "Error Deleting Department", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Deleting Department", description: (error as Error).message, variant: "destructive" });
       setDepartments(originalDepts);
       setTeams(originalTeams);
     } finally {
@@ -305,8 +305,8 @@ export const useAdminPage = (
       // Refresh data to get updated member list
       handleRefreshData();
       toast({ title: "Member Added" });
-    } catch (error: any) {
-      toast({ title: "Error Adding Member", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Adding Member", description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -315,8 +315,8 @@ export const useAdminPage = (
       await apiRequest(`/api/admin/${entityType}s/${entityId}/members/${userId}`, { method: "DELETE" });
       handleRefreshData();
       toast({ title: "Member Removed" });
-    } catch (error: any) {
-      toast({ title: "Error Removing Member", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Removing Member", description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -329,8 +329,8 @@ export const useAdminPage = (
       });
       handleRefreshData();
       toast({ title: "Member Role Updated" });
-    } catch (error: any) {
-      toast({ title: "Error Updating Role", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Updating Role", description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -346,15 +346,15 @@ export const useAdminPage = (
         apiRequest('/api/admin/events/requests'),
       ]);
 
-      setUsers(usersData.users.map((u: any) => transformApiResponse(u, 'user')));
-      setTeams(teamsData.teams.map((t: any) => transformApiResponse(t, 'team')));
-      setDepartments(deptsData.departments.map((d: any) => transformApiResponse(d, 'department')));
-      setAllEvents(eventsData.events.map((e: any) => transformApiResponse(e, 'event')));
-      setPendingEvents(pendingEventsData.events.map((e: any) => transformApiResponse(e, 'event')));
+      setUsers(usersData.users.map((u: User) => transformApiResponse(u, 'user')));
+      setTeams(teamsData.teams.map((t: Team) => transformApiResponse(t, 'team')));
+      setDepartments(deptsData.departments.map((d: Department) => transformApiResponse(d, 'department')));
+      setAllEvents(eventsData.events.map((e: Event) => transformApiResponse(e, 'event')));
+      setPendingEvents(pendingEventsData.events.map((e: PendingEvent) => transformApiResponse(e, 'event')));
 
       toast({ title: "Data Refreshed", description: "Latest data has been loaded." });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not refresh data.", variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: (error as Error).message || "Could not refresh data.", variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -402,8 +402,8 @@ export const useAdminPage = (
       }
       toast({ title: isEdit ? "Event Updated" : "Event Created" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error Creating/Updating Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Creating/Updating Event", description: (error as Error).message, variant: "destructive" });
       return false;
     } finally {
       setIsCalendarLoading(false);
@@ -423,8 +423,8 @@ export const useAdminPage = (
     try {
       await apiRequest(`/api/admin/events/${event.id}`, { method: "DELETE" });
       toast({ title: "Event Deleted", description: `"${event.title}" has been removed.` });
-    } catch (error: any) {
-      toast({ title: "Error Deleting Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Deleting Event", description: (error as Error).message, variant: "destructive" });
       setAllEvents(originalEvents);
     } finally {
       setIsCalendarLoading(false);

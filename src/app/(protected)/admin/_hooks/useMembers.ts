@@ -20,8 +20,8 @@ export const useMembers = (handleRefreshData: () => void) => {
       });
       handleRefreshData();
       toast({ title: "Member Added" });
-    } catch (error: any) {
-      toast({ title: "Error Adding Member", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Adding Member", description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -30,8 +30,8 @@ export const useMembers = (handleRefreshData: () => void) => {
       await apiRequest(`/api/admin/${entityType}s/${entityId}/members/${userId}`, { method: "DELETE" });
       handleRefreshData();
       toast({ title: "Member Removed" });
-    } catch (error: any) {
-      toast({ title: "Error Removing Member", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Removing Member", description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -44,8 +44,8 @@ export const useMembers = (handleRefreshData: () => void) => {
       });
       handleRefreshData();
       toast({ title: "Member Role Updated" });
-    } catch (error: any) {
-      toast({ title: "Error Updating Role", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error Updating Role", description: (error as Error).message, variant: "destructive" });
     }
   };
 

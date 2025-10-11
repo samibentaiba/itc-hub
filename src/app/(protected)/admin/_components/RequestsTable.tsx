@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X, Check } from "lucide-react";
 
-export function RequestsTable({ pendingEvents, handleRejectEvent, handleAcceptEvent, loadingAction }: any) {
+export function RequestsTable({ pendingEvents, handleRejectEvent, handleAcceptEvent, loadingAction }: RequestsTableProps) {
   if (pendingEvents.length === 0) {
     return (
       <Table>
@@ -22,7 +22,7 @@ export function RequestsTable({ pendingEvents, handleRejectEvent, handleAcceptEv
     <Table>
       <TableHeader><TableRow><TableHead>Event Title</TableHead><TableHead>Submitted By</TableHead><TableHead>Date & Time</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
       <TableBody>
-        {pendingEvents.map((event: any) => (
+        {pendingEvents.map((event: PendingEvent) => (
           <TableRow key={event.id}>
             <TableCell>
               <div className="font-medium">{event.title}</div>

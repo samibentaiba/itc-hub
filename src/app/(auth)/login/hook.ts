@@ -7,8 +7,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import type {
   LoginFormData,
-  LoginState,
-  UseLoginReturn
+  LoginState
 } from "./types";
 
 const initialFormData: LoginFormData = {
@@ -42,7 +41,7 @@ export function useLogin() {
     }
   }, [state.error]);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     if (!formData.email || !formData.password) {
       setState(prev => ({
         ...prev,
@@ -61,7 +60,7 @@ export function useLogin() {
     }
 
     return true;
-  };
+  }, [formData.email, formData.password]);
 
 const handleSubmit = useCallback(async (e: React.FormEvent) => {
   e.preventDefault();
@@ -100,7 +99,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent) => {
         variant: "destructive",
       });
     }
-  } catch (error) {
+  } catch {
     setState(prev => ({
       ...prev,
       isLoading: false,
@@ -113,7 +112,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent) => {
       variant: "destructive",
     });
   }
-}, [formData, router, toast]);
+}, [formData, router, toast, validateForm]);
 
 
   const togglePasswordVisibility = useCallback(() => {
@@ -130,7 +129,7 @@ const handleSubmit = useCallback(async (e: React.FormEvent) => {
       await signIn("google", {
         callbackUrl: "/dashboard",
       });
-    } catch (error) {
+    } catch {
       setState(prev => ({
         ...prev,
         isLoading: false,

@@ -28,7 +28,7 @@ jest.mock("next/headers", () => ({
 jest.mock("../client");
 
 // 🧩 Utility: mock fetch responses for all API calls
-function createMockResponse(data: any, ok = true): Response {
+function createMockResponse<T>(data: T, ok = true): Response {
   return {
     ok,
     json: () => Promise.resolve(data),
@@ -47,7 +47,7 @@ describe("AdminPage (Server Component)", () => {
     });
     (isAdmin as jest.Mock).mockResolvedValue(false);
 
-    global.fetch = jest.fn().mockResolvedValue(createMockResponse({}));
+    global.fetch = jest.fn().mockResolvedValue(createMockResponse<Record<string, never>>({}));
 
     await AdminPage();
 

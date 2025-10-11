@@ -54,7 +54,7 @@ export function useResetPassword(token: string | null): UseResetPasswordReturn {
           tokenValid: response.ok && data.valid
         }));
 
-      } catch (error) {
+      } catch {
         setState(prev => ({ ...prev, tokenValid: false }));
       }
     };
@@ -75,7 +75,7 @@ export function useResetPassword(token: string | null): UseResetPasswordReturn {
     }
   }, [state.error]);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     if (!formData.password || !formData.confirmPassword) {
       setState(prev => ({
         ...prev,
@@ -101,7 +101,7 @@ export function useResetPassword(token: string | null): UseResetPasswordReturn {
     }
 
     return true;
-  };
+  }, [formData.password, formData.confirmPassword]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,7 +157,7 @@ export function useResetPassword(token: string | null): UseResetPasswordReturn {
         variant: "destructive",
       });
     }
-  }, [formData.password, token, toast]);
+  }, [formData.password, token, toast, validateForm]);
 
   const togglePasswordVisibility = useCallback((field: 'password' | 'confirmPassword') => {
     setState(prev => ({
