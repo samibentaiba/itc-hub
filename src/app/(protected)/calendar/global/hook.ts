@@ -42,6 +42,11 @@ export function useGlobalCalendar(
     });
   };
 
+  const handleDayClick = (date: Date) => {
+    setCurrentDate(date);
+    setView("day");
+  };
+
   const memoizedEvents = useMemo(() => {
     return events.map((e) => ({
       ...e,
@@ -56,6 +61,7 @@ export function useGlobalCalendar(
     upcomingEvents,
     setView: handleSetView,
     onNavigate: handleNavigate,
+    handleDayClick,
     formatDate,
     getDaysInMonth,
     getFirstDayOfMonth,
