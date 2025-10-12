@@ -26,7 +26,7 @@ export const useDepartments = (
 
     try {
       const savedDeptData = await apiRequest(url, { method, body: JSON.stringify(data) });
-      const savedDept = transformApiResponse(savedDeptData, 'department');
+      const savedDept = transformApiResponse(savedDeptData as Record<string, unknown>, 'department') as Department;
 
       if (isEdit) {
         setDepartments((prev) => prev.map((d) => (d.id === savedDept.id ? { ...d, ...savedDept } : d)));

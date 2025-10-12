@@ -1,18 +1,19 @@
-
 // /app/(protected)/admin/_hooks/useCalendarAndEvents.ts
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { $Enums } from "@prisma/client";
+// import EventType only as a type
+type EventType = typeof $Enums.EventType[keyof typeof $Enums.EventType];
 import { apiRequest } from "./useApiHelper";
 import type { Event, UpcomingEvent, PendingEvent, EventFormData } from "../types";
 
-// Helper to transform event data from the API
-const transformEvent = (item: any): Event => ({
-  ...item,
-  date: new Date(item.date).toISOString().split('T')[0],
-  type: item.type.toLowerCase(),
-  attendees: item.attendees?.map((a: any) => a.name) || [],
-  color: item.color || '#3b82f6',
+const transformEvent = (item: Record<string, unknown>): Event => ({
+  ...(item as Event),
+  type: (item.type as string).toUpperCase() as EventType,
+  attendees: (item.attendees as { name: string }[])?.map((a) => a.name) || [],
+  color: (item.color as string) || '#3b82f6',
 });
+
 
 export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvents: PendingEvent[]) => {
   const { toast } = useToast();
@@ -58,8 +59,9 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
       setAllEvents((prev) => [...prev, transformEvent(acceptedEventData)]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== event.id));
       toast({ title: "Event Approved", description: `"${event.title}" is now on the calendar.` });
-    } catch (error: any) {
-      toast({ title: "Error Approving Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not approve event";
+      toast({ title: "Error Approving Event", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -71,8 +73,9 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
       await apiRequest(`/api/admin/events/requests/${event.id}/reject`, { method: "POST" });
       setPendingEvents((prev) => prev.filter((e) => e.id !== event.id));
       toast({ title: "Event Rejected" });
-    } catch (error: any) {
-      toast({ title: "Error Rejecting Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not reject event";
+      toast({ title: "Error Rejecting Event", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -91,8 +94,9 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
       setAllEvents(prev => isEdit ? prev.map(e => e.id === savedEvent.id ? savedEvent : e) : [...prev, savedEvent]);
       toast({ title: `Event ${isEdit ? "Updated" : "Created"}` });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error Saving Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not save event";
+      toast({ title: "Error Saving Event", description: message, variant: "destructive" });
       return false;
     } finally {
       setIsCalendarLoading(false);
@@ -106,9 +110,10 @@ export const useCalendarAndEvents = (initialEvents: Event[], initialPendingEvent
     try {
       await apiRequest(`/api/admin/events/${event.id}`, { method: "DELETE" });
       toast({ title: "Event Deleted" });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setAllEvents(prev => [...prev, event]); // Rollback
-      toast({ title: "Error Deleting Event", description: error.message, variant: "destructive" });
+      const message = error instanceof Error ? error.message : "Could not delete event";
+      toast({ title: "Error Deleting Event", description: message, variant: "destructive" });
     } finally {
       setIsCalendarLoading(false);
     }

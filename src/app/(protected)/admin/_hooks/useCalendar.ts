@@ -64,7 +64,7 @@ export const useCalendar = (initialEvents: Event[]) => {
 
     try {
       const savedEventData = await apiRequest(url, { method, body: JSON.stringify(data) });
-      const savedEvent = transformApiResponse(savedEventData, 'event');
+      const savedEvent = transformApiResponse(savedEventData as Record<string, unknown>, 'event') as Event;
 
       if (isEdit) {
         setAllEvents((prev) => prev.map((e) => (e.id === savedEvent.id ? savedEvent : e)));

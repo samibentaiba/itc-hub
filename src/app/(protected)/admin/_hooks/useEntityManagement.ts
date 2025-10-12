@@ -1,4 +1,3 @@
-
 // /app/(protected)/admin/_hooks/useEntityManagement.ts
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -6,14 +5,14 @@ import { apiRequest } from "./useApiHelper";
 import type { User, Team, Department, UserFormData, TeamFormData, DepartmentFormData } from "../types";
 
 // A helper function to transform API responses into the shape the frontend expects.
-const transformApiResponse = (item: any, type: 'user' | 'team' | 'department') => {
+const transformApiResponse = (item: Record<string, unknown>, type: 'user' | 'team' | 'department') => {
   switch (type) {
     case 'user':
-      return { ...item, joinedDate: item.createdAt, avatar: item.avatar || `https://i.pravatar.cc/150?u=${item.id}` };
+      return { ...item, joinedDate: item.createdAt, avatar: item.avatar || `https://i.pravatar.cc/150?u=${item.id}` } as User;
     case 'team':
-      return { ...item, createdDate: item.createdAt, status: 'active' };
+      return { ...item, createdDate: item.createdAt, status: 'active' } as Team;
     case 'department':
-      return { ...item, createdDate: item.createdAt, status: 'active' };
+      return { ...item, createdDate: item.createdAt, status: 'active' } as Department;
     default:
       return item;
   }
@@ -25,9 +24,9 @@ export const useEntityManagement = (
   initialDepartments: Department[]
 ) => {
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>(initialUsers.map(u => transformApiResponse(u, 'user')));
-  const [teams, setTeams] = useState<Team[]>(initialTeams.map(t => transformApiResponse(t, 'team')));
-  const [departments, setDepartments] = useState<Department[]>(initialDepartments.map(d => transformApiResponse(d, 'department')));
+  const [users, setUsers] = useState<User[]>(initialUsers.map(u => transformApiResponse(u, 'user')) as User[]);
+  const [teams, setTeams] = useState<Team[]>(initialTeams.map(t => transformApiResponse(t, 'team')) as Team[]);
+  const [departments, setDepartments] = useState<Department[]>(initialDepartments.map(d => transformApiResponse(d, 'department')) as Department[]);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   // --- Generic Save Handler ---
@@ -46,22 +45,33 @@ export const useEntityManagement = (
       const resultData = await apiRequest(url, { method, body: JSON.stringify(data) });
       const savedItem = transformApiResponse(resultData, entityType);
       
-      const stateUpdater = {
-        user: setUsers,
-        team: setTeams,
-        department: setDepartments,
-      };
+ 
 
-      stateUpdater[entityType]((prev: any[]) => 
-        isEdit 
-          ? prev.map((item) => (item.id === savedItem.id ? { ...item, ...savedItem } : item))
-          : [savedItem, ...prev]
-      );
+      if (entityType === 'user') {
+        setUsers((prev: User[]) =>
+          isEdit
+            ? prev.map((item) => (item.id === savedItem.id ? { ...item, ...savedItem } as User : item))
+            : [savedItem as User, ...prev]
+        );
+      } else if (entityType === 'team') {
+        setTeams((prev: Team[]) =>
+          isEdit
+            ? prev.map((item) => (item.id === savedItem.id ? { ...item, ...savedItem } as Team : item))
+            : [savedItem as Team, ...prev]
+        );
+      } else if (entityType === 'department') {
+        setDepartments((prev: Department[]) =>
+          isEdit
+            ? prev.map((item) => (item.id === savedItem.id ? { ...item, ...savedItem } as Department : item))
+            : [savedItem as Department, ...prev]
+        );
+      }
       
       toast({ title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${isEdit ? "Updated" : "Created"}` });
       return true;
-    } catch (error: any) {
-      toast({ title: `Error Saving ${entityType}`, description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : `Could not save ${entityType}`;
+      toast({ title: `Error Saving ${entityType}`, description: message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -72,11 +82,7 @@ export const useEntityManagement = (
   const handleDelete = async (id: string, entityType: 'user' | 'team' | 'department') => {
     setLoadingAction(`delete-${entityType}-${id}`);
     
-    const stateUpdater = {
-      user: setUsers,
-      team: setTeams,
-      department: setDepartments,
-    };
+
     const originalState = {
       user: users,
       team: teams,
@@ -84,19 +90,28 @@ export const useEntityManagement = (
     };
 
     // Optimistically update UI
-    stateUpdater[entityType]((prev: any[]) => prev.filter((item) => item.id !== id));
-    if (entityType === 'department') {
+    if (entityType === 'user') {
+      setUsers((prev) => prev.filter((item) => item.id !== id));
+    } else if (entityType === 'team') {
+      setTeams((prev) => prev.filter((item) => item.id !== id));
+    } else if (entityType === 'department') {
+      setDepartments((prev) => prev.filter((item) => item.id !== id));
       setTeams((prev) => prev.filter((t) => t.departmentId !== id));
     }
 
     try {
       await apiRequest(`/api/admin/${entityType}s/${id}`, { method: "DELETE" });
       toast({ title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Deleted` });
-    } catch (error: any) {
-      toast({ title: `Error Deleting ${entityType}`, description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : `Could not delete ${entityType}`;
+      toast({ title: `Error Deleting ${entityType}`, description: message, variant: "destructive" });
       // Rollback on error
-      stateUpdater[entityType](originalState[entityType] as any);
-      if (entityType === 'department') {
+      if (entityType === 'user') {
+        setUsers(originalState.user);
+      } else if (entityType === 'team') {
+        setTeams(originalState.team);
+      } else if (entityType === 'department') {
+        setDepartments(originalState.department);
         setTeams(originalState.team);
       }
     } finally {
@@ -109,11 +124,12 @@ export const useEntityManagement = (
     setLoadingAction(`verify-${userId}`);
     try {
       const updatedUserData = await apiRequest(`/api/admin/users/${userId}/verify`, { method: "POST" });
-      const updatedUser = transformApiResponse(updatedUserData, 'user');
+      const updatedUser = transformApiResponse(updatedUserData, 'user') as User;
       setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
-    } catch (error: any) {
-      toast({ title: "Error Verifying User", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not verify user";
+      toast({ title: "Error Verifying User", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }

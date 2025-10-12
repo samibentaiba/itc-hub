@@ -22,7 +22,7 @@ export const useTeams = (initialTeams: Team[]) => {
 
     try {
       const savedTeamData = await apiRequest(url, { method, body: JSON.stringify(data) });
-      const savedTeam = transformApiResponse(savedTeamData, 'team');
+      const savedTeam = transformApiResponse(savedTeamData as Record<string, unknown>, 'team') as Team;
 
       if (isEdit) {
         setTeams((prev) => prev.map((t) => (t.id === savedTeam.id ? { ...t, ...savedTeam } : t)));

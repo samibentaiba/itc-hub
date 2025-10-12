@@ -22,7 +22,7 @@ export const useUsers = (initialUsers: User[]) => {
 
     try {
       const savedUserData = await apiRequest(url, { method, body: JSON.stringify(data) });
-      const savedUser = transformApiResponse(savedUserData, 'user');
+      const savedUser = transformApiResponse(savedUserData as Record<string, unknown>, 'user') as User;
 
       if (isEdit) {
         setUsers((prev) => prev.map((u) => (u.id === savedUser.id ? savedUser : u)));
@@ -60,7 +60,7 @@ export const useUsers = (initialUsers: User[]) => {
     setLoadingAction(`verify-${userId}`);
     try {
       const updatedUserData = await apiRequest(`/api/admin/users/${userId}/verify`, { method: "POST" });
-      const updatedUser = transformApiResponse(updatedUserData, 'user');
+      const updatedUser = transformApiResponse(updatedUserData as Record<string, unknown>, 'user') as User;
       setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
     } catch (error: unknown) {

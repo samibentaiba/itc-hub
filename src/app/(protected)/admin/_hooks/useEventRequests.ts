@@ -22,7 +22,7 @@ export const useEventRequests = (
     setLoadingAction(`accept-${eventToAccept.id}`);
     try {
       const acceptedEventData = await apiRequest(`/api/admin/events/requests/${eventToAccept.id}/approve`, { method: "POST" });
-      const acceptedEvent = transformApiResponse(acceptedEventData, 'event');
+      const acceptedEvent = transformApiResponse(acceptedEventData as Record<string, unknown>, 'event') as Event;
 
       setAllEvents((prev) => [...prev, acceptedEvent]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToAccept.id));
