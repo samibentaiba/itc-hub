@@ -35,8 +35,9 @@ export const useDepartments = (
       }
       toast({ title: isEdit ? "Department Updated" : "Department Created" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error Saving Department", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error Saving Department";
+      toast({ title: "Error Saving Department", description: message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -51,8 +52,9 @@ export const useDepartments = (
     try {
       await apiRequest(`/api/admin/departments/${deptId}`, { method: "DELETE" });
       toast({ title: "Department Deleted" });
-    } catch (error: any) {
-      toast({ title: "Error Deleting Department", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error Deleting Department";
+      toast({ title: "Error Deleting Department", description: message, variant: "destructive" });
       setDepartments(originalDepts);
     } finally {
       setLoadingAction(null);

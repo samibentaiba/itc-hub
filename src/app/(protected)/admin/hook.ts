@@ -14,7 +14,6 @@ import type {
   Event,
   PendingEvent,
   ModalState,
-  UpcomingEvent,
 } from "./types";
 
 /**
@@ -28,7 +27,6 @@ export const useAdminPage = (
   initialTeams: Team[],
   initialDepartments: Department[],
   initialEvents: Event[],
-  initialUpcomingEvents: UpcomingEvent[],
   initialPendingEvents: PendingEvent[]
 ) => {
   const { toast } = useToast();
@@ -118,7 +116,7 @@ export const useAdminPage = (
     setUsers,
     setTeams,
     setDepartments,
-    calendarData.setAllEvents,
+    calendarData,
     setPendingEvents,
   ]);
 

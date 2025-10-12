@@ -34,7 +34,6 @@ import type {
   Team,
   Department,
   Event,
-  UpcomingEvent,
   PendingEvent,
   ModalState,
 } from "./types";
@@ -129,7 +128,6 @@ interface AdminClientPageProps {
   initialTeams: Team[];
   initialDepartments: Department[];
   initialEvents: Event[];
-  initialUpcomingEvents: UpcomingEvent[];
   initialPendingEvents: PendingEvent[];
 }
 
@@ -145,7 +143,6 @@ export default function AdminClientPage({
   initialTeams,
   initialDepartments,
   initialEvents,
-  initialUpcomingEvents,
   initialPendingEvents,
 }: AdminClientPageProps) {
   const {
@@ -164,7 +161,6 @@ export default function AdminClientPage({
     initialTeams,
     initialDepartments,
     initialEvents,
-    initialUpcomingEvents,
     initialPendingEvents
   );
 

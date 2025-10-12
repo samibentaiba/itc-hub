@@ -73,8 +73,9 @@ export const useCalendar = (initialEvents: Event[]) => {
       }
       toast({ title: isEdit ? "Event Updated" : "Event Created" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error Creating/Updating Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error Creating/Updating Event";
+      toast({ title: "Error Creating/Updating Event", description: message, variant: "destructive" });
       return false;
     } finally {
       setIsCalendarLoading(false);
@@ -94,8 +95,9 @@ export const useCalendar = (initialEvents: Event[]) => {
     try {
       await apiRequest(`/api/admin/events/${event.id}`, { method: "DELETE" });
       toast({ title: "Event Deleted", description: `"${event.title}" has been removed.` });
-    } catch (error: any) {
-      toast({ title: "Error Deleting Event", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error Deleting Event";
+      toast({ title: "Error Deleting Event", description: message, variant: "destructive" });
       setAllEvents(originalEvents);
     } finally {
       setIsCalendarLoading(false);

@@ -31,8 +31,9 @@ export const useUsers = (initialUsers: User[]) => {
       }
       toast({ title: isEdit ? "User Updated" : "User Added" });
       return true;
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not save user details.", variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not save user details.";
+      toast({ title: "Error", description: message, variant: "destructive" });
       return false;
     } finally {
       setLoadingAction(null);
@@ -46,8 +47,9 @@ export const useUsers = (initialUsers: User[]) => {
     try {
       await apiRequest(`/api/admin/users/${userId}`, { method: "DELETE" });
       toast({ title: "User Deleted" });
-    } catch (error: any) {
-      toast({ title: "Error Deleting User", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error Deleting User";
+      toast({ title: "Error Deleting User", description: message, variant: "destructive" });
       setUsers(originalUsers);
     } finally {
       setLoadingAction(null);
@@ -61,8 +63,9 @@ export const useUsers = (initialUsers: User[]) => {
       const updatedUser = transformApiResponse(updatedUserData, 'user');
       setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
-    } catch (error: any) {
-      toast({ title: "Error Verifying User", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error Verifying User";
+      toast({ title: "Error Verifying User", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }

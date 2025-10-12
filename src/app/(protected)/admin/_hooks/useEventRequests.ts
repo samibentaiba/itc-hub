@@ -27,8 +27,9 @@ export const useEventRequests = (
       setAllEvents((prev) => [...prev, acceptedEvent]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToAccept.id));
       toast({ title: "Event Approved", description: `"${eventToAccept.title}" has been added to the calendar.` });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not approve the event.", variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not approve the event.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
@@ -40,8 +41,9 @@ export const useEventRequests = (
       await apiRequest(`/api/admin/events/requests/${eventToReject.id}/reject`, { method: "POST" });
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToReject.id));
       toast({ title: "Event Rejected", description: `"${eventToReject.title}" has been rejected.`, variant: "destructive" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Could not reject the event.", variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not reject the event.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
     }
