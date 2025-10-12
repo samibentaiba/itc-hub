@@ -19,8 +19,15 @@ export interface Member {
   };
 }
 
+// Transform Prisma role to lowercase for UI
+type UIRole = "user" | "manager" | "admin";
+
 export interface User
-  extends Omit<PrismaUser, "password" | "emailVerified" | "createdAt" | "updatedAt"> {
+  extends Omit<
+    PrismaUser,
+    "password" | "emailVerified" | "createdAt" | "updatedAt" | "role"
+  > {
+  role: UIRole;
   status: "verified" | "pending";
   joinedDate: string;
   avatar: string;
@@ -36,23 +43,34 @@ export interface Team
 }
 
 export interface Department
-  extends Omit<PrismaDepartment, "createdAt" | "updatedAt"> {
+  extends Omit<PrismaDepartment, "createdAt" | "updatedAt" | "color"> {
   members: Member[];
   teams: Pick<Team, "id" | "name">[];
   status: "active" | "archived";
   createdDate: string;
   managers: User[];
+  color?: string;
+}
+
+export interface EventAttendee {
+  id: string;
+  name: string;
+  avatar?: string | null;
 }
 
 export interface Event
-  extends Omit<PrismaEvent, "createdAt" | "updatedAt" | "date"> {
+  extends Omit<
+    PrismaEvent,
+    "createdAt" | "updatedAt" | "date" | "attendees" | "status" | "departmentId" | "organizerId" | "isRecurring" | "teamId"
+  > {
   date: string; // YYYY-MM-DD
-  attendees: {
-    id: string;
-    name: string;
-    avatar?: string | null;
-  }[];
+  attendees: EventAttendee[] | string[];
   color: string;
+  status?: string;
+  departmentId?: string | null;
+  organizerId?: string | null;
+  isRecurring?: boolean;
+  teamId?: string | null;
 }
 
 // ===== UI-SPECIFIC & FORM TYPES =====
@@ -65,33 +83,57 @@ export interface UpcomingEvent {
   attendees: number;
 }
 
-export interface PendingEvent extends Omit<Event, 'attendees' | 'color'> {
+export interface PendingEvent {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: "meeting" | "review" | "planning" | "workshop";
+  location: string;
   submittedBy: string;
-  submittedByType: 'team' | 'department';
+  submittedByType: "team" | "department" | "user";
 }
+
+// ===== FORM SCHEMAS =====
 
 export const userFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email." }),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email." })
+    .toLowerCase(),
 });
 
 export const teamFormSchema = z.object({
-  name: z.string().min(3, { message: "Team name must be at least 3 characters." }),
+  name: z
+    .string()
+    .min(3, { message: "Team name must be at least 3 characters." }),
   description: z.string().optional(),
   departmentId: z.string().min(1, { message: "Please select a department." }),
 });
 
 export const departmentFormSchema = z.object({
-  name: z.string().min(3, { message: "Department name must be at least 3 characters." }),
+  name: z
+    .string()
+    .min(3, { message: "Department name must be at least 3 characters." }),
   description: z.string().optional(),
 });
 
 export const eventFormSchema = z.object({
-  title: z.string().min(3, { message: "Title must be at least 3 characters." }),
+  title: z
+    .string()
+    .min(3, { message: "Title must be at least 3 characters." }),
   description: z.string().optional(),
   date: z.string().min(1, { message: "Please select a date." }),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Please enter a valid time (HH:MM)." }).optional(),
-  
+  time: z
+    .string()
+    .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+      message: "Please enter a valid time (HH:MM).",
+    })
+    .optional()
+    .or(z.literal("")),
   duration: z.string(),
   type: z.enum(["meeting", "review", "planning", "workshop"]),
   location: z.string().optional(),
@@ -102,25 +144,49 @@ export type TeamFormData = z.infer<typeof teamFormSchema>;
 export type DepartmentFormData = z.infer<typeof departmentFormSchema>;
 export type EventFormData = z.infer<typeof eventFormSchema>;
 
-export type ModalState =
-  | {
-      view:
-        | "ADD_USER"
-        | "EDIT_USER"
-        | "DELETE_USER"
-        | "VERIFY_USER"
-        | "ADD_TEAM"
-        | "EDIT_TEAM"
-        | "DELETE_TEAM"
-        | "MANAGE_MEMBERS"
-        | "ADD_DEPARTMENT"
-        | "EDIT_DEPARTMENT"
-        | "DELETE_DEPARTMENT";
-      data?: { id: string; entityType?: "team" | "department" };
-    }
-  | null;
+// ===== MODAL STATE MANAGEMENT =====
+
+// ModalData with index signature to accept any entity type
+export interface ModalData extends Record<string, unknown> {
+  id?: string;
+  entityType?: "team" | "department";
+}
+
+// Union type for all possible modal data payloads
+export type ModalDataPayload =
+  | (User & { id: string })
+  | (Team & { id: string; entityType: "team" })
+  | (Department & { id: string; entityType: "department" })
+  | ({ id: string } & Record<string, unknown>);
+
+export type ModalViewType =
+  | "ADD_USER"
+  | "EDIT_USER"
+  | "DELETE_USER"
+  | "VERIFY_USER"
+  | "ADD_TEAM"
+  | "EDIT_TEAM"
+  | "DELETE_TEAM"
+  | "MANAGE_MEMBERS"
+  | "ADD_DEPARTMENT"
+  | "EDIT_DEPARTMENT"
+  | "DELETE_DEPARTMENT";
+
+export interface ModalState {
+  view: ModalViewType;
+  data?: ModalDataPayload;
+}
 
 export type LoadingAction = string | null;
-// Add this to src/app/(protected)/admin/types.ts
 
-export type ManagingEntity = ({ entityType: "team" } & Team) | ({ entityType: "department" } & Department) | null;
+export type ManagingEntity =
+  | ({ entityType: "team" } & Team)
+  | ({ entityType: "department" } & Department)
+  | null;
+
+// ===== UTILITY TYPES =====
+
+export type EventType = "meeting" | "review" | "planning" | "workshop";
+export type UserStatus = "verified" | "pending";
+export type EntityStatus = "active" | "archived";
+export type MembershipRole = "manager" | "member";
