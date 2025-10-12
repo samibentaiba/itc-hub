@@ -123,14 +123,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
  * @property {PendingEvent[]} initialPendingEvents - The initial list of pending events.
  */
 
-interface AdminClientPageProps {
-  initialUsers: User[];
-  initialTeams: Team[];
-  initialDepartments: Department[];
-  initialEvents: Event[];
-  initialPendingEvents: PendingEvent[];
-}
-
 /**
  * @component AdminClientPage
  * @description This is the main client component for the admin dashboard. It initializes the main `useAdminPage` hook, manages the display of dialogs, and renders the page layout.
@@ -144,7 +136,13 @@ export default function AdminClientPage({
   initialDepartments,
   initialEvents,
   initialPendingEvents,
-}: AdminClientPageProps) {
+}: {
+  initialUsers: User[];
+  initialTeams: Team[];
+  initialDepartments: Department[];
+  initialEvents: Event[];
+  initialPendingEvents: PendingEvent[];
+}) {
   const {
     pageActions,
     modalData,
@@ -320,21 +318,19 @@ export default function AdminClientPage({
   );
 }
 
-interface UserFormDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: UserFormData & { id?: string }) => void;
-  isLoading: boolean;
-  initialData?: User | null;
-}
-
 function UserFormDialog({
   isOpen,
   onClose,
   onSubmit,
   isLoading,
   initialData,
-}: UserFormDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: UserFormData & { id?: string }) => void;
+  isLoading: boolean;
+  initialData?: User | null;
+}) {
   const isEditMode = !!initialData;
   const form = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
@@ -422,15 +418,6 @@ function UserFormDialog({
   );
 }
 
-interface TeamFormDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: TeamFormData & { id?: string }) => void;
-  isLoading: boolean;
-  initialData?: Team | null;
-  departments: Department[];
-}
-
 export function TeamFormDialog({
   isOpen,
   onClose,
@@ -438,7 +425,14 @@ export function TeamFormDialog({
   isLoading,
   initialData,
   departments,
-}: TeamFormDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: TeamFormData & { id?: string }) => void;
+  isLoading: boolean;
+  initialData?: Team | null;
+  departments: Department[];
+}) {
   const isEditMode = !!initialData;
   const form = useForm<TeamFormData>({
     resolver: zodResolver(teamFormSchema),
@@ -558,21 +552,19 @@ export function TeamFormDialog({
   );
 }
 
-interface DepartmentFormDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: DepartmentFormData & { id?: string }) => void;
-  isLoading: boolean;
-  initialData?: Department | null;
-}
-
 export function DepartmentFormDialog({
   isOpen,
   onClose,
   onSubmit,
   isLoading,
   initialData,
-}: DepartmentFormDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: DepartmentFormData & { id?: string }) => void;
+  isLoading: boolean;
+  initialData?: Department | null;
+}) {
   const isEditMode = !!initialData;
   const form = useForm<DepartmentFormData>({
     resolver: zodResolver(departmentFormSchema),
@@ -664,15 +656,6 @@ export function DepartmentFormDialog({
   );
 }
 
-interface ActionConfirmationDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  isLoading: boolean;
-  title: string;
-  description: string;
-}
-
 export function ActionConfirmationDialog({
   isOpen,
   onClose,
@@ -680,7 +663,14 @@ export function ActionConfirmationDialog({
   isLoading,
   title,
   description,
-}: ActionConfirmationDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoading: boolean;
+  title: string;
+  description: string;
+}) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
@@ -710,7 +700,13 @@ type ManagingEntity =
   | ({ entityType: "department" } & Department)
   | null;
 
-interface ManageMembersDialogProps {
+export function ManageMembersDialog({
+  isOpen,
+  onClose,
+  entity,
+  allUsers,
+  memberActions,
+}: {
   isOpen: boolean;
   onClose: () => void;
   entity: ManagingEntity;
@@ -734,15 +730,7 @@ interface ManageMembersDialogProps {
       newRole: "manager" | "member"
     ) => void;
   };
-}
-
-export function ManageMembersDialog({
-  isOpen,
-  onClose,
-  entity,
-  allUsers,
-  memberActions,
-}: ManageMembersDialogProps) {
+}) {
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedRole, setSelectedRole] = useState<"manager" | "member">(
     "member"
@@ -913,21 +901,19 @@ export function ManageMembersDialog({
   );
 }
 
-interface CreateEventDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: EventFormData & { id?: string }) => Promise<boolean>;
-  isLoading: boolean;
-  initialData?: Event | null;
-}
-
 export function CreateEventDialog({
   isOpen,
   onClose,
   onSubmit,
   isLoading,
   initialData,
-}: CreateEventDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: EventFormData & { id?: string }) => Promise<boolean>;
+  isLoading: boolean;
+  initialData?: Event | null;
+}) {
   const isEditMode = !!initialData;
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -1231,13 +1217,15 @@ export function EventDetailsDialog({
   );
 }
 
-interface StatsCardsProps {
+export function StatsCards({
+  users,
+  teams,
+  departments,
+}: {
   users: User[];
   teams: Team[];
   departments: Department[];
-}
-
-export function StatsCards({ users, teams, departments }: StatsCardsProps) {
+}) {
   const pendingUsers = useMemo(
     () => users.filter((u) => u.status === "pending").length,
     [users]
@@ -1293,61 +1281,6 @@ export function StatsCards({ users, teams, departments }: StatsCardsProps) {
  * @param {object} props - The component props.
  * @returns {JSX.Element} - The rendered tabs component.
  */
-interface AdminTabsProps {
-  userData: ReturnType<typeof useAdminPage>["userData"];
-  teamData: ReturnType<typeof useAdminPage>["teamData"];
-  departmentData: ReturnType<typeof useAdminPage>["departmentData"];
-  eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
-  calendarData: ReturnType<typeof useAdminPage>["calendarData"];
-  onSetModal: (modal: ModalState) => void;
-  loadingAction: string | null;
-}
-
-interface UserTabProps {
-  userData: ReturnType<typeof useAdminPage>["userData"];
-  onSetModal: (modal: ModalState) => void;
-}
-
-interface TeamTabProps {
-  teamData: ReturnType<typeof useAdminPage>["teamData"];
-  onSetModal: (modal: ModalState) => void;
-}
-
-interface DepartmentTabProps {
-  departmentData: ReturnType<typeof useAdminPage>["departmentData"];
-  onSetModal: (modal: ModalState) => void;
-}
-
-interface CalendarTabProps {
-  calendarData: ReturnType<typeof useAdminPage>["calendarData"];
-}
-
-interface RequestTabProps {
-  eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
-  loadingAction: string | null;
-}
-
-interface UsersTableProps {
-  users: User[];
-  onSetModal: (modal: ModalState) => void;
-}
-
-interface TeamsTableProps {
-  teams: Team[];
-  onSetModal: (modal: ModalState) => void;
-}
-
-interface DepartmentsTableProps {
-  departments: Department[];
-  onSetModal: (modal: ModalState) => void;
-}
-
-interface RequestsTableProps {
-  pendingEvents: PendingEvent[];
-  handleRejectEvent: (event: PendingEvent) => void;
-  handleAcceptEvent: (event: PendingEvent) => void;
-  loadingAction: string | null;
-}
 
 export function AdminTabs({
   userData,
@@ -1357,7 +1290,15 @@ export function AdminTabs({
   calendarData,
   onSetModal,
   loadingAction,
-}: AdminTabsProps) {
+}: {
+  userData: ReturnType<typeof useAdminPage>["userData"];
+  teamData: ReturnType<typeof useAdminPage>["teamData"];
+  departmentData: ReturnType<typeof useAdminPage>["departmentData"];
+  eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
+  calendarData: ReturnType<typeof useAdminPage>["calendarData"];
+  onSetModal: (modal: ModalState) => void;
+  loadingAction: string | null;
+}) {
   return (
     <Tabs defaultValue="users" className="space-y-4">
       <TabsList className="grid w-full grid-cols-5">
@@ -1397,7 +1338,13 @@ export function AdminTabs({
   );
 }
 
-export function UserTab({ userData, onSetModal }: UserTabProps) {
+export function UserTab({
+  userData,
+  onSetModal,
+}: {
+  userData: ReturnType<typeof useAdminPage>["userData"];
+  onSetModal: (modal: ModalState) => void;
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1419,7 +1366,13 @@ export function UserTab({ userData, onSetModal }: UserTabProps) {
   );
 }
 
-export function TeamTab({ teamData, onSetModal }: TeamTabProps) {
+export function TeamTab({
+  teamData,
+  onSetModal,
+}: {
+  teamData: ReturnType<typeof useAdminPage>["teamData"];
+  onSetModal: (modal: ModalState) => void;
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1444,7 +1397,10 @@ export function TeamTab({ teamData, onSetModal }: TeamTabProps) {
 export function DepartmentTab({
   departmentData,
   onSetModal,
-}: DepartmentTabProps) {
+}: {
+  departmentData: ReturnType<typeof useAdminPage>["departmentData"];
+  onSetModal: (modal: ModalState) => void;
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1469,7 +1425,11 @@ export function DepartmentTab({
   );
 }
 
-export function CalendarTab({ calendarData }: CalendarTabProps) {
+export function CalendarTab({
+  calendarData,
+}: {
+  calendarData: ReturnType<typeof useAdminPage>["calendarData"];
+}) {
   return (
     <div className="grid gap-6 lg:grid-cols-4">
       <div className="lg:col-span-3">
@@ -1511,7 +1471,10 @@ export function CalendarTab({ calendarData }: CalendarTabProps) {
 export function RequestTab({
   eventRequestData,
   loadingAction,
-}: RequestTabProps) {
+}: {
+  eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
+  loadingAction: string | null;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -1532,7 +1495,13 @@ export function RequestTab({
   );
 }
 
-export function UsersTable({ users, onSetModal }: UsersTableProps) {
+export function UsersTable({
+  users,
+  onSetModal,
+}: {
+  users: User[];
+  onSetModal: (modal: ModalState) => void;
+}) {
   return (
     <Table>
       <TableHeader>
@@ -1619,7 +1588,13 @@ export function UsersTable({ users, onSetModal }: UsersTableProps) {
   );
 }
 
-export function TeamsTable({ teams, onSetModal }: TeamsTableProps) {
+export function TeamsTable({
+  teams,
+  onSetModal,
+}: {
+  teams: Team[];
+  onSetModal: (modal: ModalState) => void;
+}) {
   return (
     <Table>
       <TableHeader>
@@ -1698,7 +1673,10 @@ export function TeamsTable({ teams, onSetModal }: TeamsTableProps) {
 export function DepartmentsTable({
   departments,
   onSetModal,
-}: DepartmentsTableProps) {
+}: {
+  departments: Department[];
+  onSetModal: (modal: ModalState) => void;
+}) {
   return (
     <Table>
       <TableHeader>
@@ -1776,11 +1754,11 @@ export function DepartmentsTable({
   );
 }
 
-interface CalendarViewProps {
+export function CalendarView({
+  calendarData,
+}: {
   calendarData: ReturnType<typeof useAdminPage>["calendarData"];
-}
-
-export function CalendarView({ calendarData }: CalendarViewProps) {
+}) {
   const { currentDate, view, events, actions, utils } = calendarData;
 
   const getEventsForDate = (date: string) => {
@@ -2002,11 +1980,11 @@ export function CalendarView({ calendarData }: CalendarViewProps) {
   }
 }
 
-interface CalendarSidebarProps {
+export function CalendarSidebar({
+  calendarData,
+}: {
   calendarData: ReturnType<typeof useAdminPage>["calendarData"];
-}
-
-export function CalendarSidebar({ calendarData }: CalendarSidebarProps) {
+}) {
   const { upcomingEvents, events, filterType, actions } = calendarData;
   const eventTypes = useMemo(
     () => ["all", ...Array.from(new Set(events.map((e) => e.type)))],
@@ -2082,7 +2060,12 @@ export function RequestsTable({
   handleRejectEvent,
   handleAcceptEvent,
   loadingAction,
-}: RequestsTableProps) {
+}: {
+  pendingEvents: PendingEvent[];
+  handleRejectEvent: (event: PendingEvent) => void;
+  handleAcceptEvent: (event: PendingEvent) => void;
+  loadingAction: string | null;
+}) {
   if (pendingEvents.length === 0) {
     return (
       <Table>
