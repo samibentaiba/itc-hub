@@ -37,12 +37,7 @@ import type {
   PendingEvent,
   ModalState,
 } from "./types";
-import {
-  departmentFormSchema,
-  userFormSchema,
-  teamFormSchema,
-  eventFormSchema,
-} from "./types";
+import { departmentFormSchema, teamFormSchema, eventFormSchema } from "./types";
 
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -317,7 +312,7 @@ export default function AdminClientPage({
     </div>
   );
 }
-
+import { useUserFormDialog } from "./hook";
 function UserFormDialog({
   isOpen,
   onClose,
@@ -331,25 +326,11 @@ function UserFormDialog({
   isLoading: boolean;
   initialData?: User | null;
 }) {
-  const isEditMode = !!initialData;
-  const form = useForm<UserFormData>({
-    resolver: zodResolver(userFormSchema),
-    defaultValues: { name: "", email: "" },
+  const { handleFormSubmit, isEditMode, form } = useUserFormDialog({
+    isOpen,
+    onSubmit,
+    initialData,
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      form.reset(
-        isEditMode && initialData
-          ? { name: initialData.name, email: initialData.email }
-          : { name: "", email: "" }
-      );
-    }
-  }, [isOpen, initialData, form, isEditMode]);
-
-  const handleFormSubmit = (data: UserFormData) => {
-    onSubmit({ ...data, id: initialData?.id });
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -358,7 +339,7 @@ function UserFormDialog({
           <DialogTitle>{isEditMode ? "Edit User" : "Add New User"}</DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? `Update the details for ${initialData.name}.`
+              ? `Update the details for ${initialData?.name ?? "this user"}.`
               : "Create a new user account."}
           </DialogDescription>
         </DialogHeader>

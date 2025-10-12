@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { Team, TeamFormData } from "./types";
@@ -59,7 +60,9 @@ async function apiRequest<T>(
   if (!response.ok) {
     const errorData = (await response
       .json()
-      .catch(() => ({ error: "An unknown error occurred" }))) as ApiErrorResponse;
+      .catch(() => ({
+        error: "An unknown error occurred",
+      }))) as ApiErrorResponse;
     throw new Error(errorData.error || "Request failed");
   }
 
@@ -71,10 +74,9 @@ async function apiRequest<T>(
 }
 
 // ===== IMPROVED TRANSFORM FUNCTION WITH EVENT SUPPORT =====
-function transformApiResponse<T extends User | Team | Department | Event | PendingEvent>(
-  item: T,
-  type: "user" | "team" | "department" | "event" | "pendingevent"
-): T {
+function transformApiResponse<
+  T extends User | Team | Department | Event | PendingEvent
+>(item: T, type: "user" | "team" | "department" | "event" | "pendingevent"): T {
   switch (type) {
     case "user": {
       const user = item as User;
@@ -188,16 +190,24 @@ export const useAdminPage = (
           apiRequest<PendingEventsApiResponse>("/api/admin/events/requests"),
         ]);
 
-      setUsers(usersData.users.map((u: User) => transformApiResponse(u, "user")));
-      setTeams(teamsData.teams.map((t: Team) => transformApiResponse(t, "team")));
+      setUsers(
+        usersData.users.map((u: User) => transformApiResponse(u, "user"))
+      );
+      setTeams(
+        teamsData.teams.map((t: Team) => transformApiResponse(t, "team"))
+      );
       setDepartments(
-        deptsData.departments.map((d: Department) => transformApiResponse(d, "department"))
+        deptsData.departments.map((d: Department) =>
+          transformApiResponse(d, "department")
+        )
       );
       calendarData.setAllEvents(
         eventsData.events.map((e: Event) => transformApiResponse(e, "event"))
       );
       setPendingEvents(
-        pendingEventsData.events.map((e: PendingEvent) => transformApiResponse(e, "pendingevent"))
+        pendingEventsData.events.map((e: PendingEvent) =>
+          transformApiResponse(e, "pendingevent")
+        )
       );
 
       toast({
@@ -264,7 +274,10 @@ export const useAdminPage = (
       return null;
     }
 
-    const data = modal.data as { entityType: 'team' | 'department', id: string };
+    const data = modal.data as {
+      entityType: "team" | "department";
+      id: string;
+    };
 
     const entity =
       data.entityType === "team"
@@ -372,18 +385,24 @@ export const useUsers = (initialUsers: User[]) => {
     setLoadingAction(isEdit ? `edit-${data.id}` : "add-user");
 
     try {
-      const savedUserData = await apiRequest<User>(url, { method, body: JSON.stringify(data) });
-      const savedUser = transformApiResponse(savedUserData, 'user');
+      const savedUserData = await apiRequest<User>(url, {
+        method,
+        body: JSON.stringify(data),
+      });
+      const savedUser = transformApiResponse(savedUserData, "user");
 
       if (isEdit) {
-        setUsers((prev) => prev.map((u) => (u.id === savedUser.id ? savedUser : u)));
+        setUsers((prev) =>
+          prev.map((u) => (u.id === savedUser.id ? savedUser : u))
+        );
       } else {
         setUsers((prev) => [savedUser, ...prev]);
       }
       toast({ title: isEdit ? "User Updated" : "User Added" });
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not save user details.";
+      const message =
+        error instanceof Error ? error.message : "Could not save user details.";
       toast({ title: "Error", description: message, variant: "destructive" });
       return false;
     } finally {
@@ -396,11 +415,18 @@ export const useUsers = (initialUsers: User[]) => {
     const originalUsers = users;
     setUsers((prev) => prev.filter((u) => u.id !== userId));
     try {
-      await apiRequest<void>(`/api/admin/users/${userId}`, { method: "DELETE" });
+      await apiRequest<void>(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
       toast({ title: "User Deleted" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Deleting User";
-      toast({ title: "Error Deleting User", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Deleting User";
+      toast({
+        title: "Error Deleting User",
+        description: message,
+        variant: "destructive",
+      });
       setUsers(originalUsers);
     } finally {
       setLoadingAction(null);
@@ -410,13 +436,21 @@ export const useUsers = (initialUsers: User[]) => {
   const handleVerifyUser = async (userId: string) => {
     setLoadingAction(`verify-${userId}`);
     try {
-      const updatedUserData = await apiRequest<User>(`/api/admin/users/${userId}/verify`, { method: "POST" });
-      const updatedUser = transformApiResponse(updatedUserData, 'user');
+      const updatedUserData = await apiRequest<User>(
+        `/api/admin/users/${userId}/verify`,
+        { method: "POST" }
+      );
+      const updatedUser = transformApiResponse(updatedUserData, "user");
       setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast({ title: "User Verified" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Verifying User";
-      toast({ title: "Error Verifying User", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Verifying User";
+      toast({
+        title: "Error Verifying User",
+        description: message,
+        variant: "destructive",
+      });
     } finally {
       setLoadingAction(null);
     }
@@ -450,19 +484,29 @@ export const useTeams = (initialTeams: Team[]) => {
     setLoadingAction(isEdit ? `edit-${data.id}` : "add-team");
 
     try {
-      const savedTeamData = await apiRequest<Team>(url, { method, body: JSON.stringify(data) });
-      const savedTeam = transformApiResponse(savedTeamData, 'team');
+      const savedTeamData = await apiRequest<Team>(url, {
+        method,
+        body: JSON.stringify(data),
+      });
+      const savedTeam = transformApiResponse(savedTeamData, "team");
 
       if (isEdit) {
-        setTeams((prev) => prev.map((t) => (t.id === savedTeam.id ? { ...t, ...savedTeam } : t)));
+        setTeams((prev) =>
+          prev.map((t) => (t.id === savedTeam.id ? { ...t, ...savedTeam } : t))
+        );
       } else {
         setTeams((prev) => [savedTeam, ...prev]);
       }
       toast({ title: isEdit ? "Team Updated" : "Team Created" });
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Saving Team";
-      toast({ title: "Error Saving Team", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Saving Team";
+      toast({
+        title: "Error Saving Team",
+        description: message,
+        variant: "destructive",
+      });
       return false;
     } finally {
       setLoadingAction(null);
@@ -474,11 +518,18 @@ export const useTeams = (initialTeams: Team[]) => {
     const originalTeams = teams;
     setTeams((prev) => prev.filter((t) => t.id !== teamId));
     try {
-      await apiRequest<void>(`/api/admin/teams/${teamId}`, { method: "DELETE" });
+      await apiRequest<void>(`/api/admin/teams/${teamId}`, {
+        method: "DELETE",
+      });
       toast({ title: "Team Deleted" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Deleting Team";
-      toast({ title: "Error Deleting Team", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Deleting Team";
+      toast({
+        title: "Error Deleting Team",
+        description: message,
+        variant: "destructive",
+      });
       setTeams(originalTeams);
     } finally {
       setLoadingAction(null);
@@ -518,8 +569,13 @@ export const useMembers = (handleRefreshData: () => void) => {
       handleRefreshData();
       toast({ title: "Member Added" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Adding Member";
-      toast({ title: "Error Adding Member", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Adding Member";
+      toast({
+        title: "Error Adding Member",
+        description: message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -529,12 +585,20 @@ export const useMembers = (handleRefreshData: () => void) => {
     userId: string
   ) => {
     try {
-      await apiRequest<void>(`/api/admin/${entityType}s/${entityId}/members/${userId}`, { method: "DELETE" });
+      await apiRequest<void>(
+        `/api/admin/${entityType}s/${entityId}/members/${userId}`,
+        { method: "DELETE" }
+      );
       handleRefreshData();
       toast({ title: "Member Removed" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Removing Member";
-      toast({ title: "Error Removing Member", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Removing Member";
+      toast({
+        title: "Error Removing Member",
+        description: message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -546,15 +610,23 @@ export const useMembers = (handleRefreshData: () => void) => {
   ) => {
     const roleToSend = newRole.toUpperCase();
     try {
-      await apiRequest<void>(`/api/admin/${entityType}s/${entityId}/members/${userId}`, {
-        method: "PUT",
-        body: JSON.stringify({ role: roleToSend }),
-      });
+      await apiRequest<void>(
+        `/api/admin/${entityType}s/${entityId}/members/${userId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ role: roleToSend }),
+        }
+      );
       handleRefreshData();
       toast({ title: "Member Role Updated" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Updating Role";
-      toast({ title: "Error Updating Role", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Updating Role";
+      toast({
+        title: "Error Updating Role",
+        description: message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -577,20 +649,28 @@ export const useEventRequests = (
   setAllEvents: React.Dispatch<React.SetStateAction<Event[]>>
 ) => {
   const { toast } = useToast();
-  const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>(initialPendingEvents);
+  const [pendingEvents, setPendingEvents] =
+    useState<PendingEvent[]>(initialPendingEvents);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   const handleAcceptEvent = async (eventToAccept: PendingEvent) => {
     setLoadingAction(`accept-${eventToAccept.id}`);
     try {
-      const acceptedEventData = await apiRequest<Event>(`/api/admin/events/requests/${eventToAccept.id}/approve`, { method: "POST" });
-      const acceptedEvent = transformApiResponse(acceptedEventData, 'event');
+      const acceptedEventData = await apiRequest<Event>(
+        `/api/admin/events/requests/${eventToAccept.id}/approve`,
+        { method: "POST" }
+      );
+      const acceptedEvent = transformApiResponse(acceptedEventData, "event");
 
       setAllEvents((prev) => [...prev, acceptedEvent]);
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToAccept.id));
-      toast({ title: "Event Approved", description: `"${eventToAccept.title}" has been added to the calendar.` });
+      toast({
+        title: "Event Approved",
+        description: `"${eventToAccept.title}" has been added to the calendar.`,
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not approve the event.";
+      const message =
+        error instanceof Error ? error.message : "Could not approve the event.";
       toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
@@ -600,11 +680,19 @@ export const useEventRequests = (
   const handleRejectEvent = async (eventToReject: PendingEvent) => {
     setLoadingAction(`reject-${eventToReject.id}`);
     try {
-      await apiRequest<void>(`/api/admin/events/requests/${eventToReject.id}/reject`, { method: "POST" });
+      await apiRequest<void>(
+        `/api/admin/events/requests/${eventToReject.id}/reject`,
+        { method: "POST" }
+      );
       setPendingEvents((prev) => prev.filter((e) => e.id !== eventToReject.id));
-      toast({ title: "Event Rejected", description: `"${eventToReject.title}" has been rejected.`, variant: "destructive" });
+      toast({
+        title: "Event Rejected",
+        description: `"${eventToReject.title}" has been rejected.`,
+        variant: "destructive",
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not reject the event.";
+      const message =
+        error instanceof Error ? error.message : "Could not reject the event.";
       toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoadingAction(null);
@@ -632,29 +720,44 @@ export const useDepartments = (
   setTeams: React.Dispatch<React.SetStateAction<Team[]>>
 ) => {
   const { toast } = useToast();
-  const [departments, setDepartments] = useState<Department[]>(initialDepartments);
+  const [departments, setDepartments] =
+    useState<Department[]>(initialDepartments);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
-  const handleSaveDepartment = async (data: DepartmentFormData & { id?: string }) => {
+  const handleSaveDepartment = async (
+    data: DepartmentFormData & { id?: string }
+  ) => {
     const isEdit = !!data.id;
-    const url = isEdit ? `/api/admin/departments/${data.id}` : "/api/admin/departments";
+    const url = isEdit
+      ? `/api/admin/departments/${data.id}`
+      : "/api/admin/departments";
     const method = isEdit ? "PUT" : "POST";
     setLoadingAction(isEdit ? `edit-${data.id}` : "add-department");
 
     try {
-      const savedDeptData = await apiRequest<Department>(url, { method, body: JSON.stringify(data) });
-      const savedDept = transformApiResponse(savedDeptData, 'department');
+      const savedDeptData = await apiRequest<Department>(url, {
+        method,
+        body: JSON.stringify(data),
+      });
+      const savedDept = transformApiResponse(savedDeptData, "department");
 
       if (isEdit) {
-        setDepartments((prev) => prev.map((d) => (d.id === savedDept.id ? { ...d, ...savedDept } : d)));
+        setDepartments((prev) =>
+          prev.map((d) => (d.id === savedDept.id ? { ...d, ...savedDept } : d))
+        );
       } else {
         setDepartments((prev) => [savedDept, ...prev]);
       }
       toast({ title: isEdit ? "Department Updated" : "Department Created" });
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Saving Department";
-      toast({ title: "Error Saving Department", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Saving Department";
+      toast({
+        title: "Error Saving Department",
+        description: message,
+        variant: "destructive",
+      });
       return false;
     } finally {
       setLoadingAction(null);
@@ -667,11 +770,18 @@ export const useDepartments = (
     setDepartments((prev) => prev.filter((d) => d.id !== deptId));
     setTeams((prev) => prev.filter((t) => t.departmentId !== deptId));
     try {
-      await apiRequest<void>(`/api/admin/departments/${deptId}`, { method: "DELETE" });
+      await apiRequest<void>(`/api/admin/departments/${deptId}`, {
+        method: "DELETE",
+      });
       toast({ title: "Department Deleted" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Deleting Department";
-      toast({ title: "Error Deleting Department", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Deleting Department";
+      toast({
+        title: "Error Deleting Department",
+        description: message,
+        variant: "destructive",
+      });
       setDepartments(originalDepts);
     } finally {
       setLoadingAction(null);
@@ -697,7 +807,9 @@ export const useCalendar = (initialEvents: Event[]) => {
   const { toast } = useToast();
   const [allEvents, setAllEvents] = useState<Event[]>(initialEvents);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">(
+    "month"
+  );
   const [showNewEventDialog, setShowNewEventDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isCalendarLoading, setIsCalendarLoading] = useState(false);
@@ -706,17 +818,22 @@ export const useCalendar = (initialEvents: Event[]) => {
   const upcomingEvents = useMemo(() => {
     const now = new Date();
     return allEvents
-      .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time}`) }))
-      .filter(event => event.dateTime >= now)
+      .map((event) => ({
+        ...event,
+        dateTime: new Date(`${event.date}T${event.time}`),
+      }))
+      .filter((event) => event.dateTime >= now)
       .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
       .slice(0, 5)
-      .map((event): UpcomingEvent => ({
-        id: event.id,
-        title: event.title,
-        date: new Date(`${event.date}T${event.time}`).toLocaleString(),
-        type: event.type,
-        attendees: event.attendees.length,
-      }));
+      .map(
+        (event): UpcomingEvent => ({
+          id: event.id,
+          title: event.title,
+          date: new Date(`${event.date}T${event.time}`).toLocaleString(),
+          type: event.type,
+          attendees: event.attendees.length,
+        })
+      );
   }, [allEvents]);
 
   const filteredEvents = useMemo(() => {
@@ -729,7 +846,7 @@ export const useCalendar = (initialEvents: Event[]) => {
       const newDate = new Date(prev);
       const d = direction === "prev" ? -1 : 1;
       if (calendarView === "month") newDate.setMonth(prev.getMonth() + d);
-      if (calendarView === "week") newDate.setDate(prev.getDate() + (d * 7));
+      if (calendarView === "week") newDate.setDate(prev.getDate() + d * 7);
       if (calendarView === "day") newDate.setDate(prev.getDate() + d);
       return newDate;
     });
@@ -740,26 +857,40 @@ export const useCalendar = (initialEvents: Event[]) => {
     setCalendarView("day");
   };
 
-  const createEvent = async (data: EventFormData & { id?: string }): Promise<boolean> => {
+  const createEvent = async (
+    data: EventFormData & { id?: string }
+  ): Promise<boolean> => {
     const isEdit = !!data.id;
     const url = isEdit ? `/api/admin/events/${data.id}` : "/api/admin/events";
     const method = isEdit ? "PUT" : "POST";
     setIsCalendarLoading(true);
 
     try {
-      const savedEventData = await apiRequest<Event>(url, { method, body: JSON.stringify(data) });
-      const savedEvent = transformApiResponse(savedEventData, 'event');
+      const savedEventData = await apiRequest<Event>(url, {
+        method,
+        body: JSON.stringify(data),
+      });
+      const savedEvent = transformApiResponse(savedEventData, "event");
 
       if (isEdit) {
-        setAllEvents((prev) => prev.map((e) => (e.id === savedEvent.id ? savedEvent : e)));
+        setAllEvents((prev) =>
+          prev.map((e) => (e.id === savedEvent.id ? savedEvent : e))
+        );
       } else {
         setAllEvents((prev) => [...prev, savedEvent]);
       }
       toast({ title: isEdit ? "Event Updated" : "Event Created" });
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Creating/Updating Event";
-      toast({ title: "Error Creating/Updating Event", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error Creating/Updating Event";
+      toast({
+        title: "Error Creating/Updating Event",
+        description: message,
+        variant: "destructive",
+      });
       return false;
     } finally {
       setIsCalendarLoading(false);
@@ -777,11 +908,21 @@ export const useCalendar = (initialEvents: Event[]) => {
     setAllEvents((prev) => prev.filter((e) => e.id !== event.id));
     setSelectedEvent(null);
     try {
-      await apiRequest<void>(`/api/admin/events/${event.id}`, { method: "DELETE" });
-      toast({ title: "Event Deleted", description: `"${event.title}" has been removed.` });
+      await apiRequest<void>(`/api/admin/events/${event.id}`, {
+        method: "DELETE",
+      });
+      toast({
+        title: "Event Deleted",
+        description: `"${event.title}" has been removed.`,
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error Deleting Event";
-      toast({ title: "Error Deleting Event", description: message, variant: "destructive" });
+      const message =
+        error instanceof Error ? error.message : "Error Deleting Event";
+      toast({
+        title: "Error Deleting Event",
+        description: message,
+        variant: "destructive",
+      });
       setAllEvents(originalEvents);
     } finally {
       setIsCalendarLoading(false);
@@ -789,23 +930,38 @@ export const useCalendar = (initialEvents: Event[]) => {
   };
 
   const formatDate = (date: Date, view: "month" | "week" | "day"): string => {
-    if (view === 'day') return date.toLocaleDateString("en-US", { weekday: 'long', month: "long", day: "numeric", year: "numeric" });
-    if (view === 'week') {
+    if (view === "day")
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    if (view === "week") {
       const start = new Date(date);
       start.setDate(date.getDate() - date.getDay());
       const end = new Date(start);
       end.setDate(start.getDate() + 6);
-      return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+      return `${start.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })} - ${end.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })}`;
     }
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
-  
-  const getDaysInMonth = (date: Date): number => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  const getFirstDayOfMonth = (date: Date): number => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+  const getDaysInMonth = (date: Date): number =>
+    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getFirstDayOfMonth = (date: Date): number =>
+    new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   const formatDateString = (date: Date): string => {
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -839,3 +995,79 @@ export const useCalendar = (initialEvents: Event[]) => {
     },
   };
 };
+
+import { userFormSchema,teamFormSchema } from "./types";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+export const useUserFormDialog = ({
+  isOpen,
+  onSubmit,
+  initialData,
+}: {
+  isOpen: boolean;
+  onSubmit: (data: UserFormData & { id?: string }) => void;
+  initialData?: User | null;
+}) => {
+  const isEditMode = !!initialData;
+  const form = useForm<UserFormData>({
+    resolver: zodResolver(userFormSchema),
+    defaultValues: { name: "", email: "" },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset(
+        isEditMode && initialData
+          ? { name: initialData.name, email: initialData.email }
+          : { name: "", email: "" }
+      );
+    }
+  }, [isOpen, initialData, form, isEditMode]);
+
+  const handleFormSubmit = (data: UserFormData) => {
+    onSubmit({ ...data, id: initialData?.id });
+  };
+  return { handleFormSubmit,isEditMode,form };
+};
+
+export const userTeamFormDialog = ({
+    isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  initialData,
+  departments,
+}:{  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: TeamFormData & { id?: string }) => void;
+  isLoading: boolean;
+  initialData?: Team | null;
+  departments: Department[];}) =>
+  {
+      const isEditMode = !!initialData;
+      const form = useForm<TeamFormData>({
+        resolver: zodResolver(teamFormSchema),
+        defaultValues: { name: "", description: "", departmentId: "" },
+      });
+    
+      useEffect(() => {
+        if (isOpen) {
+          form.reset(
+            isEditMode && initialData
+              ? {
+                  name: initialData.name,
+                  description: initialData.description ?? undefined,
+                  departmentId: initialData.departmentId,
+                }
+              : { name: "", description: "", departmentId: "" }
+          );
+        }
+      }, [isOpen, initialData, form, isEditMode]);
+    
+      const handleFormSubmit = (data: TeamFormData) => {
+        onSubmit({ ...data, id: initialData?.id });
+      };
+    
+    return {handleFormSubmit,isEditMode};
+  }
