@@ -61,7 +61,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatLeaders,getStatusBadgeVariant } from "./utils";
+import { formatLeaders, getStatusBadgeVariant } from "./utils";
 import { Button } from "@/components/ui/button";
 import {
   RefreshCw,
@@ -81,7 +81,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -104,7 +104,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle ,CardDescription} from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 /**
@@ -1439,7 +1445,10 @@ export function TeamTab({ teamData, onSetModal }: TeamTabProps) {
   );
 }
 
-export function DepartmentTab({ departmentData, onSetModal }: DepartmentTabProps) {
+export function DepartmentTab({
+  departmentData,
+  onSetModal,
+}: DepartmentTabProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1503,7 +1512,10 @@ export function CalendarTab({ calendarData }: CalendarTabProps) {
   );
 }
 
-export function RequestTab({ eventRequestData, loadingAction }: RequestTabProps) {
+export function RequestTab({
+  eventRequestData,
+  loadingAction,
+}: RequestTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -1631,7 +1643,14 @@ export function TeamsTable({ teams, onSetModal }: TeamsTableProps) {
                 {team.description}
               </div>
             </TableCell>
-            <TableCell>{formatLeaders(team.leaders.map(l => ({...l, role: l.role.toLowerCase()})) as any)}</TableCell>
+            <TableCell>
+              {formatLeaders(
+                team.leaders.map((l) => ({
+                  ...l,
+                  role: l.role.toLowerCase() as "user" | "manager" | "admin",
+                }))
+              )}
+            </TableCell>
             <TableCell>{team.members.length}</TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
@@ -1680,7 +1699,10 @@ export function TeamsTable({ teams, onSetModal }: TeamsTableProps) {
   );
 }
 
-export function DepartmentsTable({ departments, onSetModal }: DepartmentsTableProps) {
+export function DepartmentsTable({
+  departments,
+  onSetModal,
+}: DepartmentsTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -1701,7 +1723,14 @@ export function DepartmentsTable({ departments, onSetModal }: DepartmentsTablePr
                 {dept.description}
               </div>
             </TableCell>
-            <TableCell>{formatLeaders(dept.managers.map(m => ({...m, role: m.role.toLowerCase()})) as any)}</TableCell>
+            <TableCell>
+              {formatLeaders(
+                dept.managers.map((m) => ({
+                  ...m,
+                  role: m.role.toLowerCase() as "user" | "manager" | "admin",
+                }))
+              )}
+            </TableCell>
             <TableCell>{dept.members.length}</TableCell>
             <TableCell>{dept.teams?.length}</TableCell>
             <TableCell className="text-right">
@@ -2112,7 +2141,7 @@ export function RequestsTable({
                 variant="outline"
                 size="sm"
                 className="mr-2"
-                onClick={() => handleRejectEvent(event.id)}
+                onClick={() => handleRejectEvent(event)}
                 disabled={!!loadingAction}
               >
                 <X className="h-4 w-4 mr-1" />
@@ -2120,7 +2149,7 @@ export function RequestsTable({
               </Button>
               <Button
                 size="sm"
-                onClick={() => handleAcceptEvent(event.id)}
+                onClick={() => handleAcceptEvent(event)}
                 disabled={!!loadingAction}
               >
                 <Check className="h-4 w-4 mr-1" />
