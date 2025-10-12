@@ -31,6 +31,7 @@ export interface User
   status: "verified" | "pending";
   joinedDate: string;
   avatar: string;
+  [key: string]: unknown; // Allow any other string keys
 }
 
 export interface Team
@@ -40,6 +41,7 @@ export interface Team
   status: "active" | "archived";
   createdDate: string;
   leaders: User[];
+  [key: string]: unknown; // Allow any other string keys
 }
 
 export interface Department
@@ -50,6 +52,7 @@ export interface Department
   createdDate: string;
   managers: User[];
   color?: string;
+  [key: string]: unknown; // Allow any other string keys
 }
 
 export interface EventAttendee {
@@ -71,6 +74,7 @@ export interface Event
   organizerId?: string | null;
   isRecurring?: boolean;
   teamId?: string | null;
+  [key: string]: unknown; // Allow any other string keys
 }
 
 // ===== UI-SPECIFIC & FORM TYPES =====
@@ -94,6 +98,7 @@ export interface PendingEvent {
   location: string;
   submittedBy: string;
   submittedByType: "team" | "department" | "user";
+  [key: string]: unknown; // Allow any other string keys
 }
 
 // ===== FORM SCHEMAS =====
@@ -154,10 +159,10 @@ export interface ModalData extends Record<string, unknown> {
 
 // Union type for all possible modal data payloads
 export type ModalDataPayload =
-  | (User & { id: string })
-  | (Team & { id: string; entityType: "team" })
-  | (Department & { id: string; entityType: "department" })
-  | ({ id: string } & Record<string, unknown>);
+  | (User & { id: string; })
+  | (Team & { id: string; entityType: "team"; })
+  | (Department & { id: string; entityType: "department"; })
+  | ({ id: string; } & Record<string, unknown>);
 
 export type ModalViewType =
   | "ADD_USER"

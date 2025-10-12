@@ -14,7 +14,29 @@ import type {
   Event,
   PendingEvent,
   ModalState,
+  ModalDataPayload,
 } from "./types";
+
+// Define interfaces for the API responses
+interface UsersApiResponse {
+  users: User[];
+}
+
+interface TeamsApiResponse {
+  teams: Team[];
+}
+
+interface DepartmentsApiResponse {
+  departments: Department[];
+}
+
+interface EventsApiResponse {
+  events: Event[];
+}
+
+interface PendingEventsApiResponse {
+  events: PendingEvent[];
+}
 
 /**
  * @hook useAdminPage
@@ -69,38 +91,30 @@ export const useAdminPage = (
     try {
       const [usersData, teamsData, deptsData, eventsData, pendingEventsData] =
         await Promise.all([
-          apiRequest("/api/admin/users"),
-          apiRequest("/api/admin/teams"),
-          apiRequest("/api/admin/departments"),
-          apiRequest("/api/admin/events"),
-          apiRequest("/api/admin/events/requests"),
+          apiRequest<UsersApiResponse>("/api/admin/users"),
+          apiRequest<TeamsApiResponse>("/api/admin/teams"),
+          apiRequest<DepartmentsApiResponse>("/api/admin/departments"),
+          apiRequest<EventsApiResponse>("/api/admin/events"),
+          apiRequest<PendingEventsApiResponse>("/api/admin/events/requests"),
         ]);
 
-      setUsers(
-        usersData.users.map((u: User) => transformApiResponse(u, "user"))
-      );
-      setTeams(
-        teamsData.teams.map((t: Team) => transformApiResponse(t, "team"))
-      );
+      setUsers(usersData.users.map((u) => transformApiResponse(u, "user")));
+      setTeams(teamsData.teams.map((t) => transformApiResponse(t, "team")));
       setDepartments(
-        deptsData.departments.map((d: Department) =>
-          transformApiResponse(d, "department")
-        )
+        deptsData.departments.map((d) => transformApiResponse(d, "department"))
       );
       calendarData.setAllEvents(
-        eventsData.events.map((e: Event) => transformApiResponse(e, "event"))
+        eventsData.events.map((e) => transformApiResponse(e, "event"))
       );
       setPendingEvents(
-        pendingEventsData.events.map((e: PendingEvent) =>
-          transformApiResponse(e, "event")
-        )
+        pendingEventsData.events.map((e) => transformApiResponse(e, "event"))
       );
 
       toast({
         title: "Data Refreshed",
         description: "Latest data has been loaded.",
       });
-    } catch (error: Error | unknown) {
+    } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Could not refresh data.";
       toast({
@@ -152,12 +166,22 @@ export const useAdminPage = (
   };
 
   const entityForDialog = useMemo(() => {
-    if (modal?.view !== "MANAGE_MEMBERS" || !modal.data) return null;
+    if (
+      modal?.view !== "MANAGE_MEMBERS" ||
+      !modal.data ||
+      !("entityType" in (modal.data as ModalDataPayload))
+    ) {
+      return null;
+    }
+
+    const data = modal.data as { entityType: 'team' | 'department', id: string };
+
     const entity =
-      modal.data.entityType === "team"
-        ? teams.find((t) => t.id === modal.data!.id)
-        : departments.find((d) => d.id === modal.data!.id);
-    return entity ? { ...entity, entityType: modal.data.entityType } : null;
+      data.entityType === "team"
+        ? teams.find((t) => t.id === data.id)
+        : departments.find((d) => d.id === data.id);
+
+    return entity ? { ...entity, entityType: data.entityType } : null;
   }, [modal, teams, departments]);
 
   const userForEdit = useMemo(
