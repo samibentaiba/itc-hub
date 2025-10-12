@@ -36,6 +36,7 @@ import type {
   Event,
   UpcomingEvent,
   PendingEvent,
+  ModalState,
 } from "./types";
 import {
   departmentFormSchema,
@@ -60,7 +61,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatLeaders, getStatusBadgeVariant } from "./utils";
+import { formatLeaders,getStatusBadgeVariant } from "./utils";
 import { Button } from "@/components/ui/button";
 import {
   RefreshCw,
@@ -80,7 +81,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -103,13 +104,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle ,CardDescription} from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 /**
@@ -293,7 +288,7 @@ export default function AdminClientPage({
           </Button>
           <Button
             variant="outline"
-            onClick={pageActions.handleexportData}
+            onClick={pageActions.handleExportData}
             disabled={pageActions.loadingAction === "export"}
           >
             <Download className="mr-2 h-4 w-4" />
@@ -751,6 +746,15 @@ export function ManageMembersDialog({
     "member"
   );
 
+  const memberUserIds = useMemo(
+    () => (entity ? new Set(entity.members.map((m) => m.userId)) : new Set()),
+    [entity]
+  );
+  const potentialNewMembers = useMemo(
+    () => allUsers.filter((u) => !memberUserIds.has(u.id)),
+    [allUsers, memberUserIds]
+  );
+
   if (!entity) return null;
 
   const isTeam = entity.entityType === "team";
@@ -758,15 +762,6 @@ export function ManageMembersDialog({
     { value: "manager", label: isTeam ? "Leader" : "Manager" },
     { value: "member", label: "Member" },
   ];
-
-  const memberUserIds = useMemo(
-    () => new Set(entity.members.map((m) => m.userId)),
-    [entity.members]
-  );
-  const potentialNewMembers = useMemo(
-    () => allUsers.filter((u) => !memberUserIds.has(u.id)),
-    [allUsers, memberUserIds]
-  );
   const getUserById = (userId: string) => allUsers.find((u) => u.id === userId);
 
   const handleAddClick = () => {
@@ -1296,6 +1291,62 @@ export function StatsCards({ users, teams, departments }: StatsCardsProps) {
  * @param {object} props - The component props.
  * @returns {JSX.Element} - The rendered tabs component.
  */
+interface AdminTabsProps {
+  userData: ReturnType<typeof useAdminPage>["userData"];
+  teamData: ReturnType<typeof useAdminPage>["teamData"];
+  departmentData: ReturnType<typeof useAdminPage>["departmentData"];
+  eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
+  calendarData: ReturnType<typeof useAdminPage>["calendarData"];
+  onSetModal: (modal: ModalState) => void;
+  loadingAction: string | null;
+}
+
+interface UserTabProps {
+  userData: ReturnType<typeof useAdminPage>["userData"];
+  onSetModal: (modal: ModalState) => void;
+}
+
+interface TeamTabProps {
+  teamData: ReturnType<typeof useAdminPage>["teamData"];
+  onSetModal: (modal: ModalState) => void;
+}
+
+interface DepartmentTabProps {
+  departmentData: ReturnType<typeof useAdminPage>["departmentData"];
+  onSetModal: (modal: ModalState) => void;
+}
+
+interface CalendarTabProps {
+  calendarData: ReturnType<typeof useAdminPage>["calendarData"];
+}
+
+interface RequestTabProps {
+  eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
+  loadingAction: string | null;
+}
+
+interface UsersTableProps {
+  users: User[];
+  onSetModal: (modal: ModalState) => void;
+}
+
+interface TeamsTableProps {
+  teams: Team[];
+  onSetModal: (modal: ModalState) => void;
+}
+
+interface DepartmentsTableProps {
+  departments: Department[];
+  onSetModal: (modal: ModalState) => void;
+}
+
+interface RequestsTableProps {
+  pendingEvents: PendingEvent[];
+  handleRejectEvent: (event: PendingEvent) => void;
+  handleAcceptEvent: (event: PendingEvent) => void;
+  loadingAction: string | null;
+}
+
 export function AdminTabs({
   userData,
   teamData,
@@ -1304,7 +1355,7 @@ export function AdminTabs({
   calendarData,
   onSetModal,
   loadingAction,
-}: any) {
+}: AdminTabsProps) {
   return (
     <Tabs defaultValue="users" className="space-y-4">
       <TabsList className="grid w-full grid-cols-5">
@@ -1344,7 +1395,7 @@ export function AdminTabs({
   );
 }
 
-export function UserTab({ userData, onSetModal }: any) {
+export function UserTab({ userData, onSetModal }: UserTabProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1366,7 +1417,7 @@ export function UserTab({ userData, onSetModal }: any) {
   );
 }
 
-export function TeamTab({ teamData, onSetModal }: any) {
+export function TeamTab({ teamData, onSetModal }: TeamTabProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1388,7 +1439,7 @@ export function TeamTab({ teamData, onSetModal }: any) {
   );
 }
 
-export function DepartmentTab({ departmentData, onSetModal }: any) {
+export function DepartmentTab({ departmentData, onSetModal }: DepartmentTabProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1413,7 +1464,7 @@ export function DepartmentTab({ departmentData, onSetModal }: any) {
   );
 }
 
-export function CalendarTab({ calendarData }: any) {
+export function CalendarTab({ calendarData }: CalendarTabProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-4">
       <div className="lg:col-span-3">
@@ -1452,7 +1503,7 @@ export function CalendarTab({ calendarData }: any) {
   );
 }
 
-export function RequestTab({ eventRequestData, loadingAction }: any) {
+export function RequestTab({ eventRequestData, loadingAction }: RequestTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -1473,7 +1524,7 @@ export function RequestTab({ eventRequestData, loadingAction }: any) {
   );
 }
 
-export function UsersTable({ users, onSetModal }: any) {
+export function UsersTable({ users, onSetModal }: UsersTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -1484,7 +1535,7 @@ export function UsersTable({ users, onSetModal }: any) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users.map((user: any) => (
+        {users.map((user: User) => (
           <TableRow key={user.id}>
             <TableCell>
               <div className="flex items-center gap-3">
@@ -1560,7 +1611,7 @@ export function UsersTable({ users, onSetModal }: any) {
   );
 }
 
-export function TeamsTable({ teams, onSetModal }: any) {
+export function TeamsTable({ teams, onSetModal }: TeamsTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -1572,7 +1623,7 @@ export function TeamsTable({ teams, onSetModal }: any) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {teams.map((team: any) => (
+        {teams.map((team: Team) => (
           <TableRow key={team.id}>
             <TableCell>
               <div className="font-medium">{team.name}</div>
@@ -1580,7 +1631,7 @@ export function TeamsTable({ teams, onSetModal }: any) {
                 {team.description}
               </div>
             </TableCell>
-            <TableCell>{formatLeaders(team.leaders)}</TableCell>
+            <TableCell>{formatLeaders(team.leaders.map(l => ({...l, role: l.role.toLowerCase()})) as any)}</TableCell>
             <TableCell>{team.members.length}</TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
@@ -1629,7 +1680,7 @@ export function TeamsTable({ teams, onSetModal }: any) {
   );
 }
 
-export function DepartmentsTable({ departments, onSetModal }: any) {
+export function DepartmentsTable({ departments, onSetModal }: DepartmentsTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -1642,7 +1693,7 @@ export function DepartmentsTable({ departments, onSetModal }: any) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {departments.map((dept: any) => (
+        {departments.map((dept: Department) => (
           <TableRow key={dept.id}>
             <TableCell>
               <div className="font-medium">{dept.name}</div>
@@ -1650,7 +1701,7 @@ export function DepartmentsTable({ departments, onSetModal }: any) {
                 {dept.description}
               </div>
             </TableCell>
-            <TableCell>{formatLeaders(dept.managers)}</TableCell>
+            <TableCell>{formatLeaders(dept.managers.map(m => ({...m, role: m.role.toLowerCase()})) as any)}</TableCell>
             <TableCell>{dept.members.length}</TableCell>
             <TableCell>{dept.teams?.length}</TableCell>
             <TableCell className="text-right">
@@ -2006,7 +2057,7 @@ export function RequestsTable({
   handleRejectEvent,
   handleAcceptEvent,
   loadingAction,
-}: any) {
+}: RequestsTableProps) {
   if (pendingEvents.length === 0) {
     return (
       <Table>
@@ -2035,7 +2086,7 @@ export function RequestsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {pendingEvents.map((event: any) => (
+        {pendingEvents.map((event: PendingEvent) => (
           <TableRow key={event.id}>
             <TableCell>
               <div className="font-medium">{event.title}</div>
@@ -2061,7 +2112,7 @@ export function RequestsTable({
                 variant="outline"
                 size="sm"
                 className="mr-2"
-                onClick={() => handleRejectEvent(event)}
+                onClick={() => handleRejectEvent(event.id)}
                 disabled={!!loadingAction}
               >
                 <X className="h-4 w-4 mr-1" />
@@ -2069,7 +2120,7 @@ export function RequestsTable({
               </Button>
               <Button
                 size="sm"
-                onClick={() => handleAcceptEvent(event)}
+                onClick={() => handleAcceptEvent(event.id)}
                 disabled={!!loadingAction}
               >
                 <Check className="h-4 w-4 mr-1" />

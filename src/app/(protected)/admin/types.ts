@@ -5,8 +5,6 @@ import type {
   Team as PrismaTeam,
   Department as PrismaDepartment,
   Event as PrismaEvent,
-  TeamMember,
-  DepartmentMember,
 } from "@prisma/client";
 
 // ===== BASE ENTITIES =====
