@@ -1,29 +1,54 @@
+// src/app/(protected)/departments/client.tsx
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDepartmentsPage } from "./hook";
-import type { DepartmentLocal, DepartmentStatLocal } from "../types";
 // Import icons directly into the client component
 import { Building2, Users, Briefcase, TrendingUp } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-interface DepartmentsClientPageProps {
-  initialDepartments: DepartmentLocal[];
-  initialStats: DepartmentStatLocal[];
-}
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type {
+  DepartmentsClientPageProps,
+  DepartmentsGridProps,
+  DepartmentCardProps,
+  DepartmentHeadProps,
+  TeamsSectionProps,
+  DepartmentStatsProps,
+  RecentActivityProps,
+  StatCardProps,
+  IconMapKey,
+  DepartmentManager,
+  DepartmentTeam,
+} from "./types";
 
 // The mapping from stat title to Icon component now lives on the client.
-const iconMap = {
+const iconMap: Record<IconMapKey, React.ElementType> = {
   "Total Departments": Building2,
   "Department Heads": Users,
   "Teams per Dept": Briefcase,
   "Cross-Dept Projects": TrendingUp,
 };
 
-export default function DepartmentsClientPage({ initialDepartments, initialStats }: DepartmentsClientPageProps) {
-  const { stats, departments } = useDepartmentsPage(initialDepartments, initialStats);
+export default function DepartmentsClientPage({
+  initialDepartments,
+  initialStats,
+}: DepartmentsClientPageProps): React.ReactElement {
+  const { stats, departments } = useDepartmentsPage(
+    initialDepartments,
+    initialStats
+  );
 
   return (
     <div className="space-y-6">
@@ -31,14 +56,16 @@ export default function DepartmentsClientPage({ initialDepartments, initialStats
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Departments</h1>
-          <p className="text-muted-foreground">Manage organizational departments</p>
+          <p className="text-muted-foreground">
+            Manage organizational departments
+          </p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
-          const Icon = iconMap[stat.title as keyof typeof iconMap] || Building2;
+          const Icon = iconMap[stat.title as IconMapKey] || Building2;
           return <StatCard key={stat.title} stat={stat} Icon={Icon} />;
         })}
       </div>
@@ -50,7 +77,7 @@ export default function DepartmentsClientPage({ initialDepartments, initialStats
 }
 
 // Sub-components remain for clean rendering logic
-const StatCard = ({ stat, Icon }: { stat: DepartmentStatLocal; Icon: React.ElementType }) => (
+const StatCard = ({ stat, Icon }: StatCardProps): React.ReactElement => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -64,7 +91,9 @@ const StatCard = ({ stat, Icon }: { stat: DepartmentStatLocal; Icon: React.Eleme
   </Card>
 );
 
-const DepartmentsGrid = ({ departments }: { departments: DepartmentLocal[] }) => (
+const DepartmentsGrid = ({
+  departments,
+}: DepartmentsGridProps): React.ReactElement => (
   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
     {departments.map((department) => (
       <DepartmentCard key={department.id} department={department} />
@@ -72,35 +101,52 @@ const DepartmentsGrid = ({ departments }: { departments: DepartmentLocal[] }) =>
   </div>
 );
 
-const DepartmentCard = ({ department }: { department: DepartmentLocal }) => (
+const DepartmentCard = ({
+  department,
+}: DepartmentCardProps): React.ReactElement => (
   <Card className="hover:shadow-md transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <CardTitle className="text-lg">
-            <Link href={`/departments/${department.id}`} className="hover:underline">
+            <Link
+              href={`/departments/${department.id}`}
+              className="hover:underline"
+            >
               {department.name}
             </Link>
           </CardTitle>
-          <CardDescription className="text-sm">{department.description}</CardDescription>
+          <CardDescription className="text-sm">
+            {department.description}
+          </CardDescription>
         </div>
       </div>
     </CardHeader>
     <CardContent className="space-y-4">
       <DepartmentHead managers={department.managers} />
       <TeamsSection teams={department.teams} teamCount={department.teamCount} />
-      <DepartmentStats memberCount={department.memberCount} status={department.status} />
+      <DepartmentStats
+        memberCount={department.memberCount}
+        status={department.status}
+      />
       <RecentActivity activity={department.recentActivity} />
     </CardContent>
   </Card>
 );
 
-const DepartmentHead = ({ managers }: { managers: DepartmentLocal['managers'] }) => {
+const DepartmentHead = ({
+  managers,
+}: DepartmentHeadProps): React.ReactElement => {
   if (!managers || managers.length === 0) {
     return (
       <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8"><AvatarFallback className="text-xs">?</AvatarFallback></Avatar>
-        <div><p className="text-sm font-medium">Unknown Department Head</p><p className="text-xs text-muted-foreground">No manager assigned</p></div>
+        <Avatar className="h-8 w-8">
+          <AvatarFallback className="text-xs">?</AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="text-sm font-medium">Unknown Department Head</p>
+          <p className="text-xs text-muted-foreground">No manager assigned</p>
+        </div>
       </div>
     );
   }
@@ -109,17 +155,35 @@ const DepartmentHead = ({ managers }: { managers: DepartmentLocal['managers'] })
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="h-8 w-8"><AvatarImage src={firstManager.avatar} alt={firstManager.name} /><AvatarFallback className="text-xs">{firstManager.name.split(" ").map((n: any) => n[0]).join("")}</AvatarFallback></Avatar>
-      <div><Link href={`/users/${firstManager.id}`} className="text-sm font-medium hover:underline">{firstManager.name}</Link><p className="text-xs text-muted-foreground">Department Head</p></div>
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={firstManager.avatar} alt={firstManager.name} />
+        <AvatarFallback className="text-xs">
+          {firstManager.name
+            .split(" ")
+            .map((n: string) => n[0])
+            .join("")}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <Link
+          href={`/users/${firstManager.id}`}
+          className="text-sm font-medium hover:underline"
+        >
+          {firstManager.name}
+        </Link>
+        <p className="text-xs text-muted-foreground">Department Head</p>
+      </div>
       {managers.length > 1 && (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <div className="text-xs text-muted-foreground">+{managers.length - 1} more</div>
+              <div className="text-xs text-muted-foreground">
+                +{managers.length - 1} more
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               <ul>
-                {managers.slice(1).map((manager: any) => (
+                {managers.slice(1).map((manager: DepartmentManager) => (
                   <li key={manager.id}>{manager.name}</li>
                 ))}
               </ul>
@@ -131,20 +195,52 @@ const DepartmentHead = ({ managers }: { managers: DepartmentLocal['managers'] })
   );
 };
 
-const TeamsSection = ({ teams, teamCount }: { teams: DepartmentLocal['teams']; teamCount: number }) => (
+const TeamsSection = ({
+  teams,
+  teamCount,
+}: TeamsSectionProps): React.ReactElement => (
   <div className="space-y-2">
-    <div className="flex items-center justify-between"><span className="text-sm font-medium">Teams</span><span className="text-xs text-muted-foreground">{teamCount} teams</span></div>
-    <div className="space-y-1">{teams.map((team, index) => (<div key={index} className="flex items-center justify-between text-xs"><span className="text-muted-foreground">{team.name}</span><span className="text-muted-foreground">{team.memberCount} members</span></div>))}</div>
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-medium">Teams</span>
+      <span className="text-xs text-muted-foreground">{teamCount} teams</span>
+    </div>
+    <div className="space-y-1">
+      {teams.map((team: DepartmentTeam, index: number) => (
+        <div key={index} className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">{team.name}</span>
+          <span className="text-muted-foreground">
+            {team.memberCount} members
+          </span>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
-const DepartmentStats = ({ memberCount, status }: { memberCount: number; status: string }) => (
+const DepartmentStats = ({
+  memberCount,
+  status,
+}: DepartmentStatsProps): React.ReactElement => (
   <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-    <div className="text-center"><div className="text-lg font-semibold text-primary">{memberCount}</div><div className="text-xs text-muted-foreground">Total Members</div></div>
-    <div className="text-center"><div className="text-lg font-semibold text-green-600">{status === "active" ? "Active" : "Inactive"}</div><div className="text-xs text-muted-foreground">Status</div></div>
+    <div className="text-center">
+      <div className="text-lg font-semibold text-primary">{memberCount}</div>
+      <div className="text-xs text-muted-foreground">Total Members</div>
+    </div>
+    <div className="text-center">
+      <div className="text-lg font-semibold text-green-600">
+        {status === "active" ? "Active" : "Inactive"}
+      </div>
+      <div className="text-xs text-muted-foreground">Status</div>
+    </div>
   </div>
 );
 
-const RecentActivity = ({ activity }: { activity: string }) => (
-  <div className="pt-2 border-t"><p className="text-xs text-muted-foreground"><span className="font-medium">Recent:</span> {activity}</p></div>
+const RecentActivity = ({
+  activity,
+}: RecentActivityProps): React.ReactElement => (
+  <div className="pt-2 border-t">
+    <p className="text-xs text-muted-foreground">
+      <span className="font-medium">Recent:</span> {activity}
+    </p>
+  </div>
 );

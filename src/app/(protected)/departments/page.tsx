@@ -1,6 +1,6 @@
 import DepartmentsClientPage from "./client";
 import { headers } from 'next/headers';
-import type { Department, Team } from "../types";
+import type { Department } from "../types";
 
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
