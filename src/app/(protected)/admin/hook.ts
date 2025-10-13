@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { Team, TeamFormData } from "./types";
@@ -58,11 +57,9 @@ async function apiRequest<T>(
   });
 
   if (!response.ok) {
-    const errorData = (await response
-      .json()
-      .catch(() => ({
-        error: "An unknown error occurred",
-      }))) as ApiErrorResponse;
+    const errorData = (await response.json().catch(() => ({
+      error: "An unknown error occurred",
+    }))) as ApiErrorResponse;
     throw new Error(errorData.error || "Request failed");
   }
 
@@ -996,7 +993,7 @@ export const useCalendar = (initialEvents: Event[]) => {
   };
 };
 
-import { userFormSchema,teamFormSchema } from "./types";
+import { userFormSchema, teamFormSchema } from "./types";
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -1028,46 +1025,223 @@ export const useUserFormDialog = ({
   const handleFormSubmit = (data: UserFormData) => {
     onSubmit({ ...data, id: initialData?.id });
   };
-  return { handleFormSubmit,isEditMode,form };
+  return { handleFormSubmit, isEditMode, form };
 };
 
-export const userTeamFormDialog = ({
-    isOpen,
+export const useTeamFormDialog = ({
+  isOpen,
+  onSubmit,
+  initialData,
+}: {
+  isOpen: boolean;
+  onSubmit: (data: TeamFormData & { id?: string }) => void;
+  initialData?: Team | null;
+}) => {
+  const isEditMode = !!initialData;
+  const form = useForm<TeamFormData>({
+    resolver: zodResolver(teamFormSchema),
+    defaultValues: { name: "", description: "", departmentId: "" },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset(
+        isEditMode && initialData
+          ? {
+              name: initialData.name,
+              description: initialData.description ?? undefined,
+              departmentId: initialData.departmentId,
+            }
+          : { name: "", description: "", departmentId: "" }
+      );
+    }
+  }, [isOpen, initialData, form, isEditMode]);
+
+  const handleFormSubmit = (data: TeamFormData) => {
+    onSubmit({ ...data, id: initialData?.id });
+  };
+
+  return { handleFormSubmit, isEditMode, form };
+};
+import { departmentFormSchema } from "./types";
+export const useDepartmentFormDialog = ({
+  isOpen,
+  onSubmit,
+  initialData,
+}: {
+  isOpen: boolean;
+  onSubmit: (data: DepartmentFormData & { id?: string }) => void;
+  initialData?: Department | null;
+}) => {
+  const isEditMode = !!initialData;
+  const form = useForm<DepartmentFormData>({
+    resolver: zodResolver(departmentFormSchema),
+    defaultValues: { name: "", description: "" },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset(
+        isEditMode && initialData
+          ? {
+              name: initialData.name,
+              description: initialData.description ?? undefined,
+            }
+          : { name: "", description: "" }
+      );
+    }
+  }, [isOpen, initialData, form, isEditMode]);
+
+  const handleFormSubmit = (data: DepartmentFormData) => {
+    onSubmit({ ...data, id: initialData?.id });
+  };
+
+  return { handleFormSubmit, isEditMode, form };
+};
+
+type ManagingEntity =
+  | ({ entityType: "team" } & Team)
+  | ({ entityType: "department" } & Department)
+  | null;
+
+export const useManageMembersDialog = ({
+  entity,
+  allUsers,
+  memberActions,
+}: {
+  entity: ManagingEntity;
+  allUsers: User[];
+  memberActions: {
+    add: (
+      entityId: string,
+      entityType: "team" | "department",
+      userId: string,
+      role: "manager" | "member"
+    ) => void;
+    remove: (
+      entityId: string,
+      entityType: "team" | "department",
+      userId: string
+    ) => void;
+    updateRole: (
+      entityId: string,
+      entityType: "team" | "department",
+      userId: string,
+      newRole: "manager" | "member"
+    ) => void;
+  };
+}) => {
+  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedRole, setSelectedRole] = useState<"manager" | "member">(
+    "member"
+  );
+
+  // Safely compute member IDs
+  const memberUserIds = useMemo(() => {
+    return entity
+      ? new Set(entity.members.map((m) => m.userId))
+      : new Set<string>();
+  }, [entity]);
+
+  // Filter out users already in members
+  const potentialNewMembers = useMemo(() => {
+    return allUsers.filter((u) => !memberUserIds.has(u.id));
+  }, [allUsers, memberUserIds]);
+
+  // Determine role labels
+  const isTeam = entity?.entityType === "team";
+  const roles = [
+    { value: "manager", label: isTeam ? "Leader" : "Manager" },
+    { value: "member", label: "Member" },
+  ];
+
+  // Lookup helper
+  const getUserById = (userId: string) => allUsers.find((u) => u.id === userId);
+
+  // Add handler
+  const handleAddClick = () => {
+    if (!entity || !selectedUser) return;
+    memberActions.add(entity.id, entity.entityType, selectedUser, selectedRole);
+    setSelectedUser("");
+    setSelectedRole("member");
+  };
+
+  return {
+    handleAddClick,
+    getUserById,
+    potentialNewMembers,
+    roles,
+    selectedUser,
+    selectedRole,
+    setSelectedUser,
+    setSelectedRole,
+  };
+};
+import { eventFormSchema } from "./types";
+export const useCreateEventDialog = ({
+  isOpen,
   onClose,
   onSubmit,
-  isLoading,
   initialData,
-  departments,
-}:{  isOpen: boolean;
+}: {
+  isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TeamFormData & { id?: string }) => void;
-  isLoading: boolean;
-  initialData?: Team | null;
-  departments: Department[];}) =>
-  {
-      const isEditMode = !!initialData;
-      const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
-        defaultValues: { name: "", description: "", departmentId: "" },
-      });
-    
-      useEffect(() => {
-        if (isOpen) {
-          form.reset(
-            isEditMode && initialData
-              ? {
-                  name: initialData.name,
-                  description: initialData.description ?? undefined,
-                  departmentId: initialData.departmentId,
-                }
-              : { name: "", description: "", departmentId: "" }
-          );
-        }
-      }, [isOpen, initialData, form, isEditMode]);
-    
-      const handleFormSubmit = (data: TeamFormData) => {
-        onSubmit({ ...data, id: initialData?.id });
-      };
-    
-    return {handleFormSubmit,isEditMode};
-  }
+  onSubmit: (data: EventFormData & { id?: string }) => Promise<boolean>;
+
+  initialData?: Event | null;
+}) => {
+  const isEditMode = !!initialData;
+  const form = useForm<EventFormData>({
+    resolver: zodResolver(eventFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      date: "",
+      time: "",
+      duration: "60",
+      type: "meeting",
+      location: "",
+    },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      if (isEditMode && initialData) {
+        form.reset({
+          title: initialData.title,
+          description: initialData.description ?? undefined,
+          date: initialData.date,
+          time: initialData.time ?? "",
+          duration: String(initialData.duration),
+          type: initialData.type as
+            | "meeting"
+            | "review"
+            | "planning"
+            | "workshop",
+          location: initialData.location ?? undefined,
+        });
+      } else {
+        form.reset({
+          title: "",
+          description: "",
+          date: new Date().toISOString().split("T")[0],
+          time: "",
+          duration: "60",
+          type: "meeting",
+          location: "",
+        });
+      }
+    }
+  }, [isOpen, initialData, isEditMode, form]);
+
+  const handleFormSubmit = async (data: EventFormData) => {
+    const success = await onSubmit({ ...data, id: initialData?.id });
+    if (success) onClose();
+  };
+
+  return {
+    handleFormSubmit,
+    form,
+    isEditMode,
+  };
+};

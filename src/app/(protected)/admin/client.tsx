@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import {  useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -37,7 +37,6 @@ import type {
   PendingEvent,
   ModalState,
 } from "./types";
-import { departmentFormSchema, teamFormSchema, eventFormSchema } from "./types";
 
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -67,8 +66,6 @@ import {
   Check,
 } from "lucide-react";
 import { useAdminPage } from "./hook";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -398,7 +395,7 @@ function UserFormDialog({
     </Dialog>
   );
 }
-
+import { useTeamFormDialog } from "./hook";
 export function TeamFormDialog({
   isOpen,
   onClose,
@@ -414,30 +411,11 @@ export function TeamFormDialog({
   initialData?: Team | null;
   departments: Department[];
 }) {
-  const isEditMode = !!initialData;
-  const form = useForm<TeamFormData>({
-    resolver: zodResolver(teamFormSchema),
-    defaultValues: { name: "", description: "", departmentId: "" },
+  const { handleFormSubmit, isEditMode, form } = useTeamFormDialog({
+    isOpen,
+    onSubmit,
+    initialData,
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      form.reset(
-        isEditMode && initialData
-          ? {
-              name: initialData.name,
-              description: initialData.description ?? undefined,
-              departmentId: initialData.departmentId,
-            }
-          : { name: "", description: "", departmentId: "" }
-      );
-    }
-  }, [isOpen, initialData, form, isEditMode]);
-
-  const handleFormSubmit = (data: TeamFormData) => {
-    onSubmit({ ...data, id: initialData?.id });
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -447,7 +425,7 @@ export function TeamFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? `Update details for the ${initialData.name} team.`
+              ? `Update the details for ${initialData?.name ?? "this team"}.`
               : "Set up a new team within a department."}
           </DialogDescription>
         </DialogHeader>
@@ -532,7 +510,7 @@ export function TeamFormDialog({
     </Dialog>
   );
 }
-
+import { useDepartmentFormDialog } from "./hook";
 export function DepartmentFormDialog({
   isOpen,
   onClose,
@@ -546,29 +524,11 @@ export function DepartmentFormDialog({
   isLoading: boolean;
   initialData?: Department | null;
 }) {
-  const isEditMode = !!initialData;
-  const form = useForm<DepartmentFormData>({
-    resolver: zodResolver(departmentFormSchema),
-    defaultValues: { name: "", description: "" },
+  const { handleFormSubmit, isEditMode, form } = useDepartmentFormDialog({
+    isOpen,
+    onSubmit,
+    initialData,
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      form.reset(
-        isEditMode && initialData
-          ? {
-              name: initialData.name,
-              description: initialData.description ?? undefined,
-            }
-          : { name: "", description: "" }
-      );
-    }
-  }, [isOpen, initialData, form, isEditMode]);
-
-  const handleFormSubmit = (data: DepartmentFormData) => {
-    onSubmit({ ...data, id: initialData?.id });
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -578,7 +538,9 @@ export function DepartmentFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? `Update details for the ${initialData.name} department.`
+              ? `Update the details for ${
+                  initialData?.name ?? "this department"
+                }.`
               : "Set up a new department."}
           </DialogDescription>
         </DialogHeader>
@@ -674,7 +636,7 @@ export function ActionConfirmationDialog({
     </AlertDialog>
   );
 }
-
+import { useManageMembersDialog } from "./hook";
 // This type is local to this component, so it's defined here.
 type ManagingEntity =
   | ({ entityType: "team" } & Team)
@@ -712,41 +674,22 @@ export function ManageMembersDialog({
     ) => void;
   };
 }) {
-  const [selectedUser, setSelectedUser] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"manager" | "member">(
-    "member"
-  );
-
-  const memberUserIds = useMemo(
-    () => (entity ? new Set(entity.members.map((m) => m.userId)) : new Set()),
-    [entity]
-  );
-  const potentialNewMembers = useMemo(
-    () => allUsers.filter((u) => !memberUserIds.has(u.id)),
-    [allUsers, memberUserIds]
-  );
+  const {
+    handleAddClick,
+    getUserById,
+    potentialNewMembers,
+    roles,
+    selectedUser,
+    selectedRole,
+    setSelectedUser,
+    setSelectedRole,
+  } = useManageMembersDialog({
+    entity,
+    allUsers,
+    memberActions,
+  });
 
   if (!entity) return null;
-
-  const isTeam = entity.entityType === "team";
-  const roles = [
-    { value: "manager", label: isTeam ? "Leader" : "Manager" },
-    { value: "member", label: "Member" },
-  ];
-  const getUserById = (userId: string) => allUsers.find((u) => u.id === userId);
-
-  const handleAddClick = () => {
-    if (selectedUser) {
-      memberActions.add(
-        entity.id,
-        entity.entityType,
-        selectedUser,
-        selectedRole
-      );
-      setSelectedUser("");
-      setSelectedRole("member");
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -881,7 +824,7 @@ export function ManageMembersDialog({
     </Dialog>
   );
 }
-
+import {useCreateEventDialog} from "./hook"
 export function CreateEventDialog({
   isOpen,
   onClose,
@@ -895,55 +838,15 @@ export function CreateEventDialog({
   isLoading: boolean;
   initialData?: Event | null;
 }) {
-  const isEditMode = !!initialData;
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      date: "",
-      time: "",
-      duration: "60",
-      type: "meeting",
-      location: "",
-    },
+  const {
+ handleFormSubmit,form
+ ,isEditMode
+  } = useCreateEventDialog({
+    isOpen,
+  onClose,
+  onSubmit,
+  initialData,
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      if (isEditMode && initialData) {
-        form.reset({
-          title: initialData.title,
-          description: initialData.description ?? undefined,
-          date: initialData.date,
-          time: initialData.time ?? "",
-          duration: String(initialData.duration),
-          type: initialData.type as
-            | "meeting"
-            | "review"
-            | "planning"
-            | "workshop",
-          location: initialData.location ?? undefined,
-        });
-      } else {
-        form.reset({
-          title: "",
-          description: "",
-          date: new Date().toISOString().split("T")[0],
-          time: "",
-          duration: "60",
-          type: "meeting",
-          location: "",
-        });
-      }
-    }
-  }, [isOpen, initialData, isEditMode, form]);
-
-  const handleFormSubmit = async (data: EventFormData) => {
-    const success = await onSubmit({ ...data, id: initialData?.id });
-    if (success) onClose();
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
