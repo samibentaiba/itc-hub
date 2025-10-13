@@ -56,8 +56,6 @@ export default async function CalendarPage() {
     // Continue with empty array
   }
 
-  console.log('Fetched events for personal calendar:', events.length);
-
   // Transform events to match the expected format
   const transformedEvents = events.map((event: ApiEvent) => ({
     id: event.id,
@@ -88,8 +86,6 @@ export default async function CalendarPage() {
       attendees: event.participants?.length || event.attendees?.length || 1
     }));
 
-  console.log('Transformed events:', transformedEvents.length);
-  console.log('Upcoming events:', upcomingEvents.length);
 
   // Pass the server-fetched data as props to the client component.
   return (

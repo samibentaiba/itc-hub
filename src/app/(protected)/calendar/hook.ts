@@ -14,7 +14,6 @@ import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from
  */
 export const useCalendarPage = (
   initialEvents: CalendarLocalEvent[],
-  initialUpcomingEvents: CalendarUpcomingEvent[]
 ) => {
   const [allEvents, setAllEvents] = useState<CalendarLocalEvent[]>(initialEvents);
   const [currentDate, setCurrentDate] = useState(new Date());

@@ -1,11 +1,10 @@
 // /admin/page.tsx
 
-import { redirect } from "next/navigation";
 import AdminClientPage from "./client";
 import { headers } from "next/headers";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
 import type { User as AdminUser, Event as AdminEvent } from "./types";
-
+import {NotAccessible} from "@/components/NotAccessible"
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(
   url: string,
@@ -110,7 +109,8 @@ interface ApiResponse<T> {
 }
 
 // Helper to convert role strings to lowercase for UI
-const normalizeRole = (role: string): "user" | "manager" | "admin" => {
+const normalizeRole = (role: string | undefined | null): "user" | "manager" | "admin" => {
+  if (!role) return "user";
   const normalized = role.toLowerCase();
   if (normalized === "user" || normalized === "manager" || normalized === "admin") {
     return normalized;
@@ -122,7 +122,7 @@ export default async function AdminPage() {
   // Check if user has admin role
   const user = await getAuthenticatedUser();
   const isAdminUser = await isAdmin(user?.user.id || "");
-  if (!isAdminUser) redirect("/");
+  if (!isAdminUser) return(NotAccessible())
 
   // Fetch data using direct API calls
   const [

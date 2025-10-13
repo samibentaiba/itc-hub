@@ -32,7 +32,7 @@ interface CalendarSidebarProps {
   onEventClick: (event: CalendarLocalEvent | null) => void;
 }
 
-function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange, onNewEventClick, onEventClick }: CalendarSidebarProps) {
+function CalendarSidebar({ upcomingEvents, allEvents, filterType, onFilterChange,  onEventClick }: CalendarSidebarProps) {
   const eventTypes = ["all", ...Array.from(new Set(allEvents.map(e => e.type)))];
 
   return (
@@ -387,7 +387,7 @@ export default function CalendarClientPage({ initialEvents, initialUpcomingEvent
     getDaysInMonth,
     getFirstDayOfMonth,
     formatDateString,
-  } = useCalendarPage(initialEvents, initialUpcomingEvents);
+  } = useCalendarPage(initialEvents);
 
   return (
     <>

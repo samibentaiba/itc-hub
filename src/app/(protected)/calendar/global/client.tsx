@@ -31,8 +31,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  // Users, // Not used in global calendar
-  Users,
   MapPin,
 } from "lucide-react";
 import { format } from "date-fns";
