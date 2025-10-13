@@ -3,7 +3,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useToast } from "@/hooks/use-toast";
 import {
   formatDate,
   getDaysInMonth,
@@ -11,24 +10,22 @@ import {
   formatDateString,
 } from "./utils";
 import { Event } from "@prisma/client";
-
-export type CalendarViewType = "month" | "week" | "day";
+import { CalendarViewType, UpcomingEvent, UseGlobalCalendarReturn } from "./types";
 
 export function useGlobalCalendar(
   initialEvents: Event[],
-  initialUpcomingEvents: any[]
-) {
-  const { toast } = useToast();
-  const [events, setEvents] = useState(initialEvents);
-  const [upcomingEvents, setUpcomingEvents] = useState(initialUpcomingEvents);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  initialUpcomingEvents: UpcomingEvent[]
+): UseGlobalCalendarReturn {
+  const [events] = useState<Event[]>(initialEvents);
+  const [upcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [view, setView] = useState<CalendarViewType>("month");
 
-  const handleSetView = (newView: CalendarViewType) => {
+  const handleSetView = (newView: CalendarViewType): void => {
     setView(newView);
   };
 
-  const handleNavigate = (direction: "prev" | "next") => {
+  const handleNavigate = (direction: "prev" | "next"): void => {
     setCurrentDate((prevDate) => {
       const newDate = new Date(prevDate);
       if (view === "month") {
@@ -42,12 +39,12 @@ export function useGlobalCalendar(
     });
   };
 
-  const handleDayClick = (date: Date) => {
+  const handleDayClick = (date: Date): void => {
     setCurrentDate(date);
     setView("day");
   };
 
-  const memoizedEvents = useMemo(() => {
+  const memoizedEvents = useMemo<Event[]>(() => {
     return events.map((e) => ({
       ...e,
       date: new Date(e.date),

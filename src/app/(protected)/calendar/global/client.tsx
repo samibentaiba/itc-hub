@@ -42,25 +42,21 @@ import {
   formatDateString,
   formatDate,
 } from "./utils";
-
-interface GlobalCalendarClientPageProps {
-  initialEvents: Event[];
-  initialUpcomingEvents: any[];
-  availableWorkspaces: { id: string; name: string; type: string }[];
-}
+import {
+  GlobalCalendarClientPageProps,
+  GlobalCalendarSidebarProps,
+  EventDetailsDialogProps,
+  CalendarGridProps,
+  CalendarViewType,
+  EventWithColor,
+} from "./types";
 
 // Global Calendar Sidebar Component
-interface GlobalCalendarSidebarProps {
-  upcomingEvents: any[];
-  allEvents: Event[];
-  onEventClick: (event: Event | null) => void;
-}
-
 function GlobalCalendarSidebar({
   upcomingEvents,
   onEventClick,
   allEvents,
-}: GlobalCalendarSidebarProps) {
+}: GlobalCalendarSidebarProps): React.ReactElement {
   return (
     <div className="space-y-6">
       <Card>
@@ -95,12 +91,10 @@ function GlobalCalendarSidebar({
 }
 
 // Event Details Dialog Component
-interface EventDetailsDialogProps {
-  event: Event | null;
-  onClose: () => void;
-}
-
-function EventDetailsDialog({ event, onClose }: EventDetailsDialogProps) {
+function EventDetailsDialog({
+  event,
+  onClose,
+}: EventDetailsDialogProps): React.ReactElement | null {
   if (!event) return null;
   return (
     <Dialog open={!!event} onOpenChange={onClose}>
@@ -143,7 +137,7 @@ function EventDetailsDialog({ event, onClose }: EventDetailsDialogProps) {
 export default function GlobalCalendarClientPage({
   initialEvents,
   initialUpcomingEvents,
-}: GlobalCalendarClientPageProps) {
+}: GlobalCalendarClientPageProps): React.ReactElement {
   const {
     currentDate,
     view,
@@ -169,7 +163,7 @@ export default function GlobalCalendarClientPage({
             <Select
               value={view}
               onValueChange={(value) =>
-                setView(value as "month" | "week" | "day")
+                setView(value as CalendarViewType)
               }
             >
               <SelectTrigger className="w-[120px]">
@@ -244,23 +238,22 @@ function CalendarGrid({
   onSelectEvent,
   view,
   handleDayClick,
-}: {
-  currentDate: Date;
-  events: Event[];
-  onSelectEvent: (event: Event) => void;
-  view: "month" | "week" | "day";
-  handleDayClick: (date: Date) => void;
-}) {
-  const getEventsForDate = (date: string) => {
+}: CalendarGridProps): React.ReactElement {
+  const getEventsForDate = (date: string): Event[] => {
     return events.filter(
       (event) => formatDateString(new Date(event.date)) === date
     );
   };
 
-  const renderMonthView = () => {
+  const getEventColor = (event: Event): string => {
+    const eventWithColor = event as EventWithColor;
+    return eventWithColor.color || "bg-blue-500";
+  };
+
+  const renderMonthView = (): React.ReactElement => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
-    const days = [];
+    const days: React.ReactElement[] = [];
 
     for (let i = 0; i < firstDay; i++) {
       days.push(
@@ -299,9 +292,9 @@ function CalendarGrid({
           {dayEvents.slice(0, 2).map((event) => (
             <div
               key={event.id}
-              className={`text-white text-[10px] p-1 rounded truncate ${
-                (event as any).color || "bg-blue-500"
-              }`}
+              className={`text-white text-[10px] p-1 rounded truncate ${getEventColor(
+                event
+              )}`}
               title={event.title}
               onClick={(e) => {
                 e.stopPropagation();
@@ -335,7 +328,7 @@ function CalendarGrid({
     );
   };
 
-  const renderWeekView = () => {
+  const renderWeekView = (): React.ReactElement => {
     const startOfWeek = new Date(currentDate);
     startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
     const weekDays: Date[] = [];
@@ -385,9 +378,9 @@ function CalendarGrid({
                   {dayEvents.slice(0, 2).map((event) => (
                     <div
                       key={event.id}
-                      className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${
-                        (event as any).color || "bg-blue-500"
-                      }`}
+                      className={`text-white text-[10px] p-1 rounded truncate cursor-pointer ${getEventColor(
+                        event
+                      )}`}
                       title={event.title}
                       onClick={() => onSelectEvent(event)}
                     >
@@ -408,7 +401,7 @@ function CalendarGrid({
     );
   };
 
-  const renderDayView = () => {
+  const renderDayView = (): React.ReactElement => {
     const dayToRender = currentDate;
     const dateString = formatDateString(dayToRender);
     const dayEvents = getEventsForDate(dateString).sort((a, b) =>
@@ -440,9 +433,9 @@ function CalendarGrid({
               >
                 <CardContent className="p-4 flex items-start gap-4">
                   <div
-                    className={`w-1.5 h-16 rounded-full ${
-                      (event as any).color || "bg-blue-500"
-                    }`}
+                    className={`w-1.5 h-16 rounded-full ${getEventColor(
+                      event
+                    )}`}
                   ></div>
                   <div className="flex-1 space-y-1">
                     <h4 className="font-semibold">{event.title}</h4>
