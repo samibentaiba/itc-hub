@@ -1,28 +1,101 @@
 // src/app/(protected)/teams/[teamId]/hook.ts
 "use client";
-
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { TeamDetail, TeamTicket, TeamMember, Event, UpcomingEvent, EventFormData } from "./types";
+import type { TeamTicket as Ticket, Event } from "./types";
+import { useMemo } from "react";
+import type {  EventFormData, UpcomingEvent } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
+import { useRouter } from "next/navigation";
 
-export function useTeamDetailPage(
-  initialTeam: TeamDetail,
-  initialTickets: TeamTicket[]
-) {
+interface UseTeamViewArgs {
+  tickets: Ticket[];
+  initialEvents: Event[];
+  teamId: string;
+}
+
+export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs) {
   const { toast } = useToast();
-
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const router = useRouter();
   const [showNewTicket, setShowNewTicket] = useState(false);
+  const [showEditTeam, setShowEditTeam] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
-  // New calendar state
+  const calendar = useCalendar({
+    initialEvents,
+    toast,
+  });
+
+  const handleUpdateTeam = async (data: any) => {
+    try {
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to update team');
+
+      toast({ title: "Success", description: "Team updated successfully." });
+      setShowEditTeam(false);
+      router.refresh();
+    } catch (error) {
+      toast({ title: "Error", description: "Could not update team.", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteTeam = async () => {
+    try {
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete team');
+
+      toast({ title: "Success", description: "Team deleted successfully." });
+      router.push('/teams');
+    } catch (error) {
+      toast({ title: "Error", description: "Could not delete team.", variant: "destructive" });
+    }
+  };
+
+  return {
+    showNewTicket,
+    setShowNewTicket,
+    showEditTeam,
+    setShowEditTeam,
+    showDeleteAlert,
+    setShowDeleteAlert,
+    handleUpdateTeam,
+    handleDeleteTeam,
+    ...calendar,
+  };
+}
+
+
+
+
+interface UseCalendarArgs {
+  initialEvents: Event[];
+  toast: (options: { title: string; description?: string; variant?: "default" | "destructive" }) => void;
+}
+
+export function useCalendar({ initialEvents, toast }: UseCalendarArgs) {
   const [allEvents, setAllEvents] = useState<Event[]>(() =>
-    (initialTeam.events || []).map((event: any) => ({
+    initialEvents.map((event: Event) => ({
       ...event,
       date: new Date(event.date).toISOString().split('T')[0],
-      attendees: event.attendees.map((attendee: any) => attendee.name),
     }))
   );
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showNewEventDialog, setShowNewEventDialog] = useState(false);
+  const [isCalendarLoading, setIsCalendarLoading] = useState(false);
+
+  const simulateApi = (duration = 700) => new Promise((res) => setTimeout(res, duration));
+
   const upcomingEvents = useMemo(() => {
     const now = new Date();
 
@@ -39,36 +112,8 @@ export function useTeamDetailPage(
         attendees: event.attendees.length,
       }));
   }, [allEvents]);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [showNewEventDialog, setShowNewEventDialog] = useState(false);
-  const [isCalendarLoading, setIsCalendarLoading] = useState(false);
 
-  const { selectedDateTickets, calendarEvents } = useMemo(() => {
-    const events = initialTickets.reduce((acc, ticket) => {
-      const dateKey = new Date(ticket.dueDate).toDateString();
-      if (!acc[dateKey]) acc[dateKey] = [];
-      acc[dateKey].push(ticket);
-      return acc;
-    }, {} as Record<string, TeamTicket[]>);
-
-    const selectedTickets = date ? events[date.toDateString()] || [] : [];
-
-    return { selectedDateTickets: selectedTickets, calendarEvents: events };
-  }, [date, initialTickets]);
-
-  const handleMemberAction = (action: string, member: TeamMember) => {
-    toast({
-      title: `${action} ${member.name}`,
-      description: `Action "${action}" performed on ${member.name}`,
-    });
-  };
-
-  const simulateApi = (duration = 700) => new Promise((res) => setTimeout(res, duration));
-
-  const createOrUpdateEvent = async (formData: EventFormData & { id?: number }): Promise<boolean> => {
+  const createOrUpdateEvent = async (formData: EventFormData & { id?: number | string }): Promise<boolean> => {
     setIsCalendarLoading(true);
     const isEditMode = formData.id !== undefined;
 
@@ -77,14 +122,14 @@ export function useTeamDetailPage(
 
       if (isEditMode) {
         const updatedEvent: Event = {
-          id: formData.id!,
+          id: Number(formData.id!),
           title: formData.title,
           description: formData.description || "",
           date: formData.date,
           time: formData.time,
           duration: parseInt(formData.duration),
           type: formData.type,
-          attendees: ["You", "Team"],
+          attendees: ["You", "Engineering Team"],
           location: formData.location || "Virtual",
           color: "bg-blue-500",
         };
@@ -163,17 +208,8 @@ export function useTeamDetailPage(
   }, [allEvents, filterType]);
 
   return {
-    team: initialTeam,
-    tickets: initialTickets,
-    date,
-    setDate,
-    showNewTicket,
-    setShowNewTicket,
-    selectedDateTickets,
-    calendarEvents,
-    handleMemberAction,
-    calendarView,
     currentDate,
+    calendarView,
     events,
     upcomingEvents,
     filterType,

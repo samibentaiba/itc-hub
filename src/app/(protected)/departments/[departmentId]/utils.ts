@@ -1,6 +1,6 @@
 // Note: These functions are placeholders and may not be complete.
 
-export const formatDate = (date: Date, view: string) => {
+export const formatDate = (date: Date) => {
   return date.toLocaleDateString();
 };
 
