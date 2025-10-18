@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { TeamTicket as Ticket, Event } from "./types";
 import { useMemo } from "react";
 import type {  EventFormData, UpcomingEvent } from "./types";
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 interface UseTeamViewArgs {

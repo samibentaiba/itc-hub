@@ -96,7 +96,7 @@ export function useDepartmentView({ tickets, initialEvents, departmentId }: UseD
 }
 
 import type {  EventFormData, UpcomingEvent } from "./types";
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "./utils";
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "@/lib/utils";
 
 interface UseCalendarArgs {
   initialEvents: Event[];
@@ -250,7 +250,7 @@ export function useCalendar({ initialEvents, toast }: UseCalendarArgs) {
     handleEditEvent,
     handleDeleteEvent,
     setSelectedEvent,
-    formatDate: (d: Date) => formatDate(d),
+    formatDate: (d: Date) => formatDate(d, calendarView),
     getDaysInMonth,
     getFirstDayOfMonth,
     formatDateString,
