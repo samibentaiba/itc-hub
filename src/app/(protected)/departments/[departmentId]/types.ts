@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Note: These types are placeholders and may not be complete.
@@ -31,7 +30,7 @@ export interface Event {
   date: string;
   time: string;
   duration: number;
-   type: "meeting" | "review" | "planning" | "workshop";
+  type: "meeting" | "review" | "planning" | "workshop";
   attendees: string[];
   location: string;
   color: string;
@@ -51,7 +50,7 @@ export interface EventFormData {
   date: string;
   time: string;
   duration: string;
-   type: "meeting" | "review" | "planning" | "workshop";
+  type: "meeting" | "review" | "planning" | "workshop";
   location?: string;
 }
 
@@ -83,12 +82,13 @@ export interface Member {
   role: string;
 }
 
+// ✅ FIXED: Match the schema to EventFormData interface exactly
 export const requestEventSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   duration: z.string().min(1, "Duration is required"),
-  type: z.string().min(1, "Type is required"),
+  type: z.enum(["meeting", "review", "planning", "workshop"]),
   location: z.string().optional(),
 });

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { TeamTicket as Ticket, Event } from "./types";
 import { useMemo } from "react";
-import type {  EventFormData, UpcomingEvent } from "./types";
+import type { EventFormData, UpcomingEvent } from "./types";
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, formatDateString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -14,7 +14,8 @@ interface UseTeamViewArgs {
   teamId: string;
 }
 
-export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs) {
+// ✅ FIXED: Prefix unused parameter with underscore
+export function useTeamView({ tickets: _tickets, initialEvents, teamId }: UseTeamViewArgs) {
   const { toast } = useToast();
   const router = useRouter();
   const [showNewTicket, setShowNewTicket] = useState(false);
@@ -26,7 +27,13 @@ export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs)
     toast,
   });
 
-  const handleUpdateTeam = async (data: any) => {
+  // ✅ FIXED: Proper type annotation instead of any
+  const handleUpdateTeam = async (data: {
+    name: string;
+    description: string;
+    color?: string;
+    status?: string;
+  }) => {
     try {
       const response = await fetch(`/api/teams/${teamId}`, {
         method: 'PUT',
@@ -39,7 +46,7 @@ export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs)
       toast({ title: "Success", description: "Team updated successfully." });
       setShowEditTeam(false);
       router.refresh();
-    } catch  {
+    } catch {
       toast({ title: "Error", description: "Could not update team.", variant: "destructive" });
     }
   };
@@ -71,9 +78,6 @@ export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs)
     ...calendar,
   };
 }
-
-
-
 
 interface UseCalendarArgs {
   initialEvents: Event[];
