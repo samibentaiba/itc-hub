@@ -4,10 +4,7 @@
 import Link from "next/link";
 import {
   Search,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
+
   MessageSquare,
 } from "lucide-react";
 import { useTicketsPage } from "./hook";
@@ -29,15 +26,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
