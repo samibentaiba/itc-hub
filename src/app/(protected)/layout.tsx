@@ -38,6 +38,9 @@ export default function ProtectedLayout({
       // Clean up the timer when the component unmounts or dependencies change
       return () => clearTimeout(timer);
     }
+
+    // Explicitly return undefined on all other code paths to satisfy lint/TS rules
+    return;
   }, [status, session, countdown, router]);
 
   if (status === "loading") {

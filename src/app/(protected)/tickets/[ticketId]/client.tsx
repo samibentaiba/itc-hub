@@ -1,13 +1,9 @@
 "use client";
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import {
   Ticket,
   TicketStatus,
@@ -15,7 +11,6 @@ import {
   Department,
   Team,
   Message,
-  File as PrismaFile,
 } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +46,6 @@ type FullTicket = Ticket & {
 
 export default function TicketClient({
   ticket: initialTicket,
-  user,
   canEditStatus,
   fromPath
 }: {
@@ -60,7 +54,7 @@ export default function TicketClient({
   canEditStatus: boolean;
   fromPath: string; // The new prop for the throwback link
 }) {
-  const router = useRouter();
+  
   const [ticket, setTicket] = useState<FullTicket>(initialTicket);
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -229,7 +223,7 @@ export default function TicketClient({
                           {message.files.map((file: FileWithoutData) => (
                             <div key={file.id}>
                               {file.mimetype.startsWith("image/") ? (
-                                <img
+                                <Image
                                   src={`/api/files/${file.id}`}
                                   alt={file.filename}
                                   className="max-w-xs rounded-md"
