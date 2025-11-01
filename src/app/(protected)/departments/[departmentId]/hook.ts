@@ -24,7 +24,12 @@ export function useDepartmentView({ tickets, initialEvents, departmentId }: UseD
     toast,
   });
 
-  const handleUpdateDepartment = async (data: any) => {
+  const handleUpdateDepartment = async (data: {
+  name: string;
+  description: string;
+  color?: string;
+  status?: string;
+}) => {
     try {
       const response = await fetch(`/api/departments/${departmentId}`, {
         method: 'PUT',
@@ -37,9 +42,9 @@ export function useDepartmentView({ tickets, initialEvents, departmentId }: UseD
       toast({ title: "Success", description: "Department updated successfully." });
       setShowEditDepartment(false);
       router.refresh();
-    } catch (error) {
-      toast({ title: "Error", description: "Could not update department.", variant: "destructive" });
-    }
+   } catch {
+  toast({ title: "Error", description: "Could not update department.", variant: "destructive" });
+}
   };
 
   const handleDeleteDepartment = async () => {
@@ -52,9 +57,9 @@ export function useDepartmentView({ tickets, initialEvents, departmentId }: UseD
 
       toast({ title: "Success", description: "Department deleted successfully." });
       router.push('/departments');
-    } catch (error) {
-      toast({ title: "Error", description: "Could not delete department.", variant: "destructive" });
-    }
+   } catch {
+  toast({ title: "Error", description: "Could not update department.", variant: "destructive" });
+}
   };
 
   // Memoized Derived State

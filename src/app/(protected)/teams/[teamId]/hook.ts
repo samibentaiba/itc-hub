@@ -39,7 +39,7 @@ export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs)
       toast({ title: "Success", description: "Team updated successfully." });
       setShowEditTeam(false);
       router.refresh();
-    } catch (error) {
+    } catch  {
       toast({ title: "Error", description: "Could not update team.", variant: "destructive" });
     }
   };
@@ -54,7 +54,7 @@ export function useTeamView({ tickets, initialEvents, teamId }: UseTeamViewArgs)
 
       toast({ title: "Success", description: "Team deleted successfully." });
       router.push('/teams');
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Could not delete team.", variant: "destructive" });
     }
   };

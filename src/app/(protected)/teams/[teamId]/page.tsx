@@ -77,7 +77,7 @@ export default async function TeamDetailPage(props: PageProps) {
   }
 
   const isMember = team.members.some(
-    (member: any) => member.id === session?.user?.id
+    (member: { id: string }) => member.id === session?.user?.id
   );
   const isAdmin = session?.user?.role === "ADMIN";
 

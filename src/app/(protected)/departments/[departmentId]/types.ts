@@ -25,20 +25,20 @@ export interface Department {
 }
 
 export interface Event {
-  id: any;
+  id: string | number;
   title: string;
   description: string;
   date: string;
   time: string;
   duration: number;
-  type: any;
+   type: "meeting" | "review" | "planning" | "workshop";
   attendees: string[];
   location: string;
   color: string;
 }
 
 export interface UpcomingEvent {
-  id: any;
+  id: string | number;
   title: string;
   date: string;
   type: string;
@@ -51,7 +51,7 @@ export interface EventFormData {
   date: string;
   time: string;
   duration: string;
-  type: any;
+   type: "meeting" | "review" | "planning" | "workshop";
   location?: string;
 }
 

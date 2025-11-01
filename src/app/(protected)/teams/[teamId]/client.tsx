@@ -150,7 +150,7 @@ interface TeamHeaderProps {
   onEditOpenChange: (open: boolean) => void;
   showDeleteAlert: boolean;
   onDeleteOpenChange: (open: boolean) => void;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: { name: string; description: string; color?: string; status?: string }) => Promise<void>;
   onDelete: () => Promise<void>;
   showNewTicket: boolean;
   onOpenChange: (open: boolean) => void;
@@ -168,7 +168,7 @@ export function TeamHeader({
   onOpenChange
 }: TeamHeaderProps) {
 
-  const formatLeader = (leader: any | null) => {
+  const formatLeader = (leader: { id: string; name: string } | null) => {
     if (!leader) {
       return null;
     }
@@ -401,7 +401,7 @@ export function CalendarTab({
               view={calendarView}
               events={events}
               setSelectedEvent={onSetSelectedEvent}
-              handleDayClick={(date) => onSetSelectedEvent(null)} // or custom behavior
+              handleDayClick={(_date) => onSetSelectedEvent(null)} // or custom behavior
               getDaysInMonth={getDaysInMonth}
               getFirstDayOfMonth={getFirstDayOfMonth}
               formatDateString={formatDateString}
@@ -1040,7 +1040,7 @@ interface EditTeamDialogProps {
   team: Team;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: { name: string; description: string; color?: string; status?: string }) => Promise<void>;
 }
 
 export function EditTeamDialog({ team, open, onOpenChange, onUpdate }: EditTeamDialogProps) {

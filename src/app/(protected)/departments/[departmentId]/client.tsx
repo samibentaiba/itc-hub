@@ -154,7 +154,7 @@ interface DepartmentHeaderProps {
   onEditOpenChange: (open: boolean) => void;
   showDeleteAlert: boolean;
   onDeleteOpenChange: (open: boolean) => void;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: { name: string; description: string; color?: string; status?: string }) => Promise<void>;
   onDelete: () => Promise<void>;
 }
 
@@ -370,7 +370,7 @@ export function TeamsTab({ teams }: TeamsTabProps) {
           <AvatarFallback className="text-xs">
             {leaders[0].name
               .split(" ")
-              .map((n: any) => n[0])
+              .map((n: string) => n[0])
               .join("")}
           </AvatarFallback>
         </Avatar>
@@ -638,7 +638,7 @@ interface EditDepartmentDialogProps {
   department: Department;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: { name: string; description: string; color?: string; status?: string }) => Promise<void>;
 }
 
 export function EditDepartmentDialog({

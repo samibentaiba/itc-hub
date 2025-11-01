@@ -85,7 +85,7 @@ export default async function DepartmentDetailPage(props: PageProps) {
   }
 
   const isMember = department.members.some(
-    (member: any) => member.id === session?.user?.id
+    (member: { id: string }) => member.id === session?.user?.id
   );
   const isAdmin = session?.user?.role === "ADMIN";
 
