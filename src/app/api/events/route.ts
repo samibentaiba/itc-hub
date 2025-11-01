@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: CreateEventBody = await request.json()
-    const { title, description, date, time, duration, type, location, isRecurring, departmentId, teamId } = body
+    const { title, description, date, time, duration, type, location, isRecurring, departmentId } = body
 
     if (!title || !date) {
       return NextResponse.json(

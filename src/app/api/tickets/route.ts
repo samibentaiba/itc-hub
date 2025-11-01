@@ -7,12 +7,12 @@ import {
   TicketStatus,
   TicketType,
   TicketPriority,
-  Role,
+  // Role,
   Prisma,
 } from "@prisma/client";
 
 // Example usage of enum:
-const defaultStatus: TicketStatus = TicketStatus.OPEN;
+// const defaultStatus: TicketStatus = TicketStatus.OPEN;
 
 export async function GET(request: NextRequest) {
   try {

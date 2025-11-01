@@ -146,14 +146,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-interface CreateTeamBody {
-  name: string;
-  description?: string;
-  status?: string;
-  departmentId: string;
-  memberIds?: string[];
-  leaderId?: string;
-}
 
 export async function POST(req: Request) {
   try {
