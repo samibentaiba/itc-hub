@@ -9,7 +9,7 @@ import {
 } from "@/lib/auth-helpers";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { teamId: string } }
 ) {
   try {
@@ -265,7 +265,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {

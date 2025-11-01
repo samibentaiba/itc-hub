@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: { fileId: string } }
 ) {
   try {
