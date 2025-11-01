@@ -9,8 +9,8 @@ jest.mock('@/lib/auth-helpers', () => ({
   isAdmin: jest.fn(),
 }));
 
-const mockIsAdmin = isAdmin as jest.Mock;
-const mockGetAuthenticatedUser = getAuthenticatedUser as jest.Mock;
+// const mockIsAdmin = isAdmin as jest.Mock;
+// const mockGetAuthenticatedUser = getAuthenticatedUser as jest.Mock;
 
 // Mock server actions
 jest.mock('@/server/admin/departments', () => ({

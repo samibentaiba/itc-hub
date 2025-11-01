@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { GET, POST } from './route';
-import { prisma } from '@/lib/prisma';
+// import { prisma } from '@/lib/prisma';
 import { getAuthenticatedUser, isAdmin } from '@/lib/auth-helpers';
 import * as UserService from '@/server/admin/users';
 
@@ -34,10 +34,6 @@ describe('GET /api/admin/users', () => {
   });
 
   it('should return a list of users with correct status for an admin user', async () => {
-    const mockUsers = [
-      { id: '1', name: 'Test User 1', emailVerified: new Date() },
-      { id: '2', name: 'Test User 2', emailVerified: null },
-    ];
     const expectedUsers = [
         { id: '1', name: 'Test User 1', emailVerified: expect.any(Date), status: 'verified' },
         { id: '2', name: 'Test User 2', emailVerified: null, status: 'pending' },

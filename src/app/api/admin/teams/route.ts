@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdmin, getAuthenticatedUser } from "@/lib/auth-helpers";
 import * as TeamService from "@/server/admin/teams";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const user = await getAuthenticatedUser();
   if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });

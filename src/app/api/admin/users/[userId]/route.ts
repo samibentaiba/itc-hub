@@ -25,7 +25,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
+export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   const user = await getAuthenticatedUser();
   if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });

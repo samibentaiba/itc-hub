@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { PUT, DELETE } from './route';
-import { prisma } from '@/lib/prisma';
+// import { prisma } from '@/lib/prisma';
 import { getAuthenticatedUser, isAdmin } from '@/lib/auth-helpers';
 import * as UserService from '@/server/admin/users';
 
