@@ -25,6 +25,14 @@ const eslintConfig = [
       "no-console": ["warn", { "allow": ["warn", "error"] }],
       "react-hooks/exhaustive-deps": "warn"
     },
+    overrides: [
+    {
+      files: ["scripts/**/*.ts", "**/*.test.ts"],
+      rules: {
+        "no-console": "off" // Disable for test/script files
+      }
+    }
+  ]
   },
 ];
 

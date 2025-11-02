@@ -1,5 +1,5 @@
 // src/server/admin/users.ts
-import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
 import { userFormSchema } from "@/app/(protected)/admin/types";
 import { z } from "zod";

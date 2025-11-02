@@ -1,6 +1,7 @@
-// It's good practice to place this file in a `types` directory, e.g., `src/types/next-auth.d.ts`
+// src/types/next-auth.d.ts
 import 'next-auth';
 import 'next-auth/jwt';
+import { DefaultSession } from 'next-auth'; // ✅ Add this import
 
 /**
  * Extends the built-in `Session` to include custom properties like `id`, `role`, and `avatar`.

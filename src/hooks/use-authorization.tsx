@@ -103,7 +103,6 @@ export function AuthorizedComponent({
   requiresManager = false,
   teamId,
   departmentId,
-  ticketId,
   action = 'access' // 'access' or 'manage'
 }: {
   children: React.ReactNode;

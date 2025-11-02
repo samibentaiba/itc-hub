@@ -1,20 +1,23 @@
 import { z } from "zod";
 
+// Define the event type based on your Prisma EventType enum
+export type EventType = "meeting" | "review" | "planning" | "workshop";
+
 export interface Event {
-  id: any;
+  id: string | number;
   title: string;
   description: string;
   date: string;
   time: string;
   duration: number;
-  type: any;
+  type: EventType;
   attendees: string[];
   location: string;
   color: string;
 }
 
 export interface UpcomingEvent {
-  id: any;
+  id: string | number;
   title: string;
   date: string;
   type: string;
@@ -27,7 +30,7 @@ export interface EventFormData {
   date: string;
   time: string;
   duration: string;
-  type: any;
+  type: EventType;
   location?: string;
 }
 
@@ -37,6 +40,6 @@ export const requestEventSchema = z.object({
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   duration: z.string().min(1, "Duration is required"),
-  type: z.string().min(1, "Type is required"),
+  type: z.enum(["meeting", "review", "planning", "workshop"] as const, { error: "Type is required" }),
   location: z.string().optional(),
 });

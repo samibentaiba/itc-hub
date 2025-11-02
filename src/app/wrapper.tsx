@@ -2,21 +2,8 @@
 
 "use client";
 
-// Extend the session user type to include our custom properties
+// Session types are declared in src/types/next-auth.d.ts
 type WorkspaceType = "dashboard" | "team" | "department";
-
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role: string;
-      avatar: string;
-    };
-  }
-}
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
 }

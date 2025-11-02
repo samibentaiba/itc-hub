@@ -49,7 +49,6 @@ export function PageHeader({
   managers,
   showNewTicket,
   onOpenChange,
-  showEdit,
   onEditOpenChange,
   showDeleteAlert,
   onDeleteOpenChange,
