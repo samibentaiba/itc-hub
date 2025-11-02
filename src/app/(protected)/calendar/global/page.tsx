@@ -12,7 +12,7 @@ import {
   DepartmentsApiResponse,
   TeamsApiResponse,
 } from "./types";
-
+export const dynamic = 'force-dynamic';
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(
   url: string,

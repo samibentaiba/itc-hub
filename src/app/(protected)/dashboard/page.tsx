@@ -1,5 +1,5 @@
 // /dashboard/page.tsx - Updated to use clean API
-
+export const dynamic = 'force-dynamic';
 import DashboardClientPage from "./client";
 import { headers } from 'next/headers';
 import type { Ticket } from "../types";

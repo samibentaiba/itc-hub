@@ -1,6 +1,6 @@
 import CalendarClientPage from "./client";
 import { headers } from 'next/headers';
-
+export const dynamic = 'force-dynamic';
 interface ApiEvent {
   id: string;
   title: string;
