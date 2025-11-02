@@ -1,6 +1,13 @@
-import { Department } from "@prisma/client";
-
-const departments: any[] = [
+const departments: Array<{
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  color: string;
+  managers: {
+    connect: Array<{ id: string }>;
+  };
+}> = [
   {
     id: "DEP-001",
     name: "Engineering",
@@ -42,4 +49,5 @@ const departments: any[] = [
     },
   }
 ];
+
 export default departments;

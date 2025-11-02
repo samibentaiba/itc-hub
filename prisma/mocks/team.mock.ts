@@ -1,6 +1,14 @@
-import { Team } from "@prisma/client";
-
-const teams: any[] = [
+// Remove unused import and fix any type
+const teams: Array<{
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  departmentId: string;
+  leaders: {
+    connect: Array<{ id: string }>;
+  };
+}> = [
   {
     id: "TEAM-001",
     name: "Frontend",
@@ -52,4 +60,5 @@ const teams: any[] = [
     },
   },
 ];
+
 export default teams;

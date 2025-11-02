@@ -1,3 +1,5 @@
+
+
 // /app/(home)/api.ts
 import { prisma } from "@/lib/prisma";
 import type { LandingPageData } from "./types";
