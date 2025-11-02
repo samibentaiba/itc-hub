@@ -4,16 +4,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+// ✅ Fix: params must be a Promise
+interface RouteContext {
+  params: Promise<{
+    messageId: string
+  }>;
+}
 
-type RouteParams = Promise<{ messageId: string }>;
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: RouteParams }
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
-
+  
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -71,8 +77,9 @@ interface UpdateMessageBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: RouteParams }
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
 
@@ -141,8 +148,9 @@ export async function PUT(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: RouteParams }
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
 

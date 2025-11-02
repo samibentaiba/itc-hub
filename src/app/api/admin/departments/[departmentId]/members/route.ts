@@ -4,13 +4,17 @@ import { isAdmin, getAuthenticatedUser } from "@/lib/auth-helpers";
 import * as DepartmentService from "@/server/admin/departments";
 import { MembershipRole } from "@prisma/client";
 
+// ✅ Fix: params must be a Promise
 interface RouteContext {
-  params: {
+  params: Promise<{
     departmentId: string;
-  };
+  }>;
 }
 
-export async function POST(req: NextRequest, { params }: RouteContext) {
+export async function POST(req: NextRequest, context: RouteContext) {
+  // ✅ Fix: Await params
+  const params = await context.params
+  
   const user = await getAuthenticatedUser();
   if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -24,10 +28,22 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const newMember = await DepartmentService.addDepartmentMember(params.departmentId, userId, role);
+    const newMember = await DepartmentService.addDepartmentMember(
+      params.departmentId, 
+      userId, 
+      role
+    );
+
     return NextResponse.json(newMember, { status: 201 });
   } catch (error) {
-    console.error(`Admin Add Dept Member POST Error (Dept ID: ${params.departmentId}):`, error);
-    return NextResponse.json({ error: "Failed to add member to department" }, { status: 500 });
+    // ✅ Fix: Changed from tagged template to function call
+    console.error(
+      `Admin Add Dept Member POST Error (Dept ID: ${params.departmentId}):`,
+      error
+    );
+    return NextResponse.json(
+      { error: "Failed to add member to department" }, 
+      { status: 500 }
+    );
   }
 }

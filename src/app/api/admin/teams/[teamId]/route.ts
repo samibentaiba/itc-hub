@@ -4,13 +4,15 @@ import { isAdmin, getAuthenticatedUser } from "@/lib/auth-helpers";
 import * as TeamService from "@/server/admin/teams";
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     teamId: string;
-  };
+  }>;
 }
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+export async function PUT(req: NextRequest, context: RouteContext) {
   const user = await getAuthenticatedUser();
+    const params = await context.params
+  
   if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
@@ -25,8 +27,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: RouteContext) {
+export async function DELETE(_req: NextRequest, context: RouteContext) {
   const user = await getAuthenticatedUser();
+    const params = await context.params
+  
   if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }

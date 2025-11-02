@@ -1,13 +1,15 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { ticketId: string } }
-) {
+// ✅ Fix: params must be a Promise
+interface RouteContext {
+  params: Promise<{
+    ticketId: string;
+  }>;
+}
+export async function GET(_req: NextRequest, context: RouteContext) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session) {

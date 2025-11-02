@@ -2,10 +2,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// ✅ Fix: params must be a Promise
+interface RouteContext {
+  params: Promise<{
+     token: string
+  }>;
+}
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  context: RouteContext
 ) {
+  const params = await context.params;
   const { token } = params;
 
   if (!token) {

@@ -1,14 +1,14 @@
-
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { TicketStatus } from "@prisma/client";
-
-export async function PATCH(
-  req: Request,
-  { params }: { params: { ticketId: string } }
-) {
+// ✅ Fix: params must be a Promise
+interface RouteContext {
+  params: Promise<{ ticketId: string }>;
+}
+export async function PATCH(req: Request, context: RouteContext) {
+  const params = await context.params;
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

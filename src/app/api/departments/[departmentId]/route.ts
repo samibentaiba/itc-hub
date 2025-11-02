@@ -1,13 +1,15 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-export async function GET(
-    _request: NextRequest,
-  { params }: { params: { departmentId: string } }
-) {
+// ✅ Fix: params must be a Promise
+interface RouteContext {
+  params: Promise<{
+    departmentId: string;
+  }>;
+}
+export async function GET(_request: NextRequest, context: RouteContext) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -15,7 +17,7 @@ export async function GET(
     }
 
     // Authorization check: Allow admins or members of the department
-    if (session.user.role !== 'ADMIN') {
+    if (session.user.role !== "ADMIN") {
       const membership = await prisma.departmentMember.findFirst({
         where: {
           departmentId: params.departmentId,
@@ -39,12 +41,15 @@ export async function GET(
     });
 
     if (!department) {
-      return NextResponse.json({ error: "Department not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Department not found" },
+        { status: 404 }
+      );
     }
 
     const transformedDepartment = {
       ...department,
-      members: department.members.map(member => ({
+      members: department.members.map((member) => ({
         id: member.user.id,
         name: member.user.name,
         avatar: member.user.avatar,
@@ -62,10 +67,8 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { departmentId: string } }
-) {
+export async function PUT(request: NextRequest, context: RouteContext) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "ADMIN") {
@@ -100,10 +103,8 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: { departmentId: string } }
-) {
+export async function DELETE(_request: NextRequest, context: RouteContext) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "ADMIN") {

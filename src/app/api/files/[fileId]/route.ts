@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+interface RouteContext {
+  params: Promise<{
+    fileId: string ;
+  }>;
+}
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { fileId: string } }
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session) {

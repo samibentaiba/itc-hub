@@ -1,4 +1,3 @@
-
 import { NextRequest } from 'next/server';
 import { POST } from './route';
 import { getAuthenticatedUser, isAdmin } from '@/lib/auth-helpers';
@@ -34,7 +33,8 @@ describe('POST /api/admin/departments/[departmentId]/members', () => {
       method: 'POST',
       body: JSON.stringify(newMemberData),
     });
-    const res = await POST(req, { params: { departmentId: '1' } });
+    // ✅ Fix: Wrap params in Promise.resolve()
+    const res = await POST(req, { params: Promise.resolve({ departmentId: '1' }) });
 
     expect(res.status).toBe(201);
     const body = await res.json();
@@ -49,7 +49,8 @@ describe('POST /api/admin/departments/[departmentId]/members', () => {
       method: 'POST',
       body: JSON.stringify({ userId: '2', role: MembershipRole.MEMBER }),
     });
-    const res = await POST(req, { params: { departmentId: '1' } });
+    // ✅ Fix: Wrap params in Promise.resolve()
+    const res = await POST(req, { params: Promise.resolve({ departmentId: '1' }) });
 
     expect(res.status).toBe(403);
   });
@@ -62,7 +63,8 @@ describe('POST /api/admin/departments/[departmentId]/members', () => {
         method: 'POST',
         body: JSON.stringify({ userId: '2' }), // Missing role
     });
-    const res = await POST(req, { params: { departmentId: '1' } });
+    // ✅ Fix: Wrap params in Promise.resolve()
+    const res = await POST(req, { params: Promise.resolve({ departmentId: '1' }) });
 
     expect(res.status).toBe(400);
   });
@@ -76,7 +78,8 @@ describe('POST /api/admin/departments/[departmentId]/members', () => {
       method: 'POST',
       body: JSON.stringify({ userId: '2', role: MembershipRole.MEMBER }),
     });
-    const res = await POST(req, { params: { departmentId: '1' } });
+    // ✅ Fix: Wrap params in Promise.resolve()
+    const res = await POST(req, { params: Promise.resolve({ departmentId: '1' }) });
 
     expect(res.status).toBe(500);
   });

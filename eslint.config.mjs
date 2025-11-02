@@ -12,27 +12,27 @@ const compat = new FlatCompat({
 const eslintConfig = [
   // Extend Next.js defaults (includes TypeScript + React rules)
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-
-  // :point_down: Custom overrides for warnings in your editor
+  
+  // ✅ Base rules for all files
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        { "argsIgnorePattern": "^_" }
+        { argsIgnorePattern: "^_" }
       ],
       "no-unused-vars": "off", // prevent duplicate reports
-      "no-console": ["warn", { "allow": ["warn", "error"] }],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
       "react-hooks/exhaustive-deps": "warn"
     },
-    overrides: [
-    {
-      files: ["scripts/**/*.ts", "**/*.test.ts"],
-      rules: {
-        "no-console": "off" // Disable for test/script files
-      }
+  },
+  
+  // ✅ Specific rules for scripts and tests (replaces overrides)
+  {
+    files: ["scripts/**/*.ts", "**/*.test.ts"],
+    rules: {
+      "no-console": "off" // Disable for test/script files
     }
-  ]
   },
 ];
 

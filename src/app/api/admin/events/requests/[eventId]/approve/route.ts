@@ -4,13 +4,14 @@ import { isAdmin, getAuthenticatedUser } from "@/lib/auth-helpers";
 import * as EventService from "@/server/admin/events";
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     eventId: string;
-  };
+  }>;
 }
 
-export async function POST(_req: NextRequest, { params }: RouteContext) {
+export async function POST(_req: NextRequest, context: RouteContext) {
   const user = await getAuthenticatedUser();
+  const params = await context.params
   if (!user || !(await isAdmin(user.user.id))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }

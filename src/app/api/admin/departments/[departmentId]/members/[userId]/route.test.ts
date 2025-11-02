@@ -35,7 +35,7 @@ describe('PUT /api/admin/departments/[departmentId]/members/[userId]', () => {
       method: 'PUT',
       body: JSON.stringify(updatedMemberData),
     });
-    const res = await PUT(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await PUT(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -50,7 +50,7 @@ describe('PUT /api/admin/departments/[departmentId]/members/[userId]', () => {
       method: 'PUT',
       body: JSON.stringify({ role: MembershipRole.MANAGER }),
     });
-    const res = await PUT(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await PUT(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(403);
   });
@@ -63,7 +63,7 @@ describe('PUT /api/admin/departments/[departmentId]/members/[userId]', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'invalid-role' }), // Invalid role
     });
-    const res = await PUT(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await PUT(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(400);
   });
@@ -77,7 +77,7 @@ describe('PUT /api/admin/departments/[departmentId]/members/[userId]', () => {
       method: 'PUT',
       body: JSON.stringify({ role: MembershipRole.MANAGER }),
     });
-    const res = await PUT(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await PUT(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(500);
   });
@@ -96,7 +96,7 @@ describe('DELETE /api/admin/departments/[departmentId]/members/[userId]', () => 
     (DepartmentService.removeDepartmentMember as jest.Mock).mockResolvedValue({ success: true });
 
     const req = new NextRequest('http://localhost/api/admin/departments/1/members/2');
-    const res = await DELETE(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await DELETE(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(204);
   });
@@ -106,7 +106,7 @@ describe('DELETE /api/admin/departments/[departmentId]/members/[userId]', () => 
     (isAdmin as jest.Mock).mockResolvedValue(false);
 
     const req = new NextRequest('http://localhost/api/admin/departments/1/members/2');
-    const res = await DELETE(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await DELETE(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(403);
   });
@@ -117,7 +117,7 @@ describe('DELETE /api/admin/departments/[departmentId]/members/[userId]', () => 
     (DepartmentService.removeDepartmentMember as jest.Mock).mockRejectedValue(new Error('Database error'));
 
     const req = new NextRequest('http://localhost/api/admin/departments/1/members/2');
-    const res = await DELETE(req, { params: { departmentId: '1', userId: '2' } });
+    const res = await DELETE(req, { params: Promise.resolve({ departmentId: '1', userId: '2' }) });
 
     expect(res.status).toBe(500);
   });

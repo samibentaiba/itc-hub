@@ -1,23 +1,23 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { EventType, Prisma } from "@prisma/client"
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { EventType, Prisma } from "@prisma/client";
 
-type RouteParams = Promise<{ eventId: string }>
+interface RouteContext {
+  params: Promise<{ eventId: string }>;
+}
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: RouteParams }
-) {
+export async function GET(_request: NextRequest, context: RouteContext) {
+  const params = await context.params;
   try {
-    const session = await getServerSession(authOptions)
-    
+    const session = await getServerSession(authOptions);
+
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { eventId } = await params
+    const { eventId } = await params;
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
@@ -27,38 +27,38 @@ export async function GET(
             id: true,
             name: true,
             email: true,
-            avatar: true
-          }
+            avatar: true,
+          },
         },
         department: {
           select: {
             id: true,
             name: true,
-            color: true
-          }
+            color: true,
+          },
         },
         attendees: {
           select: {
             id: true,
             name: true,
             email: true,
-            avatar: true
-          }
-        }
-      }
-    })
+            avatar: true,
+          },
+        },
+      },
+    });
 
     if (!event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    return NextResponse.json(event)
+    return NextResponse.json(event);
   } catch (error) {
-    console.error("Error fetching event:", error)
+    console.error("Error fetching event:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -76,53 +76,64 @@ interface UpdateEventBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: RouteParams }
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
-    const session = await getServerSession(authOptions)
-    
+    const session = await getServerSession(authOptions);
+
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { eventId } = await params
-    const body: UpdateEventBody = await request.json()
-    const { title, description, date, time, duration, type, location, attendees, isRecurring } = body
+    const { eventId } = await params;
+    const body: UpdateEventBody = await request.json();
+    const {
+      title,
+      description,
+      date,
+      time,
+      duration,
+      type,
+      location,
+      attendees,
+      isRecurring,
+    } = body;
 
     // Check if event exists
     const existingEvent = await prisma.event.findUnique({
-      where: { id: eventId }
-    })
+      where: { id: eventId },
+    });
 
     if (!existingEvent) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     // Check permissions - only organizer or admins can update
-    const canUpdate = 
+    const canUpdate =
       session.user.role === "ADMIN" ||
       session.user.role === "SUPERLEADER" ||
-      existingEvent.organizerId === session.user.id
+      existingEvent.organizerId === session.user.id;
 
     if (!canUpdate) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const updateData: Prisma.EventUpdateInput = {}
+    const updateData: Prisma.EventUpdateInput = {};
 
-    if (title) updateData.title = title
-    if (description) updateData.description = description
-    if (date) updateData.date = new Date(date)
-    if (time !== undefined) updateData.time = time
-    if (duration !== undefined) updateData.duration = duration
-    if (type) updateData.type = type as EventType
-    if (location !== undefined) updateData.location = location
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (date) updateData.date = new Date(date);
+    if (time !== undefined) updateData.time = time;
+    if (duration !== undefined) updateData.duration = duration;
+    if (type) updateData.type = type as EventType;
+    if (location !== undefined) updateData.location = location;
     if (attendees !== undefined) {
       updateData.attendees = {
-        set: attendees.map(attendee => ({ id: attendee.id }))
-      }
+        set: attendees.map((attendee) => ({ id: attendee.id })),
+      };
     }
-    if (isRecurring !== undefined) updateData.isRecurring = isRecurring
+    if (isRecurring !== undefined) updateData.isRecurring = isRecurring;
 
     const event = await prisma.event.update({
       where: { id: eventId },
@@ -133,80 +144,80 @@ export async function PUT(
             id: true,
             name: true,
             email: true,
-            avatar: true
-          }
+            avatar: true,
+          },
         },
         department: {
           select: {
             id: true,
             name: true,
-            color: true
-          }
+            color: true,
+          },
         },
         attendees: {
           select: {
             id: true,
             name: true,
             email: true,
-            avatar: true
-          }
-        }
-      }
-    })
+            avatar: true,
+          },
+        },
+      },
+    });
 
-    return NextResponse.json(event)
+    return NextResponse.json(event);
   } catch (error) {
-    console.error("Error updating event:", error)
+    console.error("Error updating event:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: RouteParams }
+  context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    
+    const session = await getServerSession(authOptions);
+    const params = await context.params;
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { eventId } = await params
+    const { eventId } = await params;
 
     // Check if event exists
     const existingEvent = await prisma.event.findUnique({
-      where: { id: eventId }
-    })
+      where: { id: eventId },
+    });
 
     if (!existingEvent) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     // Check permissions - only organizer or admins can delete
-    const canDelete = 
+    const canDelete =
       session.user.role === "ADMIN" ||
       session.user.role === "SUPERLEADER" ||
-      existingEvent.organizerId === session.user.id
+      existingEvent.organizerId === session.user.id;
 
     if (!canDelete) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Delete event
     await prisma.event.delete({
-      where: { id: eventId }
-    })
+      where: { id: eventId },
+    });
 
-    return NextResponse.json({ message: "Event deleted successfully" })
+    return NextResponse.json({ message: "Event deleted successfully" });
   } catch (error) {
-    console.error("Error deleting event:", error)
+    console.error("Error deleting event:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
-    )
+    );
   }
 }

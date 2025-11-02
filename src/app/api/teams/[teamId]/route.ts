@@ -8,12 +8,19 @@ import {
   canManageTeam,
 } from "@/lib/auth-helpers";
 
+// ✅ Fix: params must be a Promise
+interface RouteContext {
+  params: Promise<{
+     teamId: string
+  }>;
+}
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { teamId: string } }
+  context: RouteContext
 ) {
   try {
-    const { teamId } = await params;
+    const params = await context.params
+    const { teamId } = params;
     const session = await getAuthenticatedUser();
 
     if (!session?.user) {
@@ -178,10 +185,11 @@ interface UpdateTeamBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ teamId: string }> }
+  context: RouteContext
 ) {
+  const params = await context.params
   try {
-    const { teamId } = await params;
+    const { teamId } =  params;
     const session = await getAuthenticatedUser();
 
     if (!session?.user) {
@@ -266,10 +274,12 @@ export async function PUT(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ teamId: string }> }
+  context: RouteContext
 ) {
   try {
-    const { teamId } = await params;
+    const params = await context.params
+    
+    const { teamId } = params;
     const session = await getAuthenticatedUser();
 
     if (!session?.user) {

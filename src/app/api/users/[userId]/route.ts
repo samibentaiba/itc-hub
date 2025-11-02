@@ -4,11 +4,17 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import bcrypt from "bcryptjs"
-
+interface RouteContext {
+  params: Promise<{
+    userId: string 
+  }>;
+}
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  context: RouteContext
 ) {
+  const params = await context.params;
+  
   try {
     const session = await getServerSession(authOptions)
     
@@ -152,8 +158,9 @@ interface UpdateUserBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  context: RouteContext
 ) {
+  const params = await context.params
   try {
     const session = await getServerSession(authOptions)
     
@@ -242,11 +249,11 @@ export async function PUT(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  context: RouteContext
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+    const params = await context.params
     if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
