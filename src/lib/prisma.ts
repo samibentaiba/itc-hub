@@ -1,8 +1,8 @@
 // Dynamic Database
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import fs from "fs";
 import path from "path";
+// TODO we should work with Accelerate feature of posgress+prisma and move our code base from NoAcc to WithAcc
 // NOTE: Unfortunately, we couldn't import this from .env
 // due to a library limitation.
 const createPrismaClient = () => {
@@ -17,7 +17,7 @@ const createPrismaClient = () => {
     if (provider === "postgresql") {
       // eslint-disable-next-line no-console
       console.log("Using PostgreSQL provider");
-      return new PrismaClient().$extends(withAccelerate());
+      return new PrismaClient();
     } else {
       // eslint-disable-next-line no-console
       console.log("Using SQLite provider");
