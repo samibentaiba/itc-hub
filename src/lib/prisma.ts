@@ -65,6 +65,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
  */
 
 /*
+// old code
 // for SQL Lite
  import { PrismaClient } from '@prisma/client'
 
