@@ -10,7 +10,7 @@ export default function ForgetPasswordLoading() {
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center mb-4">
-            <AuthLogo />
+            <AuthLogo variant="auto" />
           </div>
           <Skeleton className="h-8 w-48 mx-auto" />
           <Skeleton className="h-4 w-64 mx-auto" />

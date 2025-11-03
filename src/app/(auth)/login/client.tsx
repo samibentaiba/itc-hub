@@ -47,7 +47,7 @@ export default function LoginClient() {
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center mb-4">
-              <AuthLogo />
+              <AuthLogo variant="auto"/>
             </div>
             <h1 className="text-2xl font-bold">Already Logged In</h1>
             <p className="text-muted-foreground">

@@ -32,7 +32,7 @@ export interface LogoProps {
    * Whether to show the subtitle text
    * @default false
    */
-  showSubtitle?: boolean
+  showSubtitle?: boolean | "side"
   
   /**
    * Custom subtitle text
@@ -209,7 +209,7 @@ export function Logo({
   return (
     <div
       className={cn(
-        "inline-flex flex-col items-start gap-2",
+        `inline-flex ${showSubtitle == "side" ? "items-center justify-center" :"flex-col items-start"} gap-2`,
         clickable && "cursor-pointer hover:opacity-80 transition-opacity",
         className
       )}
@@ -224,7 +224,7 @@ export function Logo({
         priority={priority}
       />
       {showSubtitle && (
-        <div className={cn("grid flex-1 text-left leading-tight", textClassName)}>
+        <div className={cn("sm:grid flex-1 hidden text-left leading-tight", textClassName)}>
           <span className={cn("truncate text-muted-foreground", sizeConfigValue.textSize === "text-xs" ? "text-[0.6rem]" : "text-xs")}>
             {subtitle}
           </span>
@@ -252,11 +252,11 @@ export function LogoFull(props: Omit<LogoProps, "type">) {
 
 // Specialized components for specific contexts
 export function SidebarLogo(props: Omit<LogoProps, "type" | "showSubtitle" | "size">) {
-  return <Logo {...props} type="full" showSubtitle size="md" />
+  return <Logo {...props} type="full" showSubtitle size="md"  />
 }
 
 export function HeaderLogo(props: Omit<LogoProps, "type" | "size">) {
-  return <Logo {...props} type="image"  size="sm" />
+  return <Logo {...props} type="full" showSubtitle="side" size="md" />
 }
 
 export function FooterLogo(props: Omit<LogoProps, "type" | "size">) {
@@ -264,5 +264,5 @@ export function FooterLogo(props: Omit<LogoProps, "type" | "size">) {
 }
 
 export function AuthLogo(props: Omit<LogoProps, "type" | "size">) {
-  return <Logo {...props} type="full" size="xl" />
+  return <Logo {...props} type="full" size="xl"  />
 }
