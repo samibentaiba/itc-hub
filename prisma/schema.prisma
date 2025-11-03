@@ -4,8 +4,10 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  // NOTE Unfortunately we could not make it improted from .env
+  provider = "postgresql" 
+  // Due to library limitaiton 
+  url      = env("DATABASE_URL")
 }
 
 // --- NextAuth Models ---
