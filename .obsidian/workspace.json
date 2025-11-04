@@ -13,10 +13,10 @@
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "itc-hub-Pattern-design.excalidraw"
+                "file": "Production.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "itc-hub-Pattern-design"
+              "title": "Production.excalidraw"
             }
           }
         ]
@@ -92,7 +92,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "itc-hub-Pattern-design.excalidraw",
+                "file": "Production.excalidraw.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for itc-hub-Pattern-design"
+              "title": "Backlinks for Production.excalidraw"
             }
           },
           {
