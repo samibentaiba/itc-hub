@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "94cdd798517aad1e",
+        "id": "53b054db9c45cd1d",
         "type": "tabs",
         "children": [
           {
-            "id": "95b7e361ff633f61",
+            "id": "ad64a990fc424967",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
@@ -111,12 +111,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Production.excalidraw.md",
+                "file": "itc-hub-Pattern-design.excalidraw",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Production.excalidraw"
+              "title": "Outgoing links from itc-hub-Pattern-design"
             }
           },
           {
@@ -140,13 +140,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Production.excalidraw.md",
+                "file": "itc-hub-Pattern-design.excalidraw",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Production.excalidraw"
+              "title": "Outline of itc-hub-Pattern-design"
             }
           }
         ]
@@ -168,8 +168,25 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "95b7e361ff633f61",
+  "active": "ad64a990fc424967",
   "lastOpenFiles": [
-    "Production.excalidraw.md"
+    "AUTHORIZATION_SYSTEM_GUIDE.md",
+    "itc-hub-Pattern-design.excalidraw",
+    "ITC-hub analyse.md",
+    "yarn.lock",
+    "src/components/ui/logo-README.md",
+    "src/app/api/departments/[departmentId]/route.test.ts",
+    "src/app/api/admin/users/route.test.ts",
+    "src/app/api/admin/users/[userId]/verify/route.test.ts",
+    "src/app/api/admin/users/[userId]/route.test.ts",
+    "src/app/api/admin/teams/route.test.ts",
+    "src/app/api/admin/teams/[teamId]/route.test.ts",
+    "src/app/api/admin/teams/[teamId]/members/route.test.ts",
+    "src/app/api/admin/teams/[teamId]/members/[userId]/route.test.ts",
+    "src/app/(auth)/Authentication.md",
+    "Excalidraw/Drawing 2025-10-07 17.42.40.excalidraw.md",
+    "AUTHENTICATION_SETUP.md",
+    "Production.excalidraw.md",
+    "API_DOCUMENTATION.md"
   ]
 }
