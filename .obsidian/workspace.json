@@ -170,6 +170,8 @@
   },
   "active": "ad64a990fc424967",
   "lastOpenFiles": [
+    "Production.excalidraw.md",
+    "README.md",
     "AUTHORIZATION_SYSTEM_GUIDE.md",
     "itc-hub-Pattern-design.excalidraw",
     "ITC-hub analyse.md",
@@ -186,7 +188,6 @@
     "src/app/(auth)/Authentication.md",
     "Excalidraw/Drawing 2025-10-07 17.42.40.excalidraw.md",
     "AUTHENTICATION_SETUP.md",
-    "Production.excalidraw.md",
     "API_DOCUMENTATION.md"
   ]
 }
