@@ -62,8 +62,28 @@ export default function LandingClientPage({ initialData }: LandingClientPageProp
 
   const { stats, achievements, events } = initialData;
 
+  const eventStructuredData = events.map((event) => ({
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": event.title,
+    "startDate": event.dueDate,
+    "location": {
+      "@type": "Place",
+      "name": event.location,
+    },
+    "description": event.title, // Using title as description for now
+    "organizer": {
+      "@type": "Organization",
+      "name": event.organizer,
+    },
+  }));
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventStructuredData) }}
+      />
       {/* Confirmation Dialog for Logged-in Users */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-md">
