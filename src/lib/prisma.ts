@@ -23,7 +23,7 @@ const createPrismaClient = () => {
       console.log("Using SQLite provider");
       return new PrismaClient({
         log:
-          process.env.NODE_ENV === "development"
+          process.env.state === "local"
             ? ["query", "error", "warn"]
             : ["error"],
       });
@@ -43,7 +43,7 @@ declare global {
 
 export const prisma = globalThis.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
+if (process.env.state !== "production") globalThis.prisma = prisma;
 
 /* 
 // for Postgress
@@ -60,7 +60,7 @@ const createPrismaClient = () => {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.state !== 'production') globalForPrisma.prisma = prisma
 
  */
 
@@ -72,11 +72,11 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: process.env.NODE_ENV === "development" ?
+  log: process.env.state === "development" ?
     ["query", "error", "warn"] : ["error"],
 })
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.state !== 'production') globalForPrisma.prisma = prisma
 
 
  */
