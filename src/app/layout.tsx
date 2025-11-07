@@ -10,6 +10,7 @@ const roboto = Roboto({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ITC Hub",
   description: "A modern workspace platform for the Information Technology Community",
+  keywords: ["ITC Hub", "workspace", "platform", "information technology", "community", "collaboration", "management"],
   generator: null,
   metadataBase: new URL('https://itc-hub.vercel.app'),
 
