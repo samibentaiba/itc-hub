@@ -7,7 +7,7 @@
     "build": "npx next build",
     "start": "npx next start",
     "lint": "npx next lint",
-    "db:generate": "npx prisma generate",
+    "db:generate": "npx prisma generate --no-engine",
     "db:push": "npx prisma db push",
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset --force",
