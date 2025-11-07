@@ -123,63 +123,67 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "WebPage",
-                "@id": "https://itc-hub.vercel.app/#webpage",
-                "url": "https://itc-hub.vercel.app/",
-                "name": "ITC Hub",
-                "isPartOf": {
-                  "@id": "https://itc-hub.vercel.app/#website"
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebPage",
+                  "@id": "https://itc-hub.vercel.app/#webpage",
+                  "url": "https://itc-hub.vercel.app/",
+                  "name": "ITC Hub",
+                  "isPartOf": {
+                    "@id": "https://itc-hub.vercel.app/#website"
+                  },
+                  "primaryImageOfPage": {
+                    "@type": "ImageObject",
+                    "url": "https://itc-hub.vercel.app/ITC%20HUB%20Home.png"
+                  },
+                  "description": "A modern workspace platform for the Information Technology Community",
+                  "inLanguage": "en-US"
                 },
-                "primaryImageOfPage": {
-                  "@type": "ImageObject",
-                  "url": "https://itc-hub.vercel.app/ITC%20HUB%20Home.png"
+                {
+                  "@type": "WebSite",
+                  "@id": "https://itc-hub.vercel.app/#website",
+                  "url": "https://itc-hub.vercel.app/",
+                  "name": "ITC Hub",
+                  "description": "A modern workspace platform for the Information Technology Community",
+                  "publisher": {
+                    "@id": "https://itc-hub.vercel.app/#organization"
+                  },
+                  "inLanguage": "en-US"
                 },
-                "description": "A modern workspace platform for the Information Technology Community",
-                "inLanguage": "en-US"
-              },
-              {
-                "@type": "WebSite",
-                "@id": "https://itc-hub.vercel.app/#website",
-                "url": "https://itc-hub.vercel.app/",
-                "name": "ITC Hub",
-                "description": "A modern workspace platform for the Information Technology Community",
-                "publisher": {
-                  "@id": "https://itc-hub.vercel.app/#organization"
-                },
-                "inLanguage": "en-US"
-              },
-              {
-                "@type": "Organization",
-                "@id": "https://itc-hub.vercel.app/#organization",
-                "name": "ITC Hub",
-                "url": "https://itc-hub.vercel.app/",
-                "logo": {
-                  "@type": "ImageObject",
-                  "url": "https://itc-hub.vercel.app/ITC%20HUB%20Logo.svg"
-                },
-                "sameAs": [
-                  "https://twitter.com/itc_hub",
-                  "https://www.linkedin.com/company/itc-hub"
-                ],
-                "contactPoint": {
-                  "@type": "ContactPoint",
-                  "telephone": "+1-800-555-1212",
-                  "contactType": "customer service",
-                  "areaServed": "US",
-                  "availableLanguage": ["English"]
+                {
+                  "@type": "Organization",
+                  "@id": "https://itc-hub.vercel.app/#organization",
+                  "name": "ITC Hub",
+                  "url": "https://itc-hub.vercel.app/",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://itc-hub.vercel.app/ITC%20HUB%20Logo.svg"
+                  },
+                  "sameAs": [
+                    "https://twitter.com/itc_hub",
+                    "https://www.linkedin.com/company/itc-hub",
+                    "https://www.facebook.com/itc_hub",
+                    "https://www.instagram.com/itc_hub"
+                  ],
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+1-800-555-1212",
+                    "contactType": "customer service",
+                    "areaServed": "US",
+                    "availableLanguage": ["English"]
+                  }
                 }
-              }
-            ]
-          }),
-        }}
-      />
+              ]
+            }),
+          }}
+        />
+      </head>
       <body className={`${roboto.className} bg-background`}>
         <Wrapper>
           {children}

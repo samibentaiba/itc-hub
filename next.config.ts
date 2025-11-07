@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
         state: "production" as stateType,
         repository: "https://github.com/samibentaiba/itc-hub"
     },
+    async redirects() {
+        return [
+            {
+                source: '/signup',
+                destination: '/register',
+                permanent: true,
+            },
+            {
+                source: '/signin',
+                destination: '/login',
+                permanent: true,
+            },
+        ]
+    },
 };
 
 export default nextConfig;

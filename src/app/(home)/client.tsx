@@ -114,7 +114,7 @@ export default function LandingClientPage({ initialData }: LandingClientPageProp
               <Link href="/login">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Register</Link>
+              <Link href="/register">Register</Link>
             </Button>
           </div>
         </div>
@@ -309,7 +309,7 @@ export default function LandingClientPage({ initialData }: LandingClientPageProp
                         <ul className="space-y-2 text-sm">
                         <li><Link href="#achievements" className="text-muted-foreground hover:text-primary transition-colors">Achievements</Link></li>
                         <li><Link href="#events" className="text-muted-foreground hover:text-primary transition-colors">Upcoming Events</Link></li>
-                        <li><Link href="/signup" className="text-muted-foreground hover:text-primary transition-colors">Join Community</Link></li>
+                        <li><Link href="/register" className="text-muted-foreground hover:text-primary transition-colors">Join Community</Link></li>
                         <li><Link href="/login" className="text-muted-foreground hover:text-primary transition-colors">Member Login</Link></li>
                         </ul>
                     </div>
