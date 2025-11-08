@@ -192,7 +192,8 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
     pathname?.startsWith("/tickets") ||
     pathname?.startsWith("/users");
 
-  const isLegalPage =
+  const isOtherPage =
+    pathname == "/" ||
     pathname?.startsWith("/about") ||
     pathname?.startsWith("/faq") ||
     pathname?.startsWith("/policy") ||
@@ -207,7 +208,7 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (isLegalPage || pathname == "/") {
+  if (isOtherPage || pathname == "/") {
     return <PublicLayout>{children}</PublicLayout>;
   }
 
@@ -855,6 +856,7 @@ function Header() {
 }
 
 function Footer() {
+  const pathname = usePathname();
   return (
     <footer className="border-t bg-card">
       <div className="container mx-auto px-4">
@@ -872,48 +874,48 @@ function Footer() {
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-semibold">Legals</h3>
+                <h3 className="font-semibold">Legal pages</h3>
                 <ul className="space-y-2 text-sm">
-                  <li>
+                  {pathname != "/about" &&(<li>
                     <Link
                       href="/about"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       About Us
                     </Link>
-                  </li>
-                  <li>
+                  </li>)}
+                  {pathname != "/faq" && (<li>
                     <Link
                       href="/faq"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       FAQ
                     </Link>
-                  </li>
-                  <li>
+                  </li>)}
+                  {pathname != "/policy" && (<li>
                     <Link
-                      href="/register"
+                      href="/policy"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      Join Community
+                      Privacy Policy
                     </Link>
-                  </li>
-                  <li>
+                  </li>)}
+                  {pathname != "/terms" && (<li>
                     <Link
-                      href="/login"
+                      href="/terms"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      Member Login
+                      Terms of service
                     </Link>
-                  </li>
+                  </li>)}
                 </ul>
               </div>
               <div className="space-y-4">
-                <h3 className="font-semibold">Others pages</h3>
+                <h3 className="font-semibold">Others</h3>
                 <ul className="space-y-2 text-sm">
                   <li>
                     <Link
-                      href="#achievements"
+                      href="/#achievements"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       Achievements
@@ -921,47 +923,50 @@ function Footer() {
                   </li>
                   <li>
                     <Link
-                      href="#events"
+                      href="/#events"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       Upcoming Events
                     </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/register"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Join Community
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/login"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Member Login
-                    </Link>
-                  </li>
+                    </li>
+                  {pathname != "/vlogs" && (
+                    <li>
+                      <Link
+                        href="/vlogs"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Vlogs
+                      </Link>
+                    </li>)}
+                  {pathname != "p/rojects"  && (
+                    <li>
+                      <Link
+                        href="/projects"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Projects
+                      </Link>
+                    </li>)}
+                  
                 </ul>
               </div>
               <div className="space-y-4">
                 <h3 className="font-semibold">Follow Us</h3>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="icon" asChild>
-                    <Link href="#" aria-label="Twitter">
+                    <a href="" aria-label="Twitter">
                       <Twitter className="h-4 w-4" />
-                    </Link>
+                    </a>
                   </Button>
                   <Button variant="outline" size="icon" asChild>
-                    <Link href="#" aria-label="GitHub">
+                    <a href="" aria-label="GitHub">
                       <Github className="h-4 w-4" />
-                    </Link>
+                    </a>
                   </Button>
                   <Button variant="outline" size="icon" asChild>
-                    <Link href="#" aria-label="LinkedIn">
+                    <a href="" aria-label="LinkedIn">
                       <Linkedin className="h-4 w-4" />
-                    </Link>
+                    </a>
                   </Button>
                 </div>
               </div>

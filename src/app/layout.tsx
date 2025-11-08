@@ -123,7 +123,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <body className={`${roboto.className} bg-background`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -167,9 +167,7 @@ export default function RootLayout({
                   },
                   "sameAs": [
                     "https://twitter.com/itc_hub",
-                    "https://www.linkedin.com/company/itc-hub",
-                    "https://www.facebook.com/itc_hub",
-                    "https://www.instagram.com/itc_hub"
+                    "https://www.linkedin.com/company/itc-hub"
                   ],
                   "contactPoint": {
                     "@type": "ContactPoint",
@@ -183,8 +181,6 @@ export default function RootLayout({
             }),
           }}
         />
-      </head>
-      <body className={`${roboto.className} bg-background`}>
         <Wrapper>
           {children}
           <VersionDisplay />
