@@ -1,7 +1,9 @@
 // src/app/(legal)/legal-page.tsx
 "use client";
 
-import { useState, useCallback, memo, type ReactNode } from "react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+
+import { useState, useCallback, memo, type ReactNode, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,9 +41,7 @@ interface QuickLink {
 const ImportantNotice = memo(({ content }: { content: ReactNode }) => (
   <Alert className="mb-8 max-w-4xl mx-auto border-amber-500/50 bg-amber-500/10">
     <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
-    <AlertDescription className="text-sm">
-      {content}
-    </AlertDescription>
+    <AlertDescription className="text-sm">{content}</AlertDescription>
   </Alert>
 ));
 ImportantNotice.displayName = "ImportantNotice";
@@ -55,7 +55,11 @@ const QuickLinksSection = memo(({ links }: { links: QuickLink[] }) => (
       <ul className="space-y-1">
         {links.map((link) => (
           <li key={link.href}>
-            <Button variant="ghost" className="w-full justify-start text-sm" asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm"
+              asChild
+            >
               <Link href={link.href}>{link.label}</Link>
             </Button>
           </li>
@@ -66,54 +70,68 @@ const QuickLinksSection = memo(({ links }: { links: QuickLink[] }) => (
 ));
 QuickLinksSection.displayName = "QuickLinksSection";
 
-const ContactInfoCard = memo(({ 
-  organizationInfo,
-  title,
-  description 
-}: { 
-  organizationInfo: Organization;
-  title: string;
-  description: string;
-}) => (
-  <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-    <CardContent className="py-8">
-      <div className="flex items-start gap-4">
-        <div className="p-3 rounded-full bg-primary/10" aria-hidden="true">
-          <Mail className="h-6 w-6 text-primary" />
+const ContactInfoCard = memo(
+  ({
+    organizationInfo,
+    title,
+    description,
+  }: {
+    organizationInfo: Organization;
+    title: string;
+    description: string;
+  }) => (
+    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+      <CardContent className="py-8">
+        <div className="flex items-start gap-4">
+          <div className="p-3 rounded-full bg-primary/10" aria-hidden="true">
+            <Mail className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg mb-2">{title}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{description}</p>
+            <dl className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <dt>
+                  <Badge variant="outline" className="mt-0.5">
+                    Email
+                  </Badge>
+                </dt>
+                <dd>
+                  <Link
+                    href={`mailto:${organizationInfo.email}`}
+                    className="text-primary hover:underline flex-1"
+                  >
+                    {organizationInfo.email}
+                  </Link>
+                </dd>
+              </div>
+              <div className="flex items-start gap-3">
+                <dt>
+                  <Badge variant="outline" className="mt-0.5">
+                    Address
+                  </Badge>
+                </dt>
+                <dd className="text-muted-foreground flex-1">
+                  {organizationInfo.address}
+                </dd>
+              </div>
+              <div className="flex items-start gap-3">
+                <dt>
+                  <Badge variant="outline" className="mt-0.5">
+                    Organization
+                  </Badge>
+                </dt>
+                <dd className="text-muted-foreground flex-1">
+                  {organizationInfo.name}
+                </dd>
+              </div>
+            </dl>
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-lg mb-2">{title}</h3>
-          <p className="text-sm text-muted-foreground mb-4">{description}</p>
-          <dl className="space-y-3 text-sm">
-            <div className="flex items-start gap-3">
-              <dt><Badge variant="outline" className="mt-0.5">Email</Badge></dt>
-              <dd>
-                <Link 
-                  href={`mailto:${organizationInfo.email}`}
-                  className="text-primary hover:underline flex-1"
-                >
-                  {organizationInfo.email}
-                </Link>
-              </dd>
-            </div>
-            <div className="flex items-start gap-3">
-              <dt><Badge variant="outline" className="mt-0.5">Address</Badge></dt>
-              <dd className="text-muted-foreground flex-1">
-                {organizationInfo.address}
-              </dd>
-            </div>
-            <div className="flex items-start gap-3">
-              <dt><Badge variant="outline" className="mt-0.5">Organization</Badge></dt>
-              <dd className="text-muted-foreground flex-1">
-                {organizationInfo.name}
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-));
+      </CardContent>
+    </Card>
+  )
+);
 ContactInfoCard.displayName = "ContactInfoCard";
 
 const getQuickLinks = (pageType: "policy" | "terms"): QuickLink[] => {
@@ -149,12 +167,14 @@ const getContactContent = (pageType: "policy" | "terms") => {
   if (pageType === "policy") {
     return {
       title: "Questions About Your Privacy?",
-      description: "If you have any concerns or questions about how we handle your data, we're here to help.",
+      description:
+        "If you have any concerns or questions about how we handle your data, we're here to help.",
     };
   } else {
     return {
       title: "Questions About Terms of Service?",
-      description: "For questions, concerns, or complaints regarding these Terms of Service, please contact us.",
+      description:
+        "For questions, concerns, or complaints regarding these Terms of Service, please contact us.",
     };
   }
 };
@@ -168,6 +188,42 @@ export default function LegalPage({
   warningContent,
 }: LegalPageProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [isLastSection, setIsLastSection] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  useEffect(() => {
+    const sectionIds = content.sections.map((_, idx) => `section-${idx}`);
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const offset = 500;
+
+      let currentSection: string | null = null;
+
+      for (const id of sectionIds) {
+        const element = document.getElementById(id);
+        if (element) {
+          const sectionTop = element.offsetTop;
+          if (scrollPosition >= sectionTop - offset) {
+            currentSection = id;
+          }
+        }
+      }
+
+      setActiveSection(currentSection);
+      setIsLastSection(currentSection === sectionIds[sectionIds.length - 1]);
+      setHasLoaded(true); // activate after first scroll check
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    // run one time after mount
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [content.sections]);
 
   const scrollToSection = useCallback((index: number) => {
     const sectionId = `section-${index}`;
@@ -183,50 +239,83 @@ export default function LegalPage({
   const contactContent = getContactContent(pageType);
 
   return (
-    <div className="min-h-screen bg-background">
-      <LegalHero
-        icon={icon}
-        title={content.hero.title}
-        subtitle={content.hero.subtitle}
-        lastUpdated={content.hero.lastUpdated}
-      />
+    <LayoutGroup>
+      <div className="min-h-screen bg-background">
+        <LegalHero
+          icon={icon}
+          title={content.hero.title}
+          subtitle={content.hero.subtitle}
+          lastUpdated={content.hero.lastUpdated}
+        />
 
-      <main className="container mx-auto px-4 py-12">
-        {showWarning && warningContent && (
-          <ImportantNotice content={warningContent} />
-        )}
+        <main className="container mx-auto px-4 py-12">
+          {showWarning && warningContent && (
+            <ImportantNotice content={warningContent} />
+          )}
 
-        <div className="grid lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          <aside className="lg:col-span-1" aria-label="Sidebar navigation">
-            <div className="sticky top-4 space-y-2">
-              <TableOfContents
-                sections={content.sections}
-                activeSection={activeSection}
-                onSectionClick={scrollToSection}
+          <div className="grid lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {/* ======= SIDEBAR ======= */}
+            <aside className="lg:col-span-1" aria-label="Sidebar navigation">
+              <div className="sticky top-4 space-y-2">
+                <TableOfContents
+                  sections={content.sections}
+                  activeSection={activeSection}
+                  onSectionClick={scrollToSection}
+                />
+                {hasLoaded ? (
+                  <AnimatePresence mode="wait">
+                    {!isLastSection && (
+                      <motion.div
+                        key="quick-links"
+                        layoutId="shared-links"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -30 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                      >
+                        <QuickLinksSection links={quickLinks} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                ) : (
+                  <QuickLinksSection links={quickLinks} />
+                )}
+              </div>
+            </aside>
+
+            {/* ======= MAIN CONTENT ======= */}
+            <div className="lg:col-span-3 space-y-8">
+              {content.sections.map((section, idx) => (
+                <LegalSectionCard
+                  key={idx}
+                  section={section}
+                  sectionId={`section-${idx}`}
+                />
+              ))}
+
+              <ContactInfoCard
+                organizationInfo={organizationInfo}
+                title={contactContent.title}
+                description={contactContent.description}
               />
-              <QuickLinksSection links={quickLinks} />
+
+              {/* This is where Quick Links "lands" */}
+              <motion.div layoutId="shared-links">
+                {isLastSection && (
+                  <motion.div
+                    key="related-docs"
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                  >
+                    <RelatedLinks links={relatedLinks} />
+                  </motion.div>
+                )}
+              </motion.div>
             </div>
-          </aside>
-
-          <div className="lg:col-span-3 space-y-8">
-            {content.sections.map((section, idx) => (
-              <LegalSectionCard
-                key={idx}
-                section={section}
-                sectionId={`section-${idx}`}
-              />
-            ))}
-
-            <ContactInfoCard
-              organizationInfo={organizationInfo}
-              title={contactContent.title}
-              description={contactContent.description}
-            />
-
-            <RelatedLinks links={relatedLinks} />
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </LayoutGroup>
   );
 }

@@ -48,13 +48,18 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
     pathname?.startsWith("/teams")||
     pathname?.startsWith("/tickets")||
     pathname?.startsWith("/users");
+  const isLegalPage =
+    pathname?.startsWith("/about") ||
+    pathname?.startsWith("/faq") ||
+    pathname?.startsWith("/policy")||
+    pathname?.startsWith("/terms");
 
   // Check if user is logged in and on home page
   const isLoggedInOnHome =
-    status === "authenticated" && session?.user && pathname === "/";
+    status === "authenticated" && session?.user && (pathname === "/" || isLegalPage);
 
   // Only show sidebar UI if user is definitely authenticated
-  const isAuthenticated = status === "authenticated" && session?.user && isProtectedPage;
+  const isAuthenticated = status === "authenticated" && session?.user && isProtectedPage ;
   
   // For auth pages, don't show the sidebar
   if (isAuthPage) {
