@@ -32,7 +32,7 @@ const VALUE_ICONS: Record<string, LucideIcon> = {
 };
 
 const HeroSection = memo(({ title, subtitle }: { title: string; subtitle: string }) => (
-  <section className="border-b bg-gradient-to-b from-muted/50 to-background">
+  <section className="border-b ">
     <div className="container mx-auto px-4 py-16 text-center">
       <Badge variant="outline" className="mb-4">
         Est. 2016

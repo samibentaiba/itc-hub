@@ -17,7 +17,7 @@ interface LegalHeroProps {
 }
 
 export const LegalHero = memo(({ icon: Icon, title, subtitle, lastUpdated }: LegalHeroProps) => (
-  <header className="border-b bg-gradient-to-b from-muted/50 to-background">
+  <header className="border-b ">
     <div className="container mx-auto px-4 py-16">
       <div className="max-w-4xl mx-auto text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6" aria-hidden="true">

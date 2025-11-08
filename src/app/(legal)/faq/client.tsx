@@ -248,7 +248,7 @@ export default function FAQClient({ content }: FAQClientProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <header className="border-b bg-gradient-to-b from-muted/50 to-background">
+      <header className="border-b ">
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
             {content.hero.title}

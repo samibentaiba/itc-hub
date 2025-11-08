@@ -41,34 +41,30 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
   const isProtectedPage =
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/admin") ||
-    pathname?.startsWith("/calendar")||
-    pathname?.startsWith("/departments")||
-    pathname?.startsWith("/profile")||
-    pathname?.startsWith("/settings")||
-    pathname?.startsWith("/teams")||
-    pathname?.startsWith("/tickets")||
+    pathname?.startsWith("/calendar") ||
+    pathname?.startsWith("/departments") ||
+    pathname?.startsWith("/profile") ||
+    pathname?.startsWith("/settings") ||
+    pathname?.startsWith("/teams") ||
+    pathname?.startsWith("/tickets") ||
     pathname?.startsWith("/users");
   const isLegalPage =
     pathname?.startsWith("/about") ||
     pathname?.startsWith("/faq") ||
-    pathname?.startsWith("/policy")||
+    pathname?.startsWith("/policy") ||
     pathname?.startsWith("/terms");
 
-  // Check if user is logged in and on home page
-  const isLoggedInOnHome =
-    status === "authenticated" && session?.user && (pathname === "/" || isLegalPage);
-
   // Only show sidebar UI if user is definitely authenticated
-  const isAuthenticated = status === "authenticated" && session?.user && isProtectedPage ;
-  
+  const isAuthenticated =
+    status === "authenticated" && session?.user && isProtectedPage;
+
   // For auth pages, don't show the sidebar
   if (isAuthPage) {
     return <>{children}</>;
   }
 
-  // For logged-in users on home page, show without sidebar (clean landing page)
-  if (isLoggedInOnHome) {
-    return <>{children}</>;
+  if (isLegalPage) {
+    return <PublicLayout>{children}</PublicLayout>;
   }
 
   // For unauthenticated users, don't show sidebar UI
@@ -82,6 +78,16 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
       <AppSidebar />
       <WorkspaceLayout>{children}</WorkspaceLayout>
     </SidebarProvider>
+  );
+}
+
+function PublicLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1">{children}</main>
+      <Footer />
+    </div>
   );
 }
 
@@ -753,7 +759,111 @@ function AppSidebar() {
     </Sidebar>
   );
 }
-
+function Header() {
+  return (
+    <header className="border-b sticky top-0 bg-background/95 backdrop-blur z-10">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center space-x-2">
+          <HeaderLogo variant="auto" />
+        </Link>
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" asChild>
+            <Link href="/login">Sign In</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/register">Register</Link>
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+}
+function Footer() {
+  return (
+    <footer className="border-t bg-card">
+      <div className="container mx-auto px-4">
+        <Card className="border-0 shadow-none">
+          <CardContent className="p-6">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="space-y-4">
+                <Link href="/" className="flex items-center space-x-2">
+                  <FooterLogo variant="auto" />
+                </Link>
+                <p className="text-sm text-muted-foreground">
+                  Empowering the IT Community through collaboration, innovation,
+                  and shared knowledge.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h3 className="font-semibold">Quick Links</h3>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Link
+                      href="/about"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      About Us
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/faq"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      FAQ
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/register"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Join Community
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/login"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Member Login
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <h3 className="font-semibold">Follow Us</h3>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="icon" asChild>
+                    <Link href="#">
+                      <Twitter className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="icon" asChild>
+                    <Link href="#">
+                      <Github className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="icon" asChild>
+                    <Link href="#">
+                      <Linkedin className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <Separator className="my-6" />
+            <div className="text-center text-sm text-muted-foreground">
+              <p>
+                &copy; {new Date().getFullYear()} ITC Hub. All rights reserved.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </footer>
+  );
+}
 import type { ReactNode } from "react";
 import { createContext, useState, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -795,7 +905,6 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import {
   Users,
   Search,
@@ -814,3 +923,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { Monitor } from "lucide-react";
+
+import { Separator } from "@/components/ui/separator";
+import { Twitter, Github, Linkedin } from "lucide-react";
+import { FooterLogo } from "@/components/ui/logo";
+import { Card, CardContent } from "@/components/ui/card";
+import { HeaderLogo } from "@/components/ui/logo";
