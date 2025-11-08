@@ -1,12 +1,155 @@
-// src\app\wrapper.tsx
-
+// src/app/wrapper.tsx
 "use client";
+
+import type { ReactNode } from "react";
+import { createContext, useState, useEffect, useRef } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import {
+  Sidebar,
+  SidebarInset,
+  SidebarTrigger,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { SidebarLogo } from "@/components/ui/logo";
+import {
+  ThemeProvider as NextThemesProvider,
+  type ThemeProviderProps,
+  useTheme,
+} from "next-themes";
+import { SessionProvider, useSession, signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Users,
+  Search,
+  Bell,
+  Building2,
+  Calendar,
+  Settings,
+  Shield,
+  Moon,
+  Sun,
+  User,
+  Ticket,
+  LayoutDashboard,
+  UserRound,
+  Layers,
+  Trash2,
+  Monitor,
+  Twitter,
+  Github,
+  Linkedin,
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { FooterLogo, HeaderLogo } from "@/components/ui/logo";
+import { Card, CardContent } from "@/components/ui/card";
+import axios from "axios";
 
 // Session types are declared in src/types/next-auth.d.ts
 type WorkspaceType = "dashboard" | "team" | "department";
+
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
 }
+
+interface SearchResult {
+  id: string;
+  type: string;
+  title: string;
+  url: string;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+  link: string;
+}
+
+interface WorkspaceContextType {
+  currentWorkspace: WorkspaceType;
+  currentWorkspaceId: string | null;
+  setWorkspace: (type: WorkspaceType, id?: string) => void;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: "admin" | "super_leader" | "leader" | "member";
+    avatar: string;
+  };
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: string;
+}
+
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
+  undefined
+);
+
+const navigationItems = [
+  {
+    items: [
+      {
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        href: "/dashboard",
+      },
+      {
+        label: "Teams",
+        icon: Layers,
+        href: "/teams",
+      },
+      {
+        label: "Departments",
+        icon: Building2,
+        href: "/departments",
+      },
+      {
+        label: "Tickets",
+        icon: Ticket,
+        href: "/tickets",
+      },
+      {
+        label: "Calendar",
+        icon: Calendar,
+        href: "/calendar",
+      },
+      {
+        label: "Users",
+        icon: Users,
+        href: "/users",
+      },
+    ],
+  },
+];
 
 export function Wrapper({ children }: { children: ReactNode }) {
   return (
@@ -48,6 +191,7 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
     pathname?.startsWith("/teams") ||
     pathname?.startsWith("/tickets") ||
     pathname?.startsWith("/users");
+
   const isLegalPage =
     pathname?.startsWith("/about") ||
     pathname?.startsWith("/faq") ||
@@ -93,22 +237,6 @@ function PublicLayout({ children }: { children: ReactNode }) {
 
 function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
-}
-
-interface SearchResult {
-  id: string;
-  type: string;
-  title: string;
-  url: string;
-}
-
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: Date;
-  isRead: boolean;
-  link: string;
 }
 
 function WorkspaceHeader() {
@@ -460,23 +588,6 @@ function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   );
 }
 
-interface WorkspaceContextType {
-  currentWorkspace: WorkspaceType;
-  currentWorkspaceId: string | null;
-  setWorkspace: (type: WorkspaceType, id?: string) => void;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: "admin" | "super_leader" | "leader" | "member";
-    avatar: string;
-  };
-}
-
-const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
-  undefined
-);
-
 function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [currentWorkspace, setCurrentWorkspace] =
     useState<WorkspaceType>("dashboard");
@@ -533,57 +644,9 @@ function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-const navigationItems = [
-  {
-    items: [
-      {
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        href: "/dashboard",
-      },
-      {
-        label: "Teams",
-        icon: Layers,
-        href: "/teams",
-      },
-      {
-        label: "Departments",
-        icon: Building2,
-        href: "/departments",
-      },
-      {
-        label: "Tickets",
-        icon: Ticket,
-        href: "/tickets",
-      },
-      {
-        label: "Calendar",
-        icon: Calendar,
-        href: "/calendar",
-      },
-      {
-        label: "Users",
-        icon: Users,
-        href: "/users",
-      },
-    ],
-  },
-];
-import axios from "axios"; // Make sure to install axios: npm install axios
-
-// Define a type for the user data you expect from the API
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: string;
-}
-
 function AppSidebar() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  // State to hold user data fetched from the API
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -592,14 +655,12 @@ function AppSidebar() {
 
     const fetchUserData = async () => {
       try {
-        // Fetch user data from the API route
         const response = await axios.get("/api/auth/data");
         if (response.data.userData) {
           setUserData(response.data.userData);
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
-        // If the request fails (e.g., 401 Unauthorized), userData will remain null
         setUserData(null);
       } finally {
         setIsLoading(false);
@@ -609,13 +670,10 @@ function AppSidebar() {
     fetchUserData();
   }, []);
 
-  // Show a loading state or nothing while fetching data or before mounting
   if (isLoading || !mounted) {
-    // You can return a skeleton loader here for a better UX
     return null;
   }
 
-  // Only render the sidebar if user data was successfully fetched
   if (!userData) {
     return null;
   }
@@ -715,7 +773,6 @@ function AppSidebar() {
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                {/* Conditionally render the Admin link */}
                 {isAdmin && (
                   <DropdownMenuItem asChild>
                     <Link
@@ -759,6 +816,7 @@ function AppSidebar() {
     </Sidebar>
   );
 }
+
 function Header() {
   return (
     <header className="border-b sticky top-0 bg-background/95 backdrop-blur z-10">
@@ -778,6 +836,7 @@ function Header() {
     </header>
   );
 }
+
 function Footer() {
   return (
     <footer className="border-t bg-card">
@@ -835,17 +894,17 @@ function Footer() {
                 <h3 className="font-semibold">Follow Us</h3>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="icon" asChild>
-                    <Link href="#">
+                    <Link href="#" aria-label="Twitter">
                       <Twitter className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="icon" asChild>
-                    <Link href="#">
+                    <Link href="#" aria-label="GitHub">
                       <Github className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="icon" asChild>
-                    <Link href="#">
+                    <Link href="#" aria-label="LinkedIn">
                       <Linkedin className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -864,68 +923,3 @@ function Footer() {
     </footer>
   );
 }
-import type { ReactNode } from "react";
-import { createContext, useState, useEffect, useRef } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import {
-  Sidebar,
-  SidebarInset,
-  SidebarTrigger,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarRail,
-} from "@/components/ui/sidebar";
-import { SidebarLogo } from "@/components/ui/logo";
-import * as React from "react";
-import {
-  ThemeProvider as NextThemesProvider,
-  type ThemeProviderProps,
-  useTheme,
-} from "next-themes";
-import { SessionProvider, useSession, signOut } from "next-auth/react";
-import {} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Users,
-  Search,
-  Bell,
-  Building2,
-  Calendar,
-  Settings,
-  Shield,
-  Moon,
-  Sun,
-  User,
-  Ticket,
-  LayoutDashboard,
-  UserRound,
-  Layers,
-  Trash2,
-} from "lucide-react";
-import { Monitor } from "lucide-react";
-
-import { Separator } from "@/components/ui/separator";
-import { Twitter, Github, Linkedin } from "lucide-react";
-import { FooterLogo } from "@/components/ui/logo";
-import { Card, CardContent } from "@/components/ui/card";
-import { HeaderLogo } from "@/components/ui/logo";
