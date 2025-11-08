@@ -207,7 +207,7 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (isLegalPage) {
+  if (isLegalPage || pathname == "/") {
     return <PublicLayout>{children}</PublicLayout>;
   }
 
@@ -802,9 +802,7 @@ function AppSidebar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
+                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -818,6 +816,9 @@ function AppSidebar() {
 }
 
 function Header() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated" && session?.user;
+  const pathname = usePathname();
   return (
     <header className="border-b sticky top-0 bg-background/95 backdrop-blur z-10">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -825,12 +826,28 @@ function Header() {
           <HeaderLogo variant="auto" />
         </Link>
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Sign In</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register">Register</Link>
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => signOut({ callbackUrl: `/${pathname}` })}
+              >
+                Log Out
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register">Register</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
@@ -843,7 +860,7 @@ function Footer() {
       <div className="container mx-auto px-4">
         <Card className="border-0 shadow-none">
           <CardContent className="p-6">
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-4 gap-8">
               <div className="space-y-4">
                 <Link href="/" className="flex items-center space-x-2">
                   <FooterLogo variant="auto" />
@@ -853,8 +870,9 @@ function Footer() {
                   and shared knowledge.
                 </p>
               </div>
+
               <div className="space-y-4">
-                <h3 className="font-semibold">Quick Links</h3>
+                <h3 className="font-semibold">Legals</h3>
                 <ul className="space-y-2 text-sm">
                   <li>
                     <Link
@@ -870,6 +888,43 @@ function Footer() {
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       FAQ
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/register"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Join Community
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/login"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Member Login
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <h3 className="font-semibold">Others pages</h3>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Link
+                      href="#achievements"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Achievements
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="#events"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Upcoming Events
                     </Link>
                   </li>
                   <li>
