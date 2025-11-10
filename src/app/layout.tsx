@@ -38,7 +38,6 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
       noimageindex: true,
-      "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
     },
@@ -69,22 +68,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "ITC Hub Home Page",
-      },
-      {
-        url: "https://itc-hub.vercel.app/ITC%20HUB%20Logo.svg",
-        width: 800,
-        height: 600,
-        alt: "ITC Hub Logo",
-      },
-    ],
-    videos: [
-      {
-        url: "https://itc-hub.vercel.app/video.mp4",
-        secureUrl: "https://itc-hub.vercel.app/video.mp4",
-        type: "video/mp4",
-        width: 1280,
-        height: 720,
-      },
+      }
     ],
   },
   twitter: {
@@ -101,13 +85,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "ITC Hub Home Page",
-      },
-      {
-        url: "https://itc-hub.vercel.app/ITC%20HUB%20Logo.svg",
-        width: 800,
-        height: 600,
-        alt: "ITC Hub Logo",
-      },
+      }
     ],
   },
 }
