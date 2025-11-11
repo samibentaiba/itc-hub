@@ -1,4 +1,9 @@
-// src/app/(home)/vlogs/vlog-card.tsx
+// src/app/(home)/vlogs/client.tsx
+"use client";
+
+import { PageHeader } from "@/components/PageHeader";
+import type { VlogLocal } from "./types";
+
 import Link from "next/link";
 import {
   Card,
@@ -10,21 +15,28 @@ import {
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export type Vlog = {
-  slug: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  author: string;
-  authorAvatar?: string | null;
-  date: string;
-};
+export default function VlogsClientPage({ vlogs }: { vlogs: VlogLocal[] }) {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <PageHeader
+        title="Vlogs"
+        description="Here you can find the latest vlogs from the ITC Hub team."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {vlogs.map((vlog) => (
+          <VlogCard key={vlog.slug} vlog={vlog} />
+        ))}
+      </div>
+      {vlogs.length === 0 && (
+        <div className="text-center py-16 text-muted-foreground">
+          No vlogs found.
+        </div>
+      )}
+    </div>
+  );
+}
 
-type VlogCardProps = {
-  vlog: Vlog;
-};
-
-export function VlogCard({ vlog }: VlogCardProps) {
+export function VlogCard({ vlog }: { vlog: VlogLocal }) {
   return (
     <Link href={`/vlogs/${vlog.slug}`}>
       <Card className="overflow-hidden transition-all hover:scale-[1.02] hover:shadow-lg">
@@ -48,7 +60,9 @@ export function VlogCard({ vlog }: VlogCardProps) {
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={vlog.authorAvatar || `https://github.com/${vlog.author}.png`}
+                src={
+                  vlog.authorAvatar || `https://github.com/${vlog.author}.png`
+                }
                 alt={vlog.author}
               />
               <AvatarFallback>{vlog.author.slice(0, 2)}</AvatarFallback>

@@ -1,9 +1,9 @@
 // src/app/(home)/projects/page.tsx
-import { PageHeader } from "@/components/PageHeader";
-import { ProjectCard } from "./project-card";
+import ProjectsClientPage from "./client";
 import { prisma } from "@/lib/prisma";
 
 export default async function ProjectsPage() {
+  // Fetch data on the server
   const projects = await prisma.project.findMany({
     include: {
       author: {
@@ -19,6 +19,7 @@ export default async function ProjectsPage() {
     },
   });
 
+  // Transform the data to match the expected format
   const transformedProjects = projects.map((project) => ({
     slug: project.slug,
     title: project.name,
@@ -29,22 +30,6 @@ export default async function ProjectsPage() {
     authorAvatar: project.author.avatar,
   }));
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <PageHeader
-        title="Projects"
-        description="Here you can find the latest projects from the ITC Hub team."
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {transformedProjects.map((project) => (
-          <ProjectCard key={project.slug} project={project} />
-        ))}
-      </div>
-      {transformedProjects.length === 0 && (
-        <div className="text-center py-16 text-muted-foreground">
-          No projects found.
-        </div>
-      )}
-    </div>
-  );
+  // Pass the server-fetched data as props to the client component
+  return <ProjectsClientPage projects={transformedProjects} />;
 }

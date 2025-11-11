@@ -1,4 +1,8 @@
-// src/app/(home)/projects/project-card.tsx
+// src/app/(home)/projects/client.tsx
+"use client";
+
+import { PageHeader } from "@/components/PageHeader";
+import type { ProjectLocal } from "./types";
 import Link from "next/link";
 import {
   Card,
@@ -11,21 +15,31 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export type Project = {
-  slug: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  tags: string[];
-  author?: string;
-  authorAvatar?: string | null;
-};
 
-type ProjectCardProps = {
-  project: Project;
-};
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectsClientPage({ projects }: {projects: ProjectLocal[]}) {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <PageHeader
+        title="Projects"
+        description="Here you can find the latest projects from the ITC Hub team."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {projects.map((project) => (
+          <ProjectCard key={project.slug} project={project} />
+        ))}
+      </div>
+      {projects.length === 0 && (
+        <div className="text-center py-16 text-muted-foreground">
+          No projects found.
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+export function ProjectCard({ project }: {project: ProjectLocal}) {
   return (
     <Link href={`/projects/${project.slug}`}>
       <Card className="overflow-hidden transition-all hover:scale-[1.02] hover:shadow-lg">

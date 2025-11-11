@@ -1,9 +1,9 @@
 // src/app/(home)/vlogs/page.tsx
-import { PageHeader } from "@/components/PageHeader";
-import { VlogCard } from "./vlog-card";
+import VlogsClientPage from "./client";
 import { prisma } from "@/lib/prisma";
 
 export default async function VlogsPage() {
+  // Fetch data on the server
   const vlogs = await prisma.vlog.findMany({
     include: {
       author: {
@@ -19,6 +19,7 @@ export default async function VlogsPage() {
     },
   });
 
+  // Transform the data to match the expected format
   const transformedVlogs = vlogs.map((vlog) => ({
     slug: vlog.slug,
     title: vlog.title,
@@ -29,22 +30,6 @@ export default async function VlogsPage() {
     date: vlog.createdAt.toISOString().split("T")[0],
   }));
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <PageHeader
-        title="Vlogs"
-        description="Here you can find the latest vlogs from the ITC Hub team."
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {transformedVlogs.map((vlog) => (
-          <VlogCard key={vlog.slug} vlog={vlog} />
-        ))}
-      </div>
-      {transformedVlogs.length === 0 && (
-        <div className="text-center py-16 text-muted-foreground">
-          No vlogs found.
-        </div>
-      )}
-    </div>
-  );
+  // Pass the server-fetched data as props to the client component
+  return <VlogsClientPage vlogs={transformedVlogs} />;
 }
