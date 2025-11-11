@@ -58,6 +58,7 @@ model User {
   // Relations to NextAuth models
   accounts               Account[]
   sessions               Session[]
+  projects               Project[]          @relation("ProjectAuthor")
 }
 
 model Session {
@@ -284,6 +285,21 @@ enum NotificationType {
   GENERAL
 }
 
+enum ProjectType {
+  AI
+  UI_UX
+  SOFTWARE
+  WEB_DEV
+  NETWORKING
+  SECURITY
+  DEV_OPS
+  VFX
+  MEDIA
+  SPONSORS
+  ROBOTICS
+  GAME_DEV
+}
+
 model AppSecret {
   id        String   @id @default(cuid())
   key       String   @unique
@@ -301,9 +317,47 @@ model PasswordResetToken {
 }
 
 model EmailVerificationToken {
+
   id        String   @id @default(cuid())
+
   token     String   @unique
+
   email     String
+
   expiresAt DateTime
+
   createdAt DateTime @default(now())
+
+}
+
+
+
+model Project {
+
+  id          String      @id @default(cuid())
+
+  name        String
+
+  slug        String      @unique
+
+  description String
+
+  image       String?
+
+  projectLink String?
+
+  githubLink  String?
+
+  demoLink    String?
+
+  type        ProjectType
+
+  authorId    String
+
+  author      User        @relation("ProjectAuthor", fields: [authorId], references: [id])
+
+  createdAt   DateTime    @default(now())
+
+  updatedAt   DateTime    @updatedAt
+
 }
