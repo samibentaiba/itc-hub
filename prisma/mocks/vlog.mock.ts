@@ -32,12 +32,12 @@ const vlogs: VlogMock[] = [
       { type: "heading", level: 2, text: "The Beginning" },
       {
         type: "paragraph",
-        text: "It all started when @samibentaiba noticed the need for a centralized platform. Thanks to @janedoe for the initial mockups!",
+        text: "It all started when @[user:USER-001] noticed the need for a centralized platform. Thanks to @[user:USER-002] for the initial mockups!",
       },
       { type: "heading", level: 3, text: "Development Phase" },
       {
         type: "paragraph",
-        text: "We spent three months building the core features, with @johnsmith leading the backend development.",
+        text: "We spent three months building the core features, with @[user:USER-003] leading the backend development.",
       },
       {
         type: "image",
@@ -65,7 +65,7 @@ const vlogs: VlogMock[] = [
       { type: "heading", level: 2, text: "Great Day Together" },
       {
         type: "paragraph",
-        text: "We had an amazing day! Special thanks to @davidbrown for organizing everything.",
+        text: "We had an amazing day! Special thanks to @[user:USER-006] for organizing everything.",
       },
       {
         type: "image",
@@ -85,7 +85,7 @@ const vlogs: VlogMock[] = [
       { type: "heading", level: 2, text: "Innovation in Progress" },
       {
         type: "paragraph",
-        text: "Our AI team, led by @johnsmith, is working on intelligent automation features. @marywilliams is handling the data pipeline.",
+        text: "Our AI team, led by @[user:USER-003], is working on intelligent automation features. @[user:USER-005] is handling the data pipeline.",
       },
       {
         type: "code",
@@ -105,7 +105,7 @@ const vlogs: VlogMock[] = [
       { type: "heading", level: 2, text: "Amazing Quarter!" },
       {
         type: "paragraph",
-        text: "Thanks to everyone's hard work, especially @peterjones and @patriciagarcia for their dedication.",
+        text: "Thanks to everyone's hard work, especially @[user:USER-004] and @[user:USER-007] for their dedication.",
       },
     ],
     authorId: "USER-001",

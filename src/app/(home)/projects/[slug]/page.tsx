@@ -21,7 +21,11 @@ type ContentBlock =
   | { type: "image"; src: string; alt: string }
   | { type: "code"; code: string; language: string };
 
-function renderContentBlock(block: ContentBlock, index: number) {
+function renderContentBlock(
+  block: ContentBlock,
+  index: number,
+  usersById: Record<string, { id: string; name: string }>
+) {
   switch (block.type) {
     case "heading":
       const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
@@ -34,19 +38,22 @@ function renderContentBlock(block: ContentBlock, index: number) {
         block.text
       );
     case "paragraph":
-      const parts = block.text.split(/(@\w+)/g);
+      const parts = block.text.split(/(@\[user:.*?\])/g);
       return (
         <p key={index} className="mb-4 text-lg leading-relaxed">
           {parts.map((part, i) => {
-            if (part.startsWith("@")) {
-              const username = part.substring(1);
+            const match = part.match(/@\[user:(.*?)\]/);
+            if (match) {
+              const userId = match[1];
+              const user = usersById[userId];
+              const userName = user ? user.name : "Unknown User";
               return (
                 <Link
                   key={i}
-                  href={`/users/${username}`}
+                  href={`/users/${userId}`}
                   className="text-blue-500 hover:underline"
                 >
-                  {part}
+                  {`@${userName}`}
                 </Link>
               );
             }
@@ -88,8 +95,8 @@ interface PageProps {
 
 export default async function ProjectPage(props: PageProps) {
   const { slug } = await props.params;
-  
-  const project = await prisma.project.findUnique({
+
+  const projectPromise = prisma.project.findUnique({
     where: { slug },
     include: {
       author: {
@@ -102,9 +109,23 @@ export default async function ProjectPage(props: PageProps) {
     },
   });
 
+  const usersPromise = prisma.user.findMany({
+    select: { id: true, name: true },
+  });
+
+  const [project, users] = await Promise.all([projectPromise, usersPromise]);
+
   if (!project) {
     notFound();
   }
+
+  const usersById = users.reduce(
+    (acc, user) => {
+      acc[user.id] = user;
+      return acc;
+    },
+    {} as Record<string, (typeof users)[0]>
+  );
 
   const content = project.content as ContentBlock[];
 
@@ -195,7 +216,9 @@ export default async function ProjectPage(props: PageProps) {
         )}
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          {content.map((block, index) => renderContentBlock(block, index))}
+          {content.map((block, index) =>
+            renderContentBlock(block, index, usersById)
+          )}
         </div>
 
         <div className="mt-8 pt-8 border-t">
@@ -210,7 +233,10 @@ export default async function ProjectPage(props: PageProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Created by</p>
-              <Link href={`/profile/${project.author.name.toLowerCase().replace(" ", "")}`} className="font-semibold hover:underline">
+              <Link
+                href={`/users/${project.author.id}`}
+                className="font-semibold hover:underline"
+              >
                 {project.author.name}
               </Link>
             </div>

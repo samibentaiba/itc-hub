@@ -20,7 +20,11 @@ type ContentBlock =
   | { type: "image"; src: string; alt: string }
   | { type: "code"; code: string; language: string };
 
-function renderContentBlock(block: ContentBlock, index: number) {
+function renderContentBlock(
+  block: ContentBlock,
+  index: number,
+  usersById: Record<string, { id: string; name: string }>
+) {
   switch (block.type) {
     case "heading":
       const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
@@ -33,24 +37,35 @@ function renderContentBlock(block: ContentBlock, index: number) {
         block.text
       );
     case "paragraph":
-      const parts = block.text.split(/(@\w+)/g);
+      const text = block.text;
+      const elements = [];
+      const regex = /@\[user:(.*?)\]/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        elements.push(text.substring(lastIndex, match.index));
+        const userId = match[1];
+        const user = usersById[userId];
+        const userName = user ? user.name : "Unknown User";
+        elements.push(
+          <Link
+            key={match.index}
+            href={`/users/${userId}`}
+            className="text-blue-500 hover:underline"
+          >
+            {`@${userName}`}
+          </Link>
+        );
+        lastIndex = regex.lastIndex;
+      }
+      elements.push(text.substring(lastIndex));
+
       return (
         <p key={index} className="mb-4 text-lg leading-relaxed">
-          {parts.map((part, i) => {
-            if (part.startsWith("@")) {
-              const username = part.substring(1);
-              return (
-                <Link
-                  key={i}
-                  href={`/users/${username}`}
-                  className="text-blue-500 hover:underline"
-                >
-                  {part}
-                </Link>
-              );
-            }
-            return part;
-          })}
+          {elements.map((el, i) => (
+            <React.Fragment key={i}>{el}</React.Fragment>
+          ))}
         </p>
       );
     case "image":
@@ -88,7 +103,7 @@ interface PageProps {
 export default async function VlogPage(props: PageProps) {
   const { slug } = await props.params;
 
-  const vlog = await prisma.vlog.findUnique({
+  const vlogPromise = prisma.vlog.findUnique({
     where: { slug },
     include: {
       author: {
@@ -101,9 +116,23 @@ export default async function VlogPage(props: PageProps) {
     },
   });
 
+  const usersPromise = prisma.user.findMany({
+    select: { id: true, name: true },
+  });
+
+  const [vlog, users] = await Promise.all([vlogPromise, usersPromise]);
+
   if (!vlog) {
     notFound();
   }
+
+  const usersById = users.reduce(
+    (acc, user) => {
+      acc[user.id] = user;
+      return acc;
+    },
+    {} as Record<string, (typeof users)[0]>
+  );
 
   const content = vlog.content as ContentBlock[];
 
@@ -124,7 +153,10 @@ export default async function VlogPage(props: PageProps) {
           <div className="flex items-center gap-2">
             <Avatar className="h-10 w-10">
               <AvatarImage
-                src={vlog.author.avatar || `https://github.com/${vlog.author.name}.png`}
+                src={
+                  vlog.author.avatar ||
+                  `https://github.com/${vlog.author.name}.png`
+                }
                 alt={vlog.author.name}
               />
               <AvatarFallback>{vlog.author.name.slice(0, 2)}</AvatarFallback>
@@ -170,14 +202,19 @@ export default async function VlogPage(props: PageProps) {
         )}
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          {content.map((block, index) => renderContentBlock(block, index))}
+          {content.map((block, index) =>
+            renderContentBlock(block, index, usersById)
+          )}
         </div>
 
         <div className="mt-8 pt-8 border-t">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
               <AvatarImage
-                src={vlog.author.avatar || `https://github.com/${vlog.author.name}.png`}
+                src={
+                  vlog.author.avatar ||
+                  `https://github.com/${vlog.author.name}.png`
+                }
                 alt={vlog.author.name}
               />
               <AvatarFallback>{vlog.author.name.slice(0, 2)}</AvatarFallback>
@@ -185,7 +222,7 @@ export default async function VlogPage(props: PageProps) {
             <div>
               <p className="text-sm text-muted-foreground">Written by</p>
               <Link
-                href={`/profile/${vlog.author.name.toLowerCase().replace(" ", "")}`}
+                href={`/users/${vlog.author.id}`}
                 className="font-semibold hover:underline"
               >
                 {vlog.author.name}

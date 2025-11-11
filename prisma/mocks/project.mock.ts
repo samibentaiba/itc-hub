@@ -40,12 +40,12 @@ const projects: ProjectMock[] = [
       { type: "heading", level: 2, text: "About the Project" },
       {
         type: "paragraph",
-        text: "This project was developed by @samibentaiba. It is a full-stack application using the latest technologies to streamline internal communications and project management.",
+        text: "This project was developed by @[user:USER-001]. It is a full-stack application using the latest technologies to streamline internal communications and project management.",
       },
       { type: "heading", level: 3, text: "Key Features" },
       {
         type: "paragraph",
-        text: "Includes authentication with NextAuth, real-time notifications, team management, ticketing system, and event calendar. Special thanks to @janedoe for UI/UX contributions.",
+        text: "Includes authentication with NextAuth, real-time notifications, team management, ticketing system, and event calendar. Special thanks to @[user:USER-002] for UI/UX contributions.",
       },
       {
         type: "image",
@@ -74,7 +74,7 @@ const projects: ProjectMock[] = [
       { type: "heading", level: 2, text: "Overview" },
       {
         type: "paragraph",
-        text: "Developed by @johnsmith, this AI assistant helps automate customer support with natural language processing.",
+        text: "Developed by @[user:USER-003], this AI assistant helps automate customer support with natural language processing.",
       },
     ],
     authorId: "USER-003",
@@ -95,7 +95,7 @@ const projects: ProjectMock[] = [
       { type: "heading", level: 2, text: "Design Philosophy" },
       {
         type: "paragraph",
-        text: "Created by @janedoe to ensure consistency and scalability across all company products.",
+        text: "Created by @[user:USER-002] to ensure consistency and scalability across all company products.",
       },
     ],
     authorId: "USER-002",
@@ -112,7 +112,7 @@ const projects: ProjectMock[] = [
       { type: "heading", level: 2, text: "Features" },
       {
         type: "paragraph",
-        text: "Built by @peterjones, this tool provides real-time insights into network performance and security.",
+        text: "Built by @[user:USER-004], this tool provides real-time insights into network performance and security.",
       },
     ],
     authorId: "USER-004",
