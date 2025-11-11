@@ -6,13 +6,6 @@ import { useLandingPage } from "./hook";
 import type { LandingPageData } from "./types";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Card,
   CardContent,
   CardDescription,
@@ -46,12 +39,7 @@ export default function LandingClientPage({
 }: LandingClientPageProps) {
   const {
     isLoading,
-    showDialog,
     selectedStatCard,
-    session,
-    setShowDialog,
-    handleGoToDashboard,
-    handleStayHere,
     handleStatCardClick,
     handleQuickAction,
     getPriorityColor,
@@ -84,24 +72,6 @@ export default function LandingClientPage({
           __html: JSON.stringify(eventStructuredData),
         }}
       />
-      {/* Confirmation Dialog for Logged-in Users */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Welcome back, {session?.user?.name}!</DialogTitle>
-            <DialogDescription>
-              You are already logged in. Would you like to continue to your
-              dashboard or stay on this page?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={handleStayHere}>
-              Stay Here
-            </Button>
-            <Button onClick={handleGoToDashboard}>Go to Dashboard</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <main className="container mx-auto px-4 py-8 space-y-12">
         {/* Hero Section */}

@@ -2,11 +2,12 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, Activity } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * A custom hook to manage all state and logic for the landing page.
@@ -15,20 +16,28 @@ import { TrendingUp, Activity } from "lucide-react";
 export const useLandingPage = () => {
   const [selectedStatCard, setSelectedStatCard] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showDialog, setShowDialog] = useState(false);
   const { data: session, status } = useSession();
   const { toast } = useToast();
   const router = useRouter();
 
-  // Effect to show a welcome-back dialog to authenticated users.
+  const handleGoToDashboard = useCallback(() => router.push("/dashboard"), [router]);
+
+  // Effect to show a welcome-back toast to authenticated users.
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      setShowDialog(true);
+      toast({
+        title: `Welcome back, ${session.user.name}!`,
+        description:
+          "You are already logged in. Would you like to continue to your dashboard or stay on this page?",
+        action: (
+          <div className="flex gap-3 justify-end w-full">
+            <Button onClick={handleGoToDashboard}>Dashboard</Button>
+          </div>
+        ),
+        duration: 5000,
+      });
     }
-  }, [status, session]);
-
-  const handleGoToDashboard = () => router.push("/dashboard");
-  const handleStayHere = () => setShowDialog(false);
+  }, [status, session, toast, handleGoToDashboard]);
 
   // Handles clicks on the main statistic cards.
   const handleStatCardClick = async (cardType: string) => {
@@ -93,30 +102,34 @@ export const useLandingPage = () => {
   // Helper to determine the color for event priority.
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high": return "bg-red-500";
-      case "medium": return "bg-yellow-500";
-      case "low": return "bg-green-500";
-      default: return "bg-gray-500";
+      case "high":
+        return "bg-red-500";
+      case "medium":
+        return "bg-yellow-500";
+      case "low":
+        return "bg-green-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
   // Helper to render the correct trend icon for stats.
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case "up": return <TrendingUp className="h-3 w-3 text-green-500" />;
-      case "down": return <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />;
-      default: return <Activity className="h-3 w-3 text-gray-500" />;
+      case "up":
+        return <TrendingUp className="h-3 w-3 text-green-500" />;
+      case "down":
+        return <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />;
+      default:
+        return <Activity className="h-3 w-3 text-gray-500" />;
     }
   };
 
   return {
     isLoading,
-    showDialog,
     selectedStatCard,
     session,
-    setShowDialog,
     handleGoToDashboard,
-    handleStayHere,
     handleStatCardClick,
     handleQuickAction,
     getPriorityColor,
