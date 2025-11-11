@@ -1,6 +1,6 @@
 "use client";
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   title: string;
   description: string;
 }

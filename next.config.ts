@@ -13,14 +13,14 @@ const nextConfig: NextConfig = {
             {
                 protocol: 'https',
                 hostname: 'placehold.co',
+                port: '',
+                pathname: '/**',
             },
             {
                 protocol: 'https',
                 hostname: 'github.com',
-            },
-            {
-                protocol: 'https',
-                hostname: 'via.placeholder.com',
+                port: '',
+                pathname: '/**',
             },
         ],
     },
