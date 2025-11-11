@@ -119,19 +119,22 @@ export default async function ProjectPage(props: PageProps) {
     notFound();
   }
 
-  const usersById = users.reduce(
-    (acc, user) => {
-      acc[user.id] = user;
-      return acc;
-    },
-    {} as Record<string, (typeof users)[0]>
-  );
+  const usersById = users.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {} as Record<string, (typeof users)[0]>);
 
   const content = project.content as ContentBlock[];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <article className="mx-auto max-w-4xl">
+        <Link
+          href="/projects"
+          className="text-primary hover:underline mb-2 sm:mb-4 inline-block text-sm sm:text-base"
+        >
+          ← Back to projects
+        </Link>
         <div className="relative mb-8 h-96 w-full">
           <Image
             src={project.image || "placeholder.svg"}
