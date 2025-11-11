@@ -8,6 +8,18 @@ const nextConfig: NextConfig = {
         state: "production" as stateType,
         repository: "https://github.com/samibentaiba/itc-hub"
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'placehold.co',
+            },
+            {
+                protocol: 'https',
+                hostname: 'github.com',
+            },
+        ],
+    },
     async redirects() {
         return [
             {
