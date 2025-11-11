@@ -1,3 +1,4 @@
+// src/app/(home)/projects/[slug]/page.tsx
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,113 +12,14 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import React, { JSX } from "react";
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 type ContentBlock =
   | { type: "paragraph"; text: string }
   | { type: "heading"; text: string; level: 1 | 2 | 3 | 4 | 5 | 6 }
   | { type: "image"; src: string; alt: string }
   | { type: "code"; code: string; language: string };
-
-enum ProjectType {
-  AI = "AI",
-  UI_UX = "UI/UX",
-  SOFTWARE = "SOFTWARE",
-  WEB_DEV = "WEB DEV",
-  NETWORKING = "NETWORKING",
-  SECURITY = "SECURITY",
-  DEV_OPS = "DEV OPS",
-  VFX = "VFX",
-  MEDIA = "MEDIA",
-  SPONSORS = "SPONSORS",
-  ROBOTICS = "ROBOTICS",
-  GAME_DEV = "GAME DEV",
-}
-
-type Project = {
-  slug: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  tags: string[];
-  projectLink?: string;
-  githubLink?: string;
-  demoLink?: string;
-  type: ProjectType;
-  gallery: string[];
-  content: ContentBlock[];
-};
-
-const projects: { [key: string]: Project } = {
-  "project-1": {
-    slug: "project-1",
-    title: "Project 1",
-    description: "This is a description for the first project.",
-    imageUrl: "https://placehold.co/1280x720.png?text=Project+1",
-    tags: ["Next.js", "TypeScript", "Tailwind CSS"],
-    githubLink: "https://github.com",
-    demoLink: "https://vercel.com",
-    type: ProjectType.WEB_DEV,
-    gallery: [
-      "https://placehold.co/600x400.png?text=Image+1",
-      "https://placehold.co/600x400.png?text=Image+2",
-    ],
-    content: [
-      { type: "heading", level: 2, text: "About the project" },
-      {
-        type: "paragraph",
-        text: "This project was developed by @samibentaiba. It is a full-stack application using the latest technologies.",
-      },
-      { type: "heading", level: 3, text: "Features" },
-      {
-        type: "paragraph",
-        text: "It includes features like authentication, real-time chat, and more. Special thanks to @anotheruser for their contribution.",
-      },
-      {
-        type: "image",
-        src: "https://placehold.co/800x450.png?text=Feature+Showcase",
-        alt: "Feature showcase",
-      },
-      { type: "heading", level: 3, text: "Tech Stack" },
-      {
-        type: "code",
-        language: "typescript",
-        code: 'const framework = "Next.js";',
-      },
-    ],
-  },
-  "project-2": {
-    slug: "project-2",
-    title: "Project 2",
-    description: "This is a description for the second project.",
-    imageUrl: "https://placehold.co/1280x720.png?text=Project+2",
-    tags: ["React", "JavaScript", "Shadcn UI"],
-    projectLink: "https://example.com",
-    type: ProjectType.UI_UX,
-    gallery: [],
-    content: [
-      {
-        type: "paragraph",
-        text: "This is the full content of the second project.",
-      },
-    ],
-  },
-  "project-3": {
-    slug: "project-3",
-    title: "Project 3",
-    description: "This is a description for the third project.",
-    imageUrl: "https://placehold.co/1280x720.png?text=Project+3",
-    tags: ["Node.js", "Express", "Prisma"],
-    githubLink: "https://github.com",
-    type: ProjectType.SOFTWARE,
-    gallery: [],
-    content: [
-      {
-        type: "paragraph",
-        text: "This is the full content of the third project.",
-      },
-    ],
-  },
-};
 
 function renderContentBlock(block: ContentBlock, index: number) {
   switch (block.type) {
@@ -168,7 +70,7 @@ function renderContentBlock(block: ContentBlock, index: number) {
       return (
         <pre
           key={index}
-          className="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto"
+          className="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto my-4"
         >
           <code className={`language-${block.language}`}>{block.code}</code>
         </pre>
@@ -183,29 +85,44 @@ interface PageProps {
     slug: string;
   }>;
 }
+
 export default async function ProjectPage(props: PageProps) {
   const { slug } = await props.params;
-  const project = projects[slug];
+  
+  const project = await prisma.project.findUnique({
+    where: { slug },
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
 
   if (!project) {
-    return <div>Project not found</div>;
+    notFound();
   }
+
+  const content = project.content as ContentBlock[];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <article className="mx-auto max-w-4xl">
         <div className="relative mb-8 h-96 w-full">
           <Image
-            src={project.imageUrl}
-            alt={project.title}
+            src={project.image || "placeholder.svg"}
+            alt={project.name}
             fill
             style={{ objectFit: "cover" }}
             className="rounded-lg"
           />
         </div>
-        <h1 className="text-5xl font-extrabold mb-4">{project.title}</h1>
+        <h1 className="text-5xl font-extrabold mb-4">{project.name}</h1>
         <div className="mb-4 flex flex-wrap gap-2">
-          <Badge variant="default">{project.type}</Badge>
+          <Badge variant="default">{project.type.replace("_", " ")}</Badge>
           {project.tags.map((tag: string) => (
             <Badge key={tag} variant="secondary">
               {tag}
@@ -278,9 +195,26 @@ export default async function ProjectPage(props: PageProps) {
         )}
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          {project.content.map((block, index) =>
-            renderContentBlock(block, index)
-          )}
+          {content.map((block, index) => renderContentBlock(block, index))}
+        </div>
+
+        <div className="mt-8 pt-8 border-t">
+          <div className="flex items-center gap-3">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden">
+              <Image
+                src={project.author.avatar || "placeholder.svg"}
+                alt={project.author.name}
+                fill
+                style={{ objectFit: "cover" }}
+              />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Created by</p>
+              <Link href={`/profile/${project.author.name.toLowerCase().replace(" ", "")}`} className="font-semibold hover:underline">
+                {project.author.name}
+              </Link>
+            </div>
+          </div>
         </div>
       </article>
     </div>

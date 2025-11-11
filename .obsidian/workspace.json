@@ -11,12 +11,10 @@
             "id": "ad64a990fc424967",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Production.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "Production.excalidraw"
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -170,24 +168,28 @@
   },
   "active": "ad64a990fc424967",
   "lastOpenFiles": [
+    "prisma/migrations/20251111194045_add_project_and_vlog_models/migration.sql",
+    "prisma/migrations/20251111194045_add_project_and_vlog_models",
+    "prisma/mocks/vlog.mock.ts",
+    "prisma/mocks/project.mock.ts",
+    "prisma/mocks/projects.mock.ts",
+    "src/types/legal.ts",
+    "src/lib/legal-content.ts",
+    "src/components/ui/collapsible.tsx",
+    "src/components/ui/carousel.tsx",
+    "src/components/legal/shared.tsx",
+    "src/components/legal/legal-page.tsx",
+    "src/app/(legal)/Content Management.md",
+    "public/placeholder.svg",
+    "public/ITC HUB Home.png",
     "Production.excalidraw.md",
-    "README.md",
-    "AUTHORIZATION_SYSTEM_GUIDE.md",
-    "itc-hub-Pattern-design.excalidraw",
     "ITC-hub analyse.md",
-    "yarn.lock",
     "src/components/ui/logo-README.md",
-    "src/app/api/departments/[departmentId]/route.test.ts",
-    "src/app/api/admin/users/route.test.ts",
-    "src/app/api/admin/users/[userId]/verify/route.test.ts",
-    "src/app/api/admin/users/[userId]/route.test.ts",
-    "src/app/api/admin/teams/route.test.ts",
-    "src/app/api/admin/teams/[teamId]/route.test.ts",
-    "src/app/api/admin/teams/[teamId]/members/route.test.ts",
-    "src/app/api/admin/teams/[teamId]/members/[userId]/route.test.ts",
     "src/app/(auth)/Authentication.md",
     "Excalidraw/Drawing 2025-10-07 17.42.40.excalidraw.md",
+    "AUTHORIZATION_SYSTEM_GUIDE.md",
     "AUTHENTICATION_SETUP.md",
-    "API_DOCUMENTATION.md"
+    "API_DOCUMENTATION.md",
+    "README.md"
   ]
 }

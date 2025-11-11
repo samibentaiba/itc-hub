@@ -1,3 +1,4 @@
+// src/app/(home)/vlogs/vlog-card.tsx
 import Link from "next/link";
 import {
   Card,
@@ -15,6 +16,7 @@ export type Vlog = {
   description: string;
   imageUrl: string;
   author: string;
+  authorAvatar?: string | null;
   date: string;
 };
 
@@ -38,7 +40,7 @@ export function VlogCard({ vlog }: VlogCardProps) {
         </CardHeader>
         <CardContent className="p-4">
           <CardTitle className="text-lg font-bold">{vlog.title}</CardTitle>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
             {vlog.description}
           </p>
         </CardContent>
@@ -46,14 +48,16 @@ export function VlogCard({ vlog }: VlogCardProps) {
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={`https://github.com/${vlog.author}.png`}
+                src={vlog.authorAvatar || `https://github.com/${vlog.author}.png`}
                 alt={vlog.author}
               />
               <AvatarFallback>{vlog.author.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <span className="text-sm font-medium">{vlog.author}</span>
           </div>
-          <time className="text-sm text-muted-foreground">{vlog.date}</time>
+          <time className="text-sm text-muted-foreground">
+            {new Date(vlog.date).toLocaleDateString()}
+          </time>
         </CardFooter>
       </Card>
     </Link>

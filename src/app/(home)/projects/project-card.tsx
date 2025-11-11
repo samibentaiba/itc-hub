@@ -1,3 +1,4 @@
+// src/app/(home)/projects/project-card.tsx
 import Link from "next/link";
 import {
   Card,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export type Project = {
   slug: string;
@@ -15,6 +17,8 @@ export type Project = {
   description: string;
   imageUrl: string;
   tags: string[];
+  author?: string;
+  authorAvatar?: string | null;
 };
 
 type ProjectCardProps = {
@@ -37,9 +41,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </CardHeader>
         <CardContent className="p-4">
           <CardTitle className="text-lg font-bold">{project.title}</CardTitle>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
             {project.description}
           </p>
+          {project.author && (
+            <div className="flex items-center gap-2 mt-3">
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={project.authorAvatar || ""} alt={project.author} />
+                <AvatarFallback className="text-xs">
+                  {project.author.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs text-muted-foreground">by {project.author}</span>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-wrap gap-2 p-4 pt-0">
           {project.tags.map((tag) => (

@@ -1,4 +1,4 @@
-// prisma\seed.ts
+// prisma/seed.ts
 import bcrypt from "bcryptjs";
 import usersData from "./mocks/user.mock";
 import departmentsData from "./mocks/department.mock";
@@ -9,6 +9,8 @@ import ticketsData from "./mocks/ticket.mock";
 import messagesData from "./mocks/message.mock";
 import eventsData from "./mocks/event.mock";
 import notificationsData from "./mocks/notification.mock";
+import projectsData from "./mocks/project.mock";
+import vlogsData from "./mocks/vlog.mock";
 import { PrismaClient } from "@prisma/client";
 
 class Seeder {
@@ -29,9 +31,10 @@ class Seeder {
     await this.seedTickets();
     await this.seedMessages();
     await this.seedAppSecrets();
-
     await this.seedEvents();
     await this.seedNotifications();
+    await this.seedProjects();
+    await this.seedVlogs();
     console.log("✅ Database seeded successfully!");
     console.log("👤 Admin user: sami.bentaiba@example.com / password123");
     console.log("👤 Manager user: jane.doe@example.com / password123");
@@ -40,6 +43,8 @@ class Seeder {
 
   private async clearDatabase() {
     console.log("🧹 Clearing database...");
+    await this.prisma.vlog.deleteMany();
+    await this.prisma.project.deleteMany();
     await this.prisma.file.deleteMany();
     await this.prisma.message.deleteMany();
     await this.prisma.ticket.deleteMany();
@@ -64,7 +69,7 @@ class Seeder {
     const usersToCreate = usersData.map((user) => ({
       ...user,
       password: hashedPassword,
-      emailVerified: new Date(), // ✅ every seeded user is marked verified
+      emailVerified: new Date(),
     }));
 
     await Promise.all(
@@ -149,6 +154,34 @@ class Seeder {
       notificationsData.map((data) => this.prisma.notification.create({ data }))
     );
     console.log("✅ Created notifications");
+  }
+
+  private async seedProjects() {
+    await Promise.all(
+      projectsData.map((data) =>
+        this.prisma.project.create({
+          data: {
+            ...data,
+            content: data.content as any,
+          },
+        })
+      )
+    );
+    console.log("✅ Created projects");
+  }
+
+  private async seedVlogs() {
+    await Promise.all(
+      vlogsData.map((data) =>
+        this.prisma.vlog.create({
+          data: {
+            ...data,
+            content: data.content as any,
+          },
+        })
+      )
+    );
+    console.log("✅ Created vlogs");
   }
 
   private async seedAppSecrets() {

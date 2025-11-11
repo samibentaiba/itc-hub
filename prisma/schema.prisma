@@ -1,12 +1,10 @@
-// prisma\schema.prisma
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  // NOTE Unfortunately we could not make it improted from .env
   provider = "postgresql" 
-  // Due to library limitaiton 
   url      = env("DATABASE_URL")
 }
 
@@ -55,10 +53,10 @@ model User {
   leadingTeams           Team[]             @relation("TeamLeaders")
   collaboratingOnTickets Ticket[]           @relation("TicketCollaborators")
   attendedEvents         Event[]            @relation("EventAttendees")
-  // Relations to NextAuth models
   accounts               Account[]
   sessions               Session[]
   projects               Project[]          @relation("ProjectAuthor")
+  vlogs                  Vlog[]             @relation("VlogAuthor")
 }
 
 model Session {
@@ -236,6 +234,39 @@ model File {
   uploadedAt   DateTime @default(now())
 }
 
+model Project {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String
+  image       String?
+  projectLink String?
+  githubLink  String?
+  demoLink    String?
+  type        ProjectType
+  tags        String[]
+  gallery     String[]
+  content     Json
+  authorId    String
+  author      User        @relation("ProjectAuthor", fields: [authorId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Vlog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  image       String?
+  gallery     String[]
+  content     Json
+  authorId    String
+  author      User     @relation("VlogAuthor", fields: [authorId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum Role {
   ADMIN
   MANAGER
@@ -317,47 +348,9 @@ model PasswordResetToken {
 }
 
 model EmailVerificationToken {
-
   id        String   @id @default(cuid())
-
   token     String   @unique
-
   email     String
-
   expiresAt DateTime
-
   createdAt DateTime @default(now())
-
-}
-
-
-
-model Project {
-
-  id          String      @id @default(cuid())
-
-  name        String
-
-  slug        String      @unique
-
-  description String
-
-  image       String?
-
-  projectLink String?
-
-  githubLink  String?
-
-  demoLink    String?
-
-  type        ProjectType
-
-  authorId    String
-
-  author      User        @relation("ProjectAuthor", fields: [authorId], references: [id])
-
-  createdAt   DateTime    @default(now())
-
-  updatedAt   DateTime    @updatedAt
-
 }
