@@ -43,13 +43,16 @@ export function VlogCard({ vlog }: VlogCardProps) {
           </p>
         </CardContent>
         <CardFooter className="flex items-center justify-between p-4 pt-0">
-            <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                    <AvatarImage src={`https://github.com/${vlog.author}.png`} alt={vlog.author} />
-                    <AvatarFallback>{vlog.author.slice(0,2)}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium">{vlog.author}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage
+                src={`https://github.com/${vlog.author}.png`}
+                alt={vlog.author}
+              />
+              <AvatarFallback>{vlog.author.slice(0, 2)}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium">{vlog.author}</span>
+          </div>
           <time className="text-sm text-muted-foreground">{vlog.date}</time>
         </CardFooter>
       </Card>

@@ -49,7 +49,10 @@ const vlogs: { [key: string]: Vlog } = {
         text: "This is the full content of the first vlog post. It can be a long text with markdown formatting. Thanks to @samibentaiba for the help!",
       },
       { type: "heading", level: 3, text: "Section 1.1" },
-      { type: "paragraph", text: "Here is some content for the first section." },
+      {
+        type: "paragraph",
+        text: "Here is some content for the first section.",
+      },
       {
         type: "image",
         src: "https://placehold.co/800x450.png?text=In-content+Image",
@@ -109,7 +112,7 @@ function renderContentBlock(block: ContentBlock, index: number) {
           key: index,
           className: `font-bold text-${5 - block.level}xl mt-8 mb-4`,
         },
-        block.text,
+        block.text
       );
     case "paragraph":
       const parts = block.text.split(/(@\w+)/g);
