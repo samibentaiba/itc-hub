@@ -129,7 +129,7 @@ function renderContentBlock(block: ContentBlock, index: number) {
           key: index,
           className: `font-bold text-${5 - block.level}xl mt-8 mb-4`,
         },
-        block.text,
+        block.text
       );
     case "paragraph":
       const parts = block.text.split(/(@\w+)/g);
@@ -178,11 +178,13 @@ function renderContentBlock(block: ContentBlock, index: number) {
   }
 }
 
-export default function ProjectPage({
-  params: { slug },
-}: {
-  params: { slug: string };
-}) {
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+export default async function ProjectPage(props: PageProps) {
+  const { slug } = await props.params;
   const project = projects[slug];
 
   if (!project) {
@@ -277,7 +279,7 @@ export default function ProjectPage({
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
           {project.content.map((block, index) =>
-            renderContentBlock(block, index),
+            renderContentBlock(block, index)
           )}
         </div>
       </article>

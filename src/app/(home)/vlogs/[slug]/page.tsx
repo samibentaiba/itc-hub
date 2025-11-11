@@ -158,11 +158,14 @@ function renderContentBlock(block: ContentBlock, index: number) {
   }
 }
 
-export default async function VlogPage({
-  params: { slug },
-}: {
-  params: { slug: string };
-}) {
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+export default async function VlogPage(props: PageProps) {
+  const { slug } = await props.params;
   const vlog = vlogs[slug];
 
   if (!vlog) {
