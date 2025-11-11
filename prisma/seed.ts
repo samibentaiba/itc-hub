@@ -11,7 +11,7 @@ import eventsData from "./mocks/event.mock";
 import notificationsData from "./mocks/notification.mock";
 import projectsData from "./mocks/project.mock";
 import vlogsData from "./mocks/vlog.mock";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, ProjectType } from "@prisma/client";
 
 class Seeder {
   private prisma: PrismaClient;
@@ -162,6 +162,7 @@ class Seeder {
         this.prisma.project.create({
           data: {
             ...data,
+            type: data.type as ProjectType,
             content: data.content as any,
           },
         })

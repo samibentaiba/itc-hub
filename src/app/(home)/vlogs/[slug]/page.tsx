@@ -42,7 +42,7 @@ function renderContentBlock(block: ContentBlock, index: number) {
               return (
                 <Link
                   key={i}
-                  href={`/profile/${username}`}
+                  href={`/users/${username}`}
                   className="text-blue-500 hover:underline"
                 >
                   {part}

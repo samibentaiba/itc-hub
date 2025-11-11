@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
                 hostname: 'placehold.co',
                 port: '',
                 pathname: '/**',
+            },//avatar.iran.liara.run
+            {
+                protocol: 'https',
+                hostname: 'avatar.iran.liara.run',
             },
             {
                 protocol: 'https',

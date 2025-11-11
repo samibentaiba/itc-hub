@@ -168,11 +168,11 @@
   },
   "active": "ad64a990fc424967",
   "lastOpenFiles": [
+    "prisma/mocks/project.mock.ts",
+    "prisma/mocks/projects.mock.ts",
     "prisma/migrations/20251111194045_add_project_and_vlog_models/migration.sql",
     "prisma/migrations/20251111194045_add_project_and_vlog_models",
     "prisma/mocks/vlog.mock.ts",
-    "prisma/mocks/project.mock.ts",
-    "prisma/mocks/projects.mock.ts",
     "src/types/legal.ts",
     "src/lib/legal-content.ts",
     "src/components/ui/collapsible.tsx",
