@@ -169,6 +169,8 @@
   },
   "active": "ad64a990fc424967",
   "lastOpenFiles": [
+    "src/app/(protected)/temp/type.ts",
+    "src/app/(protected)/temp",
     "src/app/(home)/vlogs/vlog-card.tsx",
     "src/app/(home)/vlogs/[slug]/loading.tsx",
     "src/app/(home)/vlogs/[slug]/client.tsx",
@@ -178,8 +180,6 @@
     "src/app/(home)/projects/[slug]/loading.tsx",
     "src/app/(home)/projects/[slug]/client.tsx",
     "src/app/(home)/projects/client.tsx",
-    "src/app/(home)/projects/loading.tsx",
-    "src/app/(home)/projects/types.ts",
     "src/app/(legal)/Content Management.md",
     "public/placeholder.svg",
     "public/ITC HUB Home.png",

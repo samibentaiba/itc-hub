@@ -1,6 +1,6 @@
 "use client";
 
-import {  useMemo } from "react";
+import { useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -824,7 +824,7 @@ export function ManageMembersDialog({
     </Dialog>
   );
 }
-import {useCreateEventDialog} from "./hook"
+import { useCreateEventDialog } from "./hook";
 export function CreateEventDialog({
   isOpen,
   onClose,
@@ -838,14 +838,11 @@ export function CreateEventDialog({
   isLoading: boolean;
   initialData?: Event | null;
 }) {
-  const {
- handleFormSubmit,form
- ,isEditMode
-  } = useCreateEventDialog({
+  const { handleFormSubmit, form, isEditMode } = useCreateEventDialog({
     isOpen,
-  onClose,
-  onSubmit,
-  initialData,
+    onClose,
+    onSubmit,
+    initialData,
   });
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

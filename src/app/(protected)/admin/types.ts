@@ -195,3 +195,7 @@ export type EventType = "meeting" | "review" | "planning" | "workshop";
 export type UserStatus = "verified" | "pending";
 export type EntityStatus = "active" | "archived";
 export type MembershipRole = "manager" | "member";
+
+
+
+
