@@ -197,7 +197,9 @@ function ConditionalLayout({ children }: { children: ReactNode }) {
     pathname?.startsWith("/about") ||
     pathname?.startsWith("/faq") ||
     pathname?.startsWith("/policy") ||
-    pathname?.startsWith("/terms");
+    pathname?.startsWith("/terms") ||
+    pathname?.startsWith("/vlogs") ||
+    pathname?.startsWith("/projects");
 
   // Only show sidebar UI if user is definitely authenticated
   const isAuthenticated =

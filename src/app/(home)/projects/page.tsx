@@ -23,6 +23,13 @@ const projects = [
     imageUrl: "https://via.placeholder.com/1280x720.png?text=Project+3",
     tags: ["Node.js", "Express", "Prisma"],
   },
+  {
+    slug: "project-4",
+    title: "Project 3",
+    description: "This is a description for the third project.",
+    imageUrl: "https://via.placeholder.com/1280x720.png?text=Project+3",
+    tags: ["Node.js", "Express", "Prisma"],
+  },
 ];
 
 export default async function ProjectsPage() {
