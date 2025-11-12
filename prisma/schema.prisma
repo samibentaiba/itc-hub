@@ -251,6 +251,7 @@ model Project {
   author      User        @relation("ProjectAuthor", fields: [authorId], references: [id])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  status      String      @default("published")
 }
 
 model Vlog {
@@ -265,6 +266,7 @@ model Vlog {
   author      User     @relation("VlogAuthor", fields: [authorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  status      String   @default("published")
 }
 
 enum Role {
