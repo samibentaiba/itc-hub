@@ -92,7 +92,6 @@ import {
   VlogFormDialog,
 } from "./content-components";
 import type { Project, Vlog, PendingProject, PendingVlog } from "./content-types";
-import { FileText, Video } from "lucide-react";
 
 import {
   AlertDialog,
@@ -299,6 +298,10 @@ export default function AdminClientPage({
       calendarData,
       allUsers,
       allDepartments,
+      projectData.handleSaveProject,
+      projectData.loadingAction,
+      vlogData.handleSaveVlog,
+      vlogData.loadingAction,
     ]
   );
 
@@ -1268,6 +1271,7 @@ export function AdminTabs({
       <TabsContent value="requests" className="space-y-4">
         <RequestTab
           eventRequestData={eventRequestData}
+          contentRequestData={contentRequestData}
           loadingAction={loadingAction}
         />
       </TabsContent>

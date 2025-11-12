@@ -8,6 +8,8 @@ import type {
   Vlog,
   ProjectFormData,
   VlogFormData,
+  PendingProject,
+  PendingVlog,
 } from "./content-types";
 import { projectFormSchema, vlogFormSchema } from "./content-types";
 
@@ -288,12 +290,16 @@ export const useVlogs = (initialVlogs: Vlog[]) => {
 
 // ===== CONTENT REQUESTS HOOK =====
 export const useContentRequests = (
-  onApproveProject: (project: Project) => void,
-  onApproveVlog: (vlog: Vlog) => void,
-  onRejectProject: (projectId: string) => void,
-  onRejectVlog: (vlogId: string) => void
+  initialPendingProjects: PendingProject[],
+  initialPendingVlogs: PendingVlog[],
+  onProjectApproved: (project: Project) => void,
+  onVlogApproved: (vlog: Vlog) => void
 ) => {
   const { toast } = useToast();
+  const [pendingProjects, setPendingProjects] =
+    useState<PendingProject[]>(initialPendingProjects);
+  const [pendingVlogs, setPendingVlogs] =
+    useState<PendingVlog[]>(initialPendingVlogs);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   const handleApproveProject = async (projectId: string) => {
@@ -305,7 +311,8 @@ export const useContentRequests = (
         { method: "POST" }
       );
 
-      onApproveProject(approvedProject);
+      onProjectApproved(approvedProject);
+      setPendingProjects((prev) => prev.filter((p) => p.id !== projectId));
 
       toast({
         title: "Project Approved",
@@ -332,7 +339,7 @@ export const useContentRequests = (
         method: "POST",
       });
 
-      onRejectProject(projectId);
+      setPendingProjects((prev) => prev.filter((p) => p.id !== projectId));
 
       toast({
         title: "Project Rejected",
@@ -361,7 +368,8 @@ export const useContentRequests = (
         { method: "POST" }
       );
 
-      onApproveVlog(approvedVlog);
+      onVlogApproved(approvedVlog);
+      setPendingVlogs((prev) => prev.filter((v) => v.id !== vlogId));
 
       toast({
         title: "Vlog Approved",
@@ -388,7 +396,7 @@ export const useContentRequests = (
         method: "POST",
       });
 
-      onRejectVlog(vlogId);
+      setPendingVlogs((prev) => prev.filter((v) => v.id !== vlogId));
 
       toast({
         title: "Vlog Rejected",
@@ -409,6 +417,8 @@ export const useContentRequests = (
   };
 
   return {
+    pendingProjects,
+    pendingVlogs,
     loadingAction,
     handleApproveProject,
     handleRejectProject,
@@ -456,7 +466,7 @@ export const useProjectFormDialog = ({
           githubLink: initialData.githubLink || "",
           demoLink: initialData.demoLink || "",
           type: initialData.type,
-          tags: initialData.tags.join(", "),
+          tags: initialData.tags ? initialData.tags.join(", ") : "",
           status: initialData.status || "published",
         });
       } else {

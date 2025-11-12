@@ -6,6 +6,7 @@ import type {
   Department as PrismaDepartment,
   Event as PrismaEvent,
 } from "@prisma/client";
+import type { Project, Vlog } from "./content-types";
 
 // ===== BASE ENTITIES =====
 
@@ -162,6 +163,8 @@ export type ModalDataPayload =
   | (User & { id: string; })
   | (Team & { id: string; entityType: "team"; })
   | (Department & { id: string; entityType: "department"; })
+  | (Project & { id: string; entityType: "project"; })
+  | (Vlog & { id: string; entityType: "vlog"; })
   | ({ id: string; } & Record<string, unknown>);
 
 export type ModalViewType =

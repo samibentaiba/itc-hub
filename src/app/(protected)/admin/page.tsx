@@ -4,6 +4,7 @@ import AdminClientPage from "./client";
 import { headers } from "next/headers";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
 import type { User as AdminUser, Event as AdminEvent } from "./types";
+import type { Project, Vlog, PendingProject, PendingVlog } from "./content-types";
 import {NotAccessible} from "@/components/NotAccessible"
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(
@@ -106,6 +107,10 @@ interface ApiResponse<T> {
   teams?: T[];
   departments?: T[];
   events?: T[];
+  projects?: Project[];
+  vlogs?: Vlog[];
+  pendingProjects?: PendingProject[];
+  pendingVlogs?: PendingVlog[];
 }
 
 // Helper to convert role strings to lowercase for UI
@@ -133,6 +138,8 @@ export default async function AdminPage() {
     pendingEventsResponse,
     projectsResponse,
     vlogsResponse,
+    pendingProjectsResponse,
+    pendingVlogsResponse,
   ] = await Promise.all([
     authenticatedFetch("/api/admin/users"),
     authenticatedFetch("/api/admin/teams"),
@@ -141,39 +148,60 @@ export default async function AdminPage() {
     authenticatedFetch("/api/admin/events/requests"),
     authenticatedFetch("/api/admin/projects"),
     authenticatedFetch("/api/admin/vlogs"),
+    authenticatedFetch("/api/admin/projects/requests"),
+    authenticatedFetch("/api/admin/vlogs/requests"),
   ]);
 
   // Parse all responses with type safety
-  const [usersData, teamsData, departmentsData, eventsData, pendingEventsData, projectsData, vlogsData] =
-    await Promise.all([
-      usersResponse.ok
-        ? (usersResponse.json() as Promise<ApiResponse<ApiUser>>)
-        : Promise.resolve({ users: [] } as ApiResponse<ApiUser>),
-      teamsResponse.ok
-        ? (teamsResponse.json() as Promise<ApiResponse<ApiTeam>>)
-        : Promise.resolve({ teams: [] } as ApiResponse<ApiTeam>),
-      departmentsResponse.ok
-        ? (departmentsResponse.json() as Promise<ApiResponse<ApiDepartment>>)
-        : Promise.resolve({ departments: [] } as ApiResponse<ApiDepartment>),
-      eventsResponse.ok
-        ? (eventsResponse.json() as Promise<ApiResponse<ApiEvent>>)
-        : Promise.resolve({ events: [] } as ApiResponse<ApiEvent>),
-      pendingEventsResponse.ok
-        ? (pendingEventsResponse.json() as Promise<ApiResponse<ApiEvent>>)
-        : Promise.resolve({ events: [] } as ApiResponse<ApiEvent>),
-      projectsResponse.ok
-        ? projectsResponse.json()
-        : Promise.resolve({ projects: [] }),
-      vlogsResponse.ok
-        ? vlogsResponse.json()
-        : Promise.resolve({ vlogs: [] }),
-    ]);
+  const [
+    usersData,
+    teamsData,
+    departmentsData,
+    eventsData,
+    pendingEventsData,
+    projectsData,
+    vlogsData,
+    pendingProjectsData,
+    pendingVlogsData,
+  ] = await Promise.all([
+    usersResponse.ok
+      ? (usersResponse.json() as Promise<ApiResponse<ApiUser>>)
+      : Promise.resolve({ users: [] } as ApiResponse<ApiUser>),
+    teamsResponse.ok
+      ? (teamsResponse.json() as Promise<ApiResponse<ApiTeam>>)
+      : Promise.resolve({ teams: [] } as ApiResponse<ApiTeam>),
+    departmentsResponse.ok
+      ? (departmentsResponse.json() as Promise<ApiResponse<ApiDepartment>>)
+      : Promise.resolve({ departments: [] } as ApiResponse<ApiDepartment>),
+    eventsResponse.ok
+      ? (eventsResponse.json() as Promise<ApiResponse<ApiEvent>>)
+      : Promise.resolve({ events: [] } as ApiResponse<ApiEvent>),
+    pendingEventsResponse.ok
+      ? (pendingEventsResponse.json() as Promise<ApiResponse<ApiEvent>>)
+      : Promise.resolve({ events: [] } as ApiResponse<ApiEvent>),
+    projectsResponse.ok
+      ? (projectsResponse.json() as Promise<ApiResponse<Project>>)
+      : Promise.resolve({ projects: [] } as ApiResponse<Project>),
+    vlogsResponse.ok
+      ? (vlogsResponse.json() as Promise<ApiResponse<Vlog>>)
+      : Promise.resolve({ vlogs: [] } as ApiResponse<Vlog>),
+    pendingProjectsResponse.ok
+      ? (pendingProjectsResponse.json() as Promise<ApiResponse<PendingProject>>)
+      : Promise.resolve({ pendingProjects: [] } as ApiResponse<PendingProject>),
+    pendingVlogsResponse.ok
+      ? (pendingVlogsResponse.json() as Promise<ApiResponse<PendingVlog>>)
+      : Promise.resolve({ pendingVlogs: [] } as ApiResponse<PendingVlog>),
+  ]);
 
   const users: ApiUser[] = usersData.users || [];
   const teams: ApiTeam[] = teamsData.teams || [];
   const departments: ApiDepartment[] = departmentsData.departments || [];
   const events: ApiEvent[] = eventsData.events || [];
   const pendingEvents: ApiEvent[] = pendingEventsData.events || [];
+  const projects: Project[] = projectsData.projects || [];
+  const vlogs: Vlog[] = vlogsData.vlogs || [];
+  const pendingProjects: PendingProject[] = pendingProjectsData.pendingProjects || [];
+  const pendingVlogs: PendingVlog[] = pendingVlogsData.pendingVlogs || [];
 
   // Transform users with proper role handling
   const initialUsers: AdminUser[] = users.map((user: ApiUser) => ({
@@ -301,19 +329,15 @@ export default async function AdminPage() {
     submittedByType: ("user" as const),
   }));
 
-  // Transform projects and vlogs
-  const initialProjects = (projectsData.projects || []).map((p: any) => ({
+  const initialProjects = projects.map((p) => ({
     ...p,
     status: p.status || "published",
   }));
 
-  const initialVlogs = (vlogsData.vlogs || []).map((v: any) => ({
+  const initialVlogs = vlogs.map((v) => ({
     ...v,
     status: v.status || "published",
   }));
-
-  const initialPendingProjects = initialProjects.filter((p: any) => p.status === "pending");
-  const initialPendingVlogs = initialVlogs.filter((v: any) => v.status === "pending");
 
   return (
     <AdminClientPage
@@ -324,8 +348,8 @@ export default async function AdminPage() {
       initialPendingEvents={initialPendingEvents}
       initialProjects={initialProjects}
       initialVlogs={initialVlogs}
-      initialPendingProjects={initialPendingProjects}
-      initialPendingVlogs={initialPendingVlogs}
+      initialPendingProjects={pendingProjects}
+      initialPendingVlogs={pendingVlogs}
     />
   );
 }

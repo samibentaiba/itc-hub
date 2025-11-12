@@ -14,8 +14,6 @@ export interface Project {
   demoLink: string | null;
   type: ProjectType;
   tags: string[];
-  gallery: string[];
-  content: ContentBlock[];
   authorId: string;
   author: {
     id: string;
@@ -25,6 +23,7 @@ export interface Project {
   status: "draft" | "published" | "pending";
   createdAt: string;
   updatedAt: string;
+  [key: string]: unknown;
 }
 
 export type ProjectType =
@@ -60,6 +59,7 @@ export interface Vlog {
   status: "draft" | "published" | "pending";
   createdAt: string;
   updatedAt: string;
+  [key: string]: unknown;
 }
 
 // ===== CONTENT BLOCK TYPES =====
@@ -72,21 +72,14 @@ export type ContentBlock =
 
 // ===== PENDING REQUEST TYPES =====
 
-export interface PendingProject {
-  id: string;
-  name: string;
-  description: string;
-  type: ProjectType;
+export interface PendingProject extends Project {
   submittedBy: string;
   submittedById: string;
   submittedByType: "user" | "team" | "department";
   submittedAt: string;
 }
 
-export interface PendingVlog {
-  id: string;
-  title: string;
-  description: string;
+export interface PendingVlog extends Vlog {
   submittedBy: string;
   submittedById: string;
   submittedByType: "user" | "team" | "department";
