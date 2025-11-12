@@ -32,11 +32,12 @@ import type {
   EventFormData,
   User,
   Team,
-    Project,
+  Project,
   Vlog,
   PendingProject,
   PendingVlog,
-   ProjectFormData, VlogFormData, 
+  ProjectFormData,
+  VlogFormData,
   Department,
   Event,
   PendingEvent,
@@ -89,7 +90,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -111,8 +111,6 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import { FileText, Video, Eye } from "lucide-react";
-
-
 
 /**
  * @interface AdminClientPageProps
@@ -361,7 +359,11 @@ export default function AdminClientPage({
     </div>
   );
 }
-import { useUserFormDialog, useProjectFormDialog, useVlogFormDialog } from "./hook";
+import {
+  useUserFormDialog,
+  useProjectFormDialog,
+  useVlogFormDialog,
+} from "./hook";
 function UserFormDialog({
   isOpen,
   onClose,

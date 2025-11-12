@@ -1,32 +1,28 @@
 import { useState, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { Team, TeamFormData } from "./types";
-
-import type {
-  User,
-  Department,
-  Event,
-  PendingEvent,
-  ModalState,
-  ModalDataPayload,
-} from "./types";
-
-import type {
-  Member,
-  Project,
-  Vlog,
-  PendingProject,
-  PendingVlog,
-} from "./types";
 
 import type {
   UserFormData,
   DepartmentFormData,
   ProjectFormData,
   VlogFormData,
+  Member,
+  Project,
+  Vlog,
+  PendingProject,
+  PendingVlog,
+  User,
+  Department,
+  Event,
+  PendingEvent,
+  ModalState,
+  ModalDataPayload,
+  Team,
+  TeamFormData,
+  UpcomingEvent,
+  EventFormData,
 } from "./types";
 
-import type { UpcomingEvent, EventFormData } from "./types";
 import { projectFormSchema, vlogFormSchema } from "./types";
 // ===== IMPROVED API RESPONSE INTERFACES =====
 interface UsersApiResponse {
@@ -1289,8 +1285,6 @@ export const useCreateEventDialog = ({
     isEditMode,
   };
 };
-
-
 
 // ===== PROJECTS HOOK =====
 export const useProjects = (initialProjects: Project[]) => {

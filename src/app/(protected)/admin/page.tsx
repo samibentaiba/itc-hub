@@ -3,8 +3,15 @@
 import AdminClientPage from "./client";
 import { headers } from "next/headers";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
-import type { User as AdminUser, Event as AdminEvent,Project, Vlog, PendingProject, PendingVlog } from "./types";
-import {NotAccessible} from "@/components/NotAccessible"
+import type {
+  User as AdminUser,
+  Event as AdminEvent,
+  Project,
+  Vlog,
+  PendingProject,
+  PendingVlog,
+} from "./types";
+import { NotAccessible } from "@/components/NotAccessible";
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(
   url: string,
@@ -113,10 +120,16 @@ interface ApiResponse<T> {
 }
 
 // Helper to convert role strings to lowercase for UI
-const normalizeRole = (role: string | undefined | null): "user" | "manager" | "admin" => {
+const normalizeRole = (
+  role: string | undefined | null
+): "user" | "manager" | "admin" => {
   if (!role) return "user";
   const normalized = role.toLowerCase();
-  if (normalized === "user" || normalized === "manager" || normalized === "admin") {
+  if (
+    normalized === "user" ||
+    normalized === "manager" ||
+    normalized === "admin"
+  ) {
     return normalized;
   }
   return "user";
@@ -126,7 +139,7 @@ export default async function AdminPage() {
   // Check if user has admin role
   const user = await getAuthenticatedUser();
   const isAdminUser = await isAdmin(user?.user.id || "");
-  if (!isAdminUser) return(NotAccessible())
+  if (!isAdminUser) return NotAccessible();
 
   // Fetch data using direct API calls
   const [
@@ -199,7 +212,8 @@ export default async function AdminPage() {
   const pendingEvents: ApiEvent[] = pendingEventsData.events || [];
   const projects: Project[] = projectsData.projects || [];
   const vlogs: Vlog[] = vlogsData.vlogs || [];
-  const pendingProjects: PendingProject[] = pendingProjectsData.pendingProjects || [];
+  const pendingProjects: PendingProject[] =
+    pendingProjectsData.pendingProjects || [];
   const pendingVlogs: PendingVlog[] = pendingVlogsData.pendingVlogs || [];
 
   // Transform users with proper role handling
@@ -207,7 +221,9 @@ export default async function AdminPage() {
     id: user.id,
     name: user.name,
     email: user.email,
-    status: (user.status === "verified" ? "verified" : "pending") as "verified" | "pending",
+    status: (user.status === "verified" ? "verified" : "pending") as
+      | "verified"
+      | "pending",
     joinedDate: user.createdAt,
     avatar: user.avatar || `https://i.pravatar.cc/150?u=${user.id}`,
     role: normalizeRole(user.role),
@@ -219,7 +235,9 @@ export default async function AdminPage() {
       id: leader.id,
       name: leader.name,
       email: leader.email,
-      status: (leader.status === "verified" ? "verified" : "pending") as "verified" | "pending",
+      status: (leader.status === "verified" ? "verified" : "pending") as
+        | "verified"
+        | "pending",
       joinedDate: leader.createdAt,
       avatar: leader.avatar || `https://i.pravatar.cc/150?u=${leader.id}`,
       role: normalizeRole(leader.role),
@@ -233,7 +251,9 @@ export default async function AdminPage() {
       members:
         team.members?.map((m) => ({
           userId: m.user.id,
-          role: (m.role?.toLowerCase() === "manager" ? "manager" : "member") as "manager" | "member",
+          role: (m.role?.toLowerCase() === "manager" ? "manager" : "member") as
+            | "manager"
+            | "member",
           user: {
             id: m.user.id,
             name: m.user.name,
@@ -242,21 +262,27 @@ export default async function AdminPage() {
         })) || [],
       departmentId: team.departmentId || "",
       createdDate: team.createdAt,
-      status: (team.status === "archived" ? "archived" : "active") as "active" | "archived",
+      status: (team.status === "archived" ? "archived" : "active") as
+        | "active"
+        | "archived",
     };
   });
 
   // Transform departments - ensure managers have joinedDate and add optional color
   const initialDepartments = departments.map((dept: ApiDepartment) => {
-    const transformedManagers = (dept.managers || []).map((manager: ApiUser) => ({
-      id: manager.id,
-      name: manager.name,
-      email: manager.email,
-      status: (manager.status === "verified" ? "verified" : "pending") as "verified" | "pending",
-      joinedDate: manager.createdAt,
-      avatar: manager.avatar || `https://i.pravatar.cc/150?u=${manager.id}`,
-      role: normalizeRole(manager.role),
-    }));
+    const transformedManagers = (dept.managers || []).map(
+      (manager: ApiUser) => ({
+        id: manager.id,
+        name: manager.name,
+        email: manager.email,
+        status: (manager.status === "verified" ? "verified" : "pending") as
+          | "verified"
+          | "pending",
+        joinedDate: manager.createdAt,
+        avatar: manager.avatar || `https://i.pravatar.cc/150?u=${manager.id}`,
+        role: normalizeRole(manager.role),
+      })
+    );
 
     return {
       id: dept.id,
@@ -266,7 +292,9 @@ export default async function AdminPage() {
       members:
         dept.members?.map((m) => ({
           userId: m.user.id,
-          role: (m.role?.toLowerCase() === "manager" ? "manager" : "member") as "manager" | "member",
+          role: (m.role?.toLowerCase() === "manager" ? "manager" : "member") as
+            | "manager"
+            | "member",
           user: {
             id: m.user.id,
             name: m.user.name,
@@ -279,7 +307,9 @@ export default async function AdminPage() {
           name: t.name,
         })) || [],
       createdDate: dept.createdAt,
-      status: (dept.status === "archived" ? "archived" : "active") as "active" | "archived",
+      status: (dept.status === "archived" ? "archived" : "active") as
+        | "active"
+        | "archived",
       color: dept.color,
     };
   });
@@ -299,12 +329,15 @@ export default async function AdminPage() {
     date: event.date?.split("T")[0] || "",
     time: event.time || "09:00",
     duration: event.duration || 60,
-    type: eventTypeMap[event.type?.toLowerCase() as keyof typeof eventTypeMap] || "MEETING",
-    attendees: event.attendees?.map((a) => ({
-      id: a.id,
-      name: a.name,
-      avatar: a.avatar || null,
-    })) || [],
+    type:
+      eventTypeMap[event.type?.toLowerCase() as keyof typeof eventTypeMap] ||
+      "MEETING",
+    attendees:
+      event.attendees?.map((a) => ({
+        id: a.id,
+        name: a.name,
+        avatar: a.avatar || null,
+      })) || [],
     location: event.location || "Conference Room",
     color: event.color || "#3b82f6",
     status: event.status,
@@ -322,10 +355,14 @@ export default async function AdminPage() {
     date: event.date?.split("T")[0] || "",
     time: event.time || "09:00",
     duration: event.duration || 60,
-    type: (event.type?.toLowerCase() || "meeting") as "meeting" | "review" | "planning" | "workshop",
+    type: (event.type?.toLowerCase() || "meeting") as
+      | "meeting"
+      | "review"
+      | "planning"
+      | "workshop",
     location: event.location || "",
     submittedBy: event.organizer?.name || "Unknown",
-    submittedByType: ("user" as const),
+    submittedByType: "user" as const,
   }));
 
   const initialProjects = projects.map((p) => ({

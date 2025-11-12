@@ -34,7 +34,9 @@ export async function apiRequest<T>(
   if (!response.ok) {
     const errorData = (await response
       .json()
-      .catch(() => ({ error: "An unknown error occurred" }))) as ApiErrorResponse;
+      .catch(() => ({
+        error: "An unknown error occurred",
+      }))) as ApiErrorResponse;
     throw new Error(errorData.error || "Request failed");
   }
 
@@ -83,7 +85,7 @@ export const transformApiResponse = <T extends Record<string, unknown>>(
 
     case "event": {
       const event = item as unknown as Event | PendingEvent;
-      
+
       return {
         ...event,
         date: event.date || new Date().toISOString().split("T")[0],

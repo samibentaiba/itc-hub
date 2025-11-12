@@ -7,7 +7,6 @@ import type {
   Event as PrismaEvent,
 } from "@prisma/client";
 
-
 // ===== BASE ENTITIES =====
 
 export interface Member {
@@ -65,7 +64,15 @@ export interface EventAttendee {
 export interface Event
   extends Omit<
     PrismaEvent,
-    "createdAt" | "updatedAt" | "date" | "attendees" | "status" | "departmentId" | "organizerId" | "isRecurring" | "teamId"
+    | "createdAt"
+    | "updatedAt"
+    | "date"
+    | "attendees"
+    | "status"
+    | "departmentId"
+    | "organizerId"
+    | "isRecurring"
+    | "teamId"
   > {
   date: string; // YYYY-MM-DD
   attendees: EventAttendee[] | string[];
@@ -128,9 +135,7 @@ export const departmentFormSchema = z.object({
 });
 
 export const eventFormSchema = z.object({
-  title: z
-    .string()
-    .min(3, { message: "Title must be at least 3 characters." }),
+  title: z.string().min(3, { message: "Title must be at least 3 characters." }),
   description: z.string().optional(),
   date: z.string().min(1, { message: "Please select a date." }),
   time: z
@@ -160,12 +165,12 @@ export interface ModalData extends Record<string, unknown> {
 
 // Union type for all possible modal data payloads
 export type ModalDataPayload =
-  | (User & { id: string; })
-  | (Team & { id: string; entityType: "team"; })
-  | (Department & { id: string; entityType: "department"; })
-  | (Project & { id: string; entityType: "project"; })
-  | (Vlog & { id: string; entityType: "vlog"; })
-  | ({ id: string; } & Record<string, unknown>);
+  | (User & { id: string })
+  | (Team & { id: string; entityType: "team" })
+  | (Department & { id: string; entityType: "department" })
+  | (Project & { id: string; entityType: "project" })
+  | (Vlog & { id: string; entityType: "vlog" })
+  | ({ id: string } & Record<string, unknown>);
 
 export type ModalViewType =
   | "ADD_USER"
@@ -202,10 +207,6 @@ export type EventType = "meeting" | "review" | "planning" | "workshop";
 export type UserStatus = "verified" | "pending";
 export type EntityStatus = "active" | "archived";
 export type MembershipRole = "manager" | "member";
-
-
-
-
 
 // ===== PROJECT TYPES =====
 
@@ -295,29 +296,72 @@ export interface PendingVlog extends Vlog {
 // ===== FORM SCHEMAS =====
 
 export const projectFormSchema = z.object({
-  name: z.string().min(3, { message: "Project name must be at least 3 characters." }),
-  slug: z.string().min(3, { message: "Slug must be at least 3 characters." })
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug must be lowercase with hyphens only." }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters." }),
-  image: z.string().url({ message: "Please enter a valid image URL." }).optional(),
-  projectLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal("")),
-  githubLink: z.string().url({ message: "Please enter a valid GitHub URL." }).optional().or(z.literal("")),
-  demoLink: z.string().url({ message: "Please enter a valid demo URL." }).optional().or(z.literal("")),
+  name: z
+    .string()
+    .min(3, { message: "Project name must be at least 3 characters." }),
+  slug: z
+    .string()
+    .min(3, { message: "Slug must be at least 3 characters." })
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      message: "Slug must be lowercase with hyphens only.",
+    }),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters." }),
+  image: z
+    .string()
+    .url({ message: "Please enter a valid image URL." })
+    .optional(),
+  projectLink: z
+    .string()
+    .url({ message: "Please enter a valid URL." })
+    .optional()
+    .or(z.literal("")),
+  githubLink: z
+    .string()
+    .url({ message: "Please enter a valid GitHub URL." })
+    .optional()
+    .or(z.literal("")),
+  demoLink: z
+    .string()
+    .url({ message: "Please enter a valid demo URL." })
+    .optional()
+    .or(z.literal("")),
   type: z.enum([
-    "AI", "UI_UX", "SOFTWARE", "WEB_DEV", "NETWORKING",
-    "SECURITY", "DEV_OPS", "VFX", "MEDIA", "SPONSORS",
-    "ROBOTICS", "GAME_DEV"
+    "AI",
+    "UI_UX",
+    "SOFTWARE",
+    "WEB_DEV",
+    "NETWORKING",
+    "SECURITY",
+    "DEV_OPS",
+    "VFX",
+    "MEDIA",
+    "SPONSORS",
+    "ROBOTICS",
+    "GAME_DEV",
   ]),
   tags: z.string().min(1, { message: "Please add at least one tag." }),
   status: z.enum(["draft", "published", "pending"]),
 });
 
 export const vlogFormSchema = z.object({
-  title: z.string().min(3, { message: "Vlog title must be at least 3 characters." }),
-  slug: z.string().min(3, { message: "Slug must be at least 3 characters." })
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug must be lowercase with hyphens only." }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters." }),
-  image: z.string().url({ message: "Please enter a valid image URL." }).optional(),
+  title: z
+    .string()
+    .min(3, { message: "Vlog title must be at least 3 characters." }),
+  slug: z
+    .string()
+    .min(3, { message: "Slug must be at least 3 characters." })
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      message: "Slug must be lowercase with hyphens only.",
+    }),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters." }),
+  image: z
+    .string()
+    .url({ message: "Please enter a valid image URL." })
+    .optional(),
   status: z.enum(["draft", "published", "pending"]),
 });
 
