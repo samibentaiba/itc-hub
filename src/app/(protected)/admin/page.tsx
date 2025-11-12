@@ -3,8 +3,7 @@
 import AdminClientPage from "./client";
 import { headers } from "next/headers";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth-helpers";
-import type { User as AdminUser, Event as AdminEvent } from "./types";
-import type { Project, Vlog, PendingProject, PendingVlog } from "./content-types";
+import type { User as AdminUser, Event as AdminEvent,Project, Vlog, PendingProject, PendingVlog } from "./types";
 import {NotAccessible} from "@/components/NotAccessible"
 // Helper function for authenticated server-side fetch requests
 async function authenticatedFetch(
