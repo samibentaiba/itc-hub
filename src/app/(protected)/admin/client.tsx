@@ -85,6 +85,16 @@ import {
 import { Input } from "@/components/ui/input";
 
 import {
+  ProjectsTable,
+  VlogsTable,
+  ContentRequestsTable,
+  ProjectFormDialog,
+  VlogFormDialog,
+} from "./content-components";
+import type { Project, Vlog, PendingProject, PendingVlog } from "./content-types";
+import { FileText, Video } from "lucide-react";
+
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -128,12 +138,20 @@ export default function AdminClientPage({
   initialDepartments,
   initialEvents,
   initialPendingEvents,
+  initialProjects,
+  initialVlogs,
+  initialPendingProjects,
+  initialPendingVlogs,
 }: {
   initialUsers: User[];
   initialTeams: Team[];
   initialDepartments: Department[];
   initialEvents: Event[];
   initialPendingEvents: PendingEvent[];
+  initialProjects: Project[];
+  initialVlogs: Vlog[];
+  initialPendingProjects: PendingProject[];
+  initialPendingVlogs: PendingVlog[];
 }) {
   const {
     pageActions,
@@ -144,6 +162,9 @@ export default function AdminClientPage({
     memberData,
     eventRequestData,
     calendarData,
+    projectData,
+    vlogData,
+    contentRequestData,
     allUsers,
     allDepartments,
   } = useAdminPage(
@@ -151,7 +172,11 @@ export default function AdminClientPage({
     initialTeams,
     initialDepartments,
     initialEvents,
-    initialPendingEvents
+    initialPendingEvents,
+    initialProjects,
+    initialVlogs,
+    initialPendingProjects,
+    initialPendingVlogs
   );
 
   const dialogs = useMemo(
@@ -242,6 +267,26 @@ export default function AdminClientPage({
           onEdit={calendarData.actions.handleEditEvent}
           onDelete={calendarData.actions.handleDeleteEvent}
         />
+        <ProjectFormDialog
+          isOpen={
+            modalData.modal?.view === "ADD_PROJECT" ||
+            modalData.modal?.view === "EDIT_PROJECT"
+          }
+          onClose={modalData.closeModal}
+          onSubmit={projectData.handleSaveProject}
+          isLoading={!!projectData.loadingAction}
+          initialData={modalData.projectForEdit}
+        />
+        <VlogFormDialog
+          isOpen={
+            modalData.modal?.view === "ADD_VLOG" ||
+            modalData.modal?.view === "EDIT_VLOG"
+          }
+          onClose={modalData.closeModal}
+          onSubmit={vlogData.handleSaveVlog}
+          isLoading={!!vlogData.loadingAction}
+          initialData={modalData.vlogForEdit}
+        />
       </>
     ),
     [
@@ -301,6 +346,9 @@ export default function AdminClientPage({
         departmentData={departmentData}
         eventRequestData={eventRequestData}
         calendarData={calendarData}
+        projectData={projectData}
+        vlogData={vlogData}
+        contentRequestData={contentRequestData}
         onSetModal={modalData.setModal}
         loadingAction={pageActions.loadingAction}
       />
@@ -1169,6 +1217,9 @@ export function AdminTabs({
   departmentData,
   eventRequestData,
   calendarData,
+  projectData,
+  vlogData,
+  contentRequestData,
   onSetModal,
   loadingAction,
 }: {
@@ -1177,17 +1228,22 @@ export function AdminTabs({
   departmentData: ReturnType<typeof useAdminPage>["departmentData"];
   eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
   calendarData: ReturnType<typeof useAdminPage>["calendarData"];
+  projectData: ReturnType<typeof useAdminPage>["projectData"];
+  vlogData: ReturnType<typeof useAdminPage>["vlogData"];
+  contentRequestData: ReturnType<typeof useAdminPage>["contentRequestData"];
   onSetModal: (modal: ModalState) => void;
   loadingAction: string | null;
 }) {
   return (
     <Tabs defaultValue="users" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="users">Users</TabsTrigger>
         <TabsTrigger value="teams">Teams</TabsTrigger>
         <TabsTrigger value="departments">Departments</TabsTrigger>
         <TabsTrigger value="calendar">Calendar</TabsTrigger>
-        <TabsTrigger value="requests">Event Requests</TabsTrigger>
+        <TabsTrigger value="requests">Requests</TabsTrigger>
+        <TabsTrigger value="projects">Projects</TabsTrigger>
+        <TabsTrigger value="vlogs">Vlogs</TabsTrigger>
       </TabsList>
 
       <TabsContent value="users" className="space-y-4">
@@ -1214,6 +1270,55 @@ export function AdminTabs({
           eventRequestData={eventRequestData}
           loadingAction={loadingAction}
         />
+      </TabsContent>
+      <TabsContent value="projects" className="space-y-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Project Management</CardTitle>
+              <CardDescription>
+                Manage projects and their publication status.
+              </CardDescription>
+            </div>
+            <Button onClick={() => onSetModal({ view: "ADD_PROJECT" })}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Project
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <ProjectsTable
+              projects={projectData.projects}
+              onEdit={(project) => onSetModal({ view: "EDIT_PROJECT", data: project })}
+              onDelete={projectData.handleDeleteProject}
+              onUpdateStatus={projectData.handleUpdateStatus}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="vlogs" className="space-y-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Vlog Management</CardTitle>
+              <CardDescription>
+                Manage vlogs and their publication status.
+              </CardDescription>
+            </div>
+            <Button onClick={() => onSetModal({ view: "ADD_VLOG" })}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Vlog
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <VlogsTable
+              vlogs={vlogData.vlogs}
+              onEdit={(vlog) => onSetModal({ view: "EDIT_VLOG", data: vlog })}
+              onDelete={vlogData.handleDeleteVlog}
+              onUpdateStatus={vlogData.handleUpdateStatus}
+            />
+          </CardContent>
+        </Card>
       </TabsContent>
     </Tabs>
   );
@@ -1351,28 +1456,52 @@ export function CalendarTab({
 
 export function RequestTab({
   eventRequestData,
+  contentRequestData,
   loadingAction,
 }: {
   eventRequestData: ReturnType<typeof useAdminPage>["eventRequestData"];
+  contentRequestData: ReturnType<typeof useAdminPage>["contentRequestData"];
   loadingAction: string | null;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Event Requests</CardTitle>
-        <CardDescription>
-          Review and approve event submissions from teams and departments.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <RequestsTable
-          pendingEvents={eventRequestData.pendingEvents}
-          handleRejectEvent={eventRequestData.handleRejectEvent}
-          handleAcceptEvent={eventRequestData.handleAcceptEvent}
-          loadingAction={loadingAction}
-        />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Event Requests</CardTitle>
+          <CardDescription>
+            Review and approve event submissions from teams and departments.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RequestsTable
+            pendingEvents={eventRequestData.pendingEvents}
+            handleRejectEvent={eventRequestData.handleRejectEvent}
+            handleAcceptEvent={eventRequestData.handleAcceptEvent}
+            loadingAction={loadingAction}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Content Requests</CardTitle>
+          <CardDescription>
+            Review and approve project and vlog submissions.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ContentRequestsTable
+            pendingProjects={contentRequestData.pendingProjects}
+            pendingVlogs={contentRequestData.pendingVlogs}
+            onApproveProject={contentRequestData.handleApproveProject}
+            onRejectProject={contentRequestData.handleRejectProject}
+            onApproveVlog={contentRequestData.handleApproveVlog}
+            onRejectVlog={contentRequestData.handleRejectVlog}
+            loadingAction={contentRequestData.loadingAction}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

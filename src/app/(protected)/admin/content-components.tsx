@@ -1,6 +1,7 @@
 // src/app/(protected)/admin/content-components.tsx
 "use client";
 
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -91,7 +92,10 @@ export function ProjectsTable({
   projects: Project[];
   onEdit: (project: Project) => void;
   onDelete: (projectId: string) => void;
-  onUpdateStatus: (projectId: string, status: "draft" | "published" | "pending") => void;
+  onUpdateStatus: (
+    projectId: string,
+    status: "draft" | "published" | "pending"
+  ) => void;
 }) {
   return (
     <Table>
@@ -107,16 +111,16 @@ export function ProjectsTable({
       <TableBody>
         {projects.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+            <TableCell
+              colSpan={5}
+              className="text-center text-muted-foreground py-8"
+            >
               No projects found.
             </TableCell>
           </TableRow>
         ) : (
           projects.map((project) => (
             <TableRow key={project.id}>
-import Image from "next/image";
-// ...
-// ...
               <TableCell>
                 <div className="flex items-center gap-3">
                   {project.image && (
@@ -137,7 +141,9 @@ import Image from "next/image";
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{project.type.replace("_", " ")}</Badge>
+                <Badge variant="outline">
+                  {project.type.replace("_", " ")}
+                </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -175,7 +181,11 @@ import Image from "next/image";
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => window.open(`/projects/${project.slug}`, '_blank')}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        window.open(`/projects/${project.slug}`, "_blank")
+                      }
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       View Project
                     </DropdownMenuItem>
@@ -212,7 +222,10 @@ export function VlogsTable({
   vlogs: Vlog[];
   onEdit: (vlog: Vlog) => void;
   onDelete: (vlogId: string) => void;
-  onUpdateStatus: (vlogId: string, status: "draft" | "published" | "pending") => void;
+  onUpdateStatus: (
+    vlogId: string,
+    status: "draft" | "published" | "pending"
+  ) => void;
 }) {
   return (
     <Table>
@@ -228,7 +241,10 @@ export function VlogsTable({
       <TableBody>
         {vlogs.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+            <TableCell
+              colSpan={5}
+              className="text-center text-muted-foreground py-8"
+            >
               No vlogs found.
             </TableCell>
           </TableRow>
@@ -293,7 +309,11 @@ export function VlogsTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => window.open(`/vlogs/${vlog.slug}`, '_blank')}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        window.open(`/vlogs/${vlog.slug}`, "_blank")
+                      }
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       View Vlog
                     </DropdownMenuItem>
@@ -339,10 +359,11 @@ export function ContentRequestsTable({
   loadingAction: string | null;
 }) {
   const allRequests = [
-    ...pendingProjects.map(p => ({ ...p, type: 'project' as const })),
-    ...pendingVlogs.map(v => ({ ...v, type: 'vlog' as const }))
-  ].sort((a, b) => 
-    new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+    ...pendingProjects.map((p) => ({ ...p, type: "project" as const })),
+    ...pendingVlogs.map((v) => ({ ...v, type: "vlog" as const })),
+  ].sort(
+    (a, b) =>
+      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
   return (
@@ -359,7 +380,10 @@ export function ContentRequestsTable({
       <TableBody>
         {allRequests.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+            <TableCell
+              colSpan={5}
+              className="text-center text-muted-foreground py-8"
+            >
               No pending requests.
             </TableCell>
           </TableRow>
@@ -368,23 +392,31 @@ export function ContentRequestsTable({
             <TableRow key={`${request.type}-${request.id}`}>
               <TableCell>
                 <Badge variant="outline" className="gap-1">
-                  {request.type === 'project' ? (
-                    <><FileText className="h-3 w-3" /> Project</>
+                  {request.type === "project" ? (
+                    <>
+                      <FileText className="h-3 w-3" /> Project
+                    </>
                   ) : (
-                    <><Video className="h-3 w-3" /> Vlog</>
+                    <>
+                      <Video className="h-3 w-3" /> Vlog
+                    </>
                   )}
                 </Badge>
               </TableCell>
               <TableCell>
                 <div className="font-medium">
-                  {'name' in request ? request.name : request.title}
+                  {"name" in request ? request.name : request.title}
                 </div>
                 <div className="text-sm text-muted-foreground line-clamp-1">
                   {request.description}
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant={request.submittedByType === 'team' ? 'secondary' : 'outline'}>
+                <Badge
+                  variant={
+                    request.submittedByType === "team" ? "secondary" : "outline"
+                  }
+                >
                   {request.submittedBy}
                 </Badge>
               </TableCell>
@@ -397,7 +429,7 @@ export function ContentRequestsTable({
                   size="sm"
                   className="mr-2"
                   onClick={() =>
-                    request.type === 'project'
+                    request.type === "project"
                       ? onRejectProject(request.id)
                       : onRejectVlog(request.id)
                   }
@@ -409,7 +441,7 @@ export function ContentRequestsTable({
                 <Button
                   size="sm"
                   onClick={() =>
-                    request.type === 'project'
+                    request.type === "project"
                       ? onApproveProject(request.id)
                       : onApproveVlog(request.id)
                   }
@@ -535,7 +567,9 @@ export function ProjectFormDialog({
                         <SelectItem value="VFX">VFX</SelectItem>
                         <SelectItem value="MEDIA">Media</SelectItem>
                         <SelectItem value="ROBOTICS">Robotics</SelectItem>
-                        <SelectItem value="GAME_DEV">Game Development</SelectItem>
+                        <SelectItem value="GAME_DEV">
+                          Game Development
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -573,7 +607,10 @@ export function ProjectFormDialog({
                 <FormItem>
                   <FormLabel>Tags (comma-separated)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. AI, Machine Learning, Python" {...field} />
+                    <Input
+                      placeholder="e.g. AI, Machine Learning, Python"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -690,7 +727,10 @@ export function VlogFormDialog({
                   <FormItem>
                     <FormLabel>Vlog Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Team Building Event" {...field} />
+                      <Input
+                        placeholder="e.g. Team Building Event"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -703,7 +743,10 @@ export function VlogFormDialog({
                   <FormItem>
                     <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. team-building-event" {...field} />
+                      <Input
+                        placeholder="e.g. team-building-event"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

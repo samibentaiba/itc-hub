@@ -25,8 +25,8 @@ async function apiRequest<T>(
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ 
-      error: "An unknown error occurred" 
+    const errorData = await response.json().catch(() => ({
+      error: "An unknown error occurred",
     }));
     throw new Error(errorData.error || "Request failed");
   }
@@ -46,8 +46,8 @@ export const useProjects = (initialProjects: Project[]) => {
 
   const handleSaveProject = async (data: ProjectFormData & { id?: string }) => {
     const isEdit = !!data.id;
-    const url = isEdit 
-      ? `/api/admin/projects/${data.id}` 
+    const url = isEdit
+      ? `/api/admin/projects/${data.id}`
       : "/api/admin/projects";
     const method = isEdit ? "PUT" : "POST";
     setLoadingAction(isEdit ? `edit-${data.id}` : "add-project");
@@ -56,9 +56,13 @@ export const useProjects = (initialProjects: Project[]) => {
       // Transform tags from comma-separated string to array
       const projectData = {
         ...data,
-        tags: typeof data.tags === 'string' 
-          ? data.tags.split(',').map(t => t.trim()).filter(Boolean)
-          : data.tags,
+        tags:
+          typeof data.tags === "string"
+            ? data.tags
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean)
+            : data.tags,
       };
 
       const savedProject = await apiRequest<Project>(url, {
@@ -74,15 +78,14 @@ export const useProjects = (initialProjects: Project[]) => {
         setProjects((prev) => [savedProject, ...prev]);
       }
 
-      toast({ 
+      toast({
         title: isEdit ? "Project Updated" : "Project Created",
-        description: `"${savedProject.name}" has been saved successfully.`
+        description: `"${savedProject.name}" has been saved successfully.`,
       });
       return true;
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Saving Project";
+      const message =
+        error instanceof Error ? error.message : "Error Saving Project";
       toast({
         title: "Error Saving Project",
         description: message,
@@ -103,14 +106,13 @@ export const useProjects = (initialProjects: Project[]) => {
       await apiRequest<void>(`/api/admin/projects/${projectId}`, {
         method: "DELETE",
       });
-      toast({ 
+      toast({
         title: "Project Deleted",
-        description: "The project has been removed successfully."
+        description: "The project has been removed successfully.",
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Deleting Project";
+      const message =
+        error instanceof Error ? error.message : "Error Deleting Project";
       toast({
         title: "Error Deleting Project",
         description: message,
@@ -123,7 +125,7 @@ export const useProjects = (initialProjects: Project[]) => {
   };
 
   const handleUpdateStatus = async (
-    projectId: string, 
+    projectId: string,
     status: "draft" | "published" | "pending"
   ) => {
     setLoadingAction(`status-${projectId}`);
@@ -146,9 +148,8 @@ export const useProjects = (initialProjects: Project[]) => {
         description: `Project status changed to ${status}.`,
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Updating Status";
+      const message =
+        error instanceof Error ? error.message : "Error Updating Status";
       toast({
         title: "Error Updating Status",
         description: message,
@@ -177,9 +178,7 @@ export const useVlogs = (initialVlogs: Vlog[]) => {
 
   const handleSaveVlog = async (data: VlogFormData & { id?: string }) => {
     const isEdit = !!data.id;
-    const url = isEdit 
-      ? `/api/admin/vlogs/${data.id}` 
-      : "/api/admin/vlogs";
+    const url = isEdit ? `/api/admin/vlogs/${data.id}` : "/api/admin/vlogs";
     const method = isEdit ? "PUT" : "POST";
     setLoadingAction(isEdit ? `edit-${data.id}` : "add-vlog");
 
@@ -197,15 +196,14 @@ export const useVlogs = (initialVlogs: Vlog[]) => {
         setVlogs((prev) => [savedVlog, ...prev]);
       }
 
-      toast({ 
+      toast({
         title: isEdit ? "Vlog Updated" : "Vlog Created",
-        description: `"${savedVlog.title}" has been saved successfully.`
+        description: `"${savedVlog.title}" has been saved successfully.`,
       });
       return true;
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Saving Vlog";
+      const message =
+        error instanceof Error ? error.message : "Error Saving Vlog";
       toast({
         title: "Error Saving Vlog",
         description: message,
@@ -226,14 +224,13 @@ export const useVlogs = (initialVlogs: Vlog[]) => {
       await apiRequest<void>(`/api/admin/vlogs/${vlogId}`, {
         method: "DELETE",
       });
-      toast({ 
+      toast({
         title: "Vlog Deleted",
-        description: "The vlog has been removed successfully."
+        description: "The vlog has been removed successfully.",
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Deleting Vlog";
+      const message =
+        error instanceof Error ? error.message : "Error Deleting Vlog";
       toast({
         title: "Error Deleting Vlog",
         description: message,
@@ -246,7 +243,7 @@ export const useVlogs = (initialVlogs: Vlog[]) => {
   };
 
   const handleUpdateStatus = async (
-    vlogId: string, 
+    vlogId: string,
     status: "draft" | "published" | "pending"
   ) => {
     setLoadingAction(`status-${vlogId}`);
@@ -260,18 +257,15 @@ export const useVlogs = (initialVlogs: Vlog[]) => {
         }
       );
 
-      setVlogs((prev) =>
-        prev.map((v) => (v.id === vlogId ? updatedVlog : v))
-      );
+      setVlogs((prev) => prev.map((v) => (v.id === vlogId ? updatedVlog : v)));
 
       toast({
         title: "Status Updated",
         description: `Vlog status changed to ${status}.`,
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Updating Status";
+      const message =
+        error instanceof Error ? error.message : "Error Updating Status";
       toast({
         title: "Error Updating Status",
         description: message,
@@ -318,9 +312,8 @@ export const useContentRequests = (
         description: `"${approvedProject.name}" has been published.`,
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Approving Project";
+      const message =
+        error instanceof Error ? error.message : "Error Approving Project";
       toast({
         title: "Error Approving Project",
         description: message,
@@ -335,10 +328,9 @@ export const useContentRequests = (
     setLoadingAction(`reject-project-${projectId}`);
 
     try {
-      await apiRequest<void>(
-        `/api/admin/projects/${projectId}/reject`,
-        { method: "POST" }
-      );
+      await apiRequest<void>(`/api/admin/projects/${projectId}/reject`, {
+        method: "POST",
+      });
 
       onRejectProject(projectId);
 
@@ -348,9 +340,8 @@ export const useContentRequests = (
         variant: "destructive",
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Rejecting Project";
+      const message =
+        error instanceof Error ? error.message : "Error Rejecting Project";
       toast({
         title: "Error Rejecting Project",
         description: message,
@@ -377,9 +368,8 @@ export const useContentRequests = (
         description: `"${approvedVlog.title}" has been published.`,
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Approving Vlog";
+      const message =
+        error instanceof Error ? error.message : "Error Approving Vlog";
       toast({
         title: "Error Approving Vlog",
         description: message,
@@ -394,10 +384,9 @@ export const useContentRequests = (
     setLoadingAction(`reject-vlog-${vlogId}`);
 
     try {
-      await apiRequest<void>(
-        `/api/admin/vlogs/${vlogId}/reject`,
-        { method: "POST" }
-      );
+      await apiRequest<void>(`/api/admin/vlogs/${vlogId}/reject`, {
+        method: "POST",
+      });
 
       onRejectVlog(vlogId);
 
@@ -407,9 +396,8 @@ export const useContentRequests = (
         variant: "destructive",
       });
     } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : "Error Rejecting Vlog";
+      const message =
+        error instanceof Error ? error.message : "Error Rejecting Vlog";
       toast({
         title: "Error Rejecting Vlog",
         description: message,

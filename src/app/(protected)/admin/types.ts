@@ -175,7 +175,11 @@ export type ModalViewType =
   | "MANAGE_MEMBERS"
   | "ADD_DEPARTMENT"
   | "EDIT_DEPARTMENT"
-  | "DELETE_DEPARTMENT";
+  | "DELETE_DEPARTMENT"
+  | "ADD_PROJECT"
+  | "EDIT_PROJECT"
+  | "ADD_VLOG"
+  | "EDIT_VLOG";
 
 export interface ModalState {
   view: ModalViewType;

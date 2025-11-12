@@ -110,7 +110,7 @@ export const projectFormSchema = z.object({
     "ROBOTICS", "GAME_DEV"
   ]),
   tags: z.string().min(1, { message: "Please add at least one tag." }),
-  status: z.enum(["draft", "published", "pending"]).default("published"),
+  status: z.enum(["draft", "published", "pending"]),
 });
 
 export const vlogFormSchema = z.object({
@@ -119,7 +119,7 @@ export const vlogFormSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug must be lowercase with hyphens only." }),
   description: z.string().min(10, { message: "Description must be at least 10 characters." }),
   image: z.string().url({ message: "Please enter a valid image URL." }).optional(),
-  status: z.enum(["draft", "published", "pending"]).default("published"),
+  status: z.enum(["draft", "published", "pending"]),
 });
 
 export type ProjectFormData = z.infer<typeof projectFormSchema>;

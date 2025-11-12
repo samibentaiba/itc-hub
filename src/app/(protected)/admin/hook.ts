@@ -11,6 +11,9 @@ import type {
   ModalDataPayload,
 } from "./types";
 
+import type { Project, Vlog, PendingProject, PendingVlog } from "./content-types";
+import { useProjects, useVlogs, useContentRequests } from "./content-hooks";
+
 import type { Member } from "./types";
 
 import type { UserFormData, DepartmentFormData } from "./types";
@@ -138,7 +141,11 @@ export const useAdminPage = (
   initialTeams: Team[],
   initialDepartments: Department[],
   initialEvents: Event[],
-  initialPendingEvents: PendingEvent[]
+  initialPendingEvents: PendingEvent[],
+  initialProjects: Project[],
+  initialVlogs: Vlog[],
+  initialPendingProjects: PendingProject[],
+  initialPendingVlogs: PendingVlog[]
 ) => {
   const { toast } = useToast();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
@@ -174,6 +181,14 @@ export const useAdminPage = (
     handleRejectEvent,
     loadingAction: eventRequestLoadingAction,
   } = useEventRequests(initialPendingEvents, calendarData.setAllEvents);
+  const projectData = useProjects(initialProjects);
+  const vlogData = useVlogs(initialVlogs);
+  const contentRequestData = useContentRequests(
+    initialPendingProjects,
+    initialPendingVlogs,
+    (project) => projectData.setProjects(prev => [project, ...prev]),
+    (vlog) => vlogData.setVlogs(prev => [vlog, ...prev])
+  );
 
   const handleRefreshData = useCallback(async () => {
     setLoadingAction("refresh");
@@ -306,6 +321,22 @@ export const useAdminPage = (
     [modal, departments]
   );
 
+  const projectForEdit = useMemo(
+    () =>
+      modal?.view === "EDIT_PROJECT"
+        ? projectData.projects.find((p) => p.id === modal.data!.id)
+        : null,
+    [modal, projectData.projects]
+  );
+
+  const vlogForEdit = useMemo(
+    () =>
+      modal?.view === "EDIT_VLOG"
+        ? vlogData.vlogs.find((v) => v.id === modal.data!.id)
+        : null,
+    [modal, vlogData.vlogs]
+  );
+
   return {
     pageActions: {
       handleRefreshData,
@@ -326,6 +357,8 @@ export const useAdminPage = (
       userForEdit,
       teamForEdit,
       departmentForEdit,
+      projectForEdit,
+      vlogForEdit,
     },
     userData: {
       users,
@@ -359,6 +392,9 @@ export const useAdminPage = (
       handleRejectEvent,
     },
     calendarData,
+    projectData,
+    vlogData,
+    contentRequestData,
     allUsers: users,
     allDepartments: departments,
   };

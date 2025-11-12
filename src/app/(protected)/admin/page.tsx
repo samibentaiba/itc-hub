@@ -131,16 +131,20 @@ export default async function AdminPage() {
     departmentsResponse,
     eventsResponse,
     pendingEventsResponse,
+    projectsResponse,
+    vlogsResponse,
   ] = await Promise.all([
     authenticatedFetch("/api/admin/users"),
     authenticatedFetch("/api/admin/teams"),
     authenticatedFetch("/api/admin/departments"),
     authenticatedFetch("/api/admin/events"),
     authenticatedFetch("/api/admin/events/requests"),
+    authenticatedFetch("/api/admin/projects"),
+    authenticatedFetch("/api/admin/vlogs"),
   ]);
 
   // Parse all responses with type safety
-  const [usersData, teamsData, departmentsData, eventsData, pendingEventsData] =
+  const [usersData, teamsData, departmentsData, eventsData, pendingEventsData, projectsData, vlogsData] =
     await Promise.all([
       usersResponse.ok
         ? (usersResponse.json() as Promise<ApiResponse<ApiUser>>)
@@ -157,6 +161,12 @@ export default async function AdminPage() {
       pendingEventsResponse.ok
         ? (pendingEventsResponse.json() as Promise<ApiResponse<ApiEvent>>)
         : Promise.resolve({ events: [] } as ApiResponse<ApiEvent>),
+      projectsResponse.ok
+        ? projectsResponse.json()
+        : Promise.resolve({ projects: [] }),
+      vlogsResponse.ok
+        ? vlogsResponse.json()
+        : Promise.resolve({ vlogs: [] }),
     ]);
 
   const users: ApiUser[] = usersData.users || [];
@@ -291,6 +301,20 @@ export default async function AdminPage() {
     submittedByType: ("user" as const),
   }));
 
+  // Transform projects and vlogs
+  const initialProjects = (projectsData.projects || []).map((p: any) => ({
+    ...p,
+    status: p.status || "published",
+  }));
+
+  const initialVlogs = (vlogsData.vlogs || []).map((v: any) => ({
+    ...v,
+    status: v.status || "published",
+  }));
+
+  const initialPendingProjects = initialProjects.filter((p: any) => p.status === "pending");
+  const initialPendingVlogs = initialVlogs.filter((v: any) => v.status === "pending");
+
   return (
     <AdminClientPage
       initialUsers={initialUsers}
@@ -298,6 +322,10 @@ export default async function AdminPage() {
       initialDepartments={initialDepartments}
       initialEvents={initialEvents}
       initialPendingEvents={initialPendingEvents}
+      initialProjects={initialProjects}
+      initialVlogs={initialVlogs}
+      initialPendingProjects={initialPendingProjects}
+      initialPendingVlogs={initialPendingVlogs}
     />
   );
 }
