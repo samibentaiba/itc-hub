@@ -531,33 +531,30 @@ function ThemeSwitcher() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           onClick={() => setTheme("light")}
-          className={`flex items-center ${
-            theme == "light"
+          className={`flex items-center ${theme == "light"
               ? "bg-sidebar-accent text-sidebar-accent-foreground"
               : ""
-          }`}
+            }`}
         >
           <Sun className="mr-2 h-4 w-4" />
           Light
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("dark")}
-          className={`flex items-center ${
-            theme == "dark"
+          className={`flex items-center ${theme == "dark"
               ? "bg-sidebar-accent text-sidebar-accent-foreground"
               : ""
-          }`}
+            }`}
         >
           <Moon className="mr-2 h-4 w-4" />
           Dark
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("system")}
-          className={`flex items-center ${
-            theme == "system"
+          className={`flex items-center ${theme == "system"
               ? "bg-sidebar-accent text-sidebar-accent-foreground"
               : ""
-          }`}
+            }`}
         >
           <Monitor className="mr-2 h-4 w-4" />
           System
@@ -606,27 +603,27 @@ function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const user =
     isAuthenticated && session?.user
       ? {
-          id: session.user.id || "u1",
-          name: session.user.name || "User",
-          email: session.user.email || "user@itc.com",
-          role:
-            (session.user.role as
-              | "admin"
-              | "super_leader"
-              | "leader"
-              | "member") || "member",
-          avatar:
-            session.user.avatar ||
-            session.user.image ||
-            "/placeholder.svg?height=32&width=32",
-        }
+        id: session.user.id || "u1",
+        name: session.user.name || "User",
+        email: session.user.email || "user@itc.com",
+        role:
+          (session.user.role as
+            | "admin"
+            | "super_leader"
+            | "leader"
+            | "member") || "member",
+        avatar:
+          session.user.avatar ||
+          session.user.image ||
+          "/placeholder.svg?height=32&width=32",
+      }
       : {
-          id: "u1",
-          name: "Guest",
-          email: "guest@itc.com",
-          role: "member" as const,
-          avatar: "/placeholder.svg?height=32&width=32",
-        };
+        id: "u1",
+        name: "Guest",
+        email: "guest@itc.com",
+        role: "member" as const,
+        avatar: "/placeholder.svg?height=32&width=32",
+      };
 
   const setWorkspace = (type: WorkspaceType, id?: string) => {
     setCurrentWorkspace(type);
@@ -727,12 +724,11 @@ function AppSidebar() {
                 <SidebarMenuButton
                   size="lg"
                   className={`data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground
-                    flex items-center ${
-                      pathname == "/profile" ||
+                    flex items-center ${pathname == "/profile" ||
                       pathname == "/settings" ||
                       pathname == "/admin"
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : ""
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : ""
                     }
                     `}
                 >
@@ -766,11 +762,10 @@ function AppSidebar() {
                 <DropdownMenuItem asChild>
                   <Link
                     href="/profile"
-                    className={`flex items-center ${
-                      pathname == "/profile"
+                    className={`flex items-center ${pathname == "/profile"
                         ? "bg-sidebar-accent text-sidebar-accent-foreground"
                         : ""
-                    }`}
+                      }`}
                   >
                     <UserRound className="mr-2 h-4 w-4" />
                     Profile
@@ -780,11 +775,10 @@ function AppSidebar() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/admin"
-                      className={`flex items-center ${
-                        pathname == "/admin"
+                      className={`flex items-center ${pathname == "/admin"
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
                           : ""
-                      }`}
+                        }`}
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       Admin
@@ -794,11 +788,10 @@ function AppSidebar() {
                 <DropdownMenuItem asChild>
                   <Link
                     href="/settings"
-                    className={`flex items-center ${
-                      pathname == "/settings"
+                    className={`flex items-center ${pathname == "/settings"
                         ? "bg-sidebar-accent text-sidebar-accent-foreground"
                         : ""
-                    }`}
+                      }`}
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
@@ -878,7 +871,7 @@ function Footer() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Legal pages</h3>
                 <ul className="space-y-2 text-sm">
-                  {pathname != "/about" &&(<li>
+                  {pathname != "/about" && (<li>
                     <Link
                       href="/about"
                       className="text-muted-foreground hover:text-primary transition-colors"
@@ -930,8 +923,8 @@ function Footer() {
                     >
                       Upcoming Events
                     </Link>
-                    </li>
-                  {pathname != "/vlogs" && (
+                  </li>
+                  {pathname?.startsWith("/vlogs") && (
                     <li>
                       <Link
                         href="/vlogs"
@@ -940,7 +933,7 @@ function Footer() {
                         Vlogs
                       </Link>
                     </li>)}
-                  {pathname != "p/rojects"  && (
+                  {pathname?.startsWith("/projects") && (
                     <li>
                       <Link
                         href="/projects"
@@ -949,7 +942,7 @@ function Footer() {
                         Projects
                       </Link>
                     </li>)}
-                  
+
                 </ul>
               </div>
               <div className="space-y-4">
@@ -985,3 +978,5 @@ function Footer() {
     </footer>
   );
 }
+
+

@@ -11,10 +11,12 @@
             "id": "ad64a990fc424967",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
+              "type": "excalidraw",
+              "state": {
+                "file": "Production.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Production.excalidraw"
             }
           }
         ]
@@ -74,8 +76,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "b4352cd9e4d07e44",
